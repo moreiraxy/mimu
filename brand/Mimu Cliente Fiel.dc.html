@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #EDEBE6; font-family: 'Nunito', sans-serif; display: flex; justify-content: center; padding: 24px; }
+    a { color: #FF6B5B; }
+    a:hover { color: #e85a4a; }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</helmet>
+
+<div style="width:375px; height:812px; background:#F7F6F3; border-radius:40px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(30,30,46,0.14);">
+
+  <!-- HEADER -->
+  <div style="display:flex; align-items:center; gap:12px; padding:18px 20px 12px; flex-shrink:0;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="#1E1E2E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+    <p style="font-size:16px; font-weight:800; color:#1E1E2E; margin:0;">Perfil do cliente</p>
+  </div>
+
+  <div style="flex:1; overflow-y:auto; padding:0 20px;">
+
+    <!-- PERFIL -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:10px; padding:8px 0 18px;">
+      <div style="background:#FF6B5B; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:#ffffff;">MG</div>
+      <p style="font-size:18px; font-weight:800; color:#1E1E2E; margin:0;">Maria das Graças</p>
+      <div style="background:#FDF0DD; color:#B9762A; font-size:12px; font-weight:700; border-radius:20px; padding:5px 12px; white-space:nowrap; width:fit-content; display:flex; align-items:center; gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#B9762A"><path d="M12 3.5 L14.4 9.6 L21 10.2 L16 14.3 L17.5 20.7 L12 17.2 L6.5 20.7 L8 14.3 L3 10.2 L9.6 9.6 Z"></path></svg>
+        Cliente Fiel
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div style="display:flex; align-items:center; background:#ffffff; border:0.5px solid #e4e1da; border-radius:16px; padding:16px 8px; margin-bottom:14px;">
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:17px; font-weight:800; color:#1E1E2E; margin:0;">3 anos</p>
+        <p style="font-size:11px; color:#9a9690; margin:3px 0 0;">de cliente</p>
+      </div>
+      <div style="width:0.5px; height:32px; background:#e4e1da;"></div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:17px; font-weight:800; color:#1E1E2E; margin:0;">47</p>
+        <p style="font-size:11px; color:#9a9690; margin:3px 0 0;">visitas</p>
+      </div>
+      <div style="width:0.5px; height:32px; background:#e4e1da;"></div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:17px; font-weight:800; color:#1E1E2E; margin:0;">R$ 4.820</p>
+        <p style="font-size:11px; color:#9a9690; margin:3px 0 0;">gasto total</p>
+      </div>
+    </div>
+
+    <!-- ULTIMO ATENDIMENTO -->
+    <div style="background:#FFF5F4; border-radius:16px; padding:16px; margin-bottom:14px;">
+      <p style="font-size:12px; font-weight:700; color:#FF6B5B; margin:0 0 8px;">Último atendimento: 15 dias atrás</p>
+      <p style="font-size:14px; font-weight:700; color:#1E1E2E; margin:0 0 4px;">Escova + hidratação — R$ 150</p>
+      <p style="font-size:12px; color:#9a9690; margin:0;">Frequência média: a cada 12 dias</p>
+    </div>
+
+    <!-- HISTORICO -->
+    <p style="font-size:14px; font-weight:700; color:#1E1E2E; margin:0 0 10px;">Histórico de visitas</p>
+    <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:16px; margin-bottom:14px; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:12px 16px; border-bottom:0.5px solid #ece9e3;">
+        <p style="font-size:13px; color:#1E1E2E; margin:0;">23 jul · Manicure</p>
+        <p style="font-size:13px; font-weight:700; color:#1E1E2E; margin:0;">R$ 80</p>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:12px 16px; border-bottom:0.5px solid #ece9e3;">
+        <p style="font-size:13px; color:#1E1E2E; margin:0;">10 jul · Escova</p>
+        <p style="font-size:13px; font-weight:700; color:#1E1E2E; margin:0;">R$ 60</p>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:12px 16px; border-bottom:0.5px solid #ece9e3;">
+        <p style="font-size:13px; color:#1E1E2E; margin:0;">28 jun · Coloração</p>
+        <p style="font-size:13px; font-weight:700; color:#1E1E2E; margin:0;">R$ 210</p>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:12px 16px;">
+        <p style="font-size:13px; color:#1E1E2E; margin:0;">15 jun · Manicure</p>
+        <p style="font-size:13px; font-weight:700; color:#1E1E2E; margin:0;">R$ 80</p>
+      </div>
+    </div>
+
+    <!-- OBSERVACOES -->
+    <div style="display:flex; gap:10px; background:#ffffff; border:0.5px solid #e4e1da; border-radius:16px; padding:14px; margin-bottom:16px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:2px;"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#9a9690" stroke-width="1.8"></rect><path d="M8 8 H16 M8 12 H16 M8 16 H12" stroke="#9a9690" stroke-width="1.6" stroke-linecap="round"></path></svg>
+      <p style="font-size:13px; color:#1E1E2E; line-height:1.5; margin:0;">Prefere produtos sem amônia. Aniversário em março. 🎂</p>
+    </div>
+
+  </div>
+
+  <!-- CTA -->
+  <div style="padding:10px 20px 20px; flex-shrink:0;">
+    <button style="width:100%; background:#FF6B5B; color:#ffffff; border:none; border-radius:14px; padding:15px; font-size:14px; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer;">Agendar novamente</button>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860}}"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #EDEBE6; font-family: 'Nunito', sans-serif; display: flex; justify-content: center; padding: 24px; }
+    a { color: #FF6B5B; }
+    a:hover { color: #e85a4a; }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</helmet>
+
+<div style="width:375px; height:812px; background:#F7F6F3; border-radius:40px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(30,30,46,0.14);">
+
+  <!-- HEADER -->
+  <div style="display:flex; align-items:center; gap:12px; padding:18px 16px 14px; border-bottom:0.5px solid #e4e1da; background:#F7F6F3; flex-shrink:0;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="#1E1E2E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+    <div style="background:#FF6B5B; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="20" height="15" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+    </div>
+    <div>
+      <p style="font-size:15px; font-weight:800; color:#1E1E2E; margin:0;">Mimu</p>
+      <p style="font-size:11px; color:#9a9690; margin:1px 0 0;">Assistente do seu negócio</p>
+    </div>
+  </div>
+
+  <!-- MENSAGENS -->
+  <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px;">
+
+    <div style="align-self:flex-end; max-width:78%; background:#FFF5F4; border:0.5px solid #FFD8D4; border-radius:16px 16px 4px 16px; padding:11px 14px;">
+      <p style="font-size:14px; color:#1E1E2E; margin:0; line-height:1.45;">quanto vendi essa semana?</p>
+    </div>
+
+    <div style="align-self:flex-start; max-width:82%; background:#ffffff; border:0.5px solid #e4e1da; border-radius:16px 16px 16px 4px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <p style="font-size:12px; color:#9a9690; margin:0;">Esta semana</p>
+        <span style="background:#E6F7EF; color:#2DBE8C; font-size:11px; font-weight:700; border-radius:20px; padding:3px 9px; display:inline-flex; align-items:center; gap:4px;">
+          +21%
+          <svg width="12" height="10" viewBox="0 0 24 20" fill="none" style="flex-shrink:0;"><path d="M2 16 L9 9 L13 12 L22 3" stroke="#2DBE8C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path><path d="M16 3 H22 V9" stroke="#2DBE8C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        </span>
+      </div>
+      <p style="font-size:22px; font-weight:800; color:#2DBE8C; margin:0 0 6px;">R$ 1.840</p>
+      <p style="font-size:12px; color:#9a9690; margin:0;">Semana passada: R$ 1.520</p>
+    </div>
+
+    <div style="align-self:flex-start; max-width:82%; background:#ffffff; border:0.5px solid #e4e1da; border-radius:16px 16px 16px 4px; padding:14px;">
+      <p style="font-size:14px; color:#1E1E2E; line-height:1.5; margin:0 0 12px;">Boa tarde! Você tem 2 agendamentos amanhã que ainda não têm pagamento registrado. Quer confirmar agora?</p>
+      <div style="display:flex; gap:8px;">
+        <button style="background:#FF6B5B; color:#ffffff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer;">Ver agendamentos</button>
+        <button style="background:#F7F6F3; color:#6f6b64; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer;">Agora não</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHIPS -->
+  <div style="display:flex; gap:8px; padding:0 16px 12px; overflow-x:auto; flex-shrink:0;">
+    <div style="background:#ffffff; border:0.5px solid #FFD8D4; border-radius:20px; padding:8px 14px; white-space:nowrap; font-size:12px; font-weight:600; color:#FF6B5B;">Quem me deve?</div>
+    <div style="background:#ffffff; border:0.5px solid #FFD8D4; border-radius:20px; padding:8px 14px; white-space:nowrap; font-size:12px; font-weight:600; color:#FF6B5B;">Meta do mês</div>
+    <div style="background:#ffffff; border:0.5px solid #FFD8D4; border-radius:20px; padding:8px 14px; white-space:nowrap; font-size:12px; font-weight:600; color:#FF6B5B;">Maiores gastos</div>
+    <div style="background:#ffffff; border:0.5px solid #FFD8D4; border-radius:20px; padding:8px 14px; white-space:nowrap; font-size:12px; font-weight:600; color:#FF6B5B;">Lucro da semana</div>
+  </div>
+
+  <!-- INPUT -->
+  <div style="display:flex; align-items:center; gap:10px; padding:10px 16px 20px; border-top:0.5px solid #e4e1da; background:#F7F6F3; flex-shrink:0;">
+    <div style="flex:1; display:flex; align-items:center; gap:8px; background:#ffffff; border:0.5px solid #e4e1da; border-radius:22px; padding:10px 14px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#9a9690" stroke-width="1.8"></rect><path d="M5 12 Q5 18 12 18 Q19 18 19 12 M12 18 V21" stroke="#9a9690" stroke-width="1.8" stroke-linecap="round" fill="none"></path></svg>
+      <p style="font-size:13px; color:#9a9690; margin:0;">Fala com a Mimu...</p>
+    </div>
+    <div style="background:#FF6B5B; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12 H19 M13 6 L19 12 L13 18" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860}}"></script>
+</body>
+</html>

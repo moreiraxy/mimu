@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #EDEBE6; font-family: 'Nunito', sans-serif; display: flex; justify-content: center; padding: 24px; }
+    a { color: #FF6B5B; }
+    a:hover { color: #e85a4a; }
+  </style>
+</helmet>
+
+<div style="width:375px; height:812px; background:#F7F6F3; border-radius:40px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(30,30,46,0.14);">
+
+  <div style="flex:1; overflow:hidden; padding:20px 20px 0; display:flex; flex-direction:column;">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+      <div>
+        <p style="font-size:18px; font-weight:800; color:#1E1E2E; margin:0; white-space:nowrap;">Bom dia, Andréia 👋</p>
+        <p style="font-size:13px; color:#9a9690; margin:3px 0 0;">Terça, 05 de agosto</p>
+      </div>
+      <div style="background:#FF6B5B; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="22" height="17" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+      </div>
+    </div>
+
+    <!-- STATUS CARD -->
+    <div style="background:#FF6B5B; border-radius:18px; padding:16px; margin-bottom:10px;">
+      <p style="font-size:12px; color:rgba(255,255,255,0.85); margin:0 0 5px; display:flex; align-items:center; gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M4 13 L9 18 L20 6" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        Ótimo dia!
+      </p>
+      <p style="font-size:14px; font-weight:600; color:#ffffff; margin:0 0 12px;">Você já alcançou 82% da sua meta.</p>
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.7); margin:0;">Realizado</p>
+          <p style="font-size:20px; font-weight:800; color:#ffffff; margin:2px 0 0;">R$ 410</p>
+        </div>
+        <div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.7); margin:0;">Previsto</p>
+          <p style="font-size:20px; font-weight:800; color:#ffffff; margin:2px 0 0;">R$ 90</p>
+        </div>
+        <div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.7); margin:0;">Meta</p>
+          <p style="font-size:20px; font-weight:800; color:#ffffff; margin:2px 0 0;">R$ 500</p>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.28); border-radius:6px; height:6px; width:100%; overflow:hidden;">
+        <div style="background:#ffffff; height:100%; width:82%; border-radius:6px;"></div>
+      </div>
+    </div>
+
+    <!-- RECEBER / PAGAR -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+      <div style="background:#ffffff; border-radius:14px; padding:13px; border:0.5px solid #e4e1da;">
+        <p style="font-size:12px; color:#9a9690; margin:0 0 5px;">A receber</p>
+        <p style="font-size:18px; font-weight:800; color:#2DBE8C; margin:0;">R$ 240</p>
+      </div>
+      <div style="background:#ffffff; border-radius:14px; padding:13px; border:0.5px solid #e4e1da;">
+        <p style="font-size:12px; color:#9a9690; margin:0 0 5px;">A pagar</p>
+        <p style="font-size:18px; font-weight:800; color:#F4A653; margin:0;">R$ 180</p>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div style="background:#ffffff; border-radius:14px; padding:14px; margin-bottom:10px; border:0.5px solid #e4e1da;">
+      <p style="font-size:13px; font-weight:700; color:#1E1E2E; margin:0 0 10px;">Agenda de hoje</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:7px; height:7px; border-radius:50%; background:#2DBE8C; flex-shrink:0;"></div>
+            <p style="font-size:14px; color:#1E1E2E; margin:0;">Maria — Escova</p>
+          </div>
+          <p style="font-size:12px; color:#9a9690; margin:0;">14h · R$ 120</p>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:7px; height:7px; border-radius:50%; background:#F4A653; flex-shrink:0;"></div>
+            <p style="font-size:14px; color:#1E1E2E; margin:0;">Carol — Manicure</p>
+          </div>
+          <p style="font-size:12px; color:#9a9690; margin:0;">16h · R$ 90</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <button style="background:#FF6B5B; color:#ffffff; border:none; border-radius:12px; padding:12px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer;">＋ Nova venda</button>
+      <button style="background:#ffffff; color:#FF6B5B; border:1.5px solid #FF6B5B; border-radius:12px; padding:12px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer;">💬 Falar com a Mimu</button>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div style="display:flex; justify-content:space-around; align-items:center; padding:8px 8px 14px; border-top:0.5px solid #e4e1da; background:#ffffff; flex-shrink:0;">
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11 L12 4 L20 11 V19 Q20 20 19 20 H5 Q4 20 4 19 Z" stroke="#FF6B5B" stroke-width="2" stroke-linejoin="round" fill="none"></path></svg>
+      <p style="font-size:10px; font-weight:700; color:#FF6B5B; margin:0;">Home</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="3" stroke="#9a9690" stroke-width="2"></rect><path d="M4 10 H20" stroke="#9a9690" stroke-width="2"></path></svg>
+      <p style="font-size:10px; color:#9a9690; margin:0;">Agenda</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#9a9690" stroke-width="2"></circle><path d="M12 8 V16 M9.5 10 Q9.5 8 12 8 Q14.5 8 14.5 9.5 Q14.5 11 12 12 Q9.5 13 9.5 14.5 Q9.5 16 12 16 Q14.5 16 14.5 14" stroke="#9a9690" stroke-width="1.6" stroke-linecap="round" fill="none"></path></svg>
+      <p style="font-size:10px; color:#9a9690; margin:0;">Financeiro</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#9a9690" stroke-width="2"></circle><path d="M4 20 Q4 14 12 14 Q20 14 20 20" stroke="#9a9690" stroke-width="2" stroke-linecap="round" fill="none"></path></svg>
+      <p style="font-size:10px; color:#9a9690; margin:0;">Clientes</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <svg width="18" height="14" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="#9a9690" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+      <p style="font-size:10px; color:#9a9690; margin:0;">Mimu</p>
+    </div>
+
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860}}"></script>
+</body>
+</html>

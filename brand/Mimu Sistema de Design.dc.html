@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'Nunito', sans-serif; }
+    a { color: #FF6B5B; }
+    a:hover { color: #e85a4a; }
+  </style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+  <section data-label="Capa" data-speaker-notes="Abertura: apresentar o sistema de marca da Mimu." style="background:#FF6B5B; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:32px; text-align:center;">
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div style="background:rgba(255,255,255,0.16); border-radius:26px; width:96px; height:96px; display:flex; align-items:center; justify-content:center;">
+        <svg width="56" height="42" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+      </div>
+      <p style="font-size:64px; font-weight:800; color:#fff; margin:0; letter-spacing:-1px;">mimu</p>
+    </div>
+    <p style="font-size:18px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.85); margin:0;">Sistema de marca</p>
+    <p style="font-size:32px; font-weight:600; color:#fff; max-width:900px; line-height:1.4; margin:0;">"Enquanto você trabalha, a Mimu cuida do seu negócio."</p>
+  </section>
+
+  <section data-label="Sobre a marca" data-speaker-notes="Explicar o racional por trás do tom e da personalidade da Mimu." style="background:#F7F6F3; display:flex; align-items:center; padding:100px 120px; gap:100px;">
+    <div style="flex:1.1;">
+      <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 20px;">01 — Sobre a marca</p>
+      <p style="font-size:42px; font-weight:800; color:#1E1E2E; line-height:1.25; margin:0 0 28px;">Uma amiga que entende do seu negócio.</p>
+      <p style="font-size:19px; line-height:1.7; color:#1E1E2E; max-width:680px; margin:0 0 20px;">A Mimu é a assistente de IA de um app de gestão para microempreendedores de bairro — salões, barbearias, mercadinhos, lanchonetes. Ela é tratada no feminino, registra vendas, lembra prazos e comemora conquistas.</p>
+      <p style="font-size:19px; line-height:1.7; color:#1E1E2E; max-width:680px; margin:0;">Toda a construção visual parte dessa personalidade: nunca corporativa, nunca fria. Curvas suaves no lugar de ângulos retos, cores quentes no lugar de tons neutros, e uma linguagem que soa como conversa, não como sistema.</p>
+    </div>
+    <div style="flex:0.9; display:flex; justify-content:center;">
+      <div style="background:#FF6B5B; border-radius:64px; width:280px; height:280px; display:flex; align-items:center; justify-content:center;">
+        <svg width="160" height="120" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Logo" data-speaker-notes="A letra M vira duas curvas conectadas — leitura de abraço, de proximidade." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">02 — Logo e construção</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 36px;">Duas curvas, um traço só.</p>
+    <div style="display:flex; gap:60px; align-items:center; flex:1;">
+      <div style="flex:0.9; display:flex; flex-direction:column; gap:20px;">
+        <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:24px; padding:40px; display:flex; align-items:center; justify-content:center;">
+          <div style="background:#FF6B5B; border-radius:26px; width:140px; height:140px; display:flex; align-items:center; justify-content:center;">
+            <svg width="80" height="60" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+          </div>
+        </div>
+        <p style="font-size:16px; line-height:1.6; color:#1E1E2E; margin:0;">O "M" é desenhado como duas curvas suaves conectadas por um vértice central — sem cantos retos, com o mesmo traço arredondado (stroke-linecap) usado em toda a interface. A leitura lembra duas mãos se encontrando: proximidade, não tecnologia.</p>
+      </div>
+      <div style="flex:1.1; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:18px; padding:28px; display:flex; flex-direction:column; align-items:center; gap:14px;">
+          <div style="background:#FF6B5B; border-radius:16px; width:64px; height:64px; display:flex; align-items:center; justify-content:center;"><svg width="36" height="27" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg></div>
+          <p style="font-size:13px; color:#9a9690; margin:0;">Ícone só</p>
+        </div>
+        <div style="background:#1E1E2E; border-radius:18px; padding:28px; display:flex; flex-direction:column; align-items:center; gap:14px;">
+          <p style="font-size:26px; font-weight:800; color:#fff; margin:0;">mimu</p>
+          <p style="font-size:13px; color:rgba(255,255,255,0.55); margin:0;">Fundo escuro</p>
+        </div>
+        <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:18px; padding:28px; display:flex; flex-direction:column; align-items:center; gap:14px;">
+          <p style="font-size:26px; font-weight:800; color:#FF6B5B; margin:0;">mimu</p>
+          <p style="font-size:13px; color:#9a9690; margin:0;">Fundo branco</p>
+        </div>
+        <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:18px; padding:28px; display:flex; align-items:center; gap:14px;">
+          <div style="background:#FF6B5B; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="22" height="17" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg></div>
+          <div><p style="font-size:20px; font-weight:800; color:#FF6B5B; margin:0;">mimu</p><p style="font-size:11px; color:#9a9690; margin:0;">horizontal</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Paleta" data-speaker-notes="Cada cor tem um papel funcional claro, não é decorativa." style="background:#F7F6F3; padding:90px 120px;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">03 — Paleta de cores</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 40px;">Cor com função, não decoração.</p>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#FF6B5B; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Coral Mimu · #FF6B5B</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Cor principal. CTAs, ícone, destaques e todo contato direto com a Mimu.</p>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#2DBE8C; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Verde entrada · #2DBE8C</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Entradas e sucesso — sempre associado a dinheiro que entra ou meta batida.</p>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#F4A653; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Âmbar atenção · #F4A653</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Pendências e alertas leves — nunca erro grave, só um lembrete gentil.</p>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#1E1E2E; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Escuro · #1E1E2E</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Texto principal e modo escuro. Nunca preto puro — mantém o calor da marca.</p>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#F7F6F3; border:0.5px solid #e4e1da; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Fundo neutro · #F7F6F3</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Base de todas as telas do app — leve, quente, nunca branco frio.</p>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:20px; padding:28px;">
+        <div style="width:100%; height:80px; background:#FFF5F4; border:0.5px solid #FFD8D4; border-radius:14px; margin-bottom:18px;"></div>
+        <p style="font-size:18px; font-weight:700; color:#1E1E2E; margin:0;">Coral claro · #FFF5F4</p>
+        <p style="font-size:14px; color:#9a9690; margin:10px 0 0; line-height:1.5;">Tint de apoio para cards e destaques suaves, sem competir com o coral.</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Tipografia" data-speaker-notes="Nunito foi escolhida pela combinação de peso e curvas amigáveis." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">04 — Tipografia</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 40px;">Nunito — arredondada e acessível.</p>
+    <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:24px; padding:56px; display:grid; grid-template-columns:1.1fr 1fr; gap:60px;">
+      <div>
+        <p style="font-size:14px; color:#9a9690; margin:0 0 14px;">Display — 40px / peso 800 / coral</p>
+        <p style="font-size:52px; font-weight:800; color:#FF6B5B; letter-spacing:-1px; line-height:1.15; margin:0;">Seu negócio,<br>organizado.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:28px; justify-content:center;">
+        <div><p style="font-size:13px; color:#9a9690; margin:0 0 6px;">Heading — 20px / peso 600</p><p style="font-size:26px; font-weight:600; color:#1E1E2E; margin:0;">Faturamento de hoje</p></div>
+        <div><p style="font-size:13px; color:#9a9690; margin:0 0 6px;">Body — 15px / peso 400</p><p style="font-size:20px; color:#1E1E2E; line-height:1.5; margin:0;">A Mimu registrou sua entrada automaticamente.</p></div>
+        <div><p style="font-size:13px; color:#9a9690; margin:0 0 6px;">Caption — 12px / peso 400</p><p style="font-size:16px; color:#6f6b64; margin:0;">Última atualização: agora mesmo</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Tom de voz" data-speaker-notes="A voz é o que diferencia a Mimu de qualquer painel financeiro comum." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">05 — Tom de voz</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 40px;">Como uma amiga, nunca como um sistema.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-left:5px solid #FF6B5B; border-radius:0 20px 20px 0; padding:36px;">
+        <p style="font-size:16px; font-weight:700; color:#FF6B5B; margin:0 0 20px;">A Mimu fala assim</p>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <p style="font-size:19px; color:#1E1E2E; margin:0;">"Boa tarde! Você ainda não registrou nenhuma venda hoje. Quer atualizar?"</p>
+          <p style="font-size:19px; color:#1E1E2E; margin:0;">"Parabéns, Andréia! Você bateu seu recorde de vendas."</p>
+          <p style="font-size:19px; color:#1E1E2E; margin:0;">"Faltam R$ 80 para bater sua meta de hoje. Vai lá!"</p>
+        </div>
+      </div>
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-left:5px solid #d8d4cc; border-radius:0 20px 20px 0; padding:36px;">
+        <p style="font-size:16px; font-weight:700; color:#6f6b64; margin:0 0 20px;">A Mimu nunca fala assim</p>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <p style="font-size:19px; color:#9a9690; text-decoration:line-through; margin:0;">"Ops! Nenhuma transação encontrada no banco de dados."</p>
+          <p style="font-size:19px; color:#9a9690; text-decoration:line-through; margin:0;">"Utilize o módulo financeiro para registrar entradas."</p>
+          <p style="font-size:19px; color:#9a9690; text-decoration:line-through; margin:0;">"Erro 404. Contate o suporte."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Ícone iOS / PWA" data-speaker-notes="No iOS e como PWA, o ícone é entregue já com a máscara arredondada — sem camadas." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">06 — Ícone do app · iOS &amp; PWA</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 40px;">Um único quadrado, cantos já resolvidos.</p>
+    <div style="display:flex; gap:80px; align-items:center;">
+      <div style="background:#FF6B5B; border-radius:88px; width:280px; height:280px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 20px 44px rgba(255,107,91,0.28);">
+        <svg width="150" height="114" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+      </div>
+      <div style="max-width:700px;">
+        <p style="font-size:19px; line-height:1.7; color:#1E1E2E; margin:0 0 16px;">iOS e PWA usam um ícone único de <strong>512×512px</strong>, fundo coral cheio e o "M" branco centralizado — o próprio sistema operacional aplica o arredondamento dos cantos (squircle). Nenhuma máscara extra é exportada pela marca.</p>
+        <p style="font-size:16px; color:#9a9690; margin:0;">Exportar em PNG sem transparência, com margem interna de respiro equivalente a 10% da largura do ícone.</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Ícone Android" data-speaker-notes="Android usa adaptive icon: duas camadas, background e foreground, mascaradas pelo launcher do usuário." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">07 — Ícone do app · versão Android</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 16px;">Adaptive icon: duas camadas, qualquer máscara.</p>
+    <p style="font-size:18px; line-height:1.7; color:#1E1E2E; max-width:1000px; margin:0 0 44px;">O Android não usa um ícone fechado — ele monta o ícone em tempo real a partir de duas camadas (background + foreground) e aplica a máscara do launcher do aparelho (círculo, squircle, cantos arredondados ou gota). Por isso o "M" fica isolado numa área de segurança central, longe das bordas.</p>
+    <div style="display:flex; gap:56px; align-items:flex-start;">
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div style="width:200px; height:200px; background:#FF6B5B; display:flex; align-items:center; justify-content:center; position:relative;">
+          <div style="position:absolute; inset:0; border:1.5px dashed rgba(255,255,255,0.5);"></div>
+          <svg width="88" height="66" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        </div>
+        <p style="font-size:13px; color:#9a9690; margin:0; text-align:center;">Camadas<br>background + foreground</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div style="width:200px; height:200px; background:#FF6B5B; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+          <svg width="88" height="66" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        </div>
+        <p style="font-size:13px; color:#9a9690; margin:0;">Máscara circular</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div style="width:200px; height:200px; background:#FF6B5B; border-radius:44px; display:flex; align-items:center; justify-content:center;">
+          <svg width="88" height="66" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        </div>
+        <p style="font-size:13px; color:#9a9690; margin:0;">Máscara squircle</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+        <div style="width:200px; height:200px; background:#FF6B5B; border-radius:24px; display:flex; align-items:center; justify-content:center;">
+          <svg width="88" height="66" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+        </div>
+        <p style="font-size:13px; color:#9a9690; margin:0;">Cantos arredondados</p>
+      </div>
+
+    </div>
+    <p style="font-size:14px; color:#9a9690; margin:36px 0 0;">Tela base: 108×108dp · área de segurança do foreground: 66×66dp central.</p>
+  </section>
+
+  <section data-label="Telas do app" data-speaker-notes="Aplicação real do sistema nas telas de produto: dashboard, chat, faturamento, cliente e registro rápido." style="background:#F7F6F3; padding:80px 100px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">08 — Aplicação nas telas</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 36px;">O sistema em uso, tela a tela.</p>
+    <div style="display:flex; gap:18px; justify-content:center;">
+
+      <!-- DASHBOARD -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="width:196px; height:426px; background:#F7F6F3; border:5px solid #1E1E2E; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="flex:1; padding:14px 11px 0; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div><p style="font-size:9px; color:#9a9690; margin:0;">Bom dia,</p><p style="font-size:11px; font-weight:800; color:#1E1E2E; margin:1px 0 0;">Andréia</p></div>
+              <div style="background:#FF6B5B; border-radius:6px; width:18px; height:18px;"></div>
+            </div>
+            <div style="background:#FF6B5B; border-radius:11px; padding:9px;">
+              <p style="font-size:7px; color:rgba(255,255,255,0.85); margin:0 0 3px;">Ótimo dia!</p>
+              <p style="font-size:8px; color:#fff; margin:0 0 7px;">82% da meta.</p>
+              <div style="display:flex; justify-content:space-between; margin-bottom:7px;">
+                <div><p style="font-size:6px; color:rgba(255,255,255,0.7); margin:0;">Realizado</p><p style="font-size:10px; font-weight:800; color:#fff; margin:0;">R$410</p></div>
+                <div><p style="font-size:6px; color:rgba(255,255,255,0.7); margin:0;">Meta</p><p style="font-size:10px; font-weight:800; color:#fff; margin:0;">R$500</p></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.28); border-radius:4px; height:3px; width:100%;"><div style="background:#fff; height:100%; width:82%; border-radius:4px;"></div></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+              <div style="background:#fff; border-radius:7px; padding:6px; border:0.5px solid #e4e1da;"><p style="font-size:6px; color:#9a9690; margin:0;">A receber</p><p style="font-size:9px; font-weight:800; color:#2DBE8C; margin:0;">R$240</p></div>
+              <div style="background:#fff; border-radius:7px; padding:6px; border:0.5px solid #e4e1da;"><p style="font-size:6px; color:#9a9690; margin:0;">A pagar</p><p style="font-size:9px; font-weight:800; color:#F4A653; margin:0;">R$180</p></div>
+            </div>
+            <div style="background:#fff; border-radius:7px; padding:7px; border:0.5px solid #e4e1da;">
+              <p style="font-size:7px; font-weight:700; color:#1E1E2E; margin:0 0 5px;">Agenda de hoje</p>
+              <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><div style="display:flex; align-items:center; gap:3px;"><div style="width:3px; height:3px; border-radius:50%; background:#2DBE8C;"></div><p style="font-size:6.5px; color:#1E1E2E; margin:0;">Maria</p></div><p style="font-size:6px; color:#9a9690; margin:0;">14h</p></div>
+              <div style="display:flex; justify-content:space-between;"><div style="display:flex; align-items:center; gap:3px;"><div style="width:3px; height:3px; border-radius:50%; background:#F4A653;"></div><p style="font-size:6.5px; color:#1E1E2E; margin:0;">Carol</p></div><p style="font-size:6px; color:#9a9690; margin:0;">16h</p></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+              <div style="background:#FF6B5B; border-radius:7px; padding:6px; text-align:center;"><p style="font-size:6.5px; font-weight:700; color:#fff; margin:0;">+ Venda</p></div>
+              <div style="background:#fff; border:1px solid #FF6B5B; border-radius:7px; padding:6px; text-align:center;"><p style="font-size:6.5px; font-weight:700; color:#FF6B5B; margin:0;">Falar</p></div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-around; padding:6px 0 8px; border-top:0.5px solid #e4e1da; background:#fff;">
+            <div style="width:10px; height:10px; border-radius:2px; background:#FF6B5B;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#9a9690; margin:0;">Dashboard</p>
+      </div>
+
+      <!-- CHAT -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="width:196px; height:426px; background:#F7F6F3; border:5px solid #1E1E2E; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:6px; padding:10px 11px; border-bottom:0.5px solid #e4e1da; background:#F7F6F3;">
+            <div style="background:#FF6B5B; border-radius:50%; width:16px; height:16px;"></div>
+            <div><p style="font-size:9px; font-weight:800; color:#1E1E2E; margin:0;">Mimu</p><p style="font-size:6px; color:#9a9690; margin:0;">Assistente</p></div>
+          </div>
+          <div style="flex:1; padding:9px 10px; display:flex; flex-direction:column; gap:7px;">
+            <div style="align-self:flex-end; max-width:78%; background:#FFF5F4; border:0.5px solid #FFD8D4; border-radius:8px 8px 2px 8px; padding:6px 8px;"><p style="font-size:6.5px; color:#1E1E2E; margin:0;">quanto vendi essa semana?</p></div>
+            <div style="align-self:flex-start; max-width:85%; background:#fff; border:0.5px solid #e4e1da; border-radius:8px 8px 8px 2px; padding:8px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><p style="font-size:6px; color:#9a9690; margin:0;">Esta semana</p><span style="background:#E6F7EF; color:#2DBE8C; font-size:5.5px; font-weight:700; border-radius:8px; padding:1px 4px;">+21%</span></div>
+              <p style="font-size:11px; font-weight:800; color:#2DBE8C; margin:0 0 3px;">R$ 1.840</p>
+              <p style="font-size:6px; color:#9a9690; margin:0;">Semana passada: R$1.520</p>
+            </div>
+            <div style="align-self:flex-start; max-width:85%; background:#fff; border:0.5px solid #e4e1da; border-radius:8px 8px 8px 2px; padding:8px;">
+              <p style="font-size:6.5px; color:#1E1E2E; line-height:1.4; margin:0 0 5px;">2 agendamentos sem pagamento. Confirmar?</p>
+              <div style="display:flex; gap:4px;"><div style="background:#FF6B5B; border-radius:5px; padding:3px 6px;"><p style="font-size:5.5px; font-weight:700; color:#fff; margin:0;">Ver</p></div><div style="background:#F7F6F3; border-radius:5px; padding:3px 6px;"><p style="font-size:5.5px; font-weight:700; color:#6f6b64; margin:0;">Agora não</p></div></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:4px; padding:0 10px 8px; overflow:hidden;">
+            <div style="background:#fff; border:0.5px solid #FFD8D4; border-radius:10px; padding:4px 7px; font-size:5.5px; font-weight:600; color:#FF6B5B; white-space:nowrap;">Quem me deve?</div>
+            <div style="background:#fff; border:0.5px solid #FFD8D4; border-radius:10px; padding:4px 7px; font-size:5.5px; font-weight:600; color:#FF6B5B; white-space:nowrap;">Meta do mês</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px; padding:6px 10px 10px; border-top:0.5px solid #e4e1da;">
+            <div style="flex:1; background:#fff; border:0.5px solid #e4e1da; border-radius:10px; padding:5px 8px;"><p style="font-size:6px; color:#9a9690; margin:0;">Fala com a Mimu...</p></div>
+            <div style="background:#FF6B5B; border-radius:50%; width:16px; height:16px;"></div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#9a9690; margin:0;">Chat</p>
+      </div>
+
+      <!-- FATURAMENTO -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="width:196px; height:426px; background:#F7F6F3; border:5px solid #1E1E2E; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="flex:1; padding:14px 11px 0; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><p style="font-size:11px; font-weight:800; color:#1E1E2E; margin:0;">Faturamento</p><div style="background:#FF6B5B; border-radius:8px; padding:2px 6px;"><p style="font-size:6px; font-weight:700; color:#fff; margin:0;">Semana</p></div></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+              <div style="background:#E6F7EF; border-radius:7px; padding:7px;"><p style="font-size:6px; color:#2DBE8C; font-weight:700; margin:0 0 2px;">Realizado</p><p style="font-size:9px; font-weight:800; color:#1E1E2E; margin:0;">R$1.840</p></div>
+              <div style="background:#FFF5F4; border:1px dashed #FFAFA3; border-radius:7px; padding:7px;"><p style="font-size:6px; color:#FF6B5B; font-weight:700; margin:0 0 2px;">Previsto</p><p style="font-size:9px; font-weight:800; color:#1E1E2E; margin:0;">R$350</p></div>
+            </div>
+            <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:7px; padding:8px 6px; display:flex; align-items:flex-end; justify-content:space-between; gap:2px; height:48px;">
+              <div style="width:6px; height:22px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:16px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:30px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:14px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:26px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:32px; background:#2DBE8C; border-radius:2px;"></div>
+              <div style="width:6px; height:28px; background:#2DBE8C; border-radius:2px;"></div>
+            </div>
+            <p style="font-size:7px; font-weight:700; color:#1E1E2E; margin:0;">Próximos agendamentos</p>
+            <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:7px; padding:6px 8px; display:flex; align-items:center; gap:5px;"><div style="background:#FFF5F4; color:#FF6B5B; border-radius:50%; width:14px; height:14px; font-size:5px; font-weight:800; display:flex; align-items:center; justify-content:center;">AN</div><p style="font-size:6.5px; color:#1E1E2E; flex:1; margin:0;">Ana</p><p style="font-size:6.5px; font-weight:700; color:#FF6B5B; margin:0;">R$180</p></div>
+            <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:7px; padding:6px 8px; display:flex; align-items:center; gap:5px;"><div style="background:#FFF5F4; color:#FF6B5B; border-radius:50%; width:14px; height:14px; font-size:5px; font-weight:800; display:flex; align-items:center; justify-content:center;">JU</div><p style="font-size:6.5px; color:#1E1E2E; flex:1; margin:0;">Júlia</p><p style="font-size:6.5px; font-weight:700; color:#FF6B5B; margin:0;">R$90</p></div>
+          </div>
+          <div style="display:flex; justify-content:space-around; padding:6px 0 8px; border-top:0.5px solid #e4e1da; background:#fff;">
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#FF6B5B;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+            <div style="width:10px; height:10px; border-radius:2px; background:#e4e1da;"></div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#9a9690; margin:0;">Faturamento</p>
+      </div>
+
+      <!-- CLIENTE FIEL -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="width:196px; height:426px; background:#F7F6F3; border:5px solid #1E1E2E; border-radius:22px; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:6px; padding:10px 11px;"><p style="font-size:9px; font-weight:800; color:#1E1E2E; margin:0;">‹ Perfil do cliente</p></div>
+          <div style="flex:1; padding:0 11px; display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:2px 0 8px;">
+              <div style="background:#FF6B5B; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff;">MG</div>
+              <p style="font-size:9px; font-weight:800; color:#1E1E2E; margin:0;">Maria das Graças</p>
+              <div style="background:#FDF0DD; color:#B9762A; font-size:6px; font-weight:700; border-radius:10px; padding:2px 7px; white-space:nowrap;">Cliente Fiel</div>
+            </div>
+            <div style="display:flex; background:#fff; border:0.5px solid #e4e1da; border-radius:7px; padding:8px 4px;">
+              <div style="flex:1; text-align:center;"><p style="font-size:8px; font-weight:800; color:#1E1E2E; margin:0;">3 anos</p><p style="font-size:5px; color:#9a9690; margin:0;">cliente</p></div>
+              <div style="width:0.5px; background:#e4e1da;"></div>
+              <div style="flex:1; text-align:center;"><p style="font-size:8px; font-weight:800; color:#1E1E2E; margin:0;">47</p><p style="font-size:5px; color:#9a9690; margin:0;">visitas</p></div>
+              <div style="width:0.5px; background:#e4e1da;"></div>
+              <div style="flex:1; text-align:center;"><p style="font-size:8px; font-weight:800; color:#1E1E2E; margin:0;">R$4.820</p><p style="font-size:5px; color:#9a9690; margin:0;">total</p></div>
+            </div>
+            <div style="background:#FFF5F4; border-radius:7px; padding:8px;"><p style="font-size:6px; font-weight:700; color:#FF6B5B; margin:0 0 3px;">Há 15 dias</p><p style="font-size:7px; font-weight:700; color:#1E1E2E; margin:0;">Escova + hidratação — R$150</p></div>
+            <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:7px; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; padding:5px 8px; border-bottom:0.5px solid #ece9e3;"><p style="font-size:6px; color:#1E1E2E; margin:0;">23 jul · Manicure</p><p style="font-size:6px; font-weight:700; margin:0;">R$80</p></div>
+              <div style="display:flex; justify-content:space-between; padding:5px 8px;"><p style="font-size:6px; color:#1E1E2E; margin:0;">10 jul · Escova</p><p style="font-size:6px; font-weight:700; margin:0;">R$60</p></div>
+            </div>
+          </div>
+          <div style="padding:8px 11px 12px;"><div style="background:#FF6B5B; border-radius:9px; padding:8px; text-align:center;"><p style="font-size:7px; font-weight:700; color:#fff; margin:0;">Agendar novamente</p></div></div>
+        </div>
+        <p style="font-size:11px; color:#9a9690; margin:0;">Cliente Fiel</p>
+      </div>
+
+      <!-- NOVA ENTRADA -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="width:196px; height:426px; border-radius:22px; overflow:hidden; position:relative; background:#F7F6F3;">
+          <div style="position:absolute; inset:0; background:rgba(30,30,46,0.55);"></div>
+          <div style="position:absolute; left:0; right:0; bottom:0; height:340px; background:#fff; border-radius:16px 16px 0 0; display:flex; flex-direction:column; padding:8px 12px 12px; gap:6px;">
+            <div style="align-self:center; width:20px; height:2.5px; border-radius:2px; background:#d8d4cc;"></div>
+            <p style="font-size:8px; font-weight:800; color:#1E1E2E; text-align:center; margin:2px 0 4px;">Nova entrada</p>
+            <p style="font-size:18px; font-weight:800; color:#FF6B5B; text-align:center; margin:0 0 8px;">R$ 0,00</p>
+            <p style="font-size:6px; font-weight:700; color:#9a9690; margin:0 0 3px;">Cliente (opcional)</p>
+            <div style="background:#F7F6F3; border:0.5px solid #e4e1da; border-radius:6px; padding:5px 7px; margin-bottom:5px;"><p style="font-size:6px; color:#9a9690; margin:0;">Buscar cliente...</p></div>
+            <div style="display:flex; gap:6px; margin-bottom:6px;">
+              <div style="background:#FF6B5B; border-radius:50%; width:16px; height:16px;"></div>
+              <div style="background:#2DBE8C; border-radius:50%; width:16px; height:16px;"></div>
+              <div style="background:#F4A653; border-radius:50%; width:16px; height:16px;"></div>
+            </div>
+            <p style="font-size:6px; font-weight:700; color:#9a9690; margin:0 0 3px;">Forma de pagamento</p>
+            <div style="display:flex; gap:4px; margin-bottom:8px;">
+              <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:8px; padding:3px 6px; font-size:5.5px; font-weight:700; color:#1E1E2E;">Dinheiro</div>
+              <div style="background:#FF6B5B; border-radius:8px; padding:3px 6px; font-size:5.5px; font-weight:700; color:#fff;">Pix</div>
+              <div style="background:#fff; border:0.5px solid #e4e1da; border-radius:8px; padding:3px 6px; font-size:5.5px; font-weight:700; color:#1E1E2E;">Débito</div>
+            </div>
+            <div style="background:#FF6B5B; border-radius:9px; padding:8px; text-align:center;"><p style="font-size:7px; font-weight:700; color:#fff; margin:0;">Confirmar entrada</p></div>
+          </div>
+        </div>
+        <p style="font-size:11px; color:#9a9690; margin:0;">Nova entrada</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section data-label="Componentes" data-speaker-notes="Uma base de componentes consistente garante que qualquer tela nova já nasça com a cara da Mimu." style="background:#F7F6F3; padding:90px 120px; display:flex; flex-direction:column; justify-content:center;">
+    <p style="font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9a9690; margin:0 0 12px;">09 — Componentes</p>
+    <p style="font-size:34px; font-weight:800; color:#1E1E2E; margin:0 0 36px;">Blocos reutilizáveis, uma só linguagem.</p>
+    <div style="display:flex; gap:14px; margin-bottom:24px; flex-wrap:wrap;">
+      <button style="height:52px; padding:0 26px; background:#FF6B5B; color:#fff; border:none; border-radius:14px; font-size:16px; font-weight:700; font-family:'Nunito',sans-serif;">Nova venda</button>
+      <button style="height:52px; padding:0 26px; background:#fff; color:#FF6B5B; border:2px solid #FF6B5B; border-radius:14px; font-size:16px; font-weight:700; font-family:'Nunito',sans-serif;">Ver histórico</button>
+      <div style="height:52px; padding:0 20px; background:#FDF0DD; color:#B9762A; border-radius:14px; display:flex; align-items:center; font-size:15px; font-weight:700;">Cliente Fiel</div>
+      <div style="height:52px; padding:0 20px; background:#E6F7EF; color:#1c7a54; border-radius:14px; display:flex; align-items:center; font-size:15px; font-weight:700;">Novo</div>
+      <div style="height:52px; padding:0 20px; background:#FDEAEA; color:#C2453F; border-radius:14px; display:flex; align-items:center; font-size:15px; font-weight:700;">Atrasado</div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+      <div style="background:#ffffff; border:0.5px solid #e4e1da; border-radius:18px; padding:22px;"><p style="font-size:13px; color:#9a9690; margin:0 0 8px;">Faturamento hoje</p><p style="font-size:28px; font-weight:800; color:#2DBE8C; margin:0;">R$ 410</p></div>
+      <div style="background:#FEF6EB; border-radius:18px; padding:22px; display:flex; gap:10px; align-items:flex-start;"><div style="background:#F4A653; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 8 V13.5" stroke="white" stroke-width="2.4" stroke-linecap="round"></path><circle cx="12" cy="16.5" r="1.3" fill="white"></circle></svg></div><p style="font-size:14px; color:#8a5a1c; margin:0; line-height:1.5;">3 pagamentos pendentes essa semana.</p></div>
+      <div style="background:#E6F7EF; border-radius:18px; padding:22px; display:flex; gap:10px; align-items:flex-start;"><div style="background:#2DBE8C; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12 L9 17 L20 6" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg></div><p style="font-size:14px; color:#1c7a54; margin:0; line-height:1.5;">Você bateu sua meta do mês!</p></div>
+    </div>
+  </section>
+
+  <section data-label="Encerramento" data-speaker-notes="Fechar reforçando a promessa central da marca." style="background:#FF6B5B; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; text-align:center;">
+    <div style="background:rgba(255,255,255,0.16); border-radius:24px; width:88px; height:88px; display:flex; align-items:center; justify-content:center;">
+      <svg width="50" height="38" viewBox="0 0 48 36" fill="none"><path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+    </div>
+    <p style="font-size:38px; font-weight:800; color:#fff; max-width:900px; line-height:1.35; margin:0;">Enquanto você trabalha, a Mimu cuida do seu negócio.</p>
+    <p style="font-size:16px; color:rgba(255,255,255,0.8); margin:0;">Sistema de marca Mimu — versão iOS, Android e PWA</p>
+  </section>
+
+</x-import>
+
+</x-dc>
+</body>
+</html>
