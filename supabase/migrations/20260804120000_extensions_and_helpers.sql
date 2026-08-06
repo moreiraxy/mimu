@@ -13,20 +13,7 @@ begin
 end;
 $$;
 
--- Helper de RLS: verifica se a empresa informada pertence ao usuário autenticado.
--- security definer + search_path fixo para evitar hijacking de schema; stable
--- para permitir que o planner cacheie o resultado dentro da mesma query.
-create or replace function public.user_owns_empresa(empresa_id uuid)
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-  select exists (
-    select 1
-    from public.empresas e
-    where e.id = empresa_id
-      and e.user_id = auth.uid()
-  );
-$$;
+-- O helper de RLS user_owns_empresa() fica em 20260804120100_empresas.sql,
+-- logo depois da tabela empresas ser criada — funções LANGUAGE SQL validam
+-- as relações referenciadas no momento da criação (diferente de plpgsql),
+-- então ele não pode existir antes da tabela que consulta.

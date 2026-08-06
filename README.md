@@ -6,7 +6,7 @@ PWA de gestão para microempreendedores brasileiros de bairro — salões, barbe
 
 - **Front-end:** Next.js 14 (App Router) + TypeScript + Tailwind CSS
 - **Banco de dados / Auth:** Supabase (PostgreSQL + Supabase Auth)
-- **IA:** API da Anthropic (Claude)
+- **IA:** API da Groq (Llama 3.3 70B)
 - **Deploy:** Vercel
 
 ## Estrutura de pastas
@@ -15,7 +15,7 @@ PWA de gestão para microempreendedores brasileiros de bairro — salões, barbe
 mimu/
 ├── app/            # Rotas (App Router), layout raiz, manifest e ícone do PWA
 ├── components/     # Componentes reutilizáveis (ex.: Logo, ui/Button)
-├── lib/            # Clients do Supabase, Anthropic e helpers
+├── lib/            # Clients do Supabase, Groq e helpers
 ├── hooks/          # Custom hooks (ex.: useSupabaseUser)
 ├── types/          # Tipos TypeScript, incluindo types/database.ts (gerado pelo Supabase)
 ├── public/         # Assets estáticos
@@ -28,7 +28,7 @@ mimu/
 
 - Node.js ≥ 18.18
 - Uma conta [Supabase](https://supabase.com) (projeto criado)
-- Uma chave de API da [Anthropic](https://console.anthropic.com)
+- Uma chave de API da [Groq](https://console.groq.com)
 
 ### Passos
 
@@ -49,7 +49,7 @@ mimu/
    | `NEXT_PUBLIC_SUPABASE_URL` | Project Settings → API, no painel do Supabase |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Project Settings → API |
    | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API (uso restrito a servidor) |
-   | `ANTHROPIC_API_KEY` | console.anthropic.com → Settings → API Keys |
+   | `GROQ_API_KEY` | console.groq.com → API Keys |
 
 3. Rode o servidor de desenvolvimento:
 

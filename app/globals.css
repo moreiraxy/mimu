@@ -3,7 +3,64 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Tokens de cor que mudam entre os temas claro/escuro (ver tailwind.config.ts
+   * — fundo, superficie, escuro e os neutros/tons "-light" apontam pra essas
+   * variáveis). As cores de marca (coral/verde/ambar/erro "DEFAULT") ficam
+   * fixas nos dois temas de propósito — identidade visual não muda com o tema.
+   * A classe .dark é aplicada em <html> pelo ThemeProvider.
+   */
+  :root {
+    --fundo: 247 246 243;
+    --superficie: 255 255 255;
+    --escuro: 30 30 46;
+    --neutro-border: 228 225 218;
+    --neutro-muted: 154 150 144;
+    --neutro-muted-strong: 111 107 100;
+    --neutro-disabled: 237 235 230;
+    --neutro-disabled-text: 179 175 167;
+    --coral-light: 255 245 244;
+    --coral-border: 255 216 212;
+    --verde-light: 230 247 239;
+    --ambar-light: 254 246 235;
+    --ambar-soft: 253 240 221;
+    --erro-light: 253 234 234;
+  }
+
+  .dark {
+    --fundo: 22 21 29;
+    --superficie: 30 29 40;
+    --escuro: 241 238 233;
+    --neutro-border: 52 49 63;
+    --neutro-muted: 172 167 159;
+    --neutro-muted-strong: 205 201 194;
+    --neutro-disabled: 42 40 51;
+    --neutro-disabled-text: 110 106 100;
+    --coral-light: 58 33 29;
+    --coral-border: 74 43 38;
+    --verde-light: 22 48 42;
+    --ambar-light: 54 43 24;
+    --ambar-soft: 61 47 22;
+    --erro-light: 58 29 27;
+  }
+
+  /*
+   * Tipografia responsiva: como as classes de tamanho do Tailwind (text-sm,
+   * p-4, h-14...) são todas em rem, escalar o font-size da raiz escala tudo
+   * proporcionalmente — sem precisar de lg:text-* em cada componente.
+   * Mobile: 14px base. A partir de lg (1024px): 16px base.
+   */
+  html {
+    font-size: 87.5%; /* 14px */
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 100%; /* 16px */
+    }
+  }
+
   body {
-    @apply bg-fundo text-escuro antialiased;
+    @apply bg-fundo text-escuro antialiased transition-colors duration-200;
   }
 }

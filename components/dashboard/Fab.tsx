@@ -1,0 +1,80 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Calendar, Minus, Plus, Sparkles, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { PlusIcon } from "@/components/icons/NavIcons";
+
+const ACOES = [
+  { label: "Nova venda", icone: Plus, href: "/financeiro/nova-entrada" },
+  { label: "Nova despesa", icone: Minus, href: "/financeiro/nova-saida" },
+  { label: "Novo agendamento", icone: Calendar, href: "/agenda/novo" },
+  { label: "Novo cliente", icone: User, href: "/clientes/novo" },
+  { label: "Falar com a Mimu", icone: Sparkles, href: "/mimu" },
+] as const;
+
+export function Fab() {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  function selecionar(href: string) {
+    setOpen(false);
+    router.push(href);
+  }
+
+  return (
+    <>
+      <div
+        aria-hidden="true"
+        onClick={() => setOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-escuro/50 transition-opacity duration-200 lg:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
+
+      <div className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom)+16px)] z-50 flex justify-center lg:hidden">
+        <div className="flex w-full max-w-[430px] flex-col items-end gap-3 px-4">
+          <div
+            className={cn(
+              "flex flex-col items-end gap-2 transition-all duration-200",
+              open
+                ? "translate-y-0 opacity-100"
+                : "pointer-events-none translate-y-2 opacity-0",
+            )}
+          >
+            {ACOES.map((acao) => (
+              <button
+                key={acao.label}
+                type="button"
+                onClick={() => selecionar(acao.href)}
+                className="flex items-center gap-3 rounded-full border border-neutro-border bg-superficie py-2.5 pl-4 pr-2.5 shadow-md"
+              >
+                <span className="text-sm font-semibold text-escuro">
+                  {acao.label}
+                </span>
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+                  <acao.icone className="h-4 w-4" strokeWidth={2.25} />
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Fechar" : "Nova ação"}
+            className={cn(
+              "flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-lg transition-transform duration-200",
+              open && "rotate-45",
+            )}
+          >
+            <PlusIcon size={26} />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,32 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { FILTROS, type FiltroTransacao } from "./filtros";
+
+export function FiltrosChips({
+  ativo,
+  onChange,
+}: {
+  ativo: FiltroTransacao;
+  onChange: (filtro: FiltroTransacao) => void;
+}) {
+  return (
+    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      {FILTROS.map((filtro) => (
+        <button
+          key={filtro}
+          type="button"
+          onClick={() => onChange(filtro)}
+          className={cn(
+            "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+            ativo === filtro
+              ? "border-coral bg-coral text-white"
+              : "border-neutro-border bg-superficie text-escuro",
+          )}
+        >
+          {filtro}
+        </button>
+      ))}
+    </div>
+  );
+}

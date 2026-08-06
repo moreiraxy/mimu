@@ -3,8 +3,22 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
+import {
+  primeiroErroZod,
+  schemaCadastro,
+  schemaLogin,
+  schemaRecuperarSenha,
+} from "@/lib/validacao/auth";
 
 export type AuthFormState = { error?: string; success?: boolean } | undefined;
+
+/** IP do cliente a partir dos headers de proxy — "desconhecido" só acontece em ambientes sem proxy (ex.: dev local sem Vercel). */
+function obterIP(): string {
+  const encaminhadoPor = headers().get("x-forwarded-for");
+  if (encaminhadoPor) return encaminhadoPor.split(",")[0]!.trim();
+  return headers().get("x-real-ip") ?? "desconhecido";
+}
 
 function traduzErroSupabase(message: string): string {
   if (message.includes("already registered")) {
@@ -16,6 +30,13 @@ function traduzErroSupabase(message: string): string {
   if (message.includes("Password should be at least")) {
     return "A senha precisa ter no mínimo 6 caracteres.";
   }
+
+  // Fora de produção, mostra a mensagem real do Supabase para facilitar
+  // debug — em produção mantém a mensagem genérica (a Mimu nunca fala como
+  // um sistema, ver brand/Mimu Sistema de Design.dc.html).
+  if (process.env.NODE_ENV !== "production") {
+    return `Algo deu errado: ${message}`;
+  }
   return "Algo deu errado. Tente novamente em instantes.";
 }
 
@@ -23,17 +44,26 @@ export async function signUp(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const nomeCompleto = String(formData.get("nome_completo") ?? "").trim();
-  const nomeNegocio = String(formData.get("nome_negocio") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+  const validacao = schemaCadastro.safeParse({
+    nomeCompleto: formData.get("nome_completo"),
+    nomeNegocio: formData.get("nome_negocio"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 
-  if (!nomeCompleto || !nomeNegocio || !email) {
-    return { error: "Preencha todos os campos." };
+  if (!validacao.success) {
+    return { error: primeiroErroZod(validacao.error) };
   }
-  if (password.length < 6) {
-    return { error: "A senha precisa ter no mínimo 6 caracteres." };
+
+  const { nomeCompleto, nomeNegocio, email, password } = validacao.data;
+
+  const ip = obterIP();
+  if (await excedeuLimite("cadastro", ip)) {
+    return {
+      error: "Muitos cadastros tentados por aqui. Tente novamente em uma hora.",
+    };
   }
+  await registrarTentativa("cadastro", ip);
 
   const origin = headers().get("origin");
   const supabase = createClient();
@@ -43,11 +73,18 @@ export async function signUp(
     password,
     options: {
       data: { nome_completo: nomeCompleto, nome_negocio: nomeNegocio },
-      emailRedirectTo: `${origin}/dashboard`,
+      emailRedirectTo: `${origin}/onboarding`,
     },
   });
 
   if (error) {
+    console.error("[cadastro] erro completo do Supabase Auth:", {
+      name: error.name,
+      status: error.status,
+      code: (error as { code?: string }).code,
+      message: error.message,
+      cause: error.cause,
+    });
     return { error: traduzErroSupabase(error.message) };
   }
 
@@ -55,15 +92,30 @@ export async function signUp(
     redirect("/login?confirmacao=pendente");
   }
 
-  redirect("/dashboard");
+  redirect("/onboarding");
 }
 
 export async function signIn(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+  const validacao = schemaLogin.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!validacao.success) {
+    return { error: primeiroErroZod(validacao.error) };
+  }
+
+  const { email, password } = validacao.data;
+
+  if (await excedeuLimite("login", email)) {
+    return {
+      error: "Muitas tentativas de login. Tente novamente em uma hora.",
+    };
+  }
+  await registrarTentativa("login", email);
 
   const supabase = createClient();
   const { error } = await supabase.auth.signInWithPassword({
@@ -82,11 +134,15 @@ export async function requestPasswordReset(
   _prevState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const email = String(formData.get("email") ?? "").trim();
+  const validacao = schemaRecuperarSenha.safeParse({
+    email: formData.get("email"),
+  });
 
-  if (!email) {
-    return { error: "Digite seu e-mail." };
+  if (!validacao.success) {
+    return { error: primeiroErroZod(validacao.error) };
   }
+
+  const { email } = validacao.data;
 
   const origin = headers().get("origin");
   const supabase = createClient();

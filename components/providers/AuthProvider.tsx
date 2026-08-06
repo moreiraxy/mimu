@@ -15,6 +15,7 @@ export interface AuthContextValue {
   user: User | null;
   empresa: Empresa | null;
   loading: boolean;
+  error: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -27,15 +28,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadEmpresa = useCallback(
     async (userId: string) => {
-      const { data } = await supabase
+      const { data, error: fetchError } = await supabase
         .from("empresas")
         .select("*")
         .eq("user_id", userId)
         .single();
-      setEmpresa(data ?? null);
+
+      if (fetchError) {
+        setEmpresa(null);
+        setError("Não foi possível carregar os dados da empresa.");
+        return;
+      }
+
+      setEmpresa(data);
+      setError(null);
     },
     [supabase],
   );
@@ -57,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await loadEmpresa(session.user.id);
       } else {
         setEmpresa(null);
+        setError(null);
       }
     });
 
@@ -68,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   return (
-    <AuthContext.Provider value={{ user, empresa, loading, signOut }}>
+    <AuthContext.Provider value={{ user, empresa, loading, error, signOut }}>
       {children}
     </AuthContext.Provider>
   );

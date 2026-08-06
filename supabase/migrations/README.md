@@ -4,8 +4,8 @@ Schema completo do banco de dados da Mimu, em ordem de aplicação. Os arquivos 
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| `20260804120000_extensions_and_helpers.sql` | Extensão `pgcrypto`, trigger genérica `set_updated_at()` e função `user_owns_empresa()` usada nas policies de RLS |
-| `20260804120100_empresas.sql` | Tabela `empresas` |
+| `20260804120000_extensions_and_helpers.sql` | Extensão `pgcrypto` e trigger genérica `set_updated_at()` |
+| `20260804120100_empresas.sql` | Tabela `empresas` + função `user_owns_empresa()` (usada nas policies de RLS das demais tabelas) |
 | `20260804120200_clientes.sql` | Tabela `clientes` + trigger que recalcula `cliente_fiel` |
 | `20260804120300_agendamentos.sql` | Tabela `agendamentos` |
 | `20260804120400_transacoes.sql` | Tabela `transacoes` + FK cruzada `agendamentos.transacao_id` |
@@ -13,6 +13,10 @@ Schema completo do banco de dados da Mimu, em ordem de aplicação. Os arquivos 
 | `20260804120600_conversas_mimu.sql` | Tabela `conversas_mimu` (histórico do chat com a IA) |
 | `20260804120700_alertas_mimu.sql` | Tabela `alertas_mimu` (notificações proativas) |
 | `20260804120800_handle_new_user.sql` | Trigger em `auth.users` que cria a `empresa` automaticamente no cadastro, lendo `nome_negocio` do metadata do signup |
+| `20260804130000_onboarding_fields.sql` | `empresas.onboarding_concluido`, `empresas.clientes_por_semana_media` e novo default `'{}'` para `modulos_ativos` (nenhum módulo começa ativo — a escolha é do onboarding) |
+| `20260804140000_transacoes_parcelamento.sql` | `transacoes.grupo_parcelamento_id` — agrupa as parcelas de uma mesma compra parcelada |
+| `20260804150000_clientes_faltas.sql` | `clientes.faltas` + trigger que incrementa automaticamente quando um agendamento vira `nao_compareceu` |
+| `20260804160000_clientes_estatisticas_e_fidelidade.sql` | Trigger que atualiza `total_gasto`/`total_visitas`/`ultimo_atendimento` ao inserir uma transação de entrada vinculada a um cliente (dispara `atualizar_cliente_fiel` em cadeia); critério de `cliente_fiel` passa de `>` para `>=` |
 
 ## Modelo de dados
 
@@ -59,8 +63,10 @@ npx supabase gen types typescript --project-id <PROJECT_ID> > types/database.ts
 ## Automações já incluídas
 
 - **`updated_at` automático** em `empresas`, `clientes`, `agendamentos` e `transacoes` via trigger `set_updated_at()`.
-- **`cliente_fiel` automático**: recalculado em `clientes` sempre que `total_visitas` ou `total_gasto` mudam — vira `true` quando `total_visitas > 10` ou `total_gasto > 1000`.
+- **`cliente_fiel` automático**: recalculado em `clientes` sempre que `total_visitas` ou `total_gasto` mudam — vira `true` quando `total_visitas >= 10` ou `total_gasto >= 1000`.
+- **Estatísticas do cliente automáticas**: `total_gasto`, `total_visitas` e `ultimo_atendimento` são atualizados sempre que uma transação `entrada` com `cliente_id` é inserida (ver `20260804160000`).
 
 ## Fora de escopo (decisão consciente)
 
-Os contadores `clientes.total_gasto`, `clientes.total_visitas` e `clientes.ultimo_atendimento` **não** são atualizados automaticamente a partir de `transacoes`/`agendamentos` — a regra de quais transações contam (ex.: só `entrada` concluída? desconsiderar estorno?) é uma decisão de produto que não estava especificada. Esses campos devem ser atualizados pela aplicação (ou por uma trigger futura, uma vez definida a regra).
+- Editar ou excluir uma transação já lançada **não** reajusta retroativamente `total_gasto`/`total_visitas`/`ultimo_atendimento` do cliente — só o `INSERT` de uma nova entrada dispara a atualização.
+- `clientes.saldo_fiado` não é tocado por essa trigger — "Registrar pagamento" no perfil do cliente é uma ação explícita da aplicação (cria a transação de recebimento e abate o saldo em duas escritas), não uma regra automática baseada em categoria da transação.

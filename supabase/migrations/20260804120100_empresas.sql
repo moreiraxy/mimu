@@ -35,3 +35,22 @@ create policy "Usuárias gerenciam a própria empresa"
   for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Helper de RLS usado pelas demais tabelas (clientes, agendamentos, ...) para
+-- confirmar que uma empresa pertence ao usuário autenticado. Precisa vir
+-- depois da tabela empresas: funções LANGUAGE SQL validam as relações
+-- referenciadas no momento da criação (diferente de plpgsql).
+create or replace function public.user_owns_empresa(empresa_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.empresas e
+    where e.id = empresa_id
+      and e.user_id = auth.uid()
+  );
+$$;
