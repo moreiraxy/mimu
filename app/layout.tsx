@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
@@ -8,13 +7,6 @@ import { AlertasProvider } from "@/components/providers/AlertasProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { SilenciarConsoleProducao } from "@/components/providers/SilenciarConsoleProducao";
 import "./globals.css";
-
-const nunito = Nunito({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-nunito",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Mimu — seu negócio, organizado",
@@ -44,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={nunito.variable}>
+    <html lang="pt-BR">
       <head>
         {/* Splash screens iOS — sem elas o Safari mostra tela branca ao abrir o app instalado */}
         <link

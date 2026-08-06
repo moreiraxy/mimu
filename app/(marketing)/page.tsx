@@ -2,10 +2,14 @@ import { redirect } from "next/navigation";
 import { getEmpresaAtual } from "@/lib/supabase";
 import { HeaderMarketing } from "@/components/marketing/HeaderMarketing";
 import { HeroSection } from "./HeroSection";
-import { ProblemaSection } from "./ProblemaSection";
-import { SolucaoSection } from "./SolucaoSection";
-import { ComoFuncionaSection } from "./ComoFuncionaSection";
+import { MetricasSection } from "./MetricasSection";
+import { ChegaDePlanilhaSection } from "./ChegaDePlanilhaSection";
+import { FeatureFaturamentoSection } from "./FeatureFaturamentoSection";
+import { FeatureMimuChatSection } from "./FeatureMimuChatSection";
+import { FeatureClientesFieisSection } from "./FeatureClientesFieisSection";
+import { DepoimentosSection } from "./DepoimentosSection";
 import { PrecoSection } from "./PrecoSection";
+import { CadernoPlanilhaMemoriaSection } from "./CadernoPlanilhaMemoriaSection";
 import { FooterMarketing } from "./FooterMarketing";
 
 // Landing pública em "/" — quem já está logada vai direto pro painel, não
@@ -17,17 +21,18 @@ export default async function LandingPage() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-fundo"
-      style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
-    >
+    <div className="min-h-screen bg-fundo">
       <HeaderMarketing />
       <main>
         <HeroSection />
-        <ProblemaSection />
-        <SolucaoSection />
-        <ComoFuncionaSection />
+        <MetricasSection />
+        <ChegaDePlanilhaSection />
+        <FeatureFaturamentoSection />
+        <FeatureMimuChatSection />
+        <FeatureClientesFieisSection />
+        <DepoimentosSection />
         <PrecoSection />
+        <CadernoPlanilhaMemoriaSection />
       </main>
       <FooterMarketing />
     </div>

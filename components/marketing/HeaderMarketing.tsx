@@ -1,49 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/Logo";
+
+const LINKS = [
+  { href: "#produto", label: "Produto" },
+  { href: "#preco", label: "Preço" },
+  { href: "#depoimentos", label: "Depoimentos" },
+] as const;
 
 export function HeaderMarketing() {
-  const [rolado, setRolado] = useState(false);
-
-  useEffect(() => {
-    function aoRolar() {
-      setRolado(window.scrollY > 8);
-    }
-    aoRolar();
-    window.addEventListener("scroll", aoRolar, { passive: true });
-    return () => window.removeEventListener("scroll", aoRolar);
-  }, []);
-
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300",
-        rolado
-          ? "border-b border-neutro-border/60 bg-fundo/70 shadow-sm backdrop-blur-xl backdrop-saturate-150"
-          : "bg-transparent",
-      )}
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-        <Logo size="sm" />
+    <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:top-5">
+      <div className="flex w-full max-w-3xl items-center justify-between gap-2 rounded-full border border-neutro-border/60 bg-superficie/90 py-2 pl-3 pr-2 shadow-lg shadow-escuro/5 backdrop-blur-xl backdrop-saturate-150 sm:py-2.5 sm:pl-4 sm:pr-2.5">
+        <Link href="/" className="flex flex-shrink-0 items-center gap-2">
+          <LogoMark size="sm" className="h-7 w-7 rounded-[8px]" />
+          <p className="text-base font-extrabold text-escuro">mimu</p>
+        </Link>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/login"
-            className="rounded-button border-[1.5px] border-neutro-border px-3 py-2 text-xs font-bold text-escuro transition-transform duration-150 active:scale-[0.97] sm:px-4 sm:text-sm"
-          >
-            Entrar
-          </Link>
-          <Link
-            href="/cadastro"
-            className="rounded-button bg-coral px-3 py-2 text-xs font-bold text-white transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:px-4 sm:text-sm"
-          >
-            Começar grátis
-          </Link>
-        </div>
+        <nav className="hidden items-center gap-6 sm:flex">
+          {LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-[13px] font-bold text-neutro-muted-strong transition-colors hover:text-escuro"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <Link
+          href="/cadastro"
+          className="flex-shrink-0 rounded-full bg-coral px-4 py-2 text-xs font-bold text-white transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:px-5 sm:text-[13px]"
+        >
+          Começar grátis
+        </Link>
       </div>
-    </header>
+    </div>
   );
 }

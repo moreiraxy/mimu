@@ -55,6 +55,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-nunito)", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "sans-serif"],
       },
       keyframes: {
         shimmer: {
@@ -66,10 +67,20 @@ const config: Config = {
           "20%": { opacity: "1" },
           "100%": { transform: "translateY(26px) rotate(140deg)", opacity: "0" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-14px)" },
+        },
+        "float-slow": {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-10px) rotate(0.6deg)" },
+        },
       },
       animation: {
         shimmer: "shimmer 1.6s ease-in-out infinite",
         confete: "confete 1.8s ease-in-out infinite",
+        float: "float 7s ease-in-out infinite",
+        "float-slow": "float-slow 6s ease-in-out infinite",
       },
     },
   },

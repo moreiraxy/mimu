@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 
-const MARK_PATH =
+export const MARK_PATH =
   "M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34";
 
 const sizes = {
