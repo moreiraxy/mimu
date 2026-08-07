@@ -60,6 +60,19 @@
     }
   }
 
+  /*
+   * Trava de segurança contra scroll horizontal no mobile — qualquer
+   * elemento decorativo (cards flutuantes com offset negativo, ilustrações
+   * levemente maiores que o container) que escape da largura da tela some
+   * do scroll em vez de criar uma barra horizontal. Android costuma expor
+   * esse tipo de vazamento mais que iOS/desktop.
+   */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   body {
     @apply bg-fundo text-escuro antialiased transition-colors duration-200;
   }

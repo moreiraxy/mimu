@@ -23,7 +23,7 @@ const PLANOS: Record<
 > = {
   mensal: {
     label: "Mensal",
-    valor: "R$ 47",
+    valor: "R$ 39",
     porMes: "por mês",
     info: "Cobrado mensalmente",
     badge: null,
@@ -32,8 +32,8 @@ const PLANOS: Record<
   },
   trimestral: {
     label: "Trimestral",
-    valor: "R$ 117",
-    porMes: "R$ 39/mês",
+    valor: "R$ 99",
+    porMes: "R$ 33/mês",
     info: "Cobrado a cada 3 meses",
     badge: "1 mês grátis",
     badgeCor: "ambar",
@@ -41,8 +41,8 @@ const PLANOS: Record<
   },
   semestral: {
     label: "Semestral",
-    valor: "R$ 199",
-    porMes: "R$ 33/mês",
+    valor: "R$ 179",
+    porMes: "R$ 30/mês",
     info: "Cobrado a cada 6 meses",
     badge: "Quase 2 meses grátis",
     badgeCor: "ambar",
@@ -50,12 +50,12 @@ const PLANOS: Record<
   },
   anual: {
     label: "Anual",
-    valor: "R$ 347",
-    porMes: "R$ 29/mês",
+    valor: "R$ 299",
+    porMes: "R$ 25/mês",
     info: "Cobrado uma vez por ano",
     badge: "Mais popular",
     badgeCor: "coral",
-    economia: "Você economiza R$ 217",
+    economia: "4 meses grátis",
   },
 } as const;
 
@@ -66,10 +66,10 @@ const TABELA: Array<{
   economia: string | null;
   economiaCor: "verde" | "coral" | null;
 }> = [
-  { periodo: "mensal", total: "R$ 47", porMes: "R$ 47/mês", economia: null, economiaCor: null },
-  { periodo: "trimestral", total: "R$ 117", porMes: "R$ 39/mês", economia: "R$ 96/ano", economiaCor: "verde" },
-  { periodo: "semestral", total: "R$ 199", porMes: "R$ 33/mês", economia: "R$ 168/ano", economiaCor: "verde" },
-  { periodo: "anual", total: "R$ 347", porMes: "R$ 29/mês", economia: "R$ 217/ano", economiaCor: "coral" },
+  { periodo: "mensal", total: "R$ 39", porMes: "R$ 39/mês", economia: null, economiaCor: null },
+  { periodo: "trimestral", total: "R$ 99", porMes: "R$ 33/mês", economia: "R$ 72/ano", economiaCor: "verde" },
+  { periodo: "semestral", total: "R$ 179", porMes: "R$ 30/mês", economia: "R$ 110/ano", economiaCor: "verde" },
+  { periodo: "anual", total: "R$ 299", porMes: "R$ 25/mês", economia: "R$ 169/ano", economiaCor: "coral" },
 ];
 
 const ITENS_INCLUIDOS = [

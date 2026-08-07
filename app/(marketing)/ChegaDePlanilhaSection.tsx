@@ -10,7 +10,7 @@ export function ChegaDePlanilhaSection() {
   const reduzida = useReducedMotion();
 
   return (
-    <section className="bg-superficie px-5 py-16 sm:px-6 sm:py-24">
+    <section className="overflow-x-hidden bg-superficie px-5 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <motion.div
           initial={{ opacity: 0, x: reduzida ? 0 : -60 }}

@@ -1,13 +1,15 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 
 /**
  * Faz o elemento derivar verticalmente conforme a página rola, ancorado na
  * própria posição do elemento (não num listener global) — usa o progresso
  * de scroll do elemento dentro do viewport, então cada card se move na
- * velocidade certa independente de onde está na página.
+ * velocidade certa independente de onde está na página. No mobile a força
+ * é reduzida pela metade — telas menores têm menos espaço de sobra pro
+ * deslocamento não invadir texto/vizinhos.
  */
 export function ParallaxFloat({
   children,
@@ -23,6 +25,17 @@ export function ParallaxFloat({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduzida = useReducedMotion();
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    const checar = () => setMobile(window.innerWidth < 640);
+    checar();
+    window.addEventListener("resize", checar, { passive: true });
+    return () => window.removeEventListener("resize", checar);
+  }, []);
+
+  const forcaEfetiva = mobile ? strength * 0.5 : strength;
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -30,7 +43,7 @@ export function ParallaxFloat({
   const y = useTransform(
     scrollYProgress,
     [0, 1],
-    reverse ? [-strength, strength] : [strength, -strength],
+    reverse ? [-forcaEfetiva, forcaEfetiva] : [forcaEfetiva, -forcaEfetiva],
   );
 
   return (

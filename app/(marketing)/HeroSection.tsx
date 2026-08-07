@@ -45,7 +45,7 @@ function NotifCard({
             ? undefined
             : { animationDuration: `${floatSeconds}s`, animationDelay: `${floatDelay}s` }
         }
-        className="animate-float-slow flex items-start gap-3 rounded-[19px] border border-white/70 bg-white/75 px-[19px] py-4 shadow-xl shadow-escuro/10 backdrop-blur-xl"
+        className="animate-float-slow flex items-start gap-2 rounded-[14px] border border-white/70 bg-white/75 px-3.5 py-3 shadow-xl shadow-escuro/10 backdrop-blur-xl lg:gap-3 lg:rounded-[19px] lg:px-[19px] lg:py-4"
       >
         {children}
       </motion.div>
@@ -107,8 +107,17 @@ export function HeroSection() {
         </p>
       </motion.div>
 
-      {/* MOCKUP DO CELULAR — iPhone 15 Pro (titânio, Dynamic Island) */}
-      <div className="relative mx-auto mt-16 w-[340px] max-w-full sm:mt-20">
+      {/* MOCKUP DO CELULAR — iPhone 15 Pro (titânio, Dynamic Island). Entra
+          depois do texto (delay maior que o CTA acima) de propósito: o
+          celular é só CSS/divs, sem imagem pra carregar, mas sem essa
+          entrada ele aparecia junto/antes do texto por não ter fade-in
+          nenhum, invertendo a ordem de leitura no primeiro paint. */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.35 }}
+        className="relative mx-auto mt-16 w-[340px] max-w-full sm:mt-20"
+      >
         <div className="animate-float">
           <PhoneTilt strength={60} className="relative mx-auto h-[706px] w-[340px] max-w-full">
             {/* corpo titânio */}
@@ -226,66 +235,66 @@ export function HeroSection() {
           </PhoneTilt>
         </div>
 
-        {/* Cards flutuantes — só em telas grandes, pra não estourar a largura no mobile */}
+        {/* Cards flutuantes — visíveis também no mobile, em 75% do tamanho e mais próximos do celular; no desktop (lg:) assumem a posição/tamanho originais */}
         <NotifCard
-          className="absolute left-[-248px] top-[110px] z-10 hidden max-w-[240px] lg:block"
+          className="absolute left-[-18px] top-[64px] z-10 max-w-[180px] lg:left-[-248px] lg:top-[110px] lg:max-w-[240px]"
           strength={130}
           delay={0.4}
           floatSeconds={5.5}
           floatDelay={1.3}
         >
-          <span className="flex h-[29px] w-[29px] flex-shrink-0 items-center justify-center rounded-full bg-verde">
-            <Check className="h-4 w-4 text-white" strokeWidth={3} />
+          <span className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full bg-verde lg:h-[29px] lg:w-[29px]">
+            <Check className="h-3 w-3 text-white lg:h-4 lg:w-4" strokeWidth={3} />
           </span>
-          <p className="text-sm leading-snug text-escuro">
+          <p className="text-xs leading-snug text-escuro lg:text-sm">
             Parabéns! Você bateu seu recorde de <strong>R$ 580</strong>
           </p>
         </NotifCard>
 
         <NotifCard
-          className="absolute right-[-260px] top-[390px] z-10 hidden max-w-[250px] lg:block"
+          className="absolute right-[-14px] top-[260px] z-10 max-w-[188px] lg:right-[-260px] lg:top-[390px] lg:max-w-[250px]"
           strength={95}
           delay={0.55}
           floatSeconds={6.5}
           floatDelay={2.1}
         >
-          <span className="flex h-[29px] w-[29px] flex-shrink-0 items-center justify-center rounded-full bg-coral text-[11px] font-extrabold text-white">
+          <span className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full bg-coral text-[9px] font-extrabold text-white lg:h-[29px] lg:w-[29px] lg:text-[11px]">
             CA
           </span>
-          <p className="text-sm leading-snug text-escuro">
+          <p className="text-xs leading-snug text-escuro lg:text-sm">
             Carol agendou amanhã às 14h · R$ 120 previsto
           </p>
         </NotifCard>
 
         <NotifCard
-          className="absolute bottom-[100px] left-[-220px] z-10 hidden max-w-[230px] lg:block"
+          className="absolute bottom-[130px] left-[-14px] z-10 max-w-[173px] lg:bottom-[100px] lg:left-[-220px] lg:max-w-[230px]"
           strength={145}
           delay={0.7}
           floatSeconds={5.8}
           floatDelay={2.9}
         >
-          <span className="flex h-[29px] w-[29px] flex-shrink-0 items-center justify-center rounded-full bg-ambar">
-            <AlertCircle className="h-[15px] w-[15px] text-white" strokeWidth={2.5} />
+          <span className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full bg-ambar lg:h-[29px] lg:w-[29px]">
+            <AlertCircle className="h-[11px] w-[11px] text-white lg:h-[15px] lg:w-[15px]" strokeWidth={2.5} />
           </span>
-          <p className="text-sm leading-snug text-escuro">Maria ainda te deve R$ 80</p>
+          <p className="text-xs leading-snug text-escuro lg:text-sm">Maria ainda te deve R$ 80</p>
         </NotifCard>
 
         <NotifCard
-          className="absolute bottom-0 right-[-210px] z-10 hidden max-w-[205px] py-[15px] lg:block"
+          className="absolute bottom-0 right-[-12px] z-10 max-w-[154px] py-3 lg:right-[-210px] lg:max-w-[205px] lg:py-[15px]"
           strength={85}
           delay={0.85}
           floatSeconds={5}
           floatDelay={3.4}
         >
           <div className="w-full">
-            <p className="mb-[7px] text-[13px] text-neutro-muted">Meta do dia</p>
-            <div className="mb-[7px] h-[7px] w-full rounded-md bg-neutro-border">
+            <p className="mb-1.5 text-[11px] text-neutro-muted lg:text-[13px]">Meta do dia</p>
+            <div className="mb-1.5 h-[6px] w-full rounded-md bg-neutro-border lg:h-[7px]">
               <div className="h-full w-[82%] rounded-md bg-coral" />
             </div>
-            <p className="text-sm font-bold text-escuro">82% concluída</p>
+            <p className="text-xs font-bold text-escuro lg:text-sm">82% concluída</p>
           </div>
         </NotifCard>
-      </div>
+      </motion.div>
     </section>
   );
 }
