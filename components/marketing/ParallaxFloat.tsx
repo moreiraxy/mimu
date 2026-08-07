@@ -12,10 +12,13 @@ import { motion, useScroll, useTransform, useReducedMotion } from "motion/react"
 export function ParallaxFloat({
   children,
   strength = 24,
+  reverse = false,
   className,
 }: {
   children: ReactNode;
   strength?: number;
+  /** Inverte o sentido do deslocamento — usado nas ilustrações, que derivam pra baixo em vez de pra cima. */
+  reverse?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -24,10 +27,18 @@ export function ParallaxFloat({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [strength, -strength]);
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    reverse ? [-strength, strength] : [strength, -strength],
+  );
 
   return (
-    <motion.div ref={ref} style={{ y: reduzida ? 0 : y }} className={className}>
+    <motion.div
+      ref={ref}
+      style={{ y: reduzida ? 0 : y, willChange: reduzida ? undefined : "transform" }}
+      className={className}
+    >
       {children}
     </motion.div>
   );

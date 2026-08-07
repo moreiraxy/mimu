@@ -69,11 +69,19 @@ const config: Config = {
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-14px)" },
+          "50%": { transform: "translateY(-16px)" },
         },
         "float-slow": {
           "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
-          "50%": { transform: "translateY(-10px) rotate(0.6deg)" },
+          "50%": { transform: "translateY(-11px) rotate(0.6deg)" },
+        },
+        "pulse-badge": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.05)" },
+        },
+        "typing-dot": {
+          "0%, 60%, 100%": { opacity: "0.3", transform: "translateY(0)" },
+          "30%": { opacity: "1", transform: "translateY(-4px)" },
         },
       },
       animation: {
@@ -81,6 +89,8 @@ const config: Config = {
         confete: "confete 1.8s ease-in-out infinite",
         float: "float 7s ease-in-out infinite",
         "float-slow": "float-slow 6s ease-in-out infinite",
+        "pulse-badge": "pulse-badge 2s ease-in-out infinite",
+        "typing-dot": "typing-dot 1.2s infinite",
       },
     },
   },

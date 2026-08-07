@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
@@ -8,8 +9,25 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { SilenciarConsoleProducao } from "@/components/providers/SilenciarConsoleProducao";
 import "./globals.css";
 
+// Auto-hospedadas em public/fonts (variable fonts baixadas do Google Fonts) —
+// evita depender de rede durante build/dev, que já se mostrou instável neste
+// ambiente com fonts.gstatic.com.
+const nunito = localFont({
+  src: "../public/fonts/nunito-variable.woff2",
+  weight: "400 800",
+  variable: "--font-nunito",
+  display: "swap",
+});
+
+const spaceGrotesk = localFont({
+  src: "../public/fonts/space-grotesk-variable.woff2",
+  weight: "500 700",
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Mimu — seu negócio, organizado",
+  title: "Mimu · seu negócio, organizado",
   description:
     "Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar.",
   applicationName: "Mimu",
@@ -36,8 +54,42 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${nunito.variable} ${spaceGrotesk.variable}`}>
       <head>
+        {process.env.NODE_ENV !== "production" && (
+          // Script inline (não passa pelos chunks do webpack) que desregistra
+          // qualquer service worker preso de uma sessão de dev anterior e
+          // limpa o cache dele, recarregando uma vez se encontrar algo pra
+          // limpar. Roda antes de qualquer chunk da página ser buscado, então
+          // não depende do JS (potencialmente quebrado/cacheado) do bundle —
+          // resolve sozinho o "localhost travado com JS antigo" sem precisar
+          // de DevTools manual.
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){
+                try {
+                  if (!('serviceWorker' in navigator)) return;
+                  navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    if (regs.length === 0) return;
+                    Promise.all(regs.map(function(r) { return r.unregister(); })).then(function() {
+                      var limpar = 'caches' in window
+                        ? caches.keys().then(function(chaves) {
+                            return Promise.all(chaves.map(function(c) { return caches.delete(c); }));
+                          })
+                        : Promise.resolve();
+                      limpar.then(function() {
+                        if (!sessionStorage.getItem('__mimu_sw_cleanup__')) {
+                          sessionStorage.setItem('__mimu_sw_cleanup__', '1');
+                          location.reload();
+                        }
+                      });
+                    });
+                  });
+                } catch (e) {}
+              })();`,
+            }}
+          />
+        )}
         {/* Splash screens iOS — sem elas o Safari mostra tela branca ao abrir o app instalado */}
         <link
           rel="apple-touch-startup-image"

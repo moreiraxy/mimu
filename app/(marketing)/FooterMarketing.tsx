@@ -2,20 +2,18 @@ import Link from "next/link";
 import { LogoMark } from "@/components/Logo";
 
 const COLUNAS = [
-  {
-    titulo: "Produto",
-    links: [
-      { label: "Produto", href: "#produto" },
-      { label: "Preço", href: "#preco" },
-    ],
-  },
-  {
-    titulo: "Suporte",
-    links: [
-      { label: "Ajuda", href: "mailto:oi@mimu.app" },
-      { label: "Contato", href: "mailto:oi@mimu.app" },
-    ],
-  },
+  [
+    { label: "Produto", href: "#produto" },
+    { label: "Preço", href: "#preco" },
+  ],
+  [
+    { label: "Ajuda", href: "mailto:oi@mimu.app" },
+    { label: "Contato", href: "mailto:oi@mimu.app" },
+  ],
+  [
+    { label: "Privacidade", href: "#" },
+    { label: "Termos", href: "#" },
+  ],
 ] as const;
 
 export function FooterMarketing() {
@@ -29,14 +27,16 @@ export function FooterMarketing() {
             <p className="mt-0.5 max-w-[220px] text-xs text-neutro-muted">
               Enquanto você trabalha, a Mimu cuida do seu negócio.
             </p>
+            <p className="mt-0.5 max-w-[220px] text-[11px] text-neutro-disabled-text">
+              A Mimu substitui o caderno, a planilha e a memória.
+            </p>
           </div>
         </div>
 
         <div className="flex gap-10">
-          {COLUNAS.map((coluna) => (
-            <div key={coluna.titulo} className="flex flex-col gap-2.5">
-              <p className="text-xs font-bold text-neutro-muted">{coluna.titulo}</p>
-              {coluna.links.map((link) => (
+          {COLUNAS.map((coluna, indice) => (
+            <div key={indice} className="flex flex-col gap-2.5">
+              {coluna.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
@@ -51,7 +51,7 @@ export function FooterMarketing() {
       </div>
 
       <p className="mx-auto mt-10 max-w-5xl border-t border-neutro-border pt-6 text-center text-xs text-neutro-disabled-text sm:text-left">
-        © 2026 Mimu. Feito com carinho para o negócio de bairro.
+        © 2026 Mimu
       </p>
     </footer>
   );

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { groq, DEFAULT_MODEL } from "@/lib/groq";
+import { getGroq, DEFAULT_MODEL } from "@/lib/groq";
 import {
   buildAlertaMessage,
   buildMimuClassificationPrompt,
@@ -130,7 +130,7 @@ async function classificarIntencao(
   mensagem: string,
 ): Promise<ClassificacaoMimu | null> {
   try {
-    const resposta = await groq.chat.completions.create({
+    const resposta = await getGroq().chat.completions.create({
       model: DEFAULT_MODEL,
       max_tokens: 300,
       messages: [
@@ -402,7 +402,7 @@ async function responderConversa(supabase: Supabase, empresa: Empresa) {
 
   let respostaTexto: string;
   try {
-    const resposta = await groq.chat.completions.create({
+    const resposta = await getGroq().chat.completions.create({
       model: DEFAULT_MODEL,
       max_tokens: 1000,
       messages: [

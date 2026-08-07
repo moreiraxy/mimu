@@ -1,11 +1,17 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 
 export function FeatureFaturamentoSection() {
+  const reduzida = useReducedMotion();
+
   return (
     <section id="produto" className="px-5 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <SpringIn className="relative w-full max-w-[400px] flex-1">
+        <ParallaxFloat strength={100}>
           <svg viewBox="0 0 400 460" className="w-full rounded-card" preserveAspectRatio="xMidYMid slice">
             <defs>
               <linearGradient id="salaoBg" x1="0" y1="0" x2="1" y2="1">
@@ -87,15 +93,26 @@ export function FeatureFaturamentoSection() {
               <circle cx="303" cy="249" r="6" fill="#FF6B5B" />
             </g>
           </svg>
+        </ParallaxFloat>
 
-          <ParallaxFloat strength={16} className="absolute -bottom-6 -right-4 w-[190px] sm:w-[220px]">
-            <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-escuro/15 backdrop-blur-xl">
+          <ParallaxFloat strength={160} className="absolute -bottom-6 -right-4 w-[190px] sm:w-[220px]">
+            <motion.div
+              initial={{ opacity: 0, scale: reduzida ? 1 : 0.9, y: reduzida ? 0 : 14 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={
+                reduzida
+                  ? { duration: 0.25, delay: 0.3 }
+                  : { type: "spring", bounce: 0.1, duration: 0.7, delay: 0.5 }
+              }
+              className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-escuro/15 backdrop-blur-xl"
+            >
               <p className="mb-1.5 text-[11px] text-neutro-muted">Faturamento previsto</p>
               <p className="mb-2.5 text-xl font-extrabold text-escuro">R$ 470</p>
               <div className="h-1.5 w-full rounded-full bg-neutro-disabled">
                 <div className="h-full w-[70%] rounded-full bg-coral" />
               </div>
-            </div>
+            </motion.div>
           </ParallaxFloat>
         </SpringIn>
 
@@ -107,8 +124,8 @@ export function FeatureFaturamentoSection() {
             Sabe quanto vai entrar antes de entrar.
           </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-neutro-muted sm:text-base">
-            A Mimu cruza sua agenda com seu histórico e mostra o que já é
-            certo e o que ainda é previsão, pra você planejar sem susto.
+            Eu cruzo sua agenda com seu histórico e mostro o que já é certo
+            e o que ainda é previsão, pra você planejar sem susto.
           </p>
         </SpringIn>
       </div>

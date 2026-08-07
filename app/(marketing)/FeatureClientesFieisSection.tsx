@@ -1,12 +1,18 @@
+"use client";
+
 import { Star } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 
 export function FeatureClientesFieisSection() {
+  const reduzida = useReducedMotion();
+
   return (
     <section className="px-5 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <SpringIn className="relative w-full max-w-[400px] flex-1">
+        <ParallaxFloat strength={85}>
           <svg viewBox="0 0 400 460" className="w-full rounded-card" preserveAspectRatio="xMidYMid slice">
             <defs>
               <linearGradient id="mercadoBg" x1="0" y1="0" x2="1" y2="1">
@@ -94,9 +100,20 @@ export function FeatureClientesFieisSection() {
 
             <path d="M170 280 Q150 296 148 316 Q146 328 158 330 Q168 330 170 320 Q172 302 186 292 Z" fill="url(#skin2)" />
           </svg>
+        </ParallaxFloat>
 
-          <ParallaxFloat strength={16} className="absolute -bottom-6 -left-4 w-[210px] sm:w-[240px]">
-            <div className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-escuro/15 backdrop-blur-xl">
+          <ParallaxFloat strength={160} className="absolute -bottom-6 -left-4 w-[210px] sm:w-[240px]">
+            <motion.div
+              initial={{ opacity: 0, scale: reduzida ? 1 : 0.9, y: reduzida ? 0 : 14 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={
+                reduzida
+                  ? { duration: 0.25, delay: 0.3 }
+                  : { type: "spring", bounce: 0.1, duration: 0.7, delay: 0.5 }
+              }
+              className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-escuro/15 backdrop-blur-xl"
+            >
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-coral text-xs font-extrabold text-white">
                 MG
               </div>
@@ -108,7 +125,7 @@ export function FeatureClientesFieisSection() {
                 </span>
                 <p className="text-[10px] text-neutro-muted">47 visitas · R$ 4.820</p>
               </div>
-            </div>
+            </motion.div>
           </ParallaxFloat>
         </SpringIn>
 

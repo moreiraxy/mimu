@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
+import { PhoneTilt } from "@/components/marketing/PhoneTilt";
+import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 
 function useEstagiosChat() {
   const ref = useRef<HTMLDivElement>(null);
@@ -39,8 +41,8 @@ function Bolha({
   return (
     <motion.div
       initial={false}
-      animate={{ opacity: visivel ? 1 : 0, y: visivel || reduzida ? 0 : 10 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      animate={{ opacity: visivel ? 1 : 0, y: visivel || reduzida ? 0 : 22 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${align === "end" ? "self-end" : "self-start"} ${className}`}
     >
       {children}
@@ -55,16 +57,17 @@ export function FeatureMimuChatSection() {
     <section className="bg-superficie px-5 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-14 lg:flex-row-reverse lg:gap-20">
         <SpringIn className="flex flex-1 justify-center">
+        <PhoneTilt strength={70}>
           <div
             ref={ref}
-            className="flex h-[520px] w-[260px] flex-col gap-2 rounded-[38px] border-[8px] border-escuro bg-fundo p-4 shadow-2xl shadow-escuro/25"
+            className="flex h-[520px] w-[260px] flex-col gap-2 overflow-hidden rounded-[38px] border-[8px] border-escuro bg-fundo p-4 shadow-2xl shadow-escuro/25"
           >
             <div className="flex items-center gap-2 px-1">
               <div className="h-5 w-5 rounded-full bg-coral" />
               <p className="text-[13px] font-extrabold text-escuro">Mimu</p>
             </div>
 
-            <div className="flex flex-1 flex-col gap-2 pt-1.5">
+            <ParallaxFloat strength={140} className="flex flex-1 flex-col gap-2 pt-1.5">
               <Bolha visivel={estagio >= 1} align="end" className="bg-coral-light">
                 <p className="text-[11px] text-escuro">recebi 350 da Maria</p>
               </Bolha>
@@ -78,8 +81,8 @@ export function FeatureMimuChatSection() {
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-neutro-muted"
-                    style={{ animationDelay: `${i * 0.15}s` }}
+                    className="h-1.5 w-1.5 animate-typing-dot rounded-full bg-neutro-muted"
+                    style={{ animationDelay: `${i * 0.2}s` }}
                   />
                 ))}
               </motion.div>
@@ -97,12 +100,13 @@ export function FeatureMimuChatSection() {
                   Já atualizei o saldo da Maria. Quer registrar mais alguma?
                 </p>
               </Bolha>
-            </div>
+            </ParallaxFloat>
 
             <div className="rounded-full border border-neutro-border bg-superficie px-3.5 py-2.5">
               <p className="text-[11px] text-neutro-muted">Fala com a Mimu...</p>
             </div>
           </div>
+        </PhoneTilt>
         </SpringIn>
 
         <SpringIn delay={0.1} className="flex-1">
@@ -113,8 +117,8 @@ export function FeatureMimuChatSection() {
             A Mimu registra enquanto você atende.
           </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-neutro-muted sm:text-base">
-            Fala com ela como fala com uma amiga. A Mimu entende, confirma e
-            organiza tudo — sem formulário e sem menu.
+            Fala comigo como fala com uma amiga. Eu entendo, confirmo e
+            organizo tudo, sem formulário e sem menu.
           </p>
         </SpringIn>
       </div>

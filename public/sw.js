@@ -1,7 +1,7 @@
 // Service worker da Mimu: cache para modo offline + push notifications reais.
 // Fica em /public pra ser servido na raiz (escopo "/") sem config extra do Next.
 
-const CACHE_VERSION = "mimu-v1";
+const CACHE_VERSION = "mimu-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const PRECACHE_URLS = ["/", "/manifest.webmanifest", "/icon.svg"];
 

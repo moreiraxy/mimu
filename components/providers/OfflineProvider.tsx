@@ -54,11 +54,31 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, atualizarPendentes]);
 
-  // Registra o service worker (cache offline + push) uma vez, no client.
+  // Registra o service worker (cache offline + push) uma vez, no client — só
+  // em produção. Em dev os nomes dos chunks do webpack não são estáveis entre
+  // reinícios do servidor, e o SW cacheia "/_next/static/*" com cache-first;
+  // isso trava a página com JS antigo (erro de módulo indefinido no webpack)
+  // depois do primeiro restart. Sem esse guard, todo `npm run dev` novo corria
+  // o risco de ficar "quebrado" pra quem já tinha o SW instalado no navegador.
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    if (!("serviceWorker" in navigator)) return;
+
+    if (process.env.NODE_ENV === "production") {
       navigator.serviceWorker.register("/sw.js").catch(() => {
         // registro é um bônus progressivo — nunca deve quebrar o app.
+      });
+      return;
+    }
+
+    // Limpa qualquer SW/cache de uma instalação anterior (de antes deste
+    // guard existir) — sem isso, quem já tinha o worker antigo continuaria
+    // preso nele mesmo com o código já corrigido.
+    navigator.serviceWorker.getRegistrations().then((registros) => {
+      registros.forEach((registro) => registro.unregister());
+    });
+    if ("caches" in window) {
+      caches.keys().then((chaves) => {
+        chaves.forEach((chave) => caches.delete(chave));
       });
     }
   }, []);

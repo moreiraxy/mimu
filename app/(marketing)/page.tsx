@@ -26,10 +26,10 @@ export default async function LandingPage() {
       <main>
         <HeroSection />
         <MetricasSection />
-        <ChegaDePlanilhaSection />
         <FeatureFaturamentoSection />
         <FeatureMimuChatSection />
         <FeatureClientesFieisSection />
+        <ChegaDePlanilhaSection />
         <DepoimentosSection />
         <PrecoSection />
         <CadernoPlanilhaMemoriaSection />

@@ -11,16 +11,6 @@
    * A classe .dark é aplicada em <html> pelo ThemeProvider.
    */
   :root {
-    /*
-     * Pilhas de fonte de sistema — evita depender de download do Google
-     * Fonts (a rede do ambiente de build já mostrou instabilidade com
-     * fonts.gstatic.com/fonts.googleapis.com). --font-display fica um
-     * pouco mais "geométrica" nas plataformas que têm essas fontes.
-     */
-    --font-nunito: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif;
-    --font-space-grotesk: ui-sans-serif, "Avenir Next", "Century Gothic",
-      var(--font-nunito);
     --fundo: 247 246 243;
     --superficie: 255 255 255;
     --escuro: 30 30 46;
