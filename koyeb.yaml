@@ -1,0 +1,22 @@
+name: mimu
+services:
+  - name: mimu
+    type: web
+    instance_type: free
+    regions:
+      - was
+    git:
+      repository: github.com/moreiraxy/mimu
+      branch: main
+    build:
+      buildpack: nodejs
+    run:
+      command: npm run start
+    ports:
+      - port: 8080
+        protocol: http
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
