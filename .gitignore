@@ -27,7 +27,9 @@ yarn-error.log*
 .env
 .env*.local
 .env.development
-.env.production
+# .env.production é versionado de propósito — só tem variáveis NEXT_PUBLIC_
+# (públicas por design, acabam no bundle do navegador de qualquer forma),
+# usado como fallback pra build da Vercel. Segredos nunca vão aqui.
 
 # supabase
 .branches
