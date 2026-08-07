@@ -5,11 +5,17 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { ContagemNumero } from "@/components/marketing/ContagemNumero";
 
+const DURACAO_CICLO = 5000;
+
+/** Sequência do chat em loop: enquanto o card estiver visível, repete a
+ * digitação a cada 5s (reinicia em `estagio 0` e conta o ciclo de novo). */
 function useEstagiosChat() {
   const ref = useRef<HTMLDivElement>(null);
-  const emVista = useInView(ref, { once: true, margin: "-100px" });
+  const emVista = useInView(ref, { margin: "-100px" });
   const [estagio, setEstagio] = useState(0);
+  const [ciclo, setCiclo] = useState(0);
 
   useEffect(() => {
     if (!emVista) return;
@@ -17,8 +23,16 @@ function useEstagiosChat() {
       setTimeout(() => setEstagio(1), 300),
       setTimeout(() => setEstagio(2), 900),
       setTimeout(() => setEstagio(3), 1900),
+      setTimeout(() => setEstagio(4), 2600),
+      setTimeout(() => setEstagio(0), DURACAO_CICLO),
     ];
     return () => timers.forEach(clearTimeout);
+  }, [emVista, ciclo]);
+
+  useEffect(() => {
+    if (!emVista) return;
+    const intervalo = setInterval(() => setCiclo((c) => c + 1), DURACAO_CICLO);
+    return () => clearInterval(intervalo);
   }, [emVista]);
 
   return { ref, estagio };
@@ -92,10 +106,26 @@ export function FeatureMimuChatSection() {
                 </motion.div>
 
                 <Bolha visivel={estagio >= 3} align="start" className="border border-neutro-border bg-superficie">
-                  <p className="text-xl font-extrabold text-escuro">R$ 1.840</p>
-                  <p className="mt-0.5 text-xs font-bold text-verde">
-                    +21% vs semana passada
+                  <p className="text-xl font-extrabold text-escuro">
+                    <ContagemNumero
+                      valor={1840}
+                      formatar={(n) => `R$ ${Math.round(n).toLocaleString("pt-BR")}`}
+                      ativo={estagio >= 3}
+                      duracao={900}
+                    />
                   </p>
+                  <motion.p
+                    initial={false}
+                    animate={
+                      estagio >= 4
+                        ? { opacity: 1, scale: [0.85, 1.12, 1] }
+                        : { opacity: 0, scale: 0.85 }
+                    }
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="mt-0.5 text-xs font-bold text-verde"
+                  >
+                    +21% vs semana passada
+                  </motion.p>
                 </Bolha>
               </div>
 

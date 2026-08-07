@@ -8,8 +8,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from "motion/react"
  * na posição do próprio elemento — o mesmo tratamento de parallax que os
  * outros cards recebem, só que combinado com o tilt (o original aplica
  * rotateX/rotateY e translateY juntos no mockup do celular). No mobile o
- * deslocamento vertical é reduzido pela metade, igual ao ParallaxFloat, e o
- * efeito só liga depois do `window.load`.
+ * deslocamento vertical é reduzido pela metade, igual ao ParallaxFloat.
  */
 export function PhoneTilt({
   className,
@@ -23,23 +22,12 @@ export function PhoneTilt({
   const ref = useRef<HTMLDivElement>(null);
   const reduzida = useReducedMotion();
   const [mobile, setMobile] = useState(false);
-  const [carregado, setCarregado] = useState(false);
 
   useEffect(() => {
     const checar = () => setMobile(window.innerWidth < 640);
     checar();
     window.addEventListener("resize", checar, { passive: true });
     return () => window.removeEventListener("resize", checar);
-  }, []);
-
-  useEffect(() => {
-    if (document.readyState === "complete") {
-      setCarregado(true);
-      return;
-    }
-    const aoCarregar = () => setCarregado(true);
-    window.addEventListener("load", aoCarregar);
-    return () => window.removeEventListener("load", aoCarregar);
   }, []);
 
   const forcaEfetiva = mobile ? strength * 0.5 : strength;
@@ -52,7 +40,7 @@ export function PhoneTilt({
   const rotateY = useTransform(scrollYProgress, [0, 1], [1.5, -1.5]);
   const y = useTransform(scrollYProgress, [0, 1], [forcaEfetiva, -forcaEfetiva]);
 
-  const ativo = carregado && !reduzida;
+  const ativo = !reduzida;
 
   return (
     <div style={{ perspective: 1000 }}>

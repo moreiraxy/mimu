@@ -6,6 +6,35 @@ import { motion, useReducedMotion } from "motion/react";
 import { MARK_PATH } from "@/components/Logo";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 
+/** Uma célula da planilha, revelada com um pequeno pop de escala. As delays
+ * de cada célula (ver chamadas abaixo) não seguem a ordem visual da grade
+ * de propósito — imita o jeito "bagunçado" como uma planilha quebrada
+ * recalcula suas células fora de ordem. */
+function Celula({
+  delay,
+  className,
+  children,
+  as = "div",
+}: {
+  delay: number;
+  className?: string;
+  children?: React.ReactNode;
+  as?: "div" | "p";
+}) {
+  const Componente = as === "p" ? motion.p : motion.div;
+  return (
+    <Componente
+      initial={{ opacity: 0, scale: 0.7 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.3, delay, ease: [0.34, 1.56, 0.64, 1] }}
+      className={className}
+    >
+      {children}
+    </Componente>
+  );
+}
+
 export function ChegaDePlanilhaSection() {
   const reduzida = useReducedMotion();
 
@@ -38,21 +67,45 @@ export function ChegaDePlanilhaSection() {
                   planilha_salao_final_v3.xlsx
                 </p>
                 <div className="mb-1.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5">
-                  <div className="h-3.5 rounded-sm bg-neutro-disabled" />
-                  <div className="h-3.5 rounded-sm bg-erro-light" />
-                  <div className="h-3.5 rounded-sm bg-neutro-disabled" />
+                  <Celula delay={0.15} className="h-3.5 rounded-sm bg-neutro-disabled" />
+                  <Celula delay={0.4} className="h-3.5 rounded-sm bg-erro-light" />
+                  <Celula delay={0.25} className="h-3.5 rounded-sm bg-neutro-disabled" />
                 </div>
                 <div className="mb-1.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5 text-[8px] text-neutro-muted-strong">
-                  <p className="rounded-sm bg-neutro-disabled px-1 py-0.5">Maria</p>
-                  <p className="rounded-sm bg-neutro-disabled px-1 py-0.5">R$120</p>
-                  <p className="rounded-sm bg-erro-light px-1 py-0.5 text-erro-dark">#REF!</p>
+                  <Celula as="p" delay={0.5} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                    Maria
+                  </Celula>
+                  <Celula as="p" delay={0.1} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                    R$120
+                  </Celula>
+                  <Celula
+                    as="p"
+                    delay={0.6}
+                    className="animate-blink-erro rounded-sm bg-erro-light px-1 py-0.5 text-erro-dark"
+                  >
+                    #REF!
+                  </Celula>
                 </div>
                 <div className="mb-2.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5 text-[8px] text-neutro-muted-strong">
-                  <p className="rounded-sm bg-neutro-disabled px-1 py-0.5">Carol</p>
-                  <p className="rounded-sm bg-ambar-soft px-1 py-0.5">???</p>
-                  <p className="rounded-sm bg-neutro-disabled px-1 py-0.5">17/03</p>
+                  <Celula as="p" delay={0.3} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                    Carol
+                  </Celula>
+                  <Celula as="p" delay={0.7} className="rounded-sm bg-ambar-soft px-1 py-0.5">
+                    ???
+                  </Celula>
+                  <Celula as="p" delay={0.2} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                    17/03
+                  </Celula>
                 </div>
-                <p className="text-[11px] font-bold text-erro-dark">#REF! fórmula quebrada</p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.2, delay: 0.8 }}
+                  className="animate-blink-erro text-[11px] font-bold text-erro-dark"
+                >
+                  #REF! fórmula quebrada
+                </motion.p>
               </div>
             </motion.div>
           </ParallaxFloat>

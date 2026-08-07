@@ -8,8 +8,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from "motion/react"
  * própria posição do elemento (não num listener global) — usa o progresso
  * de scroll do elemento dentro do viewport, então cada card se move na
  * velocidade certa independente de onde está na página. No mobile a força
- * é reduzida pela metade. O efeito só liga depois do `window.load` (página
- * inteira carregada) pra não competir por frame com o carregamento inicial.
+ * é reduzida pela metade.
  */
 export function ParallaxFloat({
   children,
@@ -26,23 +25,12 @@ export function ParallaxFloat({
   const ref = useRef<HTMLDivElement>(null);
   const reduzida = useReducedMotion();
   const [mobile, setMobile] = useState(false);
-  const [carregado, setCarregado] = useState(false);
 
   useEffect(() => {
     const checar = () => setMobile(window.innerWidth < 640);
     checar();
     window.addEventListener("resize", checar, { passive: true });
     return () => window.removeEventListener("resize", checar);
-  }, []);
-
-  useEffect(() => {
-    if (document.readyState === "complete") {
-      setCarregado(true);
-      return;
-    }
-    const aoCarregar = () => setCarregado(true);
-    window.addEventListener("load", aoCarregar);
-    return () => window.removeEventListener("load", aoCarregar);
   }, []);
 
   const forcaEfetiva = mobile ? strength * 0.5 : strength;
@@ -57,7 +45,7 @@ export function ParallaxFloat({
     reverse ? [-forcaEfetiva, forcaEfetiva] : [forcaEfetiva, -forcaEfetiva],
   );
 
-  const ativo = carregado && !reduzida;
+  const ativo = !reduzida;
 
   return (
     <motion.div

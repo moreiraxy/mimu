@@ -83,6 +83,10 @@ const config: Config = {
           "0%, 60%, 100%": { opacity: "0.3", transform: "translateY(0)" },
           "30%": { opacity: "1", transform: "translateY(-4px)" },
         },
+        "blink-erro": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.35" },
+        },
       },
       animation: {
         shimmer: "shimmer 1.6s ease-in-out infinite",
@@ -91,6 +95,7 @@ const config: Config = {
         "float-slow": "float-slow 6s ease-in-out infinite",
         "pulse-badge": "pulse-badge 2s ease-in-out infinite",
         "typing-dot": "typing-dot 1.2s infinite",
+        "blink-erro": "blink-erro 1.1s ease-in-out infinite",
       },
     },
   },
