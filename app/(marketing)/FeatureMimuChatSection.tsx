@@ -3,22 +3,24 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
-import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { EntradaMockup } from "@/components/marketing/EntradaMockup";
+import { SpringIn } from "@/components/marketing/SpringIn";
 import { ContagemNumero } from "@/components/marketing/ContagemNumero";
 
 const DURACAO_CICLO = 5000;
 
-/** Sequência do chat em loop: enquanto o card estiver visível, repete a
- * digitação a cada 5s (reinicia em `estagio 0` e conta o ciclo de novo). */
-function useEstagiosChat() {
+/** Sequência do chat em loop: só começa depois que o card termina de entrar
+ * na tela (`pronto`), e enquanto estiver visível repete a digitação a cada
+ * 5s (reinicia em `estagio 0` e conta o ciclo de novo). */
+function useEstagiosChat(pronto: boolean) {
   const ref = useRef<HTMLDivElement>(null);
   const emVista = useInView(ref, { margin: "-100px" });
   const [estagio, setEstagio] = useState(0);
   const [ciclo, setCiclo] = useState(0);
 
   useEffect(() => {
-    if (!emVista) return;
+    if (!emVista || !pronto) return;
     const timers = [
       setTimeout(() => setEstagio(1), 300),
       setTimeout(() => setEstagio(2), 900),
@@ -27,13 +29,13 @@ function useEstagiosChat() {
       setTimeout(() => setEstagio(0), DURACAO_CICLO),
     ];
     return () => timers.forEach(clearTimeout);
-  }, [emVista, ciclo]);
+  }, [emVista, pronto, ciclo]);
 
   useEffect(() => {
-    if (!emVista) return;
+    if (!emVista || !pronto) return;
     const intervalo = setInterval(() => setCiclo((c) => c + 1), DURACAO_CICLO);
     return () => clearInterval(intervalo);
-  }, [emVista]);
+  }, [emVista, pronto]);
 
   return { ref, estagio };
 }
@@ -63,13 +65,14 @@ function Bolha({
 }
 
 export function FeatureMimuChatSection() {
-  const { ref, estagio } = useEstagiosChat();
+  const [pronto, setPronto] = useState(false);
+  const { ref, estagio } = useEstagiosChat(pronto);
 
   return (
     <section className="bg-superficie px-4 py-[48px] sm:px-6 lg:py-[80px]">
       <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row-reverse lg:gap-20">
         <ParallaxFloat strength={30} className="w-full max-w-[380px] flex-1">
-          <SpringIn>
+          <EntradaMockup onEntrada={() => setTimeout(() => setPronto(true), 400)}>
             <div
               ref={ref}
               className="flex h-[340px] flex-col rounded-2xl bg-fundo p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
@@ -133,7 +136,7 @@ export function FeatureMimuChatSection() {
                 <p className="text-[13px] text-neutro-muted">Fala com a Mimu...</p>
               </div>
             </div>
-          </SpringIn>
+          </EntradaMockup>
         </ParallaxFloat>
 
         <SpringIn delay={0.1} className="flex-1">

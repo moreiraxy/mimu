@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import { useInView } from "motion/react";
+import { useState } from "react";
 import { Star } from "lucide-react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { EntradaMockup } from "@/components/marketing/EntradaMockup";
 import { ContagemNumero } from "@/components/marketing/ContagemNumero";
 
 const STATS = [
@@ -19,15 +19,14 @@ const STATS = [
 ] as const;
 
 export function FeatureClientesFieisSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const emVista = useInView(ref, { once: true, margin: "-80px" });
+  const [contagemAtiva, setContagemAtiva] = useState(false);
 
   return (
     <section className="px-4 py-[48px] sm:px-6 lg:py-[80px]">
       <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <ParallaxFloat strength={30} className="w-full max-w-[380px] flex-1">
-          <SpringIn>
-            <div ref={ref} className="rounded-2xl bg-superficie p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+          <EntradaMockup onEntrada={() => setTimeout(() => setContagemAtiva(true), 400)}>
+            <div className="rounded-2xl bg-superficie p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
               <div className="flex items-center gap-3 border-b border-neutro-border pb-4">
                 <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-coral text-sm font-bold text-white">
                   MG
@@ -48,7 +47,7 @@ export function FeatureClientesFieisSection() {
                       <ContagemNumero
                         valor={stat.valor}
                         formatar={stat.formatar}
-                        ativo={emVista}
+                        ativo={contagemAtiva}
                         duracao={1000 + indice * 200}
                       />
                     </p>
@@ -61,7 +60,7 @@ export function FeatureClientesFieisSection() {
                 Último atendimento: 15 dias atrás
               </p>
             </div>
-          </SpringIn>
+          </EntradaMockup>
         </ParallaxFloat>
 
         <SpringIn delay={0.1} className="flex-1">

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { useState } from "react";
+import { motion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { EntradaMockup } from "@/components/marketing/EntradaMockup";
 import { ContagemNumero } from "@/components/marketing/ContagemNumero";
 
 const AGENDA = [
@@ -15,15 +16,20 @@ const AGENDA = [
 const formatarReais = (n: number) => `R$ ${Math.round(n).toLocaleString("pt-BR")}`;
 
 export function FeatureFaturamentoSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const emVista = useInView(ref, { once: true, margin: "-80px" });
+  const [entrou, setEntrou] = useState(false);
+  const [contagemAtiva, setContagemAtiva] = useState(false);
 
   return (
     <section id="produto" className="px-4 py-[48px] sm:px-6 lg:py-[80px]">
       <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <ParallaxFloat strength={30} className="w-full max-w-[380px] flex-1">
-          <SpringIn>
-            <div ref={ref} className="rounded-2xl bg-superficie p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+          <EntradaMockup
+            onEntrada={() => {
+              setEntrou(true);
+              setTimeout(() => setContagemAtiva(true), 400);
+            }}
+          >
+            <div className="rounded-2xl bg-superficie p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-escuro">Faturamento</span>
                 <div className="flex gap-1 rounded-full bg-fundo p-1 text-[11px] font-bold text-neutro-muted">
@@ -37,13 +43,13 @@ export function FeatureFaturamentoSection() {
                 <div className="rounded-xl bg-verde-light p-4">
                   <p className="text-xs text-neutro-muted">Realizado</p>
                   <p className="mt-1 text-xl font-extrabold text-verde">
-                    <ContagemNumero valor={410} formatar={formatarReais} ativo={emVista} duracao={1300} />
+                    <ContagemNumero valor={410} formatar={formatarReais} ativo={contagemAtiva} duracao={1300} />
                   </p>
                 </div>
                 <div className="rounded-xl bg-ambar-light p-4">
                   <p className="text-xs text-neutro-muted">Previsto</p>
                   <p className="mt-1 text-xl font-extrabold text-ambar-dark">
-                    <ContagemNumero valor={90} formatar={formatarReais} ativo={emVista} duracao={1000} />
+                    <ContagemNumero valor={90} formatar={formatarReais} ativo={contagemAtiva} duracao={1000} />
                   </p>
                 </div>
               </div>
@@ -53,8 +59,8 @@ export function FeatureFaturamentoSection() {
                   <motion.div
                     key={item.nome}
                     initial={{ opacity: 0, x: -10 }}
-                    animate={emVista ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.35, delay: 0.5 + indice * 0.15, ease: "easeOut" }}
+                    animate={entrou ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.35, delay: indice * 0.15, ease: "easeOut" }}
                     className="flex items-center gap-2.5"
                   >
                     <span className={`h-2 w-2 flex-shrink-0 rounded-full ${item.cor}`} />
@@ -64,7 +70,7 @@ export function FeatureFaturamentoSection() {
                 ))}
               </div>
             </div>
-          </SpringIn>
+          </EntradaMockup>
         </ParallaxFloat>
 
         <SpringIn delay={0.1} className="flex-1">

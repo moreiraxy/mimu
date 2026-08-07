@@ -1,5 +1,6 @@
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { EntradaMockup } from "@/components/marketing/EntradaMockup";
 
 const DEPOIMENTOS = [
   {
@@ -47,7 +48,7 @@ export function DepoimentosSection() {
             strength={depoimento.parallax}
             className="h-full"
           >
-            <SpringIn delay={indice * 0.1}>
+            <EntradaMockup delay={indice * 0.1}>
               <div className="flex h-full flex-col rounded-[22px] border border-neutro-border bg-fundo p-[34px] shadow-sm">
                 <p className="flex-1 text-base leading-relaxed text-escuro">
                   “{depoimento.texto}”
@@ -64,7 +65,7 @@ export function DepoimentosSection() {
                   </div>
                 </div>
               </div>
-            </SpringIn>
+            </EntradaMockup>
           </ParallaxFloat>
         ))}
       </div>

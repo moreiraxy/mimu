@@ -1,21 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { MARK_PATH } from "@/components/Logo";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 
-/** Uma célula da planilha, revelada com um pequeno pop de escala. As delays
- * de cada célula (ver chamadas abaixo) não seguem a ordem visual da grade
- * de propósito — imita o jeito "bagunçado" como uma planilha quebrada
+/** Uma célula da planilha, revelada com um pequeno pop de escala. Controlada
+ * (não usa whileInView própria) porque precisa esperar o cartão inteiro
+ * terminar de entrar na tela antes de começar a preencher — senão as células
+ * apareceriam em cima do movimento de entrada do cartão. As delays de cada
+ * célula (ver chamadas abaixo) não seguem a ordem visual da grade de
+ * propósito — imita o jeito "bagunçado" como uma planilha quebrada
  * recalcula suas células fora de ordem. */
 function Celula({
+  visivel,
   delay,
   className,
   children,
   as = "div",
 }: {
+  visivel: boolean;
   delay: number;
   className?: string;
   children?: React.ReactNode;
@@ -25,8 +31,7 @@ function Celula({
   return (
     <Componente
       initial={{ opacity: 0, scale: 0.7 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={visivel ? { opacity: 1, scale: 1 } : {}}
       transition={{ duration: 0.3, delay, ease: [0.34, 1.56, 0.64, 1] }}
       className={className}
     >
@@ -37,10 +42,14 @@ function Celula({
 
 export function ChegaDePlanilhaSection() {
   const reduzida = useReducedMotion();
+  const [prontoEsquerda, setProntoEsquerda] = useState(false);
 
   return (
     <section className="overflow-x-hidden bg-superficie px-4 py-[48px] sm:px-6 lg:py-[80px]">
-      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row lg:gap-20">
+      {/* Grid de 2 colunas com align-items:center — garante que o mockup da
+          planilha (esquerda) e o texto (direita) fiquem centralizados um em
+          relação ao outro verticalmente, mesmo tendo alturas diferentes. */}
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-16">
         <motion.div
           initial={{ opacity: 0, x: reduzida ? 0 : -60 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -50,14 +59,18 @@ export function ChegaDePlanilhaSection() {
               ? { duration: 0.25, ease: "easeOut" }
               : { type: "spring", bounce: 0, duration: 0.7 }
           }
-          className="flex flex-1 flex-col items-center gap-3"
+          onAnimationComplete={() => setProntoEsquerda(true)}
+          className="flex flex-col items-center gap-3"
         >
           <ParallaxFloat strength={130} className="w-full max-w-[280px]">
             <motion.div
               initial={{ x: 0, rotate: 0 }}
-              whileInView={{ x: reduzida ? 0 : [0, -3, 3, 0], rotate: reduzida ? 0 : [0, -0.6, 0.6, 0] }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4, ease: "easeInOut" }}
+              animate={
+                prontoEsquerda
+                  ? { x: reduzida ? 0 : [0, -3, 3, 0], rotate: reduzida ? 0 : [0, -0.6, 0.6, 0] }
+                  : {}
+              }
+              transition={{ duration: 0.5, delay: 0.1, ease: "easeInOut" }}
             >
               <div
                 className="animate-float w-full rounded-2xl border border-neutro-border bg-fundo/80 p-5 shadow-xl shadow-escuro/10 backdrop-blur-xl"
@@ -67,19 +80,20 @@ export function ChegaDePlanilhaSection() {
                   planilha_salao_final_v3.xlsx
                 </p>
                 <div className="mb-1.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5">
-                  <Celula delay={0.15} className="h-3.5 rounded-sm bg-neutro-disabled" />
-                  <Celula delay={0.4} className="h-3.5 rounded-sm bg-erro-light" />
-                  <Celula delay={0.25} className="h-3.5 rounded-sm bg-neutro-disabled" />
+                  <Celula visivel={prontoEsquerda} delay={0.15} className="h-3.5 rounded-sm bg-neutro-disabled" />
+                  <Celula visivel={prontoEsquerda} delay={0.4} className="h-3.5 rounded-sm bg-erro-light" />
+                  <Celula visivel={prontoEsquerda} delay={0.25} className="h-3.5 rounded-sm bg-neutro-disabled" />
                 </div>
                 <div className="mb-1.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5 text-[8px] text-neutro-muted-strong">
-                  <Celula as="p" delay={0.5} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                  <Celula as="p" visivel={prontoEsquerda} delay={0.5} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
                     Maria
                   </Celula>
-                  <Celula as="p" delay={0.1} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                  <Celula as="p" visivel={prontoEsquerda} delay={0.1} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
                     R$120
                   </Celula>
                   <Celula
                     as="p"
+                    visivel={prontoEsquerda}
                     delay={0.6}
                     className="animate-blink-erro rounded-sm bg-erro-light px-1 py-0.5 text-erro-dark"
                   >
@@ -87,20 +101,19 @@ export function ChegaDePlanilhaSection() {
                   </Celula>
                 </div>
                 <div className="mb-2.5 grid grid-cols-[1.4fr_1fr_1fr] gap-0.5 text-[8px] text-neutro-muted-strong">
-                  <Celula as="p" delay={0.3} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                  <Celula as="p" visivel={prontoEsquerda} delay={0.3} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
                     Carol
                   </Celula>
-                  <Celula as="p" delay={0.7} className="rounded-sm bg-ambar-soft px-1 py-0.5">
+                  <Celula as="p" visivel={prontoEsquerda} delay={0.7} className="rounded-sm bg-ambar-soft px-1 py-0.5">
                     ???
                   </Celula>
-                  <Celula as="p" delay={0.2} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
+                  <Celula as="p" visivel={prontoEsquerda} delay={0.2} className="rounded-sm bg-neutro-disabled px-1 py-0.5">
                     17/03
                   </Celula>
                 </div>
                 <motion.p
                   initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
+                  animate={prontoEsquerda ? { opacity: 1 } : {}}
                   transition={{ duration: 0.2, delay: 0.8 }}
                   className="animate-blink-erro text-[11px] font-bold text-erro-dark"
                 >
@@ -114,13 +127,15 @@ export function ChegaDePlanilhaSection() {
 
           <ParallaxFloat strength={170} className="w-full max-w-[280px]">
             <motion.div
-              initial={{ opacity: 0, scale: reduzida ? 1 : 0.9, y: reduzida ? 0 : 14 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: reduzida ? 0 : 40 }}
+              animate={prontoEsquerda ? { opacity: 1, y: 0 } : {}}
               transition={
                 reduzida
-                  ? { duration: 0.25, delay: 0.3 }
-                  : { type: "spring", bounce: 0.15, duration: 0.7, delay: 0.5 }
+                  ? { duration: 0.25, delay: 0.2 }
+                  : {
+                      opacity: { duration: 0.6, ease: "easeOut", delay: 0.3 },
+                      y: { duration: 0.6, ease: [0.34, 1.56, 0.64, 1], delay: 0.3 },
+                    }
               }
               className="rounded-2xl border border-neutro-border bg-fundo p-4 shadow-lg shadow-escuro/10"
             >
@@ -155,7 +170,6 @@ export function ChegaDePlanilhaSection() {
               ? { duration: 0.25, ease: "easeOut", delay: 0.1 }
               : { type: "spring", bounce: 0, duration: 0.7, delay: 0.1 }
           }
-          className="flex-1"
         >
           <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
             Chega de planilha

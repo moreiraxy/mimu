@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
+import { EntradaMockup } from "@/components/marketing/EntradaMockup";
 
 type Periodo = "mensal" | "trimestral" | "semestral" | "anual";
 
@@ -119,7 +120,7 @@ export function PrecoSection() {
           </SpringIn>
 
           <ParallaxFloat strength={40} className="mt-6 max-w-md">
-            <SpringIn delay={0.15}>
+            <EntradaMockup delay={0.15}>
               <div className="relative rounded-[26px] border-[1.5px] border-coral bg-coral-light px-8 py-11 text-center shadow-2xl shadow-coral/20">
                 {plano.badge && (
                   <span
@@ -171,7 +172,7 @@ export function PrecoSection() {
                   Sem cartão de crédito. Cancele quando quiser.
                 </p>
               </div>
-            </SpringIn>
+            </EntradaMockup>
           </ParallaxFloat>
         </div>
 
