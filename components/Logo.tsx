@@ -58,7 +58,7 @@ export function Logo({
     <div className={clsx("flex items-center gap-3.5", className)}>
       <LogoMark size={size} />
       <div>
-        <p className="text-3xl font-medium leading-none tracking-[-0.5px] text-coral">
+        <p className="text-3xl font-semibold leading-none tracking-[-0.5px] text-coral">
           mimu
         </p>
         {tagline && (

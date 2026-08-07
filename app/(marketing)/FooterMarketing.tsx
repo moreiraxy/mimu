@@ -19,7 +19,7 @@ const COLUNAS = [
 export function FooterMarketing() {
   return (
     <footer className="border-t border-neutro-border bg-superficie px-5 py-12 sm:px-6 sm:py-16">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 sm:flex-row sm:justify-between">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-10 sm:flex-row sm:justify-between">
         <div className="flex items-start gap-2.5">
           <LogoMark size="sm" className="h-8 w-8 rounded-[8px]" />
           <div>
@@ -50,7 +50,7 @@ export function FooterMarketing() {
         </div>
       </div>
 
-      <p className="mx-auto mt-10 max-w-5xl border-t border-neutro-border pt-6 text-center text-xs text-neutro-disabled-text sm:text-left">
+      <p className="mx-auto mt-10 max-w-[1200px] border-t border-neutro-border pt-6 text-center text-xs text-neutro-disabled-text sm:text-left">
         © 2026 Mimu
       </p>
     </footer>

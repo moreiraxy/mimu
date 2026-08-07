@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getEmpresaAtual } from "@/lib/supabase";
 import { HeaderMarketing } from "@/components/marketing/HeaderMarketing";
 import { HeroSection } from "./HeroSection";
-import { MetricasSection } from "./MetricasSection";
 import { ChegaDePlanilhaSection } from "./ChegaDePlanilhaSection";
 import { FeatureFaturamentoSection } from "./FeatureFaturamentoSection";
 import { FeatureMimuChatSection } from "./FeatureMimuChatSection";
@@ -25,7 +24,6 @@ export default async function LandingPage() {
       <HeaderMarketing />
       <main>
         <HeroSection />
-        <MetricasSection />
         <FeatureFaturamentoSection />
         <FeatureMimuChatSection />
         <FeatureClientesFieisSection />

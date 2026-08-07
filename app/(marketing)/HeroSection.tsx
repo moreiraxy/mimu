@@ -6,11 +6,18 @@ import { motion, useReducedMotion } from "motion/react";
 import { MARK_PATH } from "@/components/Logo";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { PhoneTilt } from "@/components/marketing/PhoneTilt";
+import { VALOR_MENSAL_MIMU } from "@/lib/planos";
 
 const AVATARES = [
   { iniciais: "AN", cor: "bg-coral" },
   { iniciais: "RO", cor: "bg-verde" },
   { iniciais: "CA", cor: "bg-ambar" },
+] as const;
+
+const METRICAS = [
+  { valor: "7 dias", legenda: "grátis para começar" },
+  { valor: `R$ ${VALOR_MENSAL_MIMU}`, legenda: "por mês depois" },
+  { valor: "2 min", legenda: "para configurar tudo" },
 ] as const;
 
 function NotifCard({
@@ -105,6 +112,19 @@ export function HeroSection() {
         <p className="text-xs text-neutro-muted">
           Sem cartão de crédito. Cancele quando quiser.
         </p>
+
+        <div className="mt-6 flex items-center gap-6 sm:gap-10">
+          {METRICAS.map((metrica) => (
+            <div key={metrica.legenda} className="text-center">
+              <p className="font-display text-lg font-bold text-escuro sm:text-xl">
+                {metrica.valor}
+              </p>
+              <p className="mt-0.5 text-[11px] text-neutro-muted sm:text-xs">
+                {metrica.legenda}
+              </p>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
       {/* MOCKUP DO CELULAR — iPhone 15 Pro (titânio, Dynamic Island). Entra

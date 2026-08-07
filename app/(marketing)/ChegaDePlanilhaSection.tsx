@@ -10,8 +10,8 @@ export function ChegaDePlanilhaSection() {
   const reduzida = useReducedMotion();
 
   return (
-    <section className="overflow-x-hidden bg-superficie px-5 py-16 sm:px-6 sm:py-24">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-14 lg:flex-row lg:gap-20">
+    <section className="overflow-x-hidden bg-superficie px-4 py-[48px] sm:px-6 lg:py-[80px]">
+      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row lg:gap-20">
         <motion.div
           initial={{ opacity: 0, x: reduzida ? 0 : -60 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -59,7 +59,7 @@ export function ChegaDePlanilhaSection() {
 
           <ChevronDown className="h-6 w-6 text-neutro-border" strokeWidth={2.5} />
 
-          <ParallaxFloat strength={170} className="w-full max-w-[250px]">
+          <ParallaxFloat strength={170} className="w-full max-w-[280px]">
             <motion.div
               initial={{ opacity: 0, scale: reduzida ? 1 : 0.9, y: reduzida ? 0 : 14 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
