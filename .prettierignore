@@ -5,3 +5,6 @@ build
 coverage
 *.lock
 package-lock.json
+
+# App autocontido da v2 (Next 16 / React 19, com o próprio tooling)
+site-v2

@@ -1,0 +1,55 @@
+{
+  "bodyClass": "u-theme-dark",
+  "mainAttrs": "id=\"main\" className=\"page_main\"",
+  "pageWrapClass": "page_wrap",
+  "sectionIds": [
+    null,
+    null,
+    "features",
+    null,
+    null,
+    null,
+    "pricing",
+    null,
+    null,
+    "about"
+  ],
+  "chromeBefore": 5,
+  "chromeAfter": 0,
+  "vendorScripts": [
+    "assets/js/jquery-3.5.1.min.dc5e7f18c8.js",
+    "assets/js/webflow.schunk.36b8fb49256177c8.js",
+    "assets/js/webflow.schunk.f8d5d85e975717cd.js",
+    "assets/js/webflow.0225a082.3890fba5f3ef210d.js",
+    "assets/js/gsap.min.js",
+    "assets/js/lenis.min.js"
+  ],
+  "inlineScriptSizes": [
+    967,
+    14336,
+    10377,
+    7173,
+    6294,
+    263,
+    1667,
+    2273,
+    96,
+    2263
+  ],
+  "warnings": [],
+  "written": [
+    "components/nav.tsx",
+    "components/sections/section-01.tsx",
+    "components/sections/section-02.tsx",
+    "components/sections/section-03.tsx",
+    "components/sections/section-04.tsx",
+    "components/sections/section-05.tsx",
+    "components/sections/section-06.tsx",
+    "components/sections/section-07.tsx",
+    "components/sections/section-08.tsx",
+    "components/sections/section-09.tsx",
+    "components/sections/section-10.tsx",
+    "components/footer.tsx",
+    "components/chrome.tsx"
+  ]
+}
