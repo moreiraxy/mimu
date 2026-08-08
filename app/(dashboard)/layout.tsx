@@ -40,13 +40,13 @@ export default async function DashboardGroupLayout({
         </div>
 
         <div className="mx-auto max-w-[430px] px-4 pb-20 pt-4 md:max-w-none md:px-6 md:pb-10 md:pt-6 lg:px-8 lg:pb-10 lg:pt-2">
+          <PushPermissionPrompt />
           {children}
         </div>
       </div>
 
       <Fab />
       <BottomNav />
-      <PushPermissionPrompt />
     </div>
   );
 }
