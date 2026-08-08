@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import "./styles/fonts.css";
+
+@theme {
+  /* Breakpoints mirror the source: <744 mobile, 744-1199 tablet, >=1200 desktop */
+  --breakpoint-sm: 460px;
+  --breakpoint-md: 744px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1440px;
+
+  /*
+   * Paleta Mimu.
+   *
+   * Os três nomes estruturais do template — cream / ink / sand — foram mantidos
+   * e REAPONTADOS para os valores da marca, em vez de renomeados: eles aparecem
+   * em mais de mil classes de layout, e trocar o nome exigiria reescrever todas
+   * sem mudar um pixel do resultado. O que muda é só o que eles valem.
+   *
+   *   cream -> Fundo neutro (#F7F6F3), o background do app no brand book
+   *   ink   -> Escuro (#1E1E2E). Nunca preto puro, como o manual determina
+   *   sand  -> neutro quente de apoio, entre o fundo e a borda #E4E1DA
+   */
+  --color-cream: #f7f6f3;
+  --color-ink: #1e1e2e;
+  /* Cards sobre fundo escuro. O template subia 10 pontos do ink (#1a1a1a ->
+     #242424); aqui, o degrau equivalente sobre #1E1E2E preservando o matiz. */
+  --color-ink-soft: #2a2a3d;
+  --color-sand: #ece9e2;
+
+  /* Acentos da marca. Coral é a cor principal — CTAs, ícone e destaques. */
+  --color-coral: #ff6b5b;
+  --color-coral-hover: #e85a4a;
+  --color-coral-light: #fff5f4;
+  --color-coral-border: #ffd8d4;
+
+  /* Verde só para entrada/sucesso; âmbar só para pendência. O manual é
+     explícito: âmbar nunca sinaliza erro crítico. */
+  --color-verde: #2dbe8c;
+  --color-verde-light: #eaf8f2;
+  --color-ambar: #f4a653;
+  --color-ambar-light: #fdf3e7;
+
+  --color-superficie: #ffffff;
+  --color-borda: #e4e1da;
+  --color-muted: #9a9690;
+  --color-muted-strong: #6f6b64;
+
+  /*
+   * Uma família só. O template separava corpo (Inter), títulos (Inter Display)
+   * e olhos-de-seção (Geist Mono); a Mimu não tem monoespaçada, e os olhos no
+   * site atual são Nunito bold em caixa alta. Manter os três slots apontando
+   * para Nunito preserva as classes `font-mono`/`font-display` já espalhadas
+   * pelo código sem deixar nenhuma tipografia estranha à marca escapar.
+   */
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * "Curvas suaves" é uma das palavras que o manual usa para descrever o
+   * vocabulário visual, então os raios sobem em bloco. Fazer isso aqui, na
+   * escala, arredonda o site inteiro de uma vez — a alternativa seria editar
+   * cada `rounded-*` à mão e deixar dura toda a que passasse despercebida.
+   */
+  --radius-sm: 0.375rem; /*  6px */
+  --radius-md: 0.625rem; /* 10px */
+  --radius-lg: 0.875rem; /* 14px */
+  --radius-xl: 1.25rem; /*  20px */
+  --radius-2xl: 1.5rem; /*  24px */
+  --radius-3xl: 1.75rem; /* 28px */
+
+  --container-page: 1200px;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Sem `font-feature-settings` aqui: as variantes cv03/cv04/cv09/cv11 que o
+       template ativava são exclusivas do Inter. O Nunito não as declara, e
+       pedi-las a uma fonte que não as tem só custa bytes. */
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+
+  ::selection {
+    background: var(--color-coral);
+    color: #ffffff;
+  }
+}
+
+/*
+ * The original sizes every container as `width: 90%; max-width: 1200px` with no
+ * padding — 19 classes in its CSS do exactly this. Fixed side padding looks
+ * equivalent but drifts everywhere below 1333px (at 1000px wide it yields 920
+ * against the original's 900), so the percentage model is the faithful one.
+ */
+@utility container-page {
+  width: 90%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+/*
+ * Logo marquee. The track holds two identical passes and translates exactly
+ * -50%, so the loop point lands on an identical frame and reads as seamless.
+ */
+@utility marquee-track {
+  animation: marquee 32s linear infinite;
+}
+
+@utility marquee-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/*
+ * Same idea, but for tracks that are not exactly two passes. The testimonials
+ * Ticker repeats its set 4x on the top row and 3x on the bottom one, so the
+ * loop distance is 1/copies of the track, not half of it — the caller puts it
+ * in `--marquee-shift`.
+ */
+@keyframes marquee-set {
+  to {
+    transform: translateX(var(--marquee-shift));
+  }
+}
+
+/* Respect users who ask for less motion — every animation below opts out.
+   The delays matter as much as the durations here: every reveal in the sections
+   starts from opacity 0 and settles on a delay read from the original (100ms in
+   Features, up to 700ms for the hero's appear). Zeroing only the duration would
+   leave a reduced-motion reader staring at an invisible element for that delay
+   before it snapped in, so both are collapsed. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

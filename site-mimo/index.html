@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <!-- Coral Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
+    <meta name="theme-color" content="#FF6B5B" />
+    <title>Mimu · seu negócio, organizado</title>
+    <meta
+      name="description"
+      content="Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar. Enquanto você trabalha, a Mimu cuida do seu negócio."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Mimu" />
+    <meta property="og:title" content="Mimu · seu negócio, organizado" />
+    <meta
+      property="og:description"
+      content="Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar. Enquanto você trabalha, a Mimu cuida do seu negócio."
+    />
+    <meta property="og:image" content="/img/cZvP0DOqHSNkDTt3e2Xi97Yc3qo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="robots" content="max-image-preview:large" />
+
+    <!--
+      Só o que está acima da dobra. Um arquivo cobre a tipografia inteira: o
+      Nunito é variável, então o mesmo woff2 responde pelos pesos 400 do corpo e
+      800 do título — onde o template precisava de dois preloads (Inter Display
+      500 e 600), aqui basta um. O subset latin-ext fica de fora de propósito:
+      todo acento do português vive no latin, e pré-carregar o outro custaria
+      35KB que a home não usa.
+      O srcset/sizes da imagem tem que continuar idêntico ao que o <Img> emite
+      para esse arquivo, senão o browser pré-carrega um candidato e busca outro.
+    -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/nunito-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      fetchpriority="high"
+      href="/img/TSJEmo3HFim46DqBxHZOxuASA-960.avif"
+      imagesrcset="/img/TSJEmo3HFim46DqBxHZOxuASA-480.avif 480w, /img/TSJEmo3HFim46DqBxHZOxuASA-960.avif 960w, /img/TSJEmo3HFim46DqBxHZOxuASA-1365.avif 1365w"
+      imagesizes="(max-width: 743px) 100vw, 773px"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

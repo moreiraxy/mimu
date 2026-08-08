@@ -6,5 +6,7 @@ coverage
 *.lock
 package-lock.json
 
-# App autocontido da v2 (Next 16 / React 19, com o próprio tooling)
+# Apps autocontidos do site, cada um com o próprio tooling — ver
+# site-v2/app/interno/merge para o que são e como serão mesclados.
 site-v2
+site-mimo
