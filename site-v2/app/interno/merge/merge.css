@@ -1,0 +1,107 @@
+/* Estilos só desta página interna. Prefixados com .doc para não escaparem para
+   a LP — o webflow.css é global e vale em todas as rotas do site-v2. */
+
+.doc {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 8rem;
+  font-family: Nunito, system-ui, sans-serif;
+  color: #1e1e2e;
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+.doc h1,
+.doc h2,
+.doc h3 {
+  font-family: "Space Grotesk", Nunito, sans-serif;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.doc h1 {
+  font-size: 2.25rem;
+  margin-bottom: 0.5rem;
+}
+.doc h2 {
+  font-size: 1.5rem;
+  margin: 3rem 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e4e1da;
+}
+.doc h3 {
+  font-size: 1.1rem;
+  margin: 1.75rem 0 0.5rem;
+}
+.doc p,
+.doc ul,
+.doc ol {
+  margin-bottom: 1rem;
+}
+.doc ul,
+.doc ol {
+  padding-left: 1.25rem;
+}
+.doc li {
+  margin-bottom: 0.4rem;
+  display: list-item;
+  list-style: inherit;
+}
+
+.doc code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875em;
+  background: #f7f6f3;
+  border: 1px solid #e4e1da;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.doc__aviso {
+  background: #fff5f4;
+  border: 1px solid #ffd8d4;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.doc__sub {
+  color: #6f6b64;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.925rem;
+  display: table;
+}
+.doc th,
+.doc td {
+  border: 1px solid #e4e1da;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.doc th {
+  background: #f7f6f3;
+  font-weight: 700;
+}
+
+.doc__tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #ff6b5b;
+  color: #fff;
+}
+
+.doc__scroll {
+  overflow-x: auto;
+}
