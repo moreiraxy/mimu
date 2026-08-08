@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { BookOpen, Table2, Brain, ChevronDown, ArrowRight } from "lucide-react";
+import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { EntradaMockup } from "@/components/marketing/EntradaMockup";
-import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 import { MARK_PATH } from "@/components/Logo";
 
 const SUBSTITUTOS = [
@@ -10,29 +10,30 @@ const SUBSTITUTOS = [
     icone: BookOpen,
     titulo: "Caderno",
     texto: "Anotações perdidas, letra ilegível, nada organizado.",
-    parallax: 140,
+    parallax: 70,
   },
   {
     icone: Table2,
     titulo: "Planilha",
     texto: "Fórmula que quebra, dado que some, trava toda hora.",
-    parallax: 210,
+    parallax: 105,
   },
   {
     icone: Brain,
     titulo: "Memória",
     texto: "Esqueceu de cobrar, esqueceu de agendar, esqueceu.",
-    parallax: 140,
+    parallax: 70,
   },
 ] as const;
 
 export function CadernoPlanilhaMemoriaSection() {
   return (
-    <section className="bg-fundo px-4 py-[56px] sm:px-6 lg:py-[120px]">
-      <TituloAnimado
-        linhas="Caderno, planilha ou memória, a Mimu substitui os três."
-        className="mx-auto max-w-xl text-center font-display text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.05] tracking-tight text-escuro"
-      />
+    <section className="bg-fundo px-4 py-[48px] sm:px-6 lg:py-[80px]">
+      <SpringIn>
+        <h2 className="mx-auto max-w-xl text-center font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
+          Caderno, planilha ou memória, a Mimu substitui os três.
+        </h2>
+      </SpringIn>
 
       <div className="mx-auto mt-10 grid max-w-[1200px] grid-cols-1 items-stretch gap-3 sm:mt-12 sm:grid-cols-3">
         {SUBSTITUTOS.map((item, indice) => (
@@ -58,7 +59,7 @@ export function CadernoPlanilhaMemoriaSection() {
 
       {/* CTA final — o mais impactante da página: título grande, botão grande
           com ícone e subtexto de urgência, pra fechar com força antes do footer. */}
-      <ParallaxFloat strength={190} className="mx-auto mt-2 max-w-2xl">
+      <ParallaxFloat strength={95} className="mx-auto mt-2 max-w-2xl">
         <EntradaMockup delay={0.15}>
           <div className="rounded-[26px] bg-coral-light px-8 py-12 text-center sm:py-16">
             <span className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-coral">

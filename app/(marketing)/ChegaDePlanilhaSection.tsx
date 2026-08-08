@@ -6,7 +6,6 @@ import { ChevronDown, Check } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { MARK_PATH } from "@/components/Logo";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
-import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 
 /** Uma célula da planilha, revelada com um pequeno pop de escala. Controlada
  * (não usa whileInView própria) porque precisa esperar o cartão inteiro
@@ -46,7 +45,7 @@ export function ChegaDePlanilhaSection() {
   const [prontoEsquerda, setProntoEsquerda] = useState(false);
 
   return (
-    <section className="overflow-x-hidden bg-superficie px-4 py-[56px] sm:px-6 lg:py-[120px]">
+    <section className="overflow-x-hidden bg-superficie px-4 py-[48px] sm:px-6 lg:py-[80px]">
       {/* Grid de 2 colunas com align-items:center — garante que o mockup da
           planilha (esquerda) e o texto (direita) fiquem centralizados um em
           relação ao outro verticalmente, mesmo tendo alturas diferentes. */}
@@ -63,7 +62,7 @@ export function ChegaDePlanilhaSection() {
           onAnimationComplete={() => setProntoEsquerda(true)}
           className="flex flex-col items-center gap-3"
         >
-          <ParallaxFloat strength={260} className="w-full max-w-[320px]">
+          <ParallaxFloat strength={130} className="w-full max-w-[280px]">
             <motion.div
               initial={{ x: 0, rotate: 0 }}
               animate={
@@ -126,7 +125,7 @@ export function ChegaDePlanilhaSection() {
 
           <ChevronDown className="h-6 w-6 text-neutro-border" strokeWidth={2.5} />
 
-          <ParallaxFloat strength={340} className="w-full max-w-[320px]">
+          <ParallaxFloat strength={170} className="w-full max-w-[280px]">
             <motion.div
               initial={{ opacity: 0, y: reduzida ? 0 : 40 }}
               animate={prontoEsquerda ? { opacity: 1, y: 0 } : {}}
@@ -175,10 +174,9 @@ export function ChegaDePlanilhaSection() {
           <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
             Chega de planilha
           </p>
-          <TituloAnimado
-            linhas="Fecha essa planilha."
-            className="mt-4 font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-escuro"
-          />
+          <h2 className="mt-4 font-display text-[1.75rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
+            Fecha essa planilha.
+          </h2>
           <p className="mt-3 max-w-md text-[15px] leading-relaxed text-neutro-muted sm:text-base">
             Você não deveria precisar de fórmula pra saber quanto faturou hoje.
           </p>

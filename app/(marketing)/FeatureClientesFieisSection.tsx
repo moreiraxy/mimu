@@ -6,7 +6,6 @@ import { Star } from "lucide-react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { EntradaMockup } from "@/components/marketing/EntradaMockup";
-import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 import { ContagemNumero } from "@/components/marketing/ContagemNumero";
 
 const STATS = [
@@ -23,17 +22,17 @@ export function FeatureClientesFieisSection() {
   const [contagemAtiva, setContagemAtiva] = useState(false);
 
   return (
-    <section className="px-4 py-[56px] sm:px-6 lg:py-[120px]">
+    <section className="px-4 py-[48px] sm:px-6 lg:py-[80px]">
       <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-14 lg:flex-row lg:gap-20">
-        <ParallaxFloat strength={60} className="w-full max-w-[420px] flex-1">
+        <ParallaxFloat strength={30} className="w-full max-w-[380px] flex-1">
           <EntradaMockup onEntrada={() => setTimeout(() => setContagemAtiva(true), 400)}>
-            <div className="rounded-2xl bg-superficie p-7 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
+            <div className="rounded-2xl bg-superficie p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
               <div className="flex items-center gap-3 border-b border-neutro-border pb-4">
                 <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-coral text-sm font-bold text-white">
                   MG
                 </span>
                 <div>
-                  <p className="text-[15px] font-bold text-escuro">Maria das Graças</p>
+                  <p className="text-sm font-bold text-escuro">Maria das Graças</p>
                   <span className="mt-1 inline-flex animate-pulse-badge items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-bold text-ambar-text">
                     <Star className="h-2.5 w-2.5 fill-ambar-text" strokeWidth={0} />
                     Cliente Fiel
@@ -41,10 +40,10 @@ export function FeatureClientesFieisSection() {
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                 {STATS.map((stat, indice) => (
                   <div key={stat.label} className="rounded-xl bg-fundo px-2 py-3">
-                    <p className="text-lg font-extrabold text-escuro">
+                    <p className="text-base font-extrabold text-escuro">
                       <ContagemNumero
                         valor={stat.valor}
                         formatar={stat.formatar}
@@ -57,7 +56,7 @@ export function FeatureClientesFieisSection() {
                 ))}
               </div>
 
-              <p className="mt-4 text-center text-[13px] text-neutro-muted">
+              <p className="mt-4 text-center text-xs text-neutro-muted">
                 Último atendimento: 15 dias atrás
               </p>
             </div>
@@ -68,10 +67,9 @@ export function FeatureClientesFieisSection() {
           <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
             Clientes fiéis
           </p>
-          <TituloAnimado
-            linhas="Reconhece quem sempre volta."
-            className="mt-4 max-w-md font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-escuro"
-          />
+          <h2 className="mt-4 max-w-md font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
+            Reconhece quem sempre volta.
+          </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-neutro-muted sm:text-base">
             A Mimu identifica automaticamente seus clientes mais fiéis, para
             você tratar cada um do jeito que ele merece.

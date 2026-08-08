@@ -7,7 +7,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { EntradaMockup } from "@/components/marketing/EntradaMockup";
-import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 
 type Periodo = "mensal" | "trimestral" | "semestral" | "anual";
 
@@ -88,43 +87,39 @@ export function PrecoSection() {
   const plano = PLANOS[periodo];
 
   return (
-    <section id="preco" className="px-4 py-[56px] sm:px-6 lg:py-[120px]">
-      <TituloAnimado
-        linhas="Escolha como a Mimu vai cuidar do seu negócio."
-        className="mx-auto max-w-xl text-center font-display text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.05] tracking-tight text-escuro"
-      />
+    <section id="preco" className="px-4 py-[48px] sm:px-6 lg:py-[80px]">
+      <SpringIn>
+        <h2 className="mx-auto max-w-xl text-center font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
+          Escolha como a Mimu vai cuidar do seu negócio.
+        </h2>
+      </SpringIn>
       <SpringIn delay={0.05}>
         <p className="mx-auto mt-3 max-w-sm text-center text-[15px] text-neutro-muted">
           7 dias grátis em qualquer plano. Sem cartão de crédito.
         </p>
       </SpringIn>
 
-      {/* Pills de período ficam numa linha própria, acima do grid de 2
-          colunas — assim nenhuma das colunas tem conteúdo extra empurrando
-          seu topo pra baixo em relação à outra. */}
-      <SpringIn delay={0.1}>
-        <div className="mx-auto mt-10 flex w-fit max-w-[1200px] gap-1 rounded-full border border-neutro-border bg-superficie p-1">
-          {(Object.keys(PLANOS) as Periodo[]).map((chave) => (
-            <button
-              key={chave}
-              onClick={() => setPeriodo(chave)}
-              className={`rounded-full px-4 py-2 text-[13px] font-bold transition-colors duration-200 ${
-                periodo === chave ? "bg-coral text-white" : "text-escuro"
-              }`}
-            >
-              {PLANOS[chave].label}
-            </button>
-          ))}
-        </div>
-      </SpringIn>
+      {/* Duas colunas a partir do lg: 60% plano + 40% tabela comparativa, visíveis
+          ao mesmo tempo sem precisar rolar. No mobile empilha, coluna única. */}
+      <div className="mx-auto mt-10 flex max-w-[1200px] flex-col items-start gap-10 lg:flex-row lg:gap-8">
+        <div className="w-full lg:w-[60%]">
+          <SpringIn delay={0.1}>
+            <div className="flex w-fit gap-1 rounded-full border border-neutro-border bg-superficie p-1">
+              {(Object.keys(PLANOS) as Periodo[]).map((chave) => (
+                <button
+                  key={chave}
+                  onClick={() => setPeriodo(chave)}
+                  className={`rounded-full px-4 py-2 text-[13px] font-bold transition-colors duration-200 ${
+                    periodo === chave ? "bg-coral text-white" : "text-escuro"
+                  }`}
+                >
+                  {PLANOS[chave].label}
+                </button>
+              ))}
+            </div>
+          </SpringIn>
 
-      {/* Grid de 2 colunas (60% plano + 40% tabela comparativa) com
-          align-items: start — os dois lados começam exatamente no mesmo
-          topo, visíveis ao mesmo tempo sem precisar rolar. No mobile
-          empilha, coluna única. */}
-      <div className="mx-auto mt-6 grid max-w-[1200px] grid-cols-1 items-start gap-10 lg:grid-cols-[60%_40%] lg:gap-8">
-        <div className="w-full">
-          <ParallaxFloat strength={80} className="max-w-md">
+          <ParallaxFloat strength={40} className="mt-6 max-w-md">
             <EntradaMockup delay={0.15}>
               <div className="relative rounded-[26px] border-[1.5px] border-coral bg-coral-light px-8 py-11 text-center shadow-2xl shadow-coral/20">
                 {plano.badge && (
@@ -181,7 +176,7 @@ export function PrecoSection() {
           </ParallaxFloat>
         </div>
 
-        <SpringIn delay={0.2} className="w-full">
+        <SpringIn delay={0.2} className="w-full lg:w-[40%]">
           <div className="overflow-hidden rounded-card border border-neutro-border lg:sticky lg:top-24">
             <div className="grid grid-cols-4 gap-1 border-b border-neutro-border px-4 py-4">
               <p className="text-[10px] font-bold text-neutro-muted">PERÍODO</p>
