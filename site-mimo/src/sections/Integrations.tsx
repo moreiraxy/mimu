@@ -17,12 +17,12 @@ import { useInView } from "../hooks/useInView";
  * real layout boxes that simply are not painted.
  *
  * ---
- * MEDIR: as logos das duas esteiras ainda são as do template (ferramentas de
- * contabilidade em inglês). Ficam por ora, a pedido, mas entram como
- * DECORATIVAS (`alt=""`): nomear marcas de terceiros aqui faria a seção
- * afirmar uma integração que a Mimu não anuncia. Trocar pelos ícones reais
- * — maquininha, WhatsApp, caderno, planilha — resolve o texto alternativo
- * junto com a arte.
+ * As duas esteiras mostram os 8 apps que um microempreendedor de bairro
+ * já usa hoje pra tentar dar conta disso tudo (WhatsApp, Excel, Sheets,
+ * Agenda, Gmail, Notion, Notas, Instagram) — não integrações reais da
+ * Mimu, por isso seguem decorativas (`alt=""`). O ícone de Notas não
+ * existe como marca no catálogo de ícones usado; renderiza como um
+ * bloco de notas genérico em vez do logo da Apple.
  */
 const REVEAL_MS = 500;
 const EASE = "cubic-bezier(0.6, 0, 0.4, 1)";
@@ -36,9 +36,9 @@ const SPEED = 50;
 /**
  * Framer duplicates the slots `round(parent / pass * 2) + 1` times on top of
  * the original, which is 3 + 1 = 4 passes for both rows at every breakpoint
- * here — the same 20 + 16 logo boxes the original renders. It then travels
- * `pass * round(parent / pass)` = two passes per cycle, which is exactly the
- * -50% of a four-pass track that `marquee-track` already animates.
+ * here. It then travels `pass * round(parent / pass)` = two passes per
+ * cycle, which is exactly the -50% of a four-pass track that
+ * `marquee-track` already animates.
  */
 const PASSES = 4;
 
@@ -56,21 +56,20 @@ type Logo = {
   h: number;
 };
 
-/** Left ticker — five tiles, travelling right. */
+/** Left ticker — WhatsApp, Excel, Sheets, Agenda — travelling right. */
 const ROW_A: Logo[] = [
-  { file: "ye99Yb4mL6Wl8ZSQ3orbQFt4.svg", box: "size-[68px]", w: 1133, h: 1133 },
-  { file: "iU4OqzWZElSZTdvF5zcEzs0EFI.svg", box: "size-[46px]", w: 2500, h: 2500 },
-  { file: "MiLGb0rV3CvSvjt2FW85VjV1zs.png", box: "size-[39px]", w: 3840, h: 3840 },
-  { file: "0m7Kj150IYcbJ6XHGu1ADWhTX8.svg", box: "size-[45px]", w: 2500, h: 2497 },
-  { file: "VDeLOkHeBgf0fbElXVfB9KVhQsw.png", box: "size-[45px]", w: 3840, h: 4054 },
+  { file: "apps/whatsapp.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/microsoftexcel.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/googlesheets.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/googlecalendar.svg", box: "size-[42px]", w: 24, h: 24 },
 ];
 
-/** Right ticker — four tiles, travelling left. */
+/** Right ticker — Gmail, Notion, Notas, Instagram — travelling left. */
 const ROW_B: Logo[] = [
-  { file: "moy0pVRQJkSrV9JyWLeB3jjJJPA.svg", box: "size-[46px]", w: 2500, h: 2500 },
-  { file: "xSSeIZoEckZBfWvATYFSfSbcM.png", box: "size-[39px]", w: 225, h: 225 },
-  { file: "WG7v8Oq1fikOcxL7F6zU2iYuS8.png", box: "size-[45px]", w: 3840, h: 2880 },
-  { file: "gpXZdodMzCPysYRWPsg0AVmzgw.png", box: "size-[45px]", w: 434, h: 438 },
+  { file: "apps/gmail.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/notion.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/applenotes.svg", box: "size-[42px]", w: 24, h: 24 },
+  { file: "apps/instagram.svg", box: "size-[42px]", w: 24, h: 24 },
 ];
 
 export function Integrations() {
