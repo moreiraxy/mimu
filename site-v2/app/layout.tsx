@@ -3,34 +3,36 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './webflow.css';
+// Depois do webflow.css de propósito — sobrescreve os swatches do clone.
+import './mimu-brand.css';
+
+// Título e descrição espelham os do app (mimu/app/layout.tsx), para a landing
+// e o PWA se apresentarem igual na busca e ao compartilhar.
+const TITLE = "Mimu · seu negócio, organizado";
+const DESCRIPTION =
+  "Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar.";
 
 export const metadata: Metadata = {
-  title: "Pierre - Assistente Financeiro",
-  description: "Tudo o que entra e sai da sua conta, organizado e fazendo sentido. Sem planilha, sem susto no fim do mês, sem dor de cabeça.",
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: "Mimu",
+  // Sem `images` em openGraph/twitter: o card do clone era arte da Pierre, e
+  // publicar ele com o nome da Mimu seria material de marca de outra empresa.
+  // Falta gerar um OG da Mimu (1200x630) e apontar aqui.
   openGraph: {
-    title: "Pierre - Assistente Financeiro",
-    description: "Tudo o que entra e sai da sua conta, organizado e fazendo sentido. Sem planilha, sem susto no fim do mês, sem dor de cabeça.",
+    title: TITLE,
+    description: DESCRIPTION,
     type: 'website',
-    images: ["/assets/img/6a6a5453fadb67c111129b25_OpenGraph_pierre.webp"],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Pierre - Assistente Financeiro",
-    description: "Tudo o que entra e sai da sua conta, organizado e fazendo sentido. Sem planilha, sem susto no fim do mês, sem dor de cabeça.",
-    images: ["/assets/img/6a6a5453fadb67c111129b25_OpenGraph_pierre.webp"],
+    title: TITLE,
+    description: DESCRIPTION,
   },
   icons: {
-    icon: "/assets/img/6980bc9b4a3eb99dbb38dade_Favicon.png",
-    apple: "/assets/img/6980bcec2a9437173724de91_Webclip.png",
+    icon: "/assets/img/mimu-icon.svg",
+    apple: "/assets/img/mimu-icon.svg",
   },
-  alternates: {
-    languages: {
-      "x-default": "https://lp.pierre.finance/",
-      "pt-BR": "https://lp.pierre.finance/",
-      "en": "https://lp.pierre.finance/en",
-    },
-  },
-  other: { generator: 'Webflow' },
 };
 
 export default function RootLayout({
@@ -38,17 +40,21 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className="u-theme-dark">
+      <body className="u-theme-light">
         {/* Reproduz o detector de JS/touch do Webflow, que no original
             roda no <head> e adiciona as classes w-mod-* em <html>. */}
-        <Script id="wf-mod" strategy="beforeInteractive">
-          {`!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);`}
-        </Script>
+        <Script
+          id="wf-mod"
+          src="/assets/js/wf-mod.js"
+          strategy="beforeInteractive"
+        />
         {/* Aplica a classe de banner escondido antes da pintura, como no
             original (o listener de clique fica em components/behaviors). */}
-        <Script id="hide-nav-banner" strategy="beforeInteractive">
-          {`if(sessionStorage.getItem("hide-nav-banner")==="true"){document.documentElement.classList.add("hide-nav-banner");}`}
-        </Script>
+        <Script
+          id="hide-nav-banner"
+          src="/assets/js/hide-nav-banner.js"
+          strategy="beforeInteractive"
+        />
         <Script
           id="vendor-0"
           src="/assets/js/jquery-3.5.1.min.dc5e7f18c8.js"

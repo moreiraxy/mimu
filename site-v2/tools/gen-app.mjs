@@ -192,14 +192,23 @@ const layout =
   `      <body className=${q(report.bodyClass)}>\n` +
   `        {/* Reproduz o detector de JS/touch do Webflow, que no original\n` +
   `            roda no <head> e adiciona as classes w-mod-* em <html>. */}\n` +
-  `        <Script id="wf-mod" strategy="beforeInteractive">\n` +
-  '          {`!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);`}\n' +
-  `        </Script>\n` +
+  // Os dois trechos ficam em public/assets/js e entram por `src`, nao inline:
+  // com beforeInteractive + src o next/script injeta no HTML inicial sem por um
+  // <script> na arvore do React. Inline (children ou dangerouslySetInnerHTML) o
+  // elemento entra na arvore e o React 19 avisa que scripts renderizados por
+  // componente nunca executam no cliente.
+  `        <Script\n` +
+  `          id="wf-mod"\n` +
+  `          src="/assets/js/wf-mod.js"\n` +
+  `          strategy="beforeInteractive"\n` +
+  `        />\n` +
   `        {/* Aplica a classe de banner escondido antes da pintura, como no\n` +
   `            original (o listener de clique fica em components/behaviors). */}\n` +
-  `        <Script id="hide-nav-banner" strategy="beforeInteractive">\n` +
-  '          {`if(sessionStorage.getItem("hide-nav-banner")==="true"){document.documentElement.classList.add("hide-nav-banner");}`}\n' +
-  `        </Script>\n` +
+  `        <Script\n` +
+  `          id="hide-nav-banner"\n` +
+  `          src="/assets/js/hide-nav-banner.js"\n` +
+  `          strategy="beforeInteractive"\n` +
+  `        />\n` +
   vendorTags +
   `\n        <Script\n` +
   `          id="qr-code-styling"\n` +

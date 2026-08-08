@@ -34,7 +34,7 @@ export default function QrCode() {
                   data: url,
 
                   // imagem no centro
-                  image: "assets/img/69de851ac0c00e1ce20499df_pierre-logo_white.svg",
+                  image: "assets/img/mimu-icon.svg",
 
                   dotsOptions: {
                     type: "rounded",
