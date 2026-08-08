@@ -57,6 +57,7 @@ export function Security() {
       <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
         <SectionHeading
           eyebrow="Segurança"
+          eyebrowClassName="text-coral"
           heading={"Seus números,\nseguros e sempre com você"}
           paragraph="A Mimu guarda o movimento do seu negócio com backup diário, funciona mesmo sem internet e trata seus dados conforme a LGPD."
         />

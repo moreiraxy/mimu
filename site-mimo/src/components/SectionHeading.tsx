@@ -21,12 +21,15 @@ export function SectionHeading({
   paragraph,
   tone = "light",
   align = "center",
+  eyebrowClassName,
 }: {
   eyebrow: string;
   heading: string;
   paragraph?: string;
   tone?: "light" | "dark";
   align?: "center" | "left";
+  /** Override da cor do eyebrow — só a Security usa isso hoje (label em coral). */
+  eyebrowClassName?: string;
 }) {
   const onDark = tone === "dark";
   const centered = align === "center";
@@ -42,7 +45,7 @@ export function SectionHeading({
       {/* The eyebrow is a dot plus uppercase mono text, 10px apart — the dot is
           a real element in the original, not decoration we can skip. */}
       <div
-        className={`flex items-center gap-2.5 ${onDark ? "text-cream" : "text-ink"}`}
+        className={`flex items-center gap-2.5 ${eyebrowClassName ?? (onDark ? "text-cream" : "text-ink")}`}
       >
         <span
           aria-hidden="true"
