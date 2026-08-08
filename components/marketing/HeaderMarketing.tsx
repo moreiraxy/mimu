@@ -77,18 +77,18 @@ export function HeaderMarketing() {
                   ? { duration: 0.2 }
                   : { type: "spring", bounce: 0.2, duration: 0.5 }
               }
-              className="fixed inset-x-4 top-4 z-[70] rounded-[24px] bg-escuro p-5 shadow-2xl"
+              className="fixed inset-x-4 top-4 z-[70] rounded-[24px] border border-neutro-border bg-superficie p-5 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <LogoMark size="sm" className="h-7 w-7 rounded-[8px]" />
-                  <p className="text-base font-extrabold text-white">mimu</p>
+                  <p className="text-base font-extrabold text-escuro">mimu</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setAberto(false)}
                   aria-label="Fechar menu"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition-transform duration-150 active:scale-90"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-escuro transition-transform duration-150 active:scale-90"
                 >
                   <X className="h-5 w-5" strokeWidth={2.25} />
                 </button>
@@ -100,7 +100,7 @@ export function HeaderMarketing() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setAberto(false)}
-                    className="rounded-2xl px-3 py-3.5 text-lg font-bold text-white/90 transition-colors active:bg-white/10"
+                    className="rounded-2xl px-3 py-3.5 text-lg font-bold text-escuro transition-colors active:bg-fundo"
                   >
                     {link.label}
                   </a>
@@ -111,7 +111,7 @@ export function HeaderMarketing() {
                 <Link
                   href="/login"
                   onClick={() => setAberto(false)}
-                  className="flex items-center justify-center rounded-full border-[1.5px] border-white/30 py-3 text-sm font-bold text-white transition-transform duration-150 active:scale-[0.97]"
+                  className="flex items-center justify-center rounded-full border-[1.5px] border-escuro bg-transparent py-3 text-sm font-bold text-escuro transition-transform duration-150 active:scale-[0.97]"
                 >
                   Entrar
                 </Link>
