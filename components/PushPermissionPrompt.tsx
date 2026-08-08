@@ -52,7 +52,11 @@ export function PushPermissionPrompt() {
   if (!visivel) return null;
 
   return (
-    <div className="fixed inset-x-4 top-4 z-40 mx-auto flex max-w-[380px] items-start gap-3 rounded-card border border-neutro-border bg-superficie p-4 shadow-lg md:left-auto md:right-6 md:mx-0">
+    // Ancorado embaixo (acima da bottom nav + FAB, mesmo cálculo de
+    // segurança que o Fab.tsx usa) em vez de no topo — no topo ele cobria o
+    // início do conteúdo de toda página autenticada por vários segundos
+    // (data da agenda, botões de entrada/saída, campos de formulário).
+    <div className="fixed inset-x-4 bottom-[calc(64px+env(safe-area-inset-bottom)+16px)] z-40 mx-auto flex max-w-[380px] items-start gap-3 rounded-card border border-neutro-border bg-superficie p-4 shadow-lg md:bottom-6 md:left-auto md:right-6 md:mx-0">
       <LogoMark size="sm" />
       <div className="min-w-0 flex-1">
         <p className="text-sm text-escuro">

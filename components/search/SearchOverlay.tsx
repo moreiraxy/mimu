@@ -237,7 +237,7 @@ export function SearchOverlay({
             value={termo}
             onChange={(e) => setTermo(e.target.value)}
             placeholder="Buscar clientes, transações, agendamentos..."
-            className="flex-1 bg-transparent text-sm text-escuro outline-none placeholder:text-neutro-muted"
+            className="flex-1 bg-transparent text-base text-escuro outline-none placeholder:text-neutro-muted md:text-sm"
           />
           <button
             type="button"

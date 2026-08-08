@@ -86,7 +86,7 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
             }
           }}
           placeholder="Nova categoria..."
-          className="flex-1 rounded-button border border-neutro-border bg-fundo px-3.5 py-2 text-sm text-escuro outline-none focus:border-coral"
+          className="flex-1 rounded-button border border-neutro-border bg-fundo px-3.5 py-2 text-base text-escuro outline-none focus:border-coral md:text-sm"
         />
         <button
           type="button"

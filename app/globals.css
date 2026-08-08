@@ -84,3 +84,22 @@
     animation: none;
   }
 }
+
+@layer utilities {
+  /*
+   * Fileiras de chips com scroll horizontal (filtros, horários, sugestões)
+   * cortavam o último item em cheio na borda da tela, sem nenhuma pista de
+   * que dava pra arrastar pra ver mais. Esse fade nas duas bordas (via
+   * mask-image, não afeta o clique/toque dos elementos) sinaliza que tem
+   * mais conteúdo pra cada lado.
+   */
+  .scroll-fade-x {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 20px,
+      black calc(100% - 20px),
+      transparent
+    );
+  }
+}

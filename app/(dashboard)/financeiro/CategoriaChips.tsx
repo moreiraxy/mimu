@@ -14,7 +14,7 @@ export function CategoriaChips({
   if (categorias.length === 0) return null;
 
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+    <div className="-mx-4 flex gap-2 overflow-x-auto scroll-fade-x px-4 pb-1">
       <button
         type="button"
         onClick={() => onChange(null)}

@@ -46,6 +46,13 @@ export const viewport: Viewport = {
   themeColor: "#FF6B5B",
   width: "device-width",
   initialScale: 1,
+  // Sem isso, o Chrome Android por padrão NÃO encolhe a viewport quando o
+  // teclado virtual abre — qualquer altura em `vh` (ex.: o chat da Mimu)
+  // continua medindo o tamanho da tela inteira, empurrando o input pra fora
+  // da área visível atrás do teclado. Com `resizes-content`, a viewport (e
+  // portanto `vh`/`dvh`) encolhe de verdade, e o layout normal do navegador
+  // já rola o campo focado pra cima do teclado sozinho.
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Calendar, Minus, Plus, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@/components/icons/NavIcons";
@@ -14,14 +14,29 @@ const ACOES = [
   { label: "Falar com a Mimu", icone: Sparkles, href: "/mimu" },
 ] as const;
 
+// Rotas que já SÃO um formulário de criação — mostrar o FAB nelas é
+// redundante (a ação "adicionar" já é a tela inteira) e o botão fixo acaba
+// sobrepondo o botão de confirmar do formulário, que fica na mesma posição
+// de tela conforme o conteúdo rola.
+const ROTAS_SEM_FAB = [
+  "/financeiro/nova-entrada",
+  "/financeiro/nova-saida",
+  "/agenda/novo",
+  "/clientes/novo",
+  "/produtos/novo",
+];
+
 export function Fab() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   function selecionar(href: string) {
     setOpen(false);
     router.push(href);
   }
+
+  if (ROTAS_SEM_FAB.includes(pathname)) return null;
 
   return (
     <>

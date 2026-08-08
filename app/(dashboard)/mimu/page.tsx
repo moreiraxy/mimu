@@ -579,7 +579,7 @@ export default function MimuChatPage() {
         <div
           ref={containerRef}
           onScroll={aoRolar}
-          className="flex max-h-[55vh] min-h-[45vh] flex-col gap-4 overflow-y-auto p-4 lg:max-h-[62vh]"
+          className="flex max-h-[55dvh] min-h-[45dvh] flex-col gap-4 overflow-y-auto p-4 lg:max-h-[62dvh]"
         >
           {carregandoHistorico ? (
             <MensagensSkeleton />
@@ -614,7 +614,7 @@ export default function MimuChatPage() {
           {enviando && <DigitandoIndicador />}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto border-t border-neutro-border px-4 py-2.5">
+        <div className="flex gap-2 overflow-x-auto scroll-fade-x border-t border-neutro-border px-4 py-2.5">
           {chips.map((chip) => (
             <button
               key={chip}
@@ -650,7 +650,7 @@ export default function MimuChatPage() {
             onChange={(event) => aoDigitar(event.target.value)}
             onKeyDown={aoTeclar}
             placeholder="Fala com a Mimu..."
-            className="max-h-[120px] flex-1 resize-none rounded-button border border-neutro-border bg-fundo px-3.5 py-2.5 text-sm text-escuro outline-none placeholder:text-neutro-muted focus:border-coral"
+            className="max-h-[120px] flex-1 resize-none touch-manipulation rounded-button border border-neutro-border bg-fundo px-3.5 py-2.5 text-base text-escuro outline-none placeholder:text-neutro-muted focus:border-coral md:text-sm"
           />
 
           <button
