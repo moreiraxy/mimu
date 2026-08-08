@@ -1,6 +1,6 @@
-import { SpringIn } from "@/components/marketing/SpringIn";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { EntradaMockup } from "@/components/marketing/EntradaMockup";
+import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 
 const DEPOIMENTOS = [
   {
@@ -10,7 +10,7 @@ const DEPOIMENTOS = [
     negocio: "Salão da Andréia",
     iniciais: "AN",
     cor: "bg-coral",
-    parallax: 70,
+    parallax: 140,
   },
   {
     texto:
@@ -19,7 +19,7 @@ const DEPOIMENTOS = [
     negocio: "Mercadinho do Rodrigo",
     iniciais: "RO",
     cor: "bg-verde",
-    parallax: 45,
+    parallax: 90,
   },
   {
     texto:
@@ -28,18 +28,17 @@ const DEPOIMENTOS = [
     negocio: "Manicure da Carol",
     iniciais: "CA",
     cor: "bg-ambar",
-    parallax: 95,
+    parallax: 190,
   },
 ] as const;
 
 export function DepoimentosSection() {
   return (
-    <section id="depoimentos" className="bg-superficie px-4 py-[48px] sm:px-6 lg:py-[80px]">
-      <SpringIn>
-        <h2 className="mx-auto max-w-2xl text-center font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
-          Quem já usa, não volta pro caderno.
-        </h2>
-      </SpringIn>
+    <section id="depoimentos" className="bg-superficie px-4 py-[56px] sm:px-6 lg:py-[120px]">
+      <TituloAnimado
+        linhas="Quem já usa, não volta pro caderno."
+        className="mx-auto max-w-2xl text-center font-display text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.05] tracking-tight text-escuro"
+      />
 
       <div className="mx-auto mt-10 grid max-w-[1200px] grid-cols-1 items-stretch gap-6 sm:mt-14 sm:grid-cols-3">
         {DEPOIMENTOS.map((depoimento, indice) => (

@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { MARK_PATH } from "@/components/Logo";
 import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { PhoneTilt } from "@/components/marketing/PhoneTilt";
+import { TituloAnimado } from "@/components/marketing/TituloAnimado";
 import { VALOR_MENSAL_MIMU } from "@/lib/planos";
 
 const AVATARES = [
@@ -63,7 +64,7 @@ function NotifCard({
 export function HeroSection() {
   return (
     <section className="relative flex flex-col items-center overflow-hidden bg-[radial-gradient(90%_60%_at_50%_0%,rgb(255_107_91_/_0.14)_0%,rgb(255_107_91_/_0)_60%)] px-5 pb-16 pt-32 text-center sm:px-6 sm:pb-24 sm:pt-40 lg:pt-48">
-      <ParallaxFloat strength={40} className="mb-6">
+      <ParallaxFloat strength={80} className="mb-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,15 +88,11 @@ export function HeroSection() {
         </motion.div>
       </ParallaxFloat>
 
-      <motion.h1
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="max-w-3xl font-display text-[2rem] font-bold leading-[1.15] tracking-tight text-escuro sm:text-5xl lg:text-6xl"
-      >
-        Enquanto você trabalha,
-        <br />a Mimu cuida do seu negócio.
-      </motion.h1>
+      <TituloAnimado
+        as="h1"
+        linhas={["Enquanto você trabalha,", "a Mimu cuida do seu negócio."]}
+        className="max-w-[1100px] font-display text-[clamp(3rem,6.5vw,5.5rem)] font-bold leading-[1.05] tracking-[-0.03em] text-escuro"
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -105,7 +102,7 @@ export function HeroSection() {
       >
         <Link
           href="/cadastro"
-          className="w-full max-w-xs rounded-full bg-coral px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-coral/30 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:w-auto sm:text-base"
+          className="w-full max-w-xs rounded-full bg-coral px-12 py-5 text-[1.2rem] font-bold text-white shadow-lg shadow-coral/30 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:w-auto"
         >
           Começar grátis por 7 dias
         </Link>
@@ -139,7 +136,7 @@ export function HeroSection() {
         className="relative mx-auto mt-16 w-[340px] max-w-full sm:mt-20"
       >
         <div className="animate-float">
-          <PhoneTilt strength={60} className="relative mx-auto h-[706px] w-[340px] max-w-full">
+          <PhoneTilt strength={120} className="relative mx-auto h-[706px] w-[340px] max-w-full">
             {/* corpo titânio */}
             <div
               className="absolute inset-0 rounded-[52px]"
@@ -258,7 +255,7 @@ export function HeroSection() {
         {/* Cards flutuantes — visíveis também no mobile, em 75% do tamanho e mais próximos do celular; no desktop (lg:) assumem a posição/tamanho originais */}
         <NotifCard
           className="absolute left-[-18px] top-[64px] z-10 max-w-[180px] lg:left-[-248px] lg:top-[110px] lg:max-w-[240px]"
-          strength={130}
+          strength={260}
           delay={0.4}
           floatSeconds={5.5}
           floatDelay={1.3}
@@ -273,7 +270,7 @@ export function HeroSection() {
 
         <NotifCard
           className="absolute right-[-14px] top-[260px] z-10 max-w-[188px] lg:right-[-260px] lg:top-[390px] lg:max-w-[250px]"
-          strength={95}
+          strength={190}
           delay={0.55}
           floatSeconds={6.5}
           floatDelay={2.1}
@@ -288,7 +285,7 @@ export function HeroSection() {
 
         <NotifCard
           className="absolute bottom-[130px] left-[-14px] z-10 max-w-[173px] lg:bottom-[100px] lg:left-[-220px] lg:max-w-[230px]"
-          strength={145}
+          strength={290}
           delay={0.7}
           floatSeconds={5.8}
           floatDelay={2.9}
@@ -301,7 +298,7 @@ export function HeroSection() {
 
         <NotifCard
           className="absolute bottom-0 right-[-12px] z-10 max-w-[154px] py-3 lg:right-[-210px] lg:max-w-[205px] lg:py-[15px]"
-          strength={85}
+          strength={170}
           delay={0.85}
           floatSeconds={5}
           floatDelay={3.4}
