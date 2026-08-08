@@ -1,7 +1,6 @@
 import { AnimatedText } from "../components/AnimatedText";
 import { Button } from "../components/Button";
-import { Img } from "../components/Img";
-import { Logos } from "./Logos";
+import { HeroVisualV2 } from "./HeroVisualV2";
 import { Stats } from "./Stats";
 
 /**
@@ -58,65 +57,10 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-4 md:flex-row md:items-center">
-          <VisualLeft />
-          <VisualRight />
-        </div>
+        <HeroVisualV2 />
 
-        <Logos />
         <Stats />
       </div>
     </section>
-  );
-}
-
-/** Portrait shot with the translucent card floating over its bottom-right. */
-function VisualLeft() {
-  return (
-    <div className="relative aspect-[411/537] w-full overflow-clip rounded-xl p-3 md:w-[34.25%]">
-      <Img
-        src="/img/mXLGT74AMXrCDUC76H70XyIFo.jpg"
-        alt="Dona de salão atendendo uma cliente enquanto usa a Mimu no celular"
-        width={411}
-        height={537}
-        priority
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div className="absolute top-[55.5%] left-[50%] h-[27%] w-[59.9%] rounded-md bg-cream/85" />
-      <Img
-        src="/img/ag0UpfKucuKm8gxVHsEkIObwOMo.jpg"
-        alt=""
-        width={296}
-        height={174}
-        priority
-        className="absolute top-[59.8%] left-[13.9%] w-[72%] rounded-md object-cover"
-      />
-    </div>
-  );
-}
-
-/** Wide shot with the dashboard panel offset into the frame. */
-function VisualRight() {
-  return (
-    <div className="relative aspect-[773/537] w-full overflow-clip rounded-xl md:w-[64.4%]">
-      <Img
-        src="/img/TSJEmo3HFim46DqBxHZOxuASA.jpg"
-        alt=""
-        width={773}
-        height={537}
-        priority
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div className="absolute top-[11.2%] left-[7.8%] w-full rounded-xl bg-cream/30 p-4">
-        <Img
-          src="/img/ukrBv5NrrzKfRN85WXHmuQicDk.jpg"
-          alt="Painel da Mimu com o faturamento do dia e a agenda"
-          width={741}
-          height={560}
-          priority
-          className="w-full rounded-lg object-cover"
-        />
-      </div>
-    </div>
   );
 }

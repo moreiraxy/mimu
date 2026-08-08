@@ -2,6 +2,8 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { CursorDot } from "./components/CursorDot";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import { useParallaxFloat } from "./hooks/useParallaxFloat";
+import { useAnimateOnView } from "./hooks/useAnimateOnView";
 import Home from "./pages/Home";
 import "lenis/dist/lenis.css";
 
@@ -13,6 +15,8 @@ const Legal = lazy(() => import("./pages/Legal"));
 
 export default function App() {
   useSmoothScroll();
+  useParallaxFloat();
+  useAnimateOnView();
 
   return (
     <BrowserRouter>
