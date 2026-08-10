@@ -149,6 +149,25 @@
   }
 }
 
+/*
+ * Flutuação suave do hero (celular, avatares, cards laterais). Cada chamador
+ * define a própria duração via `animation-duration` inline — o keyframe é
+ * único, só o ritmo muda por elemento.
+ */
+@utility animate-hero-float {
+  animation: hero-float 4s ease-in-out infinite;
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 /* Respect users who ask for less motion — every animation below opts out.
    The delays matter as much as the durations here: every reveal in the sections
    starts from opacity 0 and settles on a delay read from the original (100ms in
