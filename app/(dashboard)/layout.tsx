@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getEmpresaAtual } from "@/lib/supabase";
+import { ehAdmin } from "@/lib/admin";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 import { Fab } from "@/components/dashboard/Fab";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -29,9 +30,15 @@ export default async function DashboardGroupLayout({
     redirect("/onboarding");
   }
 
+  // Só decide se MOSTRA o atalho do painel. A autorização de verdade continua
+  // no servidor (app/admin/layout.tsx e cada rota /api/admin/*), então forçar
+  // esse valor no navegador não abre nada — só faz aparecer um link que leva
+  // a um 404.
+  const admin = await ehAdmin(user.id);
+
   return (
     <div className="min-h-screen bg-fundo">
-      <Sidebar />
+      <Sidebar admin={admin} />
 
       <div className="md:ml-[72px] lg:ml-60">
         <div className="flex justify-end gap-3 px-4 pt-4 md:px-8 md:pt-6">
@@ -46,7 +53,7 @@ export default async function DashboardGroupLayout({
       </div>
 
       <Fab />
-      <BottomNav />
+      <BottomNav admin={admin} />
     </div>
   );
 }

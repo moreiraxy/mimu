@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
@@ -9,7 +10,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { navItemsVisiveis } from "@/components/dashboard/navItems";
 import { cn } from "@/lib/utils";
 
-export function Sidebar() {
+export function Sidebar({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const { user, empresa } = useAuth();
   const { alertas } = useAlertasProativos();
@@ -61,6 +62,25 @@ export function Sidebar() {
             </Link>
           );
         })}
+        {/* Painel admin: fora da lista normal porque não é um módulo do
+            negócio — é ferramenta interna do produto. Some pra quem não é
+            admin, e mesmo forçado só levaria a um 404 do servidor. */}
+        {admin && (
+          <Link
+            href="/admin"
+            aria-current={pathname === "/admin" ? "page" : undefined}
+            className={cn(
+              "mt-2 flex items-center gap-3 rounded-button border border-dashed border-neutro-border px-3 py-2.5 text-sm font-semibold transition-colors",
+              "justify-center lg:justify-start",
+              pathname === "/admin"
+                ? "bg-coral text-white"
+                : "text-neutro-muted-strong hover:bg-fundo",
+            )}
+          >
+            <ShieldCheck className="h-5 w-5 flex-shrink-0" />
+            <span className="hidden lg:inline">Painel</span>
+          </Link>
+        )}
       </nav>
 
       <div className="border-t border-neutro-border p-3 lg:p-4">

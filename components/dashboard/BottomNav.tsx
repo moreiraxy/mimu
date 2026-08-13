@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { navItemsVisiveis } from "@/components/dashboard/navItems";
 import { useAuth } from "@/hooks/useAuth";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 
-export function BottomNav() {
+export function BottomNav({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const { empresa } = useAuth();
   const { alertas } = useAlertasProativos();
@@ -15,6 +16,9 @@ export function BottomNav() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutro-border bg-superficie [padding-bottom:env(safe-area-inset-bottom)] md:hidden">
       <nav className="mx-auto flex h-16 max-w-[430px] items-center justify-around">
+        {/* Painel admin também aqui: a sidebar (onde ele mora no desktop) é
+            `hidden md:flex`, então no celular não existiria porta de entrada
+            nenhuma — e é justamente no celular que a Mimu é usada. */}
         {itens.map(({ href, label, Icon }) => {
           const ativo = pathname === href;
           return (
@@ -43,6 +47,24 @@ export function BottomNav() {
             </Link>
           );
         })}
+
+        {admin && (
+          <Link
+            href="/admin"
+            aria-current={pathname === "/admin" ? "page" : undefined}
+            className="flex h-full flex-1 flex-col items-center justify-center gap-1"
+          >
+            <ShieldCheck
+              size={22}
+              className={pathname === "/admin" ? "text-coral" : "text-neutro-icon"}
+            />
+            {pathname === "/admin" && (
+              <span className="text-[11px] font-semibold leading-none text-coral">
+                Painel
+              </span>
+            )}
+          </Link>
+        )}
       </nav>
     </div>
   );
