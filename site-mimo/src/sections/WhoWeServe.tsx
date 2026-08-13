@@ -129,7 +129,7 @@ export function WhoWeServe() {
   return (
     <section
       id="para-quem"
-      className="relative flex w-full flex-col items-center gap-20 overflow-clip bg-cream py-10 lg:py-15"
+      className="relative flex w-full flex-col items-center gap-20 overflow-clip bg-bg py-10 lg:py-15"
     >
       {/* Container: 90%/1200px, 40px between title and carousel below 1200. */}
       <div className="container-page flex flex-col items-start gap-10 lg:gap-15">

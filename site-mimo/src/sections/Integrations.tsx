@@ -76,7 +76,7 @@ export function Integrations() {
   return (
     <section
       id="integracoes"
-      className="relative flex w-full flex-col items-center overflow-clip bg-cream pt-20 pb-15 md:pb-10 lg:py-30"
+      className="relative flex w-full flex-col items-center overflow-clip bg-bg pt-20 pb-15 md:pb-10 lg:py-30"
     >
       <BgPattern />
 
@@ -169,10 +169,10 @@ function Paragraph() {
 function MarcaCentral() {
   return (
     <div
-      className="relative z-[1] flex shrink-0 items-center justify-center rounded-[18px] bg-[#f7f6f380] p-2 backdrop-blur-[7px] md:rounded-[28px] md:p-3"
+      className="relative z-[1] flex shrink-0 items-center justify-center rounded-[18px] bg-white/4 p-2 backdrop-blur-[7px] md:rounded-3xl md:p-3"
       style={{
         boxShadow:
-          "0px 2.32px 3px rgba(0, 0, 0, 0.1), 0px 13.94px 6px rgba(0, 0, 0, 0.09), 0px 30.18px 8px rgba(0, 0, 0, 0.05), 0px 51.1px 9px rgba(0, 0, 0, 0.01)",
+          "0 0 80px rgba(204,255,0,0.22), 0px 2.32px 3px rgba(0, 0, 0, 0.1), 0px 13.94px 6px rgba(0, 0, 0, 0.09), 0px 30.18px 8px rgba(0, 0, 0, 0.05), 0px 51.1px 9px rgba(0, 0, 0, 0.01)",
       }}
     >
       <MimuIcon className="aspect-square w-[120px] rounded-2xl md:w-[190px] md:rounded-3xl" />
@@ -220,13 +220,17 @@ function Cell({ logo }: { logo: Logo }) {
       className="mr-5 flex shrink-0 flex-col items-center gap-3 rounded-md"
     >
       <div
-        className="relative z-[2] flex items-center justify-center overflow-hidden rounded-2xl bg-[#f7f6f380] p-1.5 backdrop-blur-[7px]"
+        className="relative z-[2] flex items-center justify-center overflow-hidden rounded-2xl bg-white/3 p-1.5 backdrop-blur-[7px]"
         style={{
           boxShadow:
-            "0px 0.98px 3px rgba(0, 0, 0, 0.1), 0px 5.89px 6px rgba(0, 0, 0, 0.09), 0px 12.75px 8px rgba(0, 0, 0, 0.05), 0px 21.59px 9px rgba(0, 0, 0, 0.01), 0px 34.35px 10px rgba(0, 0, 0, 0)",
+            "0px 0.98px 3px rgba(0, 0, 0, 0.25), 0px 5.89px 6px rgba(0, 0, 0, 0.2), 0px 12.75px 8px rgba(0, 0, 0, 0.12), 0px 21.59px 9px rgba(0, 0, 0, 0.05), 0px 34.35px 10px rgba(0, 0, 0, 0)",
         }}
       >
-        <div className="relative z-[1] flex size-[81px] items-center justify-center rounded-xl bg-superficie backdrop-blur-[7px] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:border-[1.1px] after:border-[#1e1e2e0d] after:content-['']">
+        {/* Fundo do ladrilho: era `bg-superficie` (escuro), quase invisível
+            contra a página escura depois do rebrand — os ícones ficavam
+            "apagados". Vidro claro em vez de escuro devolve o contraste que
+            o design original (sobre página clara) já tinha de graça. */}
+        <div className="relative z-[1] flex size-[81px] items-center justify-center rounded-xl bg-white/10 backdrop-blur-[7px] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:border-[1.1px] after:border-white/15 after:content-['']">
           <Img
             src={`/img/${logo.file}`}
             alt=""

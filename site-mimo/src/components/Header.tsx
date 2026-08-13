@@ -22,6 +22,16 @@ const NAV = [
 const SCROLL_THRESHOLD = 3;
 const MORPH = "400ms cubic-bezier(0.34, 1.26, 0.64, 1)";
 
+/** Tamanho compacto pedido só pro CTA do navbar — o resto do site continua no Button padrão (49px). */
+const NAV_CTA_STYLE = {
+  height: "40px",
+  padding: "0 20px",
+  fontSize: "14px",
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  borderRadius: "100px",
+} as const;
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [stuck, setStuck] = useState(false);
@@ -46,15 +56,28 @@ export function Header() {
       <div
         className={`flex items-center ${
           stuck
-            ? "h-[57px] w-auto gap-11 rounded-[100px] border border-borda/60 bg-superficie/90 py-1 pr-1 pl-5 shadow-lg shadow-ink/5 backdrop-blur-xl backdrop-saturate-150"
+            ? "h-[57px] w-auto gap-11 rounded-[100px] border py-1 pr-1 pl-5 shadow-lg shadow-ink/5"
             : "h-[49px] w-full max-w-[1200px] justify-between rounded-none border-transparent bg-transparent p-0"
         }`}
-        style={{
-          transition: `width ${MORPH}, height ${MORPH}, background-color ${MORPH}, border-radius ${MORPH}, padding ${MORPH}`,
-        }}
+        style={
+          stuck
+            ? {
+                // Pedido: só adicionar o vidro fosco ao estado que já existia
+                // (grudado no topo) — forma, tamanho e o morph continuam os
+                // mesmos de antes, só a cor/blur do fundo mudou.
+                background: "rgba(10, 10, 10, 0.75)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                borderColor: "rgba(255, 255, 255, 0.06)",
+                transition: `width ${MORPH}, height ${MORPH}, background-color ${MORPH}, border-radius ${MORPH}, padding ${MORPH}`,
+              }
+            : {
+                transition: `width ${MORPH}, height ${MORPH}, background-color ${MORPH}, border-radius ${MORPH}, padding ${MORPH}`,
+              }
+        }
       >
         <Link to="/" aria-label="Mimu — início">
-          <Logo />
+          <Logo tone="dark" />
         </Link>
 
         <nav className="hidden items-center gap-[18px] lg:flex">
@@ -64,7 +87,9 @@ export function Header() {
         </nav>
 
         <div className="hidden lg:block">
-          <Button to="/contato">Começar grátis</Button>
+          <Button to="/cadastro" style={NAV_CTA_STYLE}>
+            Começar grátis
+          </Button>
         </div>
 
         <button
@@ -72,7 +97,7 @@ export function Header() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Fechar menu" : "Abrir menu"}
           aria-expanded={open}
-          className="flex h-[49px] w-[49px] flex-col items-center justify-center gap-1.25 rounded-full border border-borda/60 bg-superficie lg:hidden"
+          className="flex h-[49px] w-[49px] flex-col items-center justify-center gap-1.25 rounded-full border border-borda/60 bg-bg lg:hidden"
         >
           <span
             className="block h-[1.5px] w-4 rounded-full bg-ink transition-transform duration-300"
@@ -93,7 +118,7 @@ export function Header() {
 
       {open && (
         <div className="w-full max-w-[1200px] lg:hidden">
-          <nav className="mt-3 flex flex-col gap-1 rounded-3xl border border-borda/60 bg-superficie p-4 shadow-[0_12px_40px_rgba(30,30,46,0.08)]">
+          <nav className="mt-3 flex flex-col gap-1 rounded-3xl border border-borda/60 bg-bg p-4 shadow-[0_12px_40px_rgba(30,30,46,0.08)]">
             {NAV.map((item) => (
               <NavLink
                 key={item.label}
@@ -102,7 +127,12 @@ export function Header() {
                 onClick={() => setOpen(false)}
               />
             ))}
-            <Button to="/contato" className="mt-2 justify-center">
+            {/* `flex flex-col` estica os filhos por padrão (`align-items:
+                stretch`) — os NavLinks acima não mostram isso por não
+                terem fundo, mas o Button tem `bg-coral` e ficava esticado
+                à largura inteira do menu. `self-center` tira ele dessa
+                esticada e deixa do tamanho do conteúdo, como no desktop. */}
+            <Button to="/cadastro" className="mt-2 self-center" style={NAV_CTA_STYLE}>
               Começar grátis
             </Button>
           </nav>

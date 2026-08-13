@@ -77,7 +77,7 @@ export default function CustomerStory() {
       <Header />
       <main>
         {/* padding 100/0/0 -> 120/0/40 -> 160/0/40. */}
-        <article className="relative flex w-full flex-none flex-col items-center justify-center overflow-clip bg-cream pt-25 md:pt-30 md:pb-10 lg:pt-40">
+        <article className="relative flex w-full flex-none flex-col items-center justify-center overflow-clip bg-bg pt-25 md:pt-30 md:pb-10 lg:pt-40">
           <div className="container-page flex flex-col items-start justify-center gap-5">
             <div className="flex w-min flex-none items-center justify-start gap-3 overflow-clip">
               <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-ink md:text-base lg:text-[17px] lg:leading-[1.4] xl:text-[18px] xl:leading-[1.3]">
@@ -104,7 +104,7 @@ export default function CustomerStory() {
         {/* padding 20/0/40 -> 0/0/40 -> 0/0/60. */}
         <section
           id="testimonials"
-          className="relative flex w-full flex-none flex-col items-center justify-start overflow-clip bg-cream pt-5 pb-10 md:pt-0 lg:pb-15"
+          className="relative flex w-full flex-none flex-col items-center justify-start overflow-clip bg-bg pt-5 pb-10 md:pt-0 lg:pb-15"
         >
           {/* Only the tablet band lets this box overflow; the sticky sidebar
               still works either way because `clip` is not a scroll container. */}
@@ -181,7 +181,7 @@ function Sidebar({ story }: { story: Story }) {
           {story.shareLabel}
         </p>
 
-        <div className="flex min-w-max items-center justify-center gap-3 bg-cream">
+        <div className="flex min-w-max items-center justify-center gap-3 bg-bg">
           {story.shareIcons.map((file, i) => {
             const target = SHARE[i];
             if (!target) return null;
@@ -290,7 +290,7 @@ function Stats({ story }: { story: Story }) {
           className="h-auto w-full flex-none md:h-[195px] md:w-px md:flex-[1_0_0]"
         >
           <div
-            className={`relative flex size-full flex-row items-start justify-between overflow-clip rounded-lg bg-ink p-4 md:flex-col ${
+            className={`relative flex size-full flex-row items-start justify-between overflow-clip rounded-lg bg-ink-soft p-4 md:flex-col ${
               i === last
                 ? ""
                 : `after:border-b after:border-dotted after:border-[#f7f6f34d] md:after:border-r md:after:border-b-0 ${RING}`
@@ -426,7 +426,7 @@ function CaseCta({ heading }: { heading: string }) {
       />
 
       <div className="relative z-1">
-        <Pill to="/contato" tone="light">
+        <Pill to="/cadastro" tone="light">
           Get a free demo
         </Pill>
       </div>
@@ -441,7 +441,7 @@ function OtherStories({ story }: { story: Story }) {
     .filter((s): s is Story => Boolean(s));
 
   return (
-    <section className="relative flex w-full flex-none flex-col items-center justify-start overflow-clip bg-cream py-10 lg:py-15">
+    <section className="relative flex w-full flex-none flex-col items-center justify-start overflow-clip bg-bg py-10 lg:py-15">
       <div className="container-page flex flex-col items-center gap-10 md:gap-9">
         {/* Below 744 this stacks and the label jumps above the heading. */}
         <div className="flex w-full flex-none flex-col items-center justify-start gap-5 overflow-clip md:flex-row md:items-end md:justify-between md:gap-0">

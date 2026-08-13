@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { CursorDot } from "./components/CursorDot";
+import { Preloader } from "./components/Preloader";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { useParallaxFloat } from "./hooks/useParallaxFloat";
 import { useAnimateOnView } from "./hooks/useAnimateOnView";
@@ -8,7 +9,6 @@ import Home from "./pages/Home";
 import "lenis/dist/lenis.css";
 
 // Home ships in the initial bundle; every other route is split out.
-const Contato = lazy(() => import("./pages/Contact"));
 const Historias = lazy(() => import("./pages/CustomerStories"));
 const Historia = lazy(() => import("./pages/CustomerStory"));
 const Legal = lazy(() => import("./pages/Legal"));
@@ -20,6 +20,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Preloader />
       <CursorDot />
       <Suspense fallback={null}>
         {/* Rotas em português: a URL é parte do que o visitante lê, e um site
@@ -28,7 +29,6 @@ export default function App() {
             também são pt-BR — ver data/customerStories.ts e data/legal.ts. */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/contato" element={<Contato />} />
           <Route path="/historias" element={<Historias />} />
           <Route path="/historias/:slug" element={<Historia />} />
           <Route path="/legal/:slug" element={<Legal />} />

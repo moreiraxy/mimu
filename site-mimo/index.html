@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/icon.svg" />
-    <!-- Coral Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
-    <meta name="theme-color" content="#FF6B5B" />
+    <!-- Verde neon Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
+    <meta name="theme-color" content="#0A0A0A" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Geist:wght@300;400;500;600;700;900&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <title>Mimu · seu negócio, organizado</title>
     <meta
       name="description"
@@ -25,22 +29,12 @@
     <meta name="robots" content="max-image-preview:large" />
 
     <!--
-      Só o que está acima da dobra. Um arquivo cobre a tipografia inteira: o
-      Nunito é variável, então o mesmo woff2 responde pelos pesos 400 do corpo e
-      800 do título — onde o template precisava de dois preloads (Inter Display
-      500 e 600), aqui basta um. O subset latin-ext fica de fora de propósito:
-      todo acento do português vive no latin, e pré-carregar o outro custaria
-      35KB que a home não usa.
+      Só o que está acima da dobra. O Nunito saiu (era o único preload de fonte
+      local): a tipografia agora vem do Google Fonts (Geist/Geist Mono/Indie
+      Flower), carregada pelo <link rel="stylesheet"> acima.
       O srcset/sizes da imagem tem que continuar idêntico ao que o <Img> emite
       para esse arquivo, senão o browser pré-carrega um candidato e busca outro.
     -->
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      href="/fonts/nunito-latin.woff2"
-      crossorigin
-    />
     <link
       rel="preload"
       as="image"

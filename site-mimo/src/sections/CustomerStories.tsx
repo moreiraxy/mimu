@@ -130,7 +130,7 @@ export function CustomerStories() {
   return (
     <section
       id="historias"
-      className="relative flex w-full flex-col items-center overflow-clip bg-cream py-10 lg:py-15"
+      className="relative flex w-full flex-col items-center overflow-clip bg-bg py-10 lg:py-15"
     >
       <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
         {/* Title Wrapper: centred at every breakpoint, 16px apart below 1200. */}

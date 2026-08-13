@@ -93,7 +93,7 @@ export function Pricing() {
   return (
     <section
       id="precos"
-      className="flex w-full flex-col items-center bg-cream py-10 lg:py-15"
+      className="flex w-full flex-col items-center bg-bg py-10 lg:py-15"
     >
       <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
         <SectionHeading
@@ -210,7 +210,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         </div>
 
         <Link
-          to="/contato"
+          to="/cadastro"
           className={`relative flex w-full items-center justify-center rounded-[1000px] py-[14px] transition-colors ${CTA} ${
             featured
               ? "bg-coral text-white shadow-lg shadow-coral/25 hover:bg-coral-hover"

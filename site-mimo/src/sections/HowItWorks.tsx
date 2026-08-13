@@ -178,7 +178,7 @@ function Tabs({ active }: { active: number }) {
 }
 
 function Hairline({ className = "" }: { className?: string }) {
-  return <div className={`h-px w-full bg-cream/5 ${className}`} />;
+  return <div className={`h-px w-full bg-bg/5 ${className}`} />;
 }
 
 /**
@@ -282,7 +282,7 @@ function RegistrarVisual() {
 /** Passo 2: sem foto — três cartões fixados por porcentagem sobre um véu claro. */
 function OrganizarVisual() {
   return (
-    <div className={`${visualClass("md:aspect-[0.6625]")} justify-end bg-cream/5 pb-10`}>
+    <div className={`${visualClass("md:aspect-[0.6625]")} justify-end bg-bg/5 pb-10`}>
       <FloatingCard
         src="/img/jDf6zlLGU8nRewYuvH69cCzlBU.png"
         alt="Lançamento de uma entrada de R$ 120 organizado pela Mimu."

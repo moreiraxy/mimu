@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Img } from "../components/Img";
+import { Parallax } from "../components/Parallax";
 import { SectionHeading } from "../components/SectionHeading";
 import { useInView } from "../hooks/useInView";
 
@@ -19,27 +20,36 @@ import { useInView } from "../hooks/useInView";
  */
 const REVEAL_MS = 400;
 const EASE = "cubic-bezier(0.6, 0, 0.4, 1)";
+/** Curva com leve ultrapassagem — o ícone "chega" com um pop em vez de frear seco. */
+const POP = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 
 const CARDS = [
   {
     icon: "xkYpV98WWniejL3UVXpMPZlXo.svg",
     title: "Funciona sem internet",
     body: "Sinal fraco no salão? A Mimu continua anotando. Quando a conexão volta, tudo sobe sozinho.",
+    destaque: false,
   },
   {
     icon: "AxRl37zVWRgc5u2LvOQmm2w8Y4.svg",
     title: "Backup automático",
     body: "Seus lançamentos ficam guardados todo dia. Trocou de celular, perdeu o aparelho? Está tudo lá.",
+    destaque: false,
   },
   {
     icon: "ft8nMCt6A0x2ZgSm6UJY2FtOvc.svg",
     title: "De acordo com a LGPD",
     body: "Seus dados e os dos seus clientes são tratados conforme a Lei Geral de Proteção de Dados.",
+    destaque: false,
   },
   {
     icon: "DEUAbPOnYvcpeBjExgGPpuBzCk.svg",
     title: "Só você vê",
     body: "Ninguém da Mimu abre o seu movimento para olhar. Seus números são seus, e continuam sendo.",
+    // Mesma linguagem visual do bento de Features (FeaturesV2.tsx): um card
+    // em destaque coral entre os escuros — aqui é o mais "de confiança",
+    // privacidade, o que mais pede ênfase.
+    destaque: true,
   },
 ];
 
@@ -53,7 +63,7 @@ const CHIPS = [
 
 export function Security() {
   return (
-    <section id="seguranca" className="w-full bg-cream py-10 lg:py-15">
+    <section id="seguranca" className="w-full bg-bg py-10 lg:py-15">
       <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
         <SectionHeading
           eyebrow="Segurança"
@@ -64,11 +74,18 @@ export function Security() {
 
         {/* Content Wrapper: cards then the ticker, 40px apart. */}
         <div className="flex w-full max-w-[1280px] flex-col items-center gap-10">
-          {/* Desktop is a 4-up row locked to 1200/370; tablet folds to a fixed
-              650px 2x2 grid; mobile stacks and lets the cards size to content. */}
-          <div className="flex w-full flex-col gap-2 md:grid md:h-[650px] md:max-w-[800px] md:grid-cols-2 md:grid-rows-2 lg:flex lg:aspect-[3.24324] lg:h-auto lg:max-w-none lg:flex-row">
-            {CARDS.map((card) => (
-              <Card key={card.title} {...card} />
+          <div className="grid w-full grid-cols-1 items-start gap-2 md:grid-cols-2">
+            {CARDS.map((card, i) => (
+              // Todos no mesmo sentido (padrão 1); a sensação de camadas vem
+              // só da diferença de força entre os cards.
+              <Parallax
+                key={card.title}
+                forca={[34, 20, 20, 34][i]}
+                padrao={1}
+                className="h-full"
+              >
+                <Card {...card} />
+              </Parallax>
             ))}
           </div>
 
@@ -83,25 +100,57 @@ function Card({
   icon,
   title,
   body,
+  destaque,
 }: {
   icon: string;
   title: string;
   body: string;
+  destaque: boolean;
 }) {
-  const { ref, inView } = useInView<HTMLParagraphElement>();
+  // Observador no card inteiro (antes ficava no parágrafo, no pé do card, e
+  // por isso a animação só disparava quando o final dele já tinha entrado).
+  const { ref, inView } = useInView<HTMLElement>();
 
   return (
-    <article className="flex h-full w-full flex-col items-start justify-between gap-6 overflow-clip rounded-xl bg-ink p-6">
-      <Img
-        src={`/img/${icon}`}
-        alt=""
-        width={57}
-        height={57}
-        className="size-[57px] object-cover"
-      />
+    <article
+      ref={ref}
+      className={`group flex h-[280px] w-full flex-col items-start justify-between gap-6 overflow-clip rounded-2xl p-7 transition-transform duration-300 hover:-translate-y-1 md:h-[320px] ${
+        destaque ? "bg-coral" : "border border-white/8 bg-ink-soft"
+      }`}
+    >
+      {/* O ícone entra depois do card, com um leve pop (0.6 → 1) e girando
+          de -12°. `useInView` repete, então isso roda toda vez que a seção
+          volta pra tela. */}
+      <span
+        className={`flex size-[68px] shrink-0 items-center justify-center rounded-2xl transition-colors duration-300 ${
+          destaque ? "bg-primary-text/10" : "bg-coral/10 group-hover:bg-coral/15"
+        }`}
+        style={{
+          opacity: inView ? 1 : 0,
+          transform: inView ? "scale(1) rotate(0deg)" : "scale(0.6) rotate(-12deg)",
+          transition: `opacity 450ms ${POP} 120ms, transform 450ms ${POP} 120ms`,
+        }}
+      >
+        <Img
+          src={`/img/${icon}`}
+          alt=""
+          width={57}
+          height={57}
+          className={`size-[36px] object-cover transition-transform duration-300 group-hover:scale-110 ${destaque ? "brightness-0" : ""}`}
+        />
+      </span>
 
       <div className="flex w-full flex-col items-start gap-3">
-        <h3 className="w-[90%] font-display text-[24px] leading-[1.25] font-extrabold tracking-[-0.03em] text-cream md:text-[26px] lg:text-[24px] xl:text-[30px]">
+        <h3
+          className={`w-[90%] font-display text-[26px] leading-[1.2] font-extrabold tracking-[-0.03em] md:text-[30px] ${
+            destaque ? "text-primary-text" : "text-cream"
+          }`}
+          style={{
+            opacity: inView ? 1 : 0,
+            transform: inView ? "none" : "translateY(12px)",
+            transition: `opacity ${REVEAL_MS}ms ${EASE} 220ms, transform ${REVEAL_MS}ms ${EASE} 220ms`,
+          }}
+        >
           {title}
         </h3>
         {/* ponytail: one block, not one span per line. `tokenization: line`
@@ -110,12 +159,13 @@ function Card({
             character-level boxes move the wrap points. Line 1's timing is
             exact; later lines land with it instead of 75ms after. */}
         <p
-          ref={ref}
-          className="w-full font-display text-[13px] leading-[1.4] font-medium tracking-[-0.02em] text-cream/70 md:text-[14px] lg:text-[15px] xl:text-base"
+          className={`w-full font-display text-[14px] leading-[1.4] font-medium tracking-[-0.02em] md:text-base ${
+            destaque ? "text-primary-text/70" : "text-cream/70"
+          }`}
           style={{
             opacity: inView ? 1 : 0.001,
             transform: inView ? "none" : "translateY(10px)",
-            transition: `opacity ${REVEAL_MS}ms ${EASE}, transform ${REVEAL_MS}ms ${EASE}`,
+            transition: `opacity ${REVEAL_MS}ms ${EASE} 300ms, transform ${REVEAL_MS}ms ${EASE} 300ms`,
             willChange: "transform",
           }}
         >
@@ -182,24 +232,11 @@ function Line() {
   return <span className="h-[34px] w-0.5 shrink-0 bg-borda" />;
 }
 
+/** O tique verde antes do rótulo saiu a pedido — sobra só o texto, separado
+    pelas barras verticais do `Line`. */
 function Chip({ label }: { label: string }) {
   return (
-    <span className="flex shrink-0 items-center gap-3">
-      <span
-        aria-hidden="true"
-        className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-verde"
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M20 6 9 17l-5-5"
-            stroke="#ffffff"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-
+    <span className="flex shrink-0 items-center">
       <p className="font-display text-xs leading-[1.3] font-bold whitespace-pre text-muted-strong md:text-[13px] lg:text-sm">
         {label}
       </p>

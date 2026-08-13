@@ -105,7 +105,7 @@ export default function CustomerStories() {
         {/* padding 40/40/60/60 top, a flat 100 bottom; gap 40 below 1200. */}
         <section
           id="historias"
-          className="relative flex w-full flex-col items-center justify-start overflow-visible bg-cream pt-10 pb-25 lg:pt-15"
+          className="relative flex w-full flex-col items-center justify-start overflow-visible bg-bg pt-10 pb-25 lg:pt-15"
         >
           <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
             {/* Label & tabs: one row from 744 up, a stack below it with the
@@ -130,7 +130,7 @@ export default function CustomerStories() {
                     aria-pressed={tab === c}
                     className={`flex w-min cursor-pointer items-start justify-start gap-2.5 rounded-[1000px] px-4 py-2 font-display text-[15px] leading-[1.3] font-bold tracking-[-0.02em] whitespace-pre transition-colors md:text-base lg:text-[17px] lg:leading-[1.4] xl:text-[18px] xl:leading-[1.3] ${
                       tab === c
-                        ? "bg-coral text-white"
+                        ? "bg-coral text-primary-text"
                         : "border border-borda bg-superficie text-ink hover:border-coral hover:text-coral"
                     }`}
                   >
@@ -171,7 +171,7 @@ function Hero() {
 
   return (
     /* padding 100/0/40 -> 120/0/40 -> 160/0/60. */
-    <section className="relative flex w-full flex-col items-center justify-center overflow-clip bg-cream pt-25 pb-10 md:pt-30 lg:pt-40 lg:pb-15">
+    <section className="relative flex w-full flex-col items-center justify-center overflow-clip bg-bg pt-25 pb-10 md:pt-30 lg:pt-40 lg:pb-15">
       <div className="container-page flex flex-col items-center justify-center gap-10 lg:gap-15">
         {/* Heading and subtext sit side by side from 744 up, 2fr against 1fr. */}
         <div
@@ -194,7 +194,7 @@ function Hero() {
             </p>
 
             <div style={reveal}>
-              <Pill to="/contato" tone="dark">
+              <Pill to="/cadastro" tone="dark">
                 Começar grátis
               </Pill>
             </div>
@@ -464,7 +464,7 @@ export function Pill({
       to={to}
       className={`relative flex w-min cursor-pointer items-center justify-start gap-2 overflow-clip rounded-[1000px] py-[14px] pr-[14px] pl-4 no-underline ${
         tone === "dark"
-          ? "bg-coral text-white shadow-lg shadow-coral/25"
+          ? "bg-coral text-primary-text shadow-lg shadow-coral/25"
           : "border border-borda bg-superficie text-coral"
       }`}
     >

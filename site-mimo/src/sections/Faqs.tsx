@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { Revelar } from "../components/Revelar";
 import { SectionHeading } from "../components/SectionHeading";
 
 /**
@@ -47,21 +48,24 @@ export function Faqs() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section id="duvidas" className="w-full bg-cream py-10 lg:py-15">
+    <section id="duvidas" className="w-full bg-bg py-10 lg:py-15">
       <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
         <SectionHeading
           eyebrow="Dúvidas"
           heading={"Ficou com dúvida?\nA gente responde."}
         />
 
-        <div className="flex w-full max-w-[800px] flex-col items-center gap-8 lg:w-[70%]">
+        <div className="flex w-full max-w-[800px] flex-col items-center gap-3 lg:w-[70%]">
           {FAQS.map((faq, i) => (
-            <Item
-              key={faq.q}
-              {...faq}
-              open={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
-            />
+            // Escalonado por posição, mas com teto: a partir do 6º item o
+            // atraso pararia de ajudar e viraria espera.
+            <Revelar key={faq.q} atraso={Math.min(i, 5) * 80} className="w-full">
+              <Item
+                {...faq}
+                open={openIndex === i}
+                onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
+              />
+            </Revelar>
           ))}
         </div>
       </div>
@@ -70,9 +74,9 @@ export function Faqs() {
 }
 
 /**
- * Nothing in this list enters on scroll: in the original both the question and
- * the answer render at rest, and the section's only appear animation is the
- * heading. What the accordion does animate is the open/close itself, with the
+ * Cada item entra escalonado (ver o `Revelar` na lista acima) — no template
+ * original a lista nascia parada e só o título animava. O que o acordeão
+ * anima por conta própria é o abrir/fechar, com a
  * component's own transition — `Ya = { bounce: .2, delay: 0, duration: .4,
  * type: "spring" }` next to `framer-7BY3r` in the page bundle. Solved to
  * stiffness 505.6 / damping 36.0 (mass 1, ratio 0.8) and sampled at 24 steps,
@@ -97,9 +101,11 @@ function Item({
   const buttonId = `${id}-button`;
 
   return (
-    // No gap on the row: a closed item measures exactly 40px, and the 10px
-    // that separates question from answer lives inside the collapsing panel.
-    <div className="flex w-full flex-col items-start overflow-clip">
+    <div
+      className={`w-full overflow-clip rounded-2xl border px-6 py-5 transition-colors duration-300 ${
+        open ? "border-coral/40 bg-superficie" : "border-borda bg-superficie"
+      }`}
+    >
       <h3 className="w-full font-display text-base leading-[1.3] font-extrabold tracking-[-0.03em] text-ink md:text-[17px] lg:text-[22px] xl:text-[24px]">
         <button
           type="button"
@@ -135,7 +141,7 @@ function Item({
 /** 40px circle; the two 2px bars form a plus that rotates into a cross.
     Aberto, o círculo fica coral: é o item que está falando com você agora. */
 function PlusIcon({ open }: { open: boolean }) {
-  const bar = open ? "bg-white" : "bg-ink";
+  const bar = open ? "bg-primary-text" : "bg-ink";
 
   return (
     <span

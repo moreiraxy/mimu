@@ -45,7 +45,7 @@ export function MimuMark({
 export function MimuIcon({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`flex shrink-0 items-center justify-center bg-coral text-white ${className}`}
+      className={`flex shrink-0 items-center justify-center bg-coral text-primary-text ${className}`}
     >
       {/* 58% da caixa: a proporção que o manual repete em todas as aplicações
           (42/72 na capa, 48/80 no logo, 92/168 no ícone do app). */}
@@ -72,9 +72,11 @@ export function Logo({
     <span className={`flex items-center gap-2.5 ${className}`}>
       <MimuIcon className="size-9 rounded-[10px]" />
       <span className="flex flex-col">
-        {/* -0.5px de entreletra e peso 800: o manual especifica os dois. */}
+        {/* Wordmark em Indie Flower (brand book novo) — a única aplicação de
+            `font-brand` no site; títulos continuam em `font-display`
+            (Geist), senão virariam cursiva junto. */}
         <span
-          className={`font-display text-[22px] leading-none font-extrabold tracking-[-0.5px] ${
+          className={`font-brand text-[26px] leading-none ${
             tone === "dark" ? "text-white" : "text-coral"
           }`}
         >

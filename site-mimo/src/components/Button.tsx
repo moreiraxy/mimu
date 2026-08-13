@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router";
+import { ehExterno } from "../lib/links";
 
 type Variant = "dark" | "light" | "outline";
 
@@ -16,10 +17,9 @@ type Variant = "dark" | "light" | "outline";
  *              no hover.
  */
 const VARIANTS: Record<Variant, string> = {
-  dark: "bg-coral text-white shadow-lg shadow-coral/25 hover:bg-coral-hover",
+  dark: "bg-coral text-primary-text shadow-lg shadow-coral/25 hover:bg-coral-hover",
   light: "bg-superficie text-coral hover:bg-coral-light",
-  outline:
-    "border-[1.5px] border-coral text-coral hover:bg-coral hover:text-white",
+  outline: "border-[1.5px] border-coral text-coral hover:bg-coral-light",
 };
 
 /** The pill CTA used across the page: 49px tall, fully rounded, chevron on the right. */
@@ -28,19 +28,20 @@ export function Button({
   children,
   variant = "dark",
   className = "",
+  style,
 }: {
   to: string;
   children: ReactNode;
   variant?: Variant;
   className?: string;
+  /** Passthrough pra sobrescrever dimensões (ex.: CTA compacto do navbar)
+      sem depender de qual utilitário Tailwind "ganha" — inline sempre
+      bate as classes de base, então não conflita com o `h-[49px]` etc. */
+  style?: CSSProperties;
 }) {
-  // rounded-[1000px] not rounded-full: the original uses a literal 1000px, and
-  // Tailwind's full resolves to a value that reports back as ~3.3e7px.
-  //
-  // O anel de ::after do template saiu das variantes preenchidas: sobre o coral
-  // ele desenhava uma borda escura que sujava a cor da marca. Sobra só no
-  // `outline`, onde a borda É o desenho — e por isso mora na classe.
-  const cls = `relative inline-flex h-[49px] items-center gap-2 rounded-[1000px] py-[14px] pr-[14px] pl-4 font-display text-base font-bold tracking-[-0.32px] transition-colors duration-200 active:scale-[0.97] ${VARIANTS[variant]} ${className}`;
+  // rounded-[8px]: brand book novo pede canto reto no botão (8px, não mais
+  // o pill 1000px da paleta coral).
+  const cls = `relative inline-flex h-[49px] items-center gap-2 rounded-[8px] py-[14px] pr-[14px] pl-4 font-display text-base font-bold tracking-[-0.32px] transition-colors duration-200 active:scale-[0.97] ${VARIANTS[variant]} ${className}`;
 
   const inner = (
     <>
@@ -49,13 +50,14 @@ export function Button({
     </>
   );
 
-  // External links and hash targets stay plain anchors.
-  return to.startsWith("http") || to.startsWith("#") ? (
-    <a href={to} className={cls}>
+  // Links externos, âncoras e destinos fora deste SPA (ex.: /cadastro, que
+  // mora no app principal) saem como <a> pra fazer navegação de página cheia.
+  return ehExterno(to) ? (
+    <a href={to} className={cls} style={style}>
       {inner}
     </a>
   ) : (
-    <Link to={to} className={cls}>
+    <Link to={to} className={cls} style={style}>
       {inner}
     </Link>
   );

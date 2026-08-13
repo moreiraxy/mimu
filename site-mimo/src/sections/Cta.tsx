@@ -5,7 +5,7 @@ import { Img } from "../components/Img";
 /** Closing CTA: a photo card with a scrim, heading and pill button. */
 export function Cta() {
   return (
-    <section id="comecar" className="w-full bg-cream py-10 lg:py-15">
+    <section id="comecar" className="w-full bg-bg py-10 lg:py-15">
       <div className="container-page">
         <div className="relative z-2 flex flex-col items-center gap-4 overflow-clip rounded-xl py-30 md:gap-5">
           <Img
@@ -38,7 +38,7 @@ export function Cta() {
             Só precisa de 2 minutos para começar.
           </p>
 
-          <Button to="/contato" variant="light">
+          <Button to="/cadastro" variant="light">
             Começar agora — 7 dias grátis
           </Button>
         </div>

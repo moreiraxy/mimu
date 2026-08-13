@@ -3,6 +3,8 @@ import gsap from "gsap";
 import { AnimatedText } from "../components/AnimatedText";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
+import { Parallax } from "../components/Parallax";
+import { Revelar } from "../components/Revelar";
 
 /**
  * Portado de site-v2/components/sections/section-07.tsx (#pricing) — mesmo
@@ -101,25 +103,27 @@ export function PricingV2() {
   }, [periodo]);
 
   return (
-    <section id="precos" className="bg-cream py-20 md:py-28 lg:py-[120px]">
+    <section id="precos" className="bg-bg py-20 md:py-28 lg:py-[120px]">
       <Container className="flex flex-col items-center">
         <AnimatedText
           as="h2"
           text="Escolha seu plano"
           className="text-center font-display text-[32px] font-extrabold tracking-[-0.96px] text-ink md:text-[40px] md:tracking-[-1.2px]"
         />
-        <p className="mt-3 max-w-[480px] text-center text-base text-muted-strong md:text-lg">
-          Comece grátis. Evolua quando quiser. Economize 17% no plano anual.
-        </p>
+        <Revelar atraso={140}>
+          <p className="mt-3 max-w-[480px] text-center text-base text-muted-strong md:text-lg">
+            Comece grátis. Evolua quando quiser. Economize 17% no plano anual.
+          </p>
+        </Revelar>
 
-        <div className="mt-8 flex gap-1 rounded-full border border-borda bg-white p-1">
+        <Revelar atraso={240} className="mt-8 flex gap-1 rounded-full border border-borda bg-superficie p-1">
           {(["mensal", "anual"] as const).map((opcao) => (
             <button
               key={opcao}
               type="button"
               onClick={() => setPeriodo(opcao)}
               className={`flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
-                periodo === opcao ? "bg-ink text-white" : "text-ink/60 hover:text-ink"
+                periodo === opcao ? "bg-coral text-primary-text" : "text-ink/60 hover:text-ink"
               }`}
             >
               {opcao === "mensal" ? "Mensal" : "Anual"}
@@ -128,20 +132,28 @@ export function PricingV2() {
               )}
             </button>
           ))}
-        </div>
+        </Revelar>
 
-        <div ref={gridRef} className="mt-10 grid w-full grid-cols-1 gap-5 md:grid-cols-3">
-          {PLANOS.map((plano) => (
-            <div
+        <div ref={gridRef} className="mt-10 grid w-full grid-cols-1 items-start gap-5 md:grid-cols-3">
+          {PLANOS.map((plano, i) => (
+            <Parallax
               key={plano.id}
-              className={`flex flex-col rounded-[24px] border p-8 ${
+              // Mesma direção em todos; o card do meio (o destacado) anda
+              // mais devagar e fica quase parado enquanto os vizinhos sobem.
+              forca={[30, 16, 30][i]}
+              padrao={1}
+              className="h-full"
+            >
+            <Revelar atraso={i * 120} className="h-full">
+            <div
+              className={`flex h-full flex-col rounded-[24px] border p-8 ${
                 plano.destaque
-                  ? "border-coral bg-white shadow-[0_8px_32px_rgba(255,107,91,0.16)]"
-                  : "border-borda bg-white"
+                  ? "border-coral bg-superficie shadow-[0_8px_32px_rgba(204,255,0,0.16)]"
+                  : "border-borda bg-superficie"
               }`}
             >
               {plano.badge && (
-                <span className="mb-4 w-fit rounded-full bg-coral px-3 py-1 text-xs font-bold text-white">
+                <span className="mb-4 w-fit rounded-full bg-coral px-3 py-1 text-xs font-bold text-primary-text">
                   {plano.badge}
                 </span>
               )}
@@ -166,13 +178,15 @@ export function PricingV2() {
               </ul>
 
               <Button
-                to="/contato"
+                to="/cadastro"
                 variant={plano.botaoVariant}
                 className="mt-8 w-full justify-center"
               >
                 {plano.botaoTexto}
               </Button>
             </div>
+            </Revelar>
+            </Parallax>
           ))}
         </div>
       </Container>

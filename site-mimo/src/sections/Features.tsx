@@ -161,7 +161,7 @@ function AssistenteMimu() {
         <Reveal
           delay={100}
           offset="translateY(10px)"
-          className="w-[58.32%] rounded-t-[36px] bg-cream/10 px-3 pt-3 backdrop-blur-[5px]"
+          className="w-[58.32%] rounded-t-[36px] bg-bg/10 px-3 pt-3 backdrop-blur-[5px]"
         >
           <Img
             src="/img/UypTyFi4R5nXmDWJYptb9WAPy8c.jpg"
@@ -310,7 +310,7 @@ function ChegaDePlanilha() {
         <Reveal
           delay={300}
           offset="translateY(20px)"
-          className="absolute top-[28.9%] left-[14.5%] w-[70.9%] rounded-xl bg-cream/10 p-2.5 backdrop-blur-[3px]"
+          className="absolute top-[28.9%] left-[14.5%] w-[70.9%] rounded-xl bg-bg/10 p-2.5 backdrop-blur-[3px]"
         >
           <Img
             src="/img/DnHdVvqxlNDwAbMsCL5JgkcDg.jpg"

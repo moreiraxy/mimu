@@ -1,14 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="Mimu">
   <!--
-    Ícone do app, conforme o brand book: quadrado coral com o "M" branco
-    centrado. O raio segue a proporção do manual (38 de raio numa caixa de 168,
-    ou seja ~22,6% do lado) e o símbolo ocupa 58% da largura.
+    Ícone do app, brand book novo: quadrado verde neon com o "M" preto
+    centrado (contraste — texto claro sobre neon não passa). O raio segue a
+    proporção do manual (38 de raio numa caixa de 168, ou seja ~22,6% do
+    lado) e o símbolo ocupa 58% da largura.
   -->
-  <rect width="180" height="180" rx="41" fill="#FF6B5B"/>
+  <rect width="180" height="180" rx="41" fill="#CCFF00"/>
   <path d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34"
         transform="translate(38 62) scale(2.1667)"
         fill="none"
-        stroke="#FFFFFF"
+        stroke="#0A0A0A"
         stroke-width="5"
         stroke-linecap="round"
         stroke-linejoin="round"/>

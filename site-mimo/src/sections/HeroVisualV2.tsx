@@ -39,6 +39,9 @@ const AVATARES = [
     iniciais: "AN",
     nome: "Andréia",
     cor: "bg-coral",
+    // Verde neon é claro demais pra iniciais brancas — só este avatar (o
+    // único em bg-coral/primary) precisa do texto preto.
+    texto: "text-primary-text",
     className: "left-[-8%] top-[2%] sm:left-[-14%]",
     parallaxStrength: 30,
     floatSeconds: 3,
@@ -47,6 +50,7 @@ const AVATARES = [
     iniciais: "CA",
     nome: "Carol",
     cor: "bg-verde",
+    texto: "text-white",
     className: "right-[-6%] top-[6%] sm:right-[-12%]",
     parallaxStrength: 28,
     floatSeconds: 4,
@@ -55,6 +59,7 @@ const AVATARES = [
     iniciais: "MG",
     nome: "Maria",
     cor: "bg-ambar",
+    texto: "text-white",
     className: "left-[-2%] top-[80%] sm:left-[-8%]",
     parallaxStrength: 35,
     floatSeconds: 3.7,
@@ -96,6 +101,18 @@ function BoltIcon({ className }: { className?: string }) {
  * propriedade. Camada 3: a entrada (opacity/translateY via IntersectionObserver),
  * num terceiro nó, pelo mesmo motivo.
  */
+/**
+ * Os quatro cards laterais só aparecem em `lg` (1200px+).
+ *
+ * O deslocamento deles é fixo em px (-225 a -260), medido pro desktop. Entre
+ * 460px (onde ficavam visíveis antes) e 1200px a margem que sobra ao lado do
+ * celular é bem menor que isso — em 460px são ~60px de folga pra um card que
+ * pede 240px, então ele saía quase inteiro da tela. Não é caso de reduzir o
+ * número: nessa faixa não existe espaço lateral, e encavalar o card em cima
+ * do celular esconderia a tela do app, que é o que a Hero quer mostrar.
+ * Os avatares continuam desde `sm` porque são pequenos e posicionados em %,
+ * então acompanham a largura em vez de estourar.
+ */
 function FloatCard({
   className,
   parallaxStrength,
@@ -113,9 +130,10 @@ function FloatCard({
 
   return (
     <div
-      className={`absolute z-10 hidden sm:block ${className}`}
+      className={`absolute z-10 hidden lg:block ${className}`}
       data-parallax=""
       data-parallax-strength={parallaxStrength}
+      data-parallax-pattern={1}
     >
       <div
         className="animate-hero-float"
@@ -140,6 +158,7 @@ function AvatarBubble({
   iniciais,
   nome,
   cor,
+  texto,
   className,
   parallaxStrength,
   floatSeconds,
@@ -149,17 +168,18 @@ function AvatarBubble({
       className={`absolute z-10 hidden flex-col items-center gap-1.5 sm:flex ${className}`}
       data-parallax=""
       data-parallax-strength={parallaxStrength}
+      data-parallax-pattern={1}
     >
       <div
         className="animate-hero-float flex flex-col items-center gap-1.5"
         style={{ animationDuration: `${floatSeconds}s` }}
       >
         <span
-          className={`flex size-[54px] items-center justify-center rounded-full text-[15px] font-extrabold text-white shadow-[0_4px_16px_rgba(30,30,46,0.15)] ${cor}`}
+          className={`flex size-[54px] items-center justify-center rounded-full text-[15px] font-extrabold shadow-[0_4px_16px_rgba(30,30,46,0.15)] ${cor} ${texto}`}
         >
           {iniciais}
         </span>
-        <div className="rounded-[10px_18px_18px] border border-borda bg-white px-3 py-1.5 text-sm font-semibold text-ink shadow-sm">
+        <div className="rounded-[10px_18px_18px] border border-borda bg-superficie px-3 py-1.5 text-sm font-semibold text-ink shadow-sm">
           {nome}
         </div>
       </div>
@@ -170,7 +190,22 @@ function AvatarBubble({
 /** Tela do celular — o dashboard oficial da Mimu (app/(marketing)/HeroSection.tsx), com os tokens de cor traduzidos pro tema do site-mimo. */
 function TelaDoCelular() {
   return (
-    <div className="absolute inset-[3%] overflow-hidden rounded-[36px] bg-cream">
+    <div
+      className="absolute overflow-hidden bg-bg"
+      style={{
+        // Retângulo da tela medido na imagem do site-v2 (496x1021): margem
+        // 20px nas laterais/topo, 18px embaixo — em % pra acompanhar
+        // qualquer largura renderizada do contêiner.
+        left: "4.03%",
+        top: "1.96%",
+        width: "91.94%",
+        height: "96.28%",
+        // Raio medido (~46px na imagem-fonte) como par horizontal/vertical
+        // — % simples distorceria a curva, já que a tela é bem mais alta
+        // que larga.
+        borderRadius: "10.09% / 4.68%",
+      }}
+    >
       {/* barra de status: altura fixa em % da tela, não em flex-grow — o
           bloco de conteúdo abaixo ancora nela com `top`/`bottom` (mesma
           técnica do celular real em app/(marketing)/HeroSection.tsx). Um
@@ -182,9 +217,9 @@ function TelaDoCelular() {
         <p className="text-[11px] font-bold text-ink">9:41</p>
         <div className="flex items-center gap-[4px]">
           <svg width="13" height="10" viewBox="0 0 16 12" fill="none">
-            <path d="M1 4.5 Q8 -1 15 4.5" stroke="#1E1E2E" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <path d="M4 7 Q8 3.5 12 7" stroke="#1E1E2E" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <circle cx="8" cy="9.5" r="1.1" fill="#1E1E2E" />
+            <path d="M1 4.5 Q8 -1 15 4.5" stroke="#FFFFFF" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M4 7 Q8 3.5 12 7" stroke="#FFFFFF" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <circle cx="8" cy="9.5" r="1.1" fill="#FFFFFF" />
           </svg>
           <div className="box-border h-[9px] w-[19px] rounded-[2px] border border-ink p-[1px]">
             <div className="h-full w-3/4 rounded-[1px] bg-ink" />
@@ -199,25 +234,25 @@ function TelaDoCelular() {
             <p className="text-[13px] font-extrabold text-ink">Andréia</p>
           </div>
           <span className="flex size-[26px] items-center justify-center rounded-[9px] bg-coral">
-            <MimuMark className="size-3 text-white" />
+            <MimuMark className="size-3 text-primary-text" />
           </span>
         </div>
 
         <div className="rounded-2xl bg-coral p-3">
-          <p className="mb-0.5 text-[9px] text-white/80">Ótimo dia!</p>
-          <p className="mb-2.5 text-[11px] text-white">82% da meta de hoje.</p>
+          <p className="mb-0.5 text-[9px] text-primary-text/80">Ótimo dia!</p>
+          <p className="mb-2.5 text-[11px] text-primary-text">82% da meta de hoje.</p>
           <div className="mb-2 flex justify-between">
             <div>
-              <p className="text-[8px] text-white/70">Realizado</p>
-              <p className="text-[13px] font-extrabold text-white">R$ 410</p>
+              <p className="text-[8px] text-primary-text/70">Realizado</p>
+              <p className="text-[13px] font-extrabold text-primary-text">R$ 410</p>
             </div>
             <div>
-              <p className="text-[8px] text-white/70">Meta</p>
-              <p className="text-[13px] font-extrabold text-white">R$ 500</p>
+              <p className="text-[8px] text-primary-text/70">Meta</p>
+              <p className="text-[13px] font-extrabold text-primary-text">R$ 500</p>
             </div>
           </div>
-          <div className="h-[4px] w-full rounded-md bg-white/25">
-            <div className="h-full w-[82%] rounded-md bg-white" />
+          <div className="h-[4px] w-full rounded-md bg-primary-text/25">
+            <div className="h-full w-[82%] rounded-md bg-primary-text" />
           </div>
         </div>
 
@@ -248,15 +283,36 @@ function TelaDoCelular() {
   );
 }
 
-/** Corpo do celular — mesma técnica CSS de app/(marketing)/HeroSection.tsx: gradiente titânio, botões laterais, Dynamic Island, barra de status. */
+/**
+ * Corpo do celular — pedido explícito: idêntico ao mockup do hero do site-v2
+ * (localhost:3100), não a uma recriação em CSS. Esse mockup lá NÃO é um
+ * componente — é uma imagem raster única
+ * (site-v2/public/assets/img/..._home_header-agents-img-phone.webp) com a
+ * tela do Pierre (mascote, "Converse com o Pierre") desenhada dentro dos
+ * próprios pixels, então "copiar o componente" não existe como tarefa.
+ *
+ * O que dá pra copiar 1:1 é a carcaça: usei essa mesma imagem, com um furo
+ * transparente recortado (Python/PIL, por fora deste código) exatamente no
+ * retângulo da tela (medido pixel a pixel: 20/20/20px de margem nas laterais
+ * e topo, 18px embaixo, raio 46px num arquivo de 496x1021) — moldura,
+ * Dynamic Island, botões laterais e sombra continuam sendo os mesmos pixels
+ * do site-v2. A tela da Mimu (real, sem o Pierre) fica atrás, revelada pelo
+ * furo; a Dynamic Island é redesenhada por cima porque ela também caía
+ * dentro do retângulo recortado.
+ */
 function Celular() {
   const tiltRef = useScrollTilt<HTMLDivElement>();
 
   return (
     <div
-      className="relative mx-auto aspect-[400/824] w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[400px]"
+      className="relative mx-auto aspect-[496/1021] w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[400px]"
       data-parallax=""
-      data-parallax-strength={12}
+      // 12 vinha do `data-speed="0.12"` do pedido original, quando só a Hero
+      // tinha parallax; com o efeito no site inteiro ±2,6px sumia. 45 = ±10px,
+      // o celular agora é a peça que mais anda da Hero (avatares 28–35), que
+      // é o que se quer: ele é o objeto principal.
+      data-parallax-strength={45}
+      data-parallax-pattern={1}
       style={{ perspective: 1000 }}
     >
       {/* nó 1: flutuação (CSS `animation`, translateY) */}
@@ -266,30 +322,26 @@ function Celular() {
             e o `style.transform` imperativo do tilt brigam pela mesma
             propriedade no mesmo elemento. */}
         <div ref={tiltRef} className="relative h-full w-full">
-          {/* corpo titânio */}
-          <div
-            className="absolute inset-0 rounded-[52px]"
-            style={{
-              background:
-                "linear-gradient(155deg, #4a4a4a 0%, #232323 18%, #1a1a1a 50%, #2c2c2c 82%, #4a4a4a 100%)",
-              boxShadow: "0 50px 90px rgba(30,30,46,0.28), 0 0 0 1px rgba(255,255,255,0.08) inset",
-            }}
-          />
-
-          {/* botões laterais */}
-          <div className="absolute -left-[2px] top-[20%] h-[4.5%] w-[2px] rounded-l-sm bg-[#232323]" />
-          <div className="absolute -left-[2px] top-[28%] h-[9%] w-[2px] rounded-l-sm bg-[#232323]" />
-          <div className="absolute -right-[2px] top-[26%] h-[12%] w-[2px] rounded-r-sm bg-[#232323]" />
-
           <TelaDoCelular />
 
-          {/* Dynamic Island */}
-          <div className="absolute left-1/2 top-[3.5%] z-10 flex h-[3.5%] w-[28%] -translate-x-1/2 items-center justify-end rounded-full bg-black pr-[6%]">
+          {/* Dynamic Island — medida na mesma imagem (x 174–312, y 31–71 de
+              496x1021), redesenhada porque caiu dentro do furo da tela. */}
+          <div className="absolute left-[35%] top-[3%] z-10 flex h-[4%] w-[28%] items-center justify-end rounded-full bg-black pr-[6%]">
             <div className="h-[22%] w-[8%] rounded-full bg-[#1a1a2e]" />
           </div>
 
-          {/* reflexo na borda superior */}
-          <div className="absolute left-[14%] right-[14%] top-[2px] h-px rounded-sm bg-white/35" />
+          {/* Moldura real do site-v2 — mesmos pixels: titânio, botões
+              laterais, Dynamic Island (a do físico, agora só decorativa por
+              baixo do furo) e sombra. `object-fit: fill` porque o
+              contêiner já carrega o aspect-ratio nativo da imagem (496:1021),
+              então não há letterboxing a corrigir. */}
+          <img
+            src="/img/v2/iphone-frame-sitev2.png"
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-20 h-full w-full"
+            style={{ objectFit: "fill" }}
+          />
         </div>
       </div>
     </div>
@@ -307,16 +359,16 @@ export function HeroVisualV2() {
 
       {/* Lado esquerdo: rótulo estático + dois alertas independentes, cada
           um com a própria sombra — não agrupados num card só. */}
-      <p className="absolute left-0 top-[20%] z-10 hidden w-[150px] text-[10px] font-bold uppercase tracking-[0.08em] text-muted sm:left-[-240px] sm:block">
+      <p className="absolute left-0 top-[20%] z-10 hidden w-[150px] text-[10px] font-bold uppercase tracking-[0.08em] text-muted lg:left-[-240px] lg:block">
         A Mimu te alerta
       </p>
 
       <FloatCard
-        className="left-0 top-[27%] sm:left-[-240px]"
+        className="left-0 top-[27%] lg:left-[-240px]"
         parallaxStrength={25}
         floatSeconds={3}
       >
-        <div className="flex w-[210px] items-start gap-2.5 rounded-[18px] border border-borda bg-white p-3.5 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
+        <div className="flex w-[210px] items-start gap-2.5 rounded-[18px] border border-borda bg-superficie p-3.5 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
           <span className="flex size-[26px] flex-shrink-0 items-center justify-center rounded-full bg-verde">
             <CheckIcon className="text-white" />
           </span>
@@ -327,11 +379,11 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="left-0 top-[46%] sm:left-[-225px]"
+        className="left-0 top-[46%] lg:left-[-225px]"
         parallaxStrength={20}
         floatSeconds={3.5}
       >
-        <div className="flex w-[196px] items-start gap-2.5 rounded-[18px] border border-borda bg-white p-3.5 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
+        <div className="flex w-[196px] items-start gap-2.5 rounded-[18px] border border-borda bg-superficie p-3.5 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
           <span className="flex size-[26px] flex-shrink-0 items-center justify-center rounded-full bg-ambar">
             <InfoIcon className="text-white" />
           </span>
@@ -343,11 +395,11 @@ export function HeroVisualV2() {
 
       {/* Lado direito: faturamento semanal em cima, meta do dia embaixo. */}
       <FloatCard
-        className="right-0 top-[23%] sm:right-[-260px]"
+        className="right-0 top-[23%] lg:right-[-260px]"
         parallaxStrength={18}
         floatSeconds={4.5}
       >
-        <div className="w-[232px] rounded-[20px] border border-borda bg-white p-4 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
+        <div className="w-[232px] rounded-[20px] border border-borda bg-superficie p-4 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-muted">Faturamento semanal</p>
             <span className="text-[11px] font-bold text-verde">↑ 60%</span>
@@ -385,11 +437,11 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="bottom-[3%] right-0 sm:right-[-225px]"
+        className="bottom-[3%] right-0 lg:right-[-225px]"
         parallaxStrength={22}
         floatSeconds={5}
       >
-        <div className="w-[196px] rounded-[20px] border border-borda bg-white p-4 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
+        <div className="w-[196px] rounded-[20px] border border-borda bg-superficie p-4 shadow-[0_4px_20px_rgba(30,30,46,0.07)]">
           <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-muted">Meta do dia</p>
           <p className="mt-1.5 text-lg font-extrabold text-ink">82% concluída</p>
           <div className="mt-2.5 h-[7px] w-full rounded-md bg-borda">

@@ -1,6 +1,30 @@
 @import "tailwindcss";
 @import "./styles/fonts.css";
 
+:root {
+  /*
+   * Variáveis literais do brand book — os NOMES pedidos existem aqui pra
+   * quem for ler/editar cores no futuro. Quem realmente pinta as classes
+   * (bg-cream, text-ink, bg-coral, bg-superficie...) já espalhadas pelo
+   * código são os tokens Tailwind logo abaixo, remapeados pros mesmos
+   * valores — trocar o @theme é o que atualiza o site inteiro de uma vez,
+   * sem precisar reescrever cada classe utilitária uma a uma.
+   */
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #111111;
+  --color-surface: #111111;
+  --color-border: #222222;
+  --color-primary: #ccff00;
+  --color-primary-hover: #99cc00;
+  --color-primary-text: #0a0a0a;
+  --color-alert: #ff3d2e;
+  --color-text: #ffffff;
+  --color-text-secondary: #888888;
+  --font-brand: "Indie Flower", cursive;
+  --font-system: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}
+
 @theme {
   /* Breakpoints mirror the source: <744 mobile, 744-1199 tablet, >=1200 desktop */
   --breakpoint-sm: 460px;
@@ -9,52 +33,54 @@
   --breakpoint-xl: 1440px;
 
   /*
-   * Paleta Mimu.
-   *
-   * Os três nomes estruturais do template — cream / ink / sand — foram mantidos
-   * e REAPONTADOS para os valores da marca, em vez de renomeados: eles aparecem
-   * em mais de mil classes de layout, e trocar o nome exigiria reescrever todas
-   * sem mudar um pixel do resultado. O que muda é só o que eles valem.
-   *
-   *   cream -> Fundo neutro (#F7F6F3), o background do app no brand book
-   *   ink   -> Escuro (#1E1E2E). Nunca preto puro, como o manual determina
-   *   sand  -> neutro quente de apoio, entre o fundo e a borda #E4E1DA
+   * Paleta Mimu — brand book novo (neon sobre preto). Fundo de página é um
+   * token à parte (--color-bg): cream/ink continuam os dois tons
+   * estruturais que o resto do código referencia, mas com o site inteiro
+   * escuro agora, "cream" só sobrevive como TEXTO claro sobre as seções que
+   * já eram escuras (text-cream, ~20 usos — SectionHeading/Security/
+   * Features escuras) e "ink" virou o texto padrão em todo o resto
+   * (text-ink, a maioria do site). Nenhum dos dois podia virar o novo fundo
+   * #0A0A0A sem quebrar o outro papel que já carrega — daí o token novo.
    */
-  --color-cream: #f7f6f3;
-  --color-ink: #1e1e2e;
-  /* Cards sobre fundo escuro. O template subia 10 pontos do ink (#1a1a1a ->
-     #242424); aqui, o degrau equivalente sobre #1E1E2E preservando o matiz. */
-  --color-ink-soft: #2a2a3d;
-  --color-sand: #ece9e2;
+  --color-bg: #0a0a0a;
+  --color-cream: #ffffff;
+  --color-ink: #ffffff;
+  /* Cards/seções que já eram escuros (Security, Features, HowItWorks) e
+     precisam continuar mais escuros que o resto — mesmo valor do surface
+     do brand book. */
+  --color-ink-soft: #111111;
+  --color-sand: #111111;
 
-  /* Acentos da marca. Coral é a cor principal — CTAs, ícone e destaques. */
-  --color-coral: #ff6b5b;
-  --color-coral-hover: #e85a4a;
-  --color-coral-light: #fff5f4;
-  --color-coral-border: #ffd8d4;
+  /* Acento da marca: verde neon no lugar do coral. */
+  --color-coral: #ccff00;
+  --color-coral-hover: #99cc00;
+  --color-coral-light: rgba(204, 255, 0, 0.1);
+  --color-coral-border: rgba(204, 255, 0, 0.3);
+  --color-primary-text: #0a0a0a;
+  --color-alert: #ff3d2e;
 
-  /* Verde só para entrada/sucesso; âmbar só para pendência. O manual é
-     explícito: âmbar nunca sinaliza erro crítico. */
+  /* Verde e âmbar (sucesso/pendência) não são mencionados no brand book novo
+     — seguem intactos, distintos do verde neon primário. */
   --color-verde: #2dbe8c;
   --color-verde-light: #eaf8f2;
   --color-ambar: #f4a653;
   --color-ambar-light: #fdf3e7;
 
-  --color-superficie: #ffffff;
-  --color-borda: #e4e1da;
-  --color-muted: #9a9690;
-  --color-muted-strong: #6f6b64;
+  --color-superficie: #111111;
+  --color-borda: #222222;
+  --color-muted: #888888;
+  --color-muted-strong: #888888;
 
   /*
-   * Uma família só. O template separava corpo (Inter), títulos (Inter Display)
-   * e olhos-de-seção (Geist Mono); a Mimu não tem monoespaçada, e os olhos no
-   * site atual são Nunito bold em caixa alta. Manter os três slots apontando
-   * para Nunito preserva as classes `font-mono`/`font-display` já espalhadas
-   * pelo código sem deixar nenhuma tipografia estranha à marca escapar.
+   * Geist pro corpo/títulos, Geist Mono pra labels/código — Indie Flower fica
+   * reservado só pro wordmark "mimu" (aplicado direto no Logo.tsx com
+   * `font-brand`, não aqui: se entrasse em --font-display, os títulos
+   * (h1-h4 usam essa variável) virariam cursiva junto).
    */
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-brand: "Indie Flower", cursive;
 
   /*
    * "Curvas suaves" é uma das palavras que o manual usa para descrever o
@@ -78,13 +104,26 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /*
+   * Trava contra o site "escorregar para os lados" no celular.
+   *
+   * `clip` e não `hidden`: os dois cortam o transbordo horizontal, mas
+   * `hidden` transforma o elemento num container de rolagem — e isso quebra
+   * `position: sticky` e atrapalha o Lenis. `clip` corta sem criar rolagem.
+   *
+   * `max-width: 100%` junto porque `clip` sozinho não impede o elemento de
+   * reportar largura maior que a janela em alguns casos.
+   */
+  html,
   body {
-    background: var(--color-cream);
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    background: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    /* Sem `font-feature-settings` aqui: as variantes cv03/cv04/cv09/cv11 que o
-       template ativava são exclusivas do Inter. O Nunito não as declara, e
-       pedi-las a uma fonte que não as tem só custa bytes. */
   }
 
   h1,
@@ -92,11 +131,12 @@
   h3,
   h4 {
     font-family: var(--font-display);
+    font-weight: 700;
   }
 
   ::selection {
     background: var(--color-coral);
-    color: #ffffff;
+    color: var(--color-primary-text);
   }
 }
 

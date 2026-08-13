@@ -63,7 +63,7 @@ export default function Legal() {
       <Header />
       <main>
         {/* 60/80/100 top, 40/40/60 bottom. */}
-        <section className="relative flex w-full flex-col items-center justify-center overflow-clip bg-cream pt-15 pb-10 md:pt-20 lg:pt-25 lg:pb-15">
+        <section className="relative flex w-full flex-col items-center justify-center overflow-clip bg-bg pt-15 pb-10 md:pt-20 lg:pt-25 lg:pb-15">
           <div className="container-page flex flex-col items-center justify-center gap-10 overflow-clip md:gap-15">
             {/* Banner: a 3.375 letterbox at 1200+, a flat 320px on tablet, and
                 a 1.20536 portrait capped at 320px below 744. */}

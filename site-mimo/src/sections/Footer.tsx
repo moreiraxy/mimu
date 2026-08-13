@@ -5,12 +5,14 @@ import { Logo } from "../components/Logo";
 import { useInView } from "../hooks/useInView";
 
 /**
- * Footer. Every number below was read from the original's own CSS/HTML, never
- * estimated — the source rules live under `.framer-O9IKe` (footer scope).
+ * Footer — reorganizado numa grade de 4 colunas (marca | Produto | A Mimu |
+ * newsletter) em vez do bloco newsletter+links empilhado que tinha antes.
+ * O wordmark gigante saiu daqui: o CTA final (CtaV2.tsx), a seção logo
+ * acima, já fecha com o mesmo recurso — repetir os dois um atrás do outro
+ * ficava redundante.
  *
- * Type scale per breakpoint (mobile / tablet / desktop), line-height and
- * tracking are em-based so one class covers all three:
- *   heading      28 / 27 / 39px   lh 1em    ls -0.03em
+ * Type scale per breakpoint (mobile / tablet / desktop), line-height e
+ * tracking são em em, então uma classe cobre as três:
  *   newsletter p 13 / 14 / 16px   lh 1.3em  ls -0.02em
  *   column head  12 / 13 / 14px   lh 1.3em
  *   footer link  15 / 16 / 18px   lh 1.3em  ls -0.02em
@@ -19,10 +21,15 @@ import { useInView } from "../hooks/useInView";
 
 const PATTERN = "/img/Jmgrh5qRTxPjX33edcBsgY4lJA.png";
 
+// "Como funciona" saiu: apontava pra `/#como-funciona`, âncora que só existe
+// em HowItWorks.tsx — fora da composição da Home desde a mesclagem
+// site-v2+site-mimo. "Para quem é" tinha o mesmo problema (WhoWeServe.tsx,
+// também fora da composição). O link do Header pra "Como funciona" continua
+// apontando pra essa mesma âncora inexistente — fora do escopo pedido aqui
+// (Header não muda), mas fica registrado: precisa de uma seção "como
+// funciona" de verdade, ou o link muda de destino.
 const PRODUTO = [
   ["Produto", "/#produto"],
-  ["Como funciona", "/#como-funciona"],
-  ["Para quem é", "/#para-quem"],
   ["Preços", "/#precos"],
   ["Segurança", "/#seguranca"],
   ["Dúvidas", "/#duvidas"],
@@ -30,7 +37,6 @@ const PRODUTO = [
 
 const EMPRESA = [
   ["Histórias", "/historias"],
-  ["Fale com a gente", "/contato"],
   ["oi@mimu.app", "mailto:oi@mimu.app"],
 ] as const;
 
@@ -41,41 +47,69 @@ const SOCIALS = [
   ["Siga a Mimu no X", "https://x.com/", "dbhFXxC2grvCHmbibjOHxxiULg"],
 ] as const;
 
-/**
- * The footer's own appear config, read from the bundle at `framer-O9IKe`:
- * tween 500ms on cubic-bezier(.6,0,.4,1) after a 200ms delay.
- */
-const REVEAL = "500ms cubic-bezier(0.6, 0, 0.4, 1) 200ms";
-const HEADING_HIDDEN = {
-  opacity: 0.001,
-  filter: "blur(3px)",
-  transform: "translateY(10px)",
-};
-const TEXT_HIDDEN = { opacity: 0, transform: "translateY(10px)" };
-const SHOWN = { opacity: 1, filter: "blur(0px)", transform: "translateY(0)" };
-
 /** Framer's documented fallback tick glyph, revealed by :checked. */
 const TICK_MASK =
   'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M 4 8 L 6.5 10.5 L 11.5 5.5" fill="transparent" stroke-width="2" stroke="black" stroke-linecap="round" stroke-linejoin="round"/></svg>\')';
 
 export function Footer() {
   return (
-    // 40px vertical padding below 1200, 60px from there up. `overflow-clip`
-    // is the original's, and it's what keeps the repeating pattern inside.
-    <footer className="relative isolate overflow-clip bg-cream py-10 lg:py-15">
+    <footer className="relative isolate overflow-clip bg-ink-soft py-16 lg:py-20">
       <BgPattern />
 
-      <div className="container-page flex flex-col gap-20 lg:gap-30">
-        {/* Top row: newsletter and links share the width 50/50, split by an
-            80px gutter on desktop and 40px on tablet; it stacks below 744. */}
-        <div className="flex flex-col items-start gap-10 md:flex-row md:gap-x-10 lg:gap-x-20">
+      <div className="container-page flex flex-col gap-16 lg:gap-20">
+        <div className="grid w-full grid-cols-1 gap-12 md:grid-cols-[1.2fr_1fr_1fr_1.4fr]">
+          <BrandColumn />
+
+          <div className="flex flex-col items-start gap-5">
+            <ColumnHeading>Produto</ColumnHeading>
+            <LinkList links={PRODUTO} />
+          </div>
+
+          <div className="flex flex-col items-start gap-5">
+            <ColumnHeading>A Mimu</ColumnHeading>
+            <LinkList links={EMPRESA} />
+          </div>
+
           <Newsletter />
-          <SitemapColumns />
         </div>
 
         <Bottom />
       </div>
     </footer>
+  );
+}
+
+function BrandColumn() {
+  return (
+    <div className="flex flex-col items-start gap-5">
+      <Logo />
+      <p className="max-w-[220px] text-sm leading-[1.4] text-muted-strong">
+        Enquanto você trabalha, a Mimu cuida do seu negócio.
+      </p>
+      <div className="flex items-center gap-3">
+        {SOCIALS.map(([label, href, file]) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="flex size-[22px] shrink-0 items-center justify-center opacity-60 transition-opacity hover:opacity-100"
+          >
+            {/* Os PNGs do template são quase pretos (#1a1a1a) — foram feitos
+                pra fundo claro e sumiam no rodapé escuro. `invert` os deixa
+                brancos sem precisar refazer os arquivos. */}
+            <Img
+              src={`/img/${file}.png`}
+              alt=""
+              width={21}
+              height={21}
+              className="size-[21px] object-cover invert"
+            />
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -85,8 +119,7 @@ export function Footer() {
  * is fully gone 76% of the way up.
  */
 function BgPattern() {
-  const mask =
-    "linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 76%)";
+  const mask = "linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 76%)";
   return (
     <div
       aria-hidden="true"
@@ -113,35 +146,28 @@ function Newsletter() {
   return (
     <div
       ref={ref}
-      className="flex w-full flex-col items-start gap-4 overflow-clip rounded-xl border border-borda bg-superficie p-5 md:w-0 md:min-w-0 md:flex-1 lg:p-6"
+      className="flex w-full flex-col items-start gap-4 overflow-clip rounded-xl border border-borda bg-superficie p-5 lg:p-6"
+      style={{
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(10px)",
+        transition: "opacity 500ms cubic-bezier(0.6,0,0.4,1), transform 500ms cubic-bezier(0.6,0,0.4,1)",
+      }}
     >
       <div className="flex w-full flex-col gap-2">
-        <h2
-          className="w-full font-display text-[28px] leading-[1em] font-extrabold tracking-[-0.03em] text-ink will-change-transform md:text-[27px] lg:text-[39px]"
-          style={{
-            ...(inView ? SHOWN : HEADING_HIDDEN),
-            transition: `opacity ${REVEAL}, filter ${REVEAL}, transform ${REVEAL}`,
-          }}
-        >
+        <h2 className="w-full font-display text-xl leading-[1.15em] font-extrabold tracking-[-0.02em] text-ink">
           Dicas para o seu negócio
         </h2>
-
-        {/* 85% wide, widening to 90% only on tablet — measured, not eyeballed. */}
-        <p
-          className="w-[85%] font-display text-[13px] leading-[1.4em] font-medium tracking-[-0.02em] text-muted-strong will-change-transform md:w-[90%] md:text-sm lg:w-[85%] lg:text-base"
-          style={{
-            ...(inView ? SHOWN : TEXT_HIDDEN),
-            transition: `opacity ${REVEAL}, transform ${REVEAL}`,
-          }}
-        >
-          Ideias simples para vender mais e se organizar melhor. Sem enrolação,
-          e você sai quando quiser.
+        <p className="w-full font-display text-[13px] leading-[1.4em] font-medium tracking-[-0.02em] text-muted-strong">
+          Ideias simples para vender mais e se organizar melhor. Sem enrolação, e você sai quando quiser.
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="flex w-full flex-col gap-4">
-        <div className="flex w-full items-center gap-1">
-          <label className="relative flex h-11 min-w-0 flex-1 items-center rounded-md border border-borda bg-cream py-2 pr-2 pl-4 focus-within:border-coral">
+        {/* Empilhado, não lado a lado: no rodapé de 4 colunas esta coluna é
+            estreita, e o botão em `grow-[0.3]` ficava com ~23% da linha —
+            "Quero receber" quebrava em duas linhas e vazava do botão. */}
+        <div className="flex w-full flex-col gap-2">
+          <label className="relative flex h-11 w-full items-center rounded-md border border-borda bg-bg py-2 pr-2 pl-4 focus-within:border-coral">
             <span className="sr-only">Seu e-mail</span>
             <input
               type="email"
@@ -152,12 +178,11 @@ function Newsletter() {
             />
           </label>
 
-          {/* flex: .3 0 0 against the field's 1 0 0 — a 30/100 split of the row. */}
           <button
             type="submit"
-            className="h-11 min-w-0 shrink-0 grow-[0.3] basis-0 rounded-md bg-coral transition-[background-color] duration-200 ease-[cubic-bezier(0.44,0,0.56,1)] hover:bg-coral-hover"
+            className="h-11 w-full rounded-md bg-coral transition-[background-color] duration-200 ease-[cubic-bezier(0.44,0,0.56,1)] hover:bg-coral-hover"
           >
-            <span className="font-display text-[11px] leading-[1.3em] font-bold tracking-[-0.02em] text-white md:text-xs lg:text-sm">
+            <span className="font-display text-sm leading-[1.3em] font-bold tracking-[-0.02em] whitespace-nowrap text-primary-text">
               Quero receber
             </span>
           </button>
@@ -170,7 +195,7 @@ function Newsletter() {
             type="checkbox"
             name="newsletter"
             required
-            className="relative size-6 shrink-0 appearance-none overflow-hidden rounded-[6px] border border-borda bg-cream before:absolute before:inset-0 before:bg-coral before:opacity-0 before:transition-opacity before:content-[''] before:[mask-image:var(--tick)] before:[mask-position:50%] before:[mask-repeat:no-repeat] before:[mask-size:contain] checked:before:opacity-100"
+            className="relative size-6 shrink-0 appearance-none overflow-hidden rounded-[6px] border border-borda bg-bg before:absolute before:inset-0 before:bg-coral before:opacity-0 before:transition-opacity before:content-[''] before:[mask-image:var(--tick)] before:[mask-position:50%] before:[mask-repeat:no-repeat] before:[mask-size:contain] checked:before:opacity-100"
             style={{ ["--tick" as string]: TICK_MASK }}
           />
           <span className="min-w-0 flex-1 font-display text-[11px] leading-[1.3em] font-medium tracking-[-0.02em] text-muted md:text-xs lg:text-sm">
@@ -193,48 +218,6 @@ function LegalLink({ to, children }: { to: string; children: string }) {
     <Link to={to} className="underline hover:text-ink">
       {children}
     </Link>
-  );
-}
-
-function SitemapColumns() {
-  return (
-    <div className="flex w-full items-start gap-5 md:w-0 md:min-w-0 md:flex-1">
-      <div className="flex min-w-0 flex-1 flex-col items-start gap-5 pt-1">
-        <ColumnHeading>Produto</ColumnHeading>
-        <LinkList links={PRODUTO} />
-      </div>
-
-      {/* Stretches to the taller column so the socials can sit on the floor —
-          `justify-between` only works because of the self-stretch. */}
-      <div className="flex min-w-0 flex-1 flex-col items-start justify-between self-stretch pt-1">
-        <div className="flex w-full flex-col gap-5">
-          <ColumnHeading>A Mimu</ColumnHeading>
-          <LinkList links={EMPRESA} />
-        </div>
-
-        <div className="flex items-center gap-3">
-          {SOCIALS.map(([label, href, file]) => (
-            <div key={label} className="h-[22px] w-[21px]">
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="flex size-full flex-col items-center justify-center opacity-70 transition-opacity hover:opacity-40"
-              >
-                <Img
-                  src={`/img/${file}.png`}
-                  alt=""
-                  width={21}
-                  height={21}
-                  className="size-[21px] object-cover"
-                />
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -286,33 +269,14 @@ function FooterLink({ to, children }: { to: string; children: string }) {
 
 function Bottom() {
   return (
-    <div className="flex w-full flex-col items-center gap-10">
-      {/*
-        O template fechava com um PNG do logotipo em 5% de opacidade. Aqui a
-        assinatura é texto: o Nunito 800 é a própria letra da marca, então
-        desenhá-la com fonte fica nítido em qualquer largura, acompanha o
-        container sem esticar e dispensa mais um arquivo de imagem.
-      */}
-      <p
-        aria-hidden="true"
-        className="w-full text-center font-display text-[22vw] leading-[0.8] font-extrabold tracking-[-0.05em] text-coral/10 select-none lg:text-[260px]"
-      >
-        mimu
+    <div className="flex w-full flex-col items-center justify-between gap-4 border-t border-white/8 pt-8 md:flex-row">
+      <p className="text-center text-sm font-bold tracking-[-0.02em] text-muted md:text-left">
+        © 2026 Mimu · Enquanto você trabalha, a Mimu cuida do seu negócio.
       </p>
 
-      <div className="flex w-full flex-col items-center gap-6">
-        <Logo tagline />
-
-        <div className="flex w-full flex-col items-center justify-center gap-x-10 gap-y-2 overflow-clip md:flex-row md:justify-between">
-          <p className="w-full text-center font-display text-[13px] leading-[1.3em] font-bold tracking-[-0.02em] text-muted md:min-w-0 md:flex-1 md:text-left md:text-sm lg:text-base">
-            © 2026 Mimu · Enquanto você trabalha, a Mimu cuida do seu negócio.
-          </p>
-
-          <div className="flex w-full items-center justify-center gap-5 md:w-0 md:min-w-0 md:flex-1 md:justify-end">
-            <BottomLink to="/legal/termos">Termos de Uso</BottomLink>
-            <BottomLink to="/legal/privacidade">Privacidade</BottomLink>
-          </div>
-        </div>
+      <div className="flex items-center gap-5">
+        <BottomLink to="/legal/termos">Termos de Uso</BottomLink>
+        <BottomLink to="/legal/privacidade">Privacidade</BottomLink>
       </div>
     </div>
   );
@@ -325,9 +289,7 @@ function BottomLink({ to, children }: { to: string; children: string }) {
       to={to}
       className="group flex flex-col items-start font-display text-[13px] leading-[1.3em] font-bold tracking-[-0.02em] whitespace-nowrap text-muted no-underline md:text-sm lg:text-base"
     >
-      <span className="inline-block transition-opacity duration-400 group-hover:opacity-50">
-        {children}
-      </span>
+      <span className="inline-block transition-opacity duration-400 group-hover:opacity-50">{children}</span>
     </Link>
   );
 }
