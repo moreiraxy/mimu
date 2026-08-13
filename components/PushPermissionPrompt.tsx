@@ -52,7 +52,13 @@ export function PushPermissionPrompt() {
   if (!visivel) return null;
 
   return (
-    <div className="fixed inset-x-4 top-4 z-40 mx-auto flex max-w-[380px] items-start gap-3 rounded-card border border-neutro-border bg-superficie p-4 shadow-lg md:left-auto md:right-6 md:mx-0">
+    // Bloco normal no fluxo da página (não mais `position:fixed`) — em
+    // qualquer posição fixa (topo, embaixo) ele acaba competindo com outro
+    // elemento fixo da própria página (bottom nav, FAB, o campo do chat da
+    // Mimu) e bloqueando clique nele por cima. Aqui ele só empurra o
+    // conteúdo da página pra baixo enquanto estiver visível, sem cobrir
+    // nada.
+    <div className="mb-4 flex items-start gap-3 rounded-card border border-neutro-border bg-superficie p-4 shadow-sm md:max-w-[380px]">
       <LogoMark size="sm" />
       <div className="min-w-0 flex-1">
         <p className="text-sm text-escuro">

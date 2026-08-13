@@ -80,11 +80,11 @@ export default function ProdutosPage() {
           value={busca}
           onChange={(event) => setBusca(event.target.value)}
           placeholder="Buscar por nome"
-          className="w-full bg-transparent text-sm text-escuro outline-none placeholder:text-neutro-muted"
+          className="w-full bg-transparent text-base text-escuro outline-none placeholder:text-neutro-muted md:text-sm"
         />
       </div>
 
-      <div className="mt-3 flex gap-2 overflow-x-auto">
+      <div className="mt-3 flex gap-2 overflow-x-auto scroll-fade-x">
         {FILTROS.map((opcao) => (
           <button
             key={opcao}

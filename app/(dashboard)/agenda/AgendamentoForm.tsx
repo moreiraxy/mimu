@@ -207,7 +207,7 @@ export function AgendamentoForm({
         <p className="mb-2 text-xs font-semibold text-neutro-muted">
           Horário
         </p>
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+        <div className="-mx-4 flex gap-2 overflow-x-auto scroll-fade-x px-4 pb-1">
           {HORARIOS.map((h) => (
             <button
               key={h}

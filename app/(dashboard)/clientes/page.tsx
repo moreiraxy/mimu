@@ -84,11 +84,11 @@ export default function ClientesPage() {
           value={busca}
           onChange={(event) => setBusca(event.target.value)}
           placeholder="Buscar por nome ou telefone..."
-          className="w-full bg-transparent text-sm text-escuro outline-none placeholder:text-neutro-muted"
+          className="w-full bg-transparent text-base text-escuro outline-none placeholder:text-neutro-muted md:text-sm"
         />
       </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <div className="-mx-4 flex gap-2 overflow-x-auto scroll-fade-x px-4 pb-1">
         {FILTROS.map((opcao) => (
           <button
             key={opcao}

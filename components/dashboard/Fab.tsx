@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Calendar, Minus, Plus, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@/components/icons/NavIcons";
@@ -14,14 +14,29 @@ const ACOES = [
   { label: "Falar com a Mimu", icone: Sparkles, href: "/mimu" },
 ] as const;
 
+// Rotas que já SÃO um formulário de criação — mostrar o FAB nelas é
+// redundante (a ação "adicionar" já é a tela inteira) e o botão fixo acaba
+// sobrepondo o botão de confirmar do formulário, que fica na mesma posição
+// de tela conforme o conteúdo rola.
+const ROTAS_SEM_FAB = [
+  "/financeiro/nova-entrada",
+  "/financeiro/nova-saida",
+  "/agenda/novo",
+  "/clientes/novo",
+  "/produtos/novo",
+];
+
 export function Fab() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   function selecionar(href: string) {
     setOpen(false);
     router.push(href);
   }
+
+  if (ROTAS_SEM_FAB.includes(pathname)) return null;
 
   return (
     <>
@@ -34,13 +49,26 @@ export function Fab() {
         )}
       />
 
-      <div className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom)+16px)] z-50 flex justify-center lg:hidden">
+      {/*
+        `pointer-events-none` aqui (e propagado por herança pros filhos) é
+        essencial: esses dois wrappers só existem pra posicionar o botão +
+        no canto, mas sem `inset-x-0`/`w-full` + `justify-center`/`items-end`
+        eles ocupam a largura inteira da tela — inclusive a altura reservada
+        pro menu de ações quando fechado (opacity-0, mas ainda no layout).
+        Sem isso, essa faixa larga e "invisível" ficava por cima (z-50, acima
+        de tudo) de qualquer coisa embaixo dela nas páginas — no chat da
+        Mimu, bem em cima do campo de digitar e do botão de enviar — os
+        cliques nunca chegavam lá. Cada elemento que precisa ser clicável de
+        verdade (o próprio botão +, e os itens do menu quando aberto)
+        reativa com `pointer-events-auto`.
+      */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom)+16px)] z-50 flex justify-center lg:hidden">
         <div className="flex w-full max-w-[430px] flex-col items-end gap-3 px-4">
           <div
             className={cn(
               "flex flex-col items-end gap-2 transition-all duration-200",
               open
-                ? "translate-y-0 opacity-100"
+                ? "pointer-events-auto translate-y-0 opacity-100"
                 : "pointer-events-none translate-y-2 opacity-0",
             )}
           >
@@ -67,7 +95,7 @@ export function Fab() {
             aria-expanded={open}
             aria-label={open ? "Fechar" : "Nova ação"}
             className={cn(
-              "flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-lg transition-transform duration-200",
+              "pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-lg transition-transform duration-200",
               open && "rotate-45",
             )}
           >
