@@ -420,16 +420,82 @@ export interface Database {
         >;
         Relationships: [];
       };
+      admin_auditoria: {
+        Row: {
+          id: string;
+          admin_user_id: string | null;
+          admin_email: string | null;
+          empresa_id: string | null;
+          empresa_nome: string | null;
+          acao: string;
+          valor_antes: Json;
+          valor_depois: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          admin_user_id?: string | null;
+          admin_email?: string | null;
+          empresa_id?: string | null;
+          empresa_nome?: string | null;
+          acao: string;
+          valor_antes?: Json;
+          valor_depois?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["admin_auditoria"]["Insert"]>;
+        Relationships: [];
+      };
+      admins: {
+        Row: {
+          user_id: string;
+          observacao: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          observacao?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["admins"]["Insert"]>;
+        Relationships: [];
+      };
+      cancelamentos: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          nome_negocio: string | null;
+          tipo_negocio: string | null;
+          plano: string | null;
+          status_assinatura: string | null;
+          entrou_em: string | null;
+          cancelado_em: string;
+          dias_de_casa: number | null;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          nome_negocio?: string | null;
+          tipo_negocio?: string | null;
+          plano?: string | null;
+          status_assinatura?: string | null;
+          entrou_em?: string | null;
+          cancelado_em?: string;
+          dias_de_casa?: number | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["cancelamentos"]["Insert"]>;
+        Relationships: [];
+      };
       auth_rate_limit: {
         Row: {
           id: string;
-          tipo: "login" | "cadastro";
+          tipo: "login" | "cadastro" | "chat_ia";
           identificador: string;
           created_at: string;
         };
         Insert: {
           id?: string;
-          tipo: "login" | "cadastro";
+          tipo: "login" | "cadastro" | "chat_ia";
           identificador: string;
           created_at?: string;
         };
@@ -521,7 +587,32 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: { [_ in never]: never };
+    Views: {
+      // View do painel admin — só leitura, e só pela service role.
+      // Expõe dados da DONA da conta; nunca dados dos clientes dela.
+      admin_contas: {
+        Row: {
+          empresa_id: string;
+          user_id: string;
+          email: string | null;
+          nome_negocio: string;
+          tipo_negocio: string | null;
+          telefone: string | null;
+          endereco: string | null;
+          onboarding_concluido: boolean;
+          modulos_ativos: string[];
+          entrou_em: string;
+          ultimo_acesso: string | null;
+          status_assinatura: string;
+          plano: string | null;
+          valor_mensal: number | null;
+          trial_fim: string | null;
+          proxima_cobranca: string | null;
+          dias_restantes_trial: number | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       user_owns_empresa: {
         Args: { empresa_id: string };

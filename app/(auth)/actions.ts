@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
+import { avisarAdminsNovoCadastro } from "@/lib/admin-avisos";
 import {
   primeiroErroZod,
   schemaCadastro,
@@ -87,6 +88,12 @@ export async function signUp(
     });
     return { error: traduzErroSupabase(error.message) };
   }
+
+  // Cadastro deu certo — avisa os admins. `await` de propósito (e não
+  // fire-and-forget): numa Server Action a resposta pode encerrar antes de
+  // uma promessa solta terminar, e o aviso se perderia. A função inteira é
+  // silenciosa por dentro, então isso não tem como quebrar o cadastro.
+  await avisarAdminsNovoCadastro(nomeNegocio);
 
   if (!data.session) {
     redirect("/login?confirmacao=pendente");

@@ -21,6 +21,12 @@ const ROTAS_SEM_GATE_DE_ASSINATURA = [
   "/bem-vindo",
   "/assinar",
   "/trial-vencido",
+  // O painel admin exige login, mas não pode passar pelo gate de assinatura:
+  // quem administra não necessariamente tem assinatura ativa, e seria
+  // empurrada pra /assinar ao tentar entrar. Quem checa se ela é MESMO admin
+  // é o layout do painel, no servidor (app/admin/layout.tsx) — o middleware
+  // aqui só garante que existe sessão.
+  "/admin",
 ];
 
 function comecaCom(pathname: string, rotas: string[]): boolean {

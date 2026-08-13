@@ -3,6 +3,16 @@ import { createServiceClient } from "@/lib/supabase/service";
 const LIMITES = {
   login: { max: 10, janelaMs: 60 * 60 * 1000 },
   cadastro: { max: 5, janelaMs: 60 * 60 * 1000 },
+  /**
+   * Chat da Mimu, por usuária. Cada mensagem custa DUAS chamadas ao Groq
+   * (classificação de intenção + resposta), então sem teto uma conta logada
+   * consumiria a cota da API em laço.
+   *
+   * 60/hora é folgado pra uso real — quem atende no balcão manda algumas
+   * mensagens por vez, não uma por minuto durante uma hora inteira — e ainda
+   * assim corta o abuso automatizado.
+   */
+  chat_ia: { max: 60, janelaMs: 60 * 60 * 1000 },
 } as const;
 
 export type TipoRateLimit = keyof typeof LIMITES;

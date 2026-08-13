@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getGroq, DEFAULT_MODEL } from "@/lib/groq";
+import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import {
   buildAlertaMessage,
   buildMimuClassificationPrompt,
@@ -33,6 +34,8 @@ type AgendamentoComNomeCliente = Agendamento & {
 type Supabase = ReturnType<typeof createClient>;
 
 const MAX_MENSAGENS_HISTORICO = 20;
+/** Teto de caracteres por mensagem — ver o uso em POST() pro porquê. */
+const MAX_CARACTERES_MENSAGEM = 2000;
 
 /**
  * Tentativas de extrair o prompt/instruções internas da Mimu ou de fazer
@@ -461,6 +464,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Mensagem vazia." }, { status: 400 });
   }
 
+  // Teto de tamanho: sem isso, `message` podia vir com megabytes de texto e
+  // seguir direto pro Groq (duas chamadas por mensagem). 2000 caracteres é
+  // muito acima de qualquer frase real ("vendi uma escova por 120") e ainda
+  // assim limita o custo por requisição.
+  if (mensagem.length > MAX_CARACTERES_MENSAGEM) {
+    return NextResponse.json(
+      { error: "Essa mensagem é longa demais. Manda em partes menores?" },
+      { status: 413 },
+    );
+  }
+
   const supabase = createClient();
 
   const {
@@ -470,6 +484,20 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
+
+  // Limite por usuária, checado ANTES de gravar a mensagem e antes de
+  // qualquer chamada à IA — o custo está nas chamadas ao Groq, então
+  // bloquear depois de gastar não adiantaria nada.
+  if (await excedeuLimite("chat_ia", user.id)) {
+    return NextResponse.json(
+      {
+        error:
+          "Você mandou muitas mensagens seguidas. Espera um pouquinho e tenta de novo.",
+      },
+      { status: 429 },
+    );
+  }
+  await registrarTentativa("chat_ia", user.id);
 
   const { data: empresa, error: empresaError } = await supabase
     .from("empresas")
