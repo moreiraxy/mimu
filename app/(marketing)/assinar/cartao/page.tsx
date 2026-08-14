@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { Check, ShieldCheck } from "lucide-react";
+import { Check, Download, ShieldCheck, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/hooks/useToast";
 import { VALOR_MENSAL_MIMU } from "@/lib/planos";
@@ -64,6 +64,25 @@ declare global {
     MP_DEVICE_SESSION_ID?: string;
   }
 }
+
+/** O que acontece depois do pagamento. Tudo aqui é o que o produto faz de fato. */
+const O_QUE_VEM_DEPOIS = [
+  {
+    icone: Sparkles,
+    titulo: "Os 5 módulos liberados",
+    texto: "Financeiro, agenda, clientes, produtos e a Mimu, na hora.",
+  },
+  {
+    icone: ShieldCheck,
+    titulo: "Cancele quando quiser",
+    texto: "Sem fidelidade e sem multa. É só parar de renovar.",
+  },
+  {
+    icone: Download,
+    titulo: "Seus dados são seus",
+    texto: "Dá para exportar seu histórico a qualquer momento.",
+  },
+] as const;
 
 export default function AssinarCartaoPage() {
   const router = useRouter();
@@ -152,7 +171,7 @@ export default function AssinarCartaoPage() {
   }, [scriptPronto, router, showToast]);
 
   return (
-    <div className="dark flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
+    <div className="dark min-h-screen bg-fundo px-5 py-10">
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onReady={() => setScriptPronto(true)}
@@ -173,41 +192,88 @@ export default function AssinarCartaoPage() {
         {...{ view: "checkout" }}
       />
 
-      <Logo size="md" />
+      <div className="mx-auto w-full max-w-[1060px]">
+        <div className="flex justify-center lg:justify-start">
+          <Logo size="md" />
+        </div>
 
-      <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
-        <p className="text-center text-lg font-semibold text-escuro">
-          Pagar com Cartão
-        </p>
-        <p className="mt-1 text-center text-sm text-neutro-muted">
-          Parcelamento em 1x, sem juros.
-        </p>
+        {/*
+          Duas colunas a partir de lg. Antes o formulário vivia num cartão de
+          384px em qualquer tela: no celular está certo, no computador o
+          Mercado Pago era obrigado a empilhar vencimento e código de segurança
+          um embaixo do outro, e a tela virava uma coluna estreita e comprida
+          no meio de um monitor vazio.
 
-        {!brickPronto && !erro && (
-          <p className="mt-6 text-center text-sm text-neutro-muted">
-            Carregando formulário seguro...
-          </p>
-        )}
+          A ordem se inverte entre os tamanhos: no celular o formulário vem
+          primeiro, porque quem chegou aqui veio pagar e a mensagem é o que
+          pode esperar; no computador a mensagem fica à esquerda, onde a
+          leitura começa.
+        */}
+        <div className="mt-10 flex flex-col gap-10 lg:mt-14 lg:flex-row lg:items-start lg:gap-16">
+          <aside className="order-2 w-full lg:order-1 lg:flex-1 lg:pt-2">
+            <h1 className="text-balance font-display text-[30px] font-bold leading-[1.15] text-escuro lg:text-[38px]">
+              A Mimu está pronta para estruturar o seu negócio.
+            </h1>
+            <p className="mt-4 text-balance text-[17px] leading-relaxed text-neutro-muted">
+              Obrigado por nos escolher para fazer parte da sua trajetória.
+            </p>
 
-        <div ref={brickRef} id={BRICK_CONTAINER_ID} className="mt-4" />
+            <ul className="mt-8 flex flex-col gap-4">
+              {O_QUE_VEM_DEPOIS.map((item) => (
+                <li key={item.titulo} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
+                    <item.icone className="h-4 w-4" strokeWidth={2.25} />
+                  </span>
+                  <span>
+                    <span className="block text-[15px] font-semibold text-escuro">
+                      {item.titulo}
+                    </span>
+                    <span className="block text-sm text-neutro-muted">
+                      {item.texto}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </aside>
 
-        {erro && (
-          <p className="mt-4 rounded-button bg-erro-light px-3 py-2 text-center text-sm text-erro-texto">
-            {erro}
-          </p>
-        )}
+          <div className="order-1 w-full lg:order-2 lg:w-[480px] lg:flex-none">
+            <div className="rounded-card border border-neutro-border bg-superficie p-6">
+              <p className="text-center text-lg font-semibold text-escuro">
+                Pagar com Cartão
+              </p>
+              <p className="mt-1 text-center text-sm text-neutro-muted">
+                Parcelamento em 1x, sem juros.
+              </p>
 
-        {processando && (
-          <p className="mt-3 text-center text-sm text-neutro-muted">
-            Confirmando pagamento...
-          </p>
-        )}
+              {!brickPronto && !erro && (
+                <p className="mt-6 text-center text-sm text-neutro-muted">
+                  Carregando formulário seguro...
+                </p>
+              )}
+
+              <div ref={brickRef} id={BRICK_CONTAINER_ID} className="mt-4" />
+
+              {erro && (
+                <p className="mt-4 rounded-button bg-erro-light px-3 py-2 text-center text-sm text-erro-texto">
+                  {erro}
+                </p>
+              )}
+
+              {processando && (
+                <p className="mt-3 text-center text-sm text-neutro-muted">
+                  Confirmando pagamento...
+                </p>
+              )}
+            </div>
+
+            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-neutro-muted">
+              <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
+              Pagamento seguro processado pelo Mercado Pago
+            </p>
+          </div>
+        </div>
       </div>
-
-      <p className="mt-6 flex items-center gap-1.5 text-xs text-neutro-muted">
-        <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
-        Pagamento seguro processado pelo Mercado Pago
-      </p>
     </div>
   );
 }

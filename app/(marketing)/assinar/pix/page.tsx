@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, ShieldCheck, XCircle } from "lucide-react";
+import { Check, Copy, Download, ShieldCheck, Sparkles, XCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -22,6 +22,25 @@ function formatarContagem(segundos: number): string {
   const seg = segundos % 60;
   return `${String(min).padStart(2, "0")}:${String(seg).padStart(2, "0")}`;
 }
+
+/** Igual à tela de cartão: o que acontece depois que o pagamento cair. */
+const O_QUE_VEM_DEPOIS = [
+  {
+    icone: Sparkles,
+    titulo: "Os 5 módulos liberados",
+    texto: "Financeiro, agenda, clientes, produtos e a Mimu, na hora.",
+  },
+  {
+    icone: ShieldCheck,
+    titulo: "Cancele quando quiser",
+    texto: "Sem fidelidade e sem multa. É só parar de renovar.",
+  },
+  {
+    icone: Download,
+    titulo: "Seus dados são seus",
+    texto: "Dá para exportar seu histórico a qualquer momento.",
+  },
+] as const;
 
 export default function AssinarPixPage() {
   const router = useRouter();
@@ -116,10 +135,45 @@ export default function AssinarPixPage() {
   }
 
   return (
-    <div className="dark flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
-      <Logo size="md" />
+    <div className="dark min-h-screen bg-fundo px-5 py-10">
+      <div className="mx-auto w-full max-w-[1060px]">
+        <div className="flex justify-center lg:justify-start">
+          <Logo size="md" />
+        </div>
 
-      <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
+        {/* Mesmo desenho da tela de cartão: no computador a mensagem à
+            esquerda e o pagamento à direita; no celular o pagamento primeiro,
+            porque é o que a pessoa veio fazer. */}
+        <div className="mt-10 flex flex-col gap-10 lg:mt-14 lg:flex-row lg:items-start lg:gap-16">
+          <aside className="order-2 w-full lg:order-1 lg:flex-1 lg:pt-2">
+            <h1 className="text-balance font-display text-[30px] font-bold leading-[1.15] text-escuro lg:text-[38px]">
+              A Mimu está pronta para estruturar o seu negócio.
+            </h1>
+            <p className="mt-4 text-balance text-[17px] leading-relaxed text-neutro-muted">
+              Obrigado por nos escolher para fazer parte da sua trajetória.
+            </p>
+
+            <ul className="mt-8 flex flex-col gap-4">
+              {O_QUE_VEM_DEPOIS.map((item) => (
+                <li key={item.titulo} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
+                    <item.icone className="h-4 w-4" strokeWidth={2.25} />
+                  </span>
+                  <span>
+                    <span className="block text-[15px] font-semibold text-escuro">
+                      {item.titulo}
+                    </span>
+                    <span className="block text-sm text-neutro-muted">
+                      {item.texto}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          <div className="order-1 w-full lg:order-2 lg:w-[480px] lg:flex-none">
+      <div className="w-full rounded-card border border-neutro-border bg-superficie p-6">
         <p className="text-center text-lg font-semibold text-escuro">
           Pagar com Pix
         </p>
@@ -205,10 +259,13 @@ export default function AssinarPixPage() {
         )}
       </div>
 
-      <p className="mt-6 flex items-center gap-1.5 text-xs text-neutro-muted">
-        <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
-        Pagamento seguro processado pelo Mercado Pago
-      </p>
+            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-neutro-muted">
+              <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
+              Pagamento seguro processado pelo Mercado Pago
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
