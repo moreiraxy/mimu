@@ -8,7 +8,7 @@ const COR_BARRA: Record<StatusNegocio, string> = {
   otimo: "bg-verde",
   atencao: "bg-ambar",
   prejuizo: "bg-[#EF4444]",
-  recorde: "bg-coral",
+  recorde: "bg-primary",
 };
 
 export function ProgressoCard({
@@ -73,7 +73,7 @@ export function ProgressoCard({
             <p className="mt-0.5 text-xs text-neutro-muted">
               {vaiBaterMeta
                 ? "Nesse ritmo a meta é batida."
-                : "Nesse ritmo a meta fica em risco — vale acelerar."}
+                : "Nesse ritmo a meta fica em risco. Vale acelerar."}
             </p>
           </div>
         </>

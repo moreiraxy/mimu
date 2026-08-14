@@ -9,7 +9,7 @@ const DEPOIMENTOS = [
     nome: "Andréia",
     negocio: "Salão da Andréia",
     iniciais: "AN",
-    cor: "bg-coral",
+    cor: "bg-primary",
     parallax: 70,
   },
   {

@@ -162,7 +162,7 @@ export function MetaSection({
               setCentavos(digitos ? Number(digitos) : 0);
             }}
             aria-label="Meta mensal"
-            className="w-full max-w-[240px] rounded-button border border-neutro-border bg-fundo px-4 py-3 text-center text-2xl font-semibold text-coral outline-none focus:border-coral"
+            className="w-full max-w-[240px] rounded-button border border-neutro-border bg-fundo px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
           />
           {metaMensal > 0 && (
             <p className="mt-2 text-xs text-neutro-muted">

@@ -47,7 +47,7 @@ export async function POST() {
     const pagamentoMP = await mpPayment.create({
       body: {
         transaction_amount: VALOR_MENSAL_MIMU,
-        description: "Assinatura Mimu — Plano Completo",
+        description: "Assinatura Mimu (Plano Completo)",
         payment_method_id: "pix",
         date_of_expiration: expiracao.toISOString(),
         external_reference: assinatura.id,

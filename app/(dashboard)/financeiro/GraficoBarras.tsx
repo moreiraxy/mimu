@@ -62,7 +62,7 @@ export function GraficoBarras({ transacoes }: { transacoes: Transacao[] }) {
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs font-semibold",
                 janela === opcao
-                  ? "bg-superficie text-coral shadow-sm"
+                  ? "bg-superficie text-primary-forte shadow-sm"
                   : "text-neutro-muted",
               )}
             >

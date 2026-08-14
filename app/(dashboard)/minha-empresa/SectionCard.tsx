@@ -15,7 +15,7 @@ export function SectionCard({
   return (
     <section className="rounded-card border border-neutro-border bg-superficie p-4 lg:p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
           <Icone className="h-[18px] w-[18px]" strokeWidth={2.25} />
         </span>
         <div>

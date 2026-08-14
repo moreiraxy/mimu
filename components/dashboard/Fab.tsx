@@ -82,7 +82,7 @@ export function Fab() {
                 <span className="text-sm font-semibold text-escuro">
                   {acao.label}
                 </span>
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
                   <acao.icone className="h-4 w-4" strokeWidth={2.25} />
                 </span>
               </button>
@@ -95,7 +95,7 @@ export function Fab() {
             aria-expanded={open}
             aria-label={open ? "Fechar" : "Nova ação"}
             className={cn(
-              "pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-lg transition-transform duration-200",
+              "pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-text shadow-lg transition-transform duration-200",
               open && "rotate-45",
             )}
           >

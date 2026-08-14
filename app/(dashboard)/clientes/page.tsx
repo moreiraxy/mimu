@@ -52,7 +52,7 @@ export default function ClientesPage() {
         <button
           type="button"
           onClick={refetch}
-          className="text-sm font-semibold text-coral"
+          className="text-sm font-semibold text-primary-forte"
         >
           Tentar de novo
         </button>
@@ -68,7 +68,7 @@ export default function ClientesPage() {
         </p>
         <Link
           href="/clientes/novo"
-          className="text-sm font-semibold text-coral"
+          className="text-sm font-semibold text-primary-forte"
         >
           Adicione seu primeiro cliente →
         </Link>
@@ -97,7 +97,7 @@ export default function ClientesPage() {
             className={cn(
               "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
               filtro === opcao
-                ? "border-coral bg-coral text-white"
+                ? "border-primary-forte bg-primary text-primary-text"
                 : "border-neutro-border bg-superficie text-escuro",
             )}
           >

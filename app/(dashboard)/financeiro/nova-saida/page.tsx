@@ -130,7 +130,7 @@ export default function NovaSaidaPage() {
     }
 
     showToast(
-      offline ? "Saída salva — vai sincronizar depois." : "Saída registrada!",
+      offline ? "Saída salva! Vai sincronizar depois." : "Saída registrada!",
       TrendingDown,
     );
     setConcluidoOffline(offline);
@@ -143,7 +143,7 @@ export default function NovaSaidaPage() {
         titulo="Saída registrada!"
         subtitulo={
           concluidoOffline
-            ? "Você estava sem conexão — assim que voltar, ela sincroniza automaticamente."
+            ? "Você estava sem conexão. Assim que voltar, ela sincroniza automaticamente."
             : undefined
         }
         onNovo={() => {

@@ -92,7 +92,7 @@ export default function DetalheFornecedorPage() {
 
       <Link
         href={`/compras?fornecedorId=${fornecedor.id}`}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-button bg-coral py-3 text-sm font-bold text-white"
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-button bg-primary py-3 text-sm font-bold text-primary-text"
       >
         <ShoppingBag className="h-4 w-4" strokeWidth={2.25} />
         Nova compra

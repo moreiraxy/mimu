@@ -12,7 +12,7 @@ import { Logo } from "@/components/Logo";
 // texto revisado para ser lido por quem foi suspensa.
 export default function ContaSuspensaPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FFF5F4] px-6 py-10 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-primary-light px-6 py-10 text-center">
       <Logo size="md" />
 
       <span className="mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-ambar-light text-ambar-dark">
@@ -23,13 +23,13 @@ export default function ContaSuspensaPage() {
         Sua conta está suspensa.
       </h1>
       <p className="mt-2 max-w-sm text-sm text-neutro-muted">
-        O acesso à Mimu foi pausado. Seus dados continuam guardados — fale com a
+        O acesso à Mimu foi pausado. Seus dados continuam guardados. Fale com a
         gente para entender o motivo e resolver.
       </p>
 
       <a
         href="mailto:suporte@mimu.app"
-        className="mt-8 flex w-full max-w-xs items-center justify-center gap-1.5 rounded-button bg-coral py-3.5 text-sm font-bold text-white transition-colors hover:bg-coral-hover"
+        className="mt-8 flex w-full max-w-xs items-center justify-center gap-1.5 rounded-button bg-primary py-3.5 text-sm font-bold text-primary-text transition-colors hover:bg-primary-hover"
       >
         <MessageCircle className="h-4 w-4" strokeWidth={2.25} />
         Falar com suporte

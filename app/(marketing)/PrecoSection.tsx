@@ -110,7 +110,7 @@ export function PrecoSection() {
                   key={chave}
                   onClick={() => setPeriodo(chave)}
                   className={`rounded-full px-4 py-2 text-[13px] font-bold transition-colors duration-200 ${
-                    periodo === chave ? "bg-coral text-white" : "text-escuro"
+                    periodo === chave ? "bg-primary text-primary-text" : "text-escuro"
                   }`}
                 >
                   {PLANOS[chave].label}
@@ -121,11 +121,11 @@ export function PrecoSection() {
 
           <ParallaxFloat strength={40} className="mt-6 max-w-md">
             <EntradaMockup delay={0.15}>
-              <div className="relative rounded-[26px] border-[1.5px] border-coral bg-coral-light px-8 py-11 text-center shadow-2xl shadow-coral/20">
+              <div className="relative rounded-[26px] border-[1.5px] border-primary-forte bg-primary-light px-8 py-11 text-center shadow-2xl shadow-primary/20">
                 {plano.badge && (
                   <span
                     className={`absolute -top-3.5 left-8 rounded-full px-3.5 py-1.5 text-[11px] font-bold text-white ${
-                      plano.badgeCor === "coral" ? "animate-pulse-badge bg-coral" : "bg-ambar"
+                      plano.badgeCor === "coral" ? "animate-pulse-badge bg-primary" : "bg-ambar"
                     }`}
                   >
                     {plano.badge}
@@ -164,7 +164,7 @@ export function PrecoSection() {
 
                 <Link
                   href="/cadastro"
-                  className="mt-8 flex w-full items-center justify-center rounded-full bg-coral py-3.5 text-[15px] font-bold text-white shadow-lg shadow-coral/30 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97]"
+                  className="mt-8 flex w-full items-center justify-center rounded-full bg-primary py-3.5 text-[15px] font-bold text-primary-text shadow-lg shadow-primary/30 transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97]"
                 >
                   Começar com 7 dias grátis
                 </Link>
@@ -190,26 +190,26 @@ export function PrecoSection() {
                 <div
                   key={linha.periodo}
                   className={`grid grid-cols-4 gap-1 px-4 py-4 transition-colors duration-200 ${
-                    ativa ? "bg-coral-light" : "bg-transparent"
+                    ativa ? "bg-primary-light" : "bg-transparent"
                   } ${indice < TABELA.length - 1 ? "border-b border-neutro-border" : ""}`}
                 >
-                  <p className={`text-[13px] ${ativa ? "font-bold text-coral" : "text-escuro"}`}>
+                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
                     {PLANOS[linha.periodo].label}
                   </p>
-                  <p className={`text-[13px] ${ativa ? "font-bold text-coral" : "text-escuro"}`}>
+                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
                     {linha.total}
                   </p>
-                  <p className={`text-[13px] ${ativa ? "font-bold text-coral" : "text-escuro"}`}>
+                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
                     {linha.porMes}
                   </p>
                   <p
                     className={`text-[13px] font-bold ${
                       linha.economiaCor === "coral"
-                        ? "text-coral"
+                        ? "text-primary-forte"
                         : linha.economiaCor === "verde"
                           ? "text-verde"
                           : ativa
-                            ? "text-coral"
+                            ? "text-primary-forte"
                             : "text-escuro"
                     }`}
                   >

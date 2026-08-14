@@ -16,19 +16,19 @@ export function BemVindoScreen({ nome }: { nome: string }) {
   }, [router]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-coral px-6 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/15">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-primary px-6 text-center">
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-text/10">
         <svg width="48" height="36" viewBox="0 0 48 36" fill="none">
           <path
             d={MARK_PATH}
-            stroke="white"
+            stroke="#0A0A0A"
             strokeWidth={5}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </div>
-      <p className="flex max-w-xs items-center justify-center gap-2 text-2xl font-semibold text-white">
+      <p className="flex max-w-xs items-center justify-center gap-2 text-2xl font-semibold text-primary-text">
         Tudo pronto, {nome}! Vamos lá
         <Trophy className="h-6 w-6 flex-shrink-0" strokeWidth={2.25} />
       </p>

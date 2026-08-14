@@ -24,7 +24,7 @@ export function Sidebar({ admin = false }: { admin?: boolean }) {
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[72px] flex-col border-r border-neutro-border bg-superficie md:flex lg:w-60">
       <div className="flex items-center gap-3 px-3 py-5 lg:px-5">
         <LogoMark size="sm" />
-        <p className="hidden text-2xl font-medium tracking-[-0.5px] text-coral lg:block">
+        <p className="hidden text-2xl font-medium tracking-[-0.5px] text-primary-forte lg:block">
           mimu
         </p>
       </div>
@@ -41,7 +41,7 @@ export function Sidebar({ admin = false }: { admin?: boolean }) {
                 "flex items-center gap-3 rounded-button px-3 py-2.5 text-sm font-semibold transition-colors",
                 "justify-center lg:justify-start",
                 ativo
-                  ? "bg-coral text-white"
+                  ? "bg-primary text-primary-text"
                   : "text-neutro-muted-strong hover:bg-fundo",
               )}
             >
@@ -51,7 +51,7 @@ export function Sidebar({ admin = false }: { admin?: boolean }) {
                   <span
                     className={cn(
                       "absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none",
-                      ativo ? "bg-superficie text-coral" : "bg-erro text-white",
+                      ativo ? "bg-superficie text-primary-forte" : "bg-erro text-white",
                     )}
                   >
                     {alertas.length > 9 ? "9+" : alertas.length}
@@ -73,7 +73,7 @@ export function Sidebar({ admin = false }: { admin?: boolean }) {
               "mt-2 flex items-center gap-3 rounded-button border border-dashed border-neutro-border px-3 py-2.5 text-sm font-semibold transition-colors",
               "justify-center lg:justify-start",
               pathname === "/admin"
-                ? "bg-coral text-white"
+                ? "bg-primary text-primary-text"
                 : "text-neutro-muted-strong hover:bg-fundo",
             )}
           >

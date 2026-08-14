@@ -61,7 +61,7 @@ export default function RedefinirSenhaPage() {
         </p>
         <Link
           href="/recuperar-senha"
-          className="text-sm font-medium text-coral"
+          className="text-sm font-medium text-primary-forte"
         >
           Pedir um novo link
         </Link>

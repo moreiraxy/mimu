@@ -25,7 +25,7 @@ export function ProgressoCircular({
         cy={centro}
         r={raio}
         fill="none"
-        stroke="#FFF5F4"
+        stroke="rgb(var(--primary-light))"
         strokeWidth={espessura}
       />
       <circle
@@ -33,7 +33,7 @@ export function ProgressoCircular({
         cy={centro}
         r={raio}
         fill="none"
-        stroke="#FF6B5B"
+        stroke="#CCFF00"
         strokeWidth={espessura}
         strokeDasharray={circunferencia}
         strokeDashoffset={offset}

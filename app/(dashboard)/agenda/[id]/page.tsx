@@ -271,7 +271,7 @@ export default function DetalheAgendamentoPage() {
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Editar
           </button>
@@ -297,7 +297,7 @@ export default function DetalheAgendamentoPage() {
             : ""}
         </p>
         {agendamento.valor_previsto ? (
-          <p className="mt-2 text-xl font-semibold text-coral">
+          <p className="mt-2 text-xl font-semibold text-primary-forte">
             {formatCurrency(agendamento.valor_previsto)}
           </p>
         ) : null}

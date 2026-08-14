@@ -88,7 +88,7 @@ export default function AssinarCartaoPage() {
           style: {
             theme: "default",
             customVariables: {
-              baseColor: "#FF6B5B",
+              baseColor: "#CCFF00",
               formBackgroundColor: "#FFFFFF",
               borderRadiusMedium: "12px",
             },
@@ -134,7 +134,7 @@ export default function AssinarCartaoPage() {
   }, [scriptPronto, router, showToast]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-[#FFF5F4] px-6 py-10">
+    <div className="flex min-h-screen flex-col items-center bg-primary-light px-6 py-10">
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onReady={() => setScriptPronto(true)}

@@ -23,7 +23,7 @@ export function FooterMarketing() {
         <div className="flex items-start gap-2.5">
           <LogoMark size="sm" className="h-8 w-8 rounded-[8px]" />
           <div>
-            <p className="text-base font-extrabold text-coral">mimu</p>
+            <p className="text-base font-extrabold text-primary-forte">mimu</p>
             <p className="mt-0.5 max-w-[220px] text-xs text-neutro-muted">
               Enquanto você trabalha, a Mimu cuida do seu negócio.
             </p>

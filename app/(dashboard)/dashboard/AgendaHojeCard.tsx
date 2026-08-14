@@ -22,7 +22,7 @@ export function AgendaHojeCard({
     <div className="rounded-card border border-neutro-border bg-superficie p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-escuro">Agenda de hoje</p>
-        <Link href="/agenda" className="text-xs font-semibold text-coral">
+        <Link href="/agenda" className="text-xs font-semibold text-primary-forte">
           Ver tudo →
         </Link>
       </div>
@@ -39,7 +39,7 @@ export function AgendaHojeCard({
                 className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${COR_STATUS[agendamento.status]}`}
               />
               <p className="flex-1 truncate text-sm text-escuro">
-                {agendamento.cliente?.nome ?? "Cliente"} —{" "}
+                {agendamento.cliente?.nome ?? "Cliente"} ·{" "}
                 {agendamento.titulo}
               </p>
               <p className="flex-shrink-0 text-xs text-neutro-muted">

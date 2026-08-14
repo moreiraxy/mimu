@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const pagamentoMP = await mpPayment.create({
       body: {
         transaction_amount: VALOR_MENSAL_MIMU,
-        description: "Assinatura Mimu — Plano Completo",
+        description: "Assinatura Mimu (Plano Completo)",
         token: body.token,
         installments: body.installments || 1,
         payment_method_id: body.payment_method_id,

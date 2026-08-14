@@ -14,11 +14,20 @@ const config: Config = {
         // os tons "light"/"soft" (fundos suaves) e os neutros/superficie são
         // var(--x) — ver .dark em app/globals.css — porque esses sim precisam
         // escurecer no tema escuro.
-        coral: {
-          DEFAULT: "#FF6B5B", // cor principal: CTAs, ícone, contato direto com a Mimu
-          hover: "#E85A4A",
-          light: "rgb(var(--coral-light) / <alpha-value>)", // fundos e cards de destaque suave
-          border: "rgb(var(--coral-border) / <alpha-value>)",
+        // Cor principal do brand book. Três papéis distintos de propósito:
+        //   primary       preenchimento (botão, selo, ícone cheio)
+        //   primary-text  o que vai EM CIMA do preenchimento — preto, porque
+        //                 branco sobre o néon dá 1.18:1 e desaparece
+        //   primary-forte texto/ícone/borda soltos na página; no tema claro é
+        //                 um verde escurecido da mesma família (5.37:1 sobre
+        //                 branco), no escuro é o próprio néon
+        primary: {
+          DEFAULT: "#CCFF00",
+          hover: "#B8E600",
+          text: "#0A0A0A",
+          forte: "rgb(var(--primary-forte) / <alpha-value>)",
+          light: "rgb(var(--primary-light) / <alpha-value>)",
+          border: "rgb(var(--primary-border) / <alpha-value>)",
         },
         verde: {
           DEFAULT: "#2DBE8C", // entradas, sucesso, faturamento positivo

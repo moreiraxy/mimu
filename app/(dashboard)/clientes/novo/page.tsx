@@ -59,7 +59,7 @@ export default function NovoClientePage() {
     }
 
     if (resultado.offline) {
-      showToast("Cliente salvo — vai sincronizar quando a conexão voltar.");
+      showToast("Cliente salvo! Vai sincronizar quando a conexão voltar.");
       router.push("/clientes");
       return;
     }

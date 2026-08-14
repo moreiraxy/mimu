@@ -120,7 +120,7 @@ export default function ComprasPage({
       return;
     }
 
-    showToast("Compra registrada — estoque atualizado!");
+    showToast("Compra registrada! Estoque atualizado.");
     router.push(fornecedorId ? `/fornecedores/${fornecedorId}` : "/estoque");
   }
 
@@ -143,7 +143,7 @@ export default function ComprasPage({
           <select
             value={fornecedorId}
             onChange={(e) => setFornecedorId(e.target.value)}
-            className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-coral md:text-sm"
+            className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
           >
             <option value="">Sem fornecedor</option>
             {fornecedores.map((f) => (
@@ -169,7 +169,7 @@ export default function ComprasPage({
                   <select
                     value={produtoSelecionado}
                     onChange={(e) => handleSelecionarProduto(e.target.value)}
-                    className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-coral md:text-sm"
+                    className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
                   >
                     <option value="">Selecione um produto</option>
                     {produtosAtivos.map((p) => (
@@ -240,7 +240,7 @@ export default function ComprasPage({
                   ))}
                   <div className="flex items-center justify-between pt-2.5">
                     <p className="text-sm font-semibold text-escuro">Total</p>
-                    <p className="text-base font-semibold text-coral">
+                    <p className="text-base font-semibold text-primary-forte">
                       {formatCurrency(total)}
                     </p>
                   </div>

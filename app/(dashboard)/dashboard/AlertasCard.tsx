@@ -24,7 +24,7 @@ const ICONE_POR_TIPO: Record<TipoAlerta, { icone: LucideIcon; bg: string }> = {
   agendamento_pendente: { icone: CalendarClock, bg: "bg-ambar" },
   conta_vencida: { icone: AlertTriangle, bg: "bg-erro" },
   meta_risco: { icone: TrendingDown, bg: "bg-ambar" },
-  recorde: { icone: Trophy, bg: "bg-coral" },
+  recorde: { icone: Trophy, bg: "bg-primary" },
   cliente_sumiu: { icone: UserX, bg: "bg-ambar" },
   estoque_baixo: { icone: Package, bg: "bg-ambar" },
   tentativa_prompt_injection: { icone: ShieldAlert, bg: "bg-erro" },

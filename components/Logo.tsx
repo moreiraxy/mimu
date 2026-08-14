@@ -20,7 +20,7 @@ export function LogoMark({
   return (
     <div
       className={clsx(
-        "flex flex-shrink-0 items-center justify-center bg-coral",
+        "flex flex-shrink-0 items-center justify-center bg-primary",
         box,
         rounded,
         className,
@@ -35,7 +35,9 @@ export function LogoMark({
       >
         <path
           d={MARK_PATH}
-          stroke="white"
+          // Preto, não branco: o "M" fica sobre o néon da marca, e branco
+          // sobre #CCFF00 dá 1.18:1 de contraste — o traço some.
+          stroke="#0A0A0A"
           strokeWidth={5}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -58,7 +60,7 @@ export function Logo({
     <div className={clsx("flex items-center gap-3.5", className)}>
       <LogoMark size={size} />
       <div>
-        <p className="text-3xl font-semibold leading-none tracking-[-0.5px] text-coral">
+        <p className="text-3xl font-semibold leading-none tracking-[-0.5px] text-primary-forte">
           mimu
         </p>
         {tagline && (

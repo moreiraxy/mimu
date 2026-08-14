@@ -43,7 +43,7 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
                 className="flex flex-1 flex-col items-center justify-center gap-0.5"
               >
                 <span className="relative">
-                  <Icon size={22} className={ativo ? "text-coral" : "text-neutro-icon"} />
+                  <Icon size={22} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
                   {href === "/mimu" && alertas.length > 0 && (
                     <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-erro px-1 text-[9px] font-bold leading-none text-white">
                       {alertas.length > 9 ? "9+" : alertas.length}
@@ -56,7 +56,7 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
                 <span
                   className={cn(
                     "text-[10px] font-semibold leading-none",
-                    ativo ? "text-coral" : "text-neutro-muted",
+                    ativo ? "text-primary-forte" : "text-neutro-muted",
                   )}
                 >
                   {label}
@@ -76,12 +76,12 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
             >
               <MoreHorizontal
                 size={22}
-                className={atualEstaNoMenu ? "text-coral" : "text-neutro-icon"}
+                className={atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"}
               />
               <span
                 className={cn(
                   "text-[10px] font-semibold leading-none",
-                  atualEstaNoMenu ? "text-coral" : "text-neutro-muted",
+                  atualEstaNoMenu ? "text-primary-forte" : "text-neutro-muted",
                 )}
               >
                 Mais

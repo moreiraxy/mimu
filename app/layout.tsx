@@ -85,7 +85,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF6B5B",
+  themeColor: "#CCFF00",
   width: "device-width",
   initialScale: 1,
   // Sem isso, o Chrome Android por padrão NÃO encolhe a viewport quando o

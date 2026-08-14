@@ -70,7 +70,7 @@ export default function CadastroPage() {
 
       <p className="text-center text-sm text-neutro-muted">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-coral">
+        <Link href="/login" className="font-medium text-primary-forte">
           Entrar
         </Link>
       </p>

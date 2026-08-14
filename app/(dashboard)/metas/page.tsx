@@ -65,7 +65,7 @@ export default function MetasPage() {
             type="button"
             onClick={() => setModalAberto(true)}
             aria-label="Ajustar meta"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-coral transition-colors hover:bg-coral-light"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-primary-forte transition-colors hover:bg-primary-light"
           >
             <Settings2 className="h-5 w-5" strokeWidth={2.25} />
           </button>

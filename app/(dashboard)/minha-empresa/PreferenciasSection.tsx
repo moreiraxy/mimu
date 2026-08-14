@@ -119,7 +119,7 @@ function LinhaAlerta({
           <select
             value={valor.hora}
             onChange={(e) => onChange({ ...valor, hora: Number(e.target.value) })}
-            className="rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-coral md:text-xs"
+            className="rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-primary-forte md:text-xs"
           >
             {HORAS.map((h) => (
               <option key={h} value={h}>

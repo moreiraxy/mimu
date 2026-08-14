@@ -116,7 +116,7 @@ export default function AssinarPixPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-[#FFF5F4] px-6 py-10">
+    <div className="flex min-h-screen flex-col items-center bg-primary-light px-6 py-10">
       <Logo size="md" />
 
       <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
@@ -182,7 +182,7 @@ export default function AssinarPixPage() {
             <button
               type="button"
               onClick={copiarCodigo}
-              className="flex w-full items-center justify-center gap-2 rounded-button border-[1.5px] border-coral py-3 text-sm font-bold text-coral transition-colors hover:bg-coral-light"
+              className="flex w-full items-center justify-center gap-2 rounded-button border-[1.5px] border-primary-forte py-3 text-sm font-bold text-primary-forte transition-colors hover:bg-primary-light"
             >
               {copiado ? (
                 <>

@@ -5,7 +5,7 @@ import { VALOR_MENSAL_MIMU } from "@/lib/planos";
 
 export default function TrialVencidoPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FFF5F4] px-6 py-10 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-primary-light px-6 py-10 text-center">
       <Logo size="md" />
 
       <span className="mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-ambar-light text-ambar-dark">
@@ -22,14 +22,14 @@ export default function TrialVencidoPage() {
 
       <Link
         href="/assinar"
-        className="mt-8 w-full max-w-xs rounded-button bg-coral py-3.5 text-center text-sm font-bold text-white transition-colors hover:bg-coral-hover"
+        className="mt-8 w-full max-w-xs rounded-button bg-primary py-3.5 text-center text-sm font-bold text-primary-text transition-colors hover:bg-primary-hover"
       >
         Assinar agora
       </Link>
 
       <a
         href="mailto:suporte@mimu.app"
-        className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-coral"
+        className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-primary-forte"
       >
         <MessageCircle className="h-4 w-4" strokeWidth={2.25} />
         Falar com suporte

@@ -20,7 +20,7 @@ export function FiltrosChips({
           className={cn(
             "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
             ativo === filtro
-              ? "border-coral bg-coral text-white"
+              ? "border-primary-forte bg-primary text-primary-text"
               : "border-neutro-border bg-superficie text-escuro",
           )}
         >

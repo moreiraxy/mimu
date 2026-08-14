@@ -86,13 +86,13 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
             }
           }}
           placeholder="Nova categoria..."
-          className="flex-1 rounded-button border border-neutro-border bg-fundo px-3.5 py-2 text-base text-escuro outline-none focus:border-coral md:text-sm"
+          className="flex-1 rounded-button border border-neutro-border bg-fundo px-3.5 py-2 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
         />
         <button
           type="button"
           onClick={adicionar}
           disabled={!novaCategoria.trim() || enviando}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-button bg-coral text-white transition-colors hover:bg-coral-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-button bg-primary text-primary-text transition-colors hover:bg-primary-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
         </button>

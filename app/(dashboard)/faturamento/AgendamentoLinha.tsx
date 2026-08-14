@@ -30,7 +30,7 @@ export function AgendamentoLinha({
         <span
           className={cn(
             "h-2 w-2 flex-shrink-0 rounded-full",
-            naoCompareceu ? "bg-neutro-icon" : "bg-coral",
+            naoCompareceu ? "bg-neutro-icon" : "bg-primary",
           )}
         />
       )}
@@ -57,7 +57,7 @@ export function AgendamentoLinha({
               ? "text-neutro-muted line-through"
               : concluido
                 ? "text-verde"
-                : "text-coral",
+                : "text-primary-forte",
           )}
         >
           {formatCurrency(valor)}

@@ -37,7 +37,7 @@ export default function FaturamentoPage() {
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-semibold",
                 visao === opcao.valor
-                  ? "bg-superficie text-coral shadow-sm"
+                  ? "bg-superficie text-primary-forte shadow-sm"
                   : "text-neutro-muted",
               )}
             >
@@ -55,7 +55,7 @@ export default function FaturamentoPage() {
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo
           </button>

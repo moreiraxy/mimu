@@ -32,7 +32,7 @@ export function ObservacoesCard({
               setValor(observacoes ?? "");
               setEditando(true);
             }}
-            className="text-xs font-semibold text-coral"
+            className="text-xs font-semibold text-primary-forte"
           >
             Editar
           </button>
@@ -46,7 +46,7 @@ export function ObservacoesCard({
             onChange={(event) => setValor(event.target.value)}
             rows={3}
             autoFocus
-            className="resize-none rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-coral focus:bg-superficie"
+            className="resize-none rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-primary-forte focus:bg-superficie"
           />
           <div className="flex gap-2">
             <Button

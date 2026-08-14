@@ -89,7 +89,7 @@ export function DiaView({
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo
           </button>
@@ -104,7 +104,7 @@ export function DiaView({
           </p>
           <Link
             href="/agenda/novo"
-            className="mt-2 inline-block text-sm font-semibold text-coral"
+            className="mt-2 inline-block text-sm font-semibold text-primary-forte"
           >
             Criar agendamento →
           </Link>

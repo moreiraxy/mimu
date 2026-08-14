@@ -40,7 +40,7 @@ export default function RecuperarSenhaPage() {
         </p>
         <Link
           href="/login"
-          className="mt-2 text-sm font-medium text-coral"
+          className="mt-2 text-sm font-medium text-primary-forte"
         >
           Voltar para o login
         </Link>
@@ -77,7 +77,7 @@ export default function RecuperarSenhaPage() {
 
       <p className="text-center text-sm text-neutro-muted">
         Lembrou a senha?{" "}
-        <Link href="/login" className="font-medium text-coral">
+        <Link href="/login" className="font-medium text-primary-forte">
           Entrar
         </Link>
       </p>

@@ -209,7 +209,7 @@ export function DadosNegocioSection({
                 onClick={() => setTipoSelecionado(opcao.id)}
                 className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                   tipoSelecionado === opcao.id
-                    ? "border-coral bg-coral text-white"
+                    ? "border-primary-forte bg-primary text-primary-text"
                     : "border-neutro-border bg-superficie text-escuro"
                 }`}
               >
@@ -275,7 +275,7 @@ export function DadosNegocioSection({
                         onChange={(e) =>
                           mudarHorarioDia(dia.chave, "abre", e.target.value)
                         }
-                        className="w-full rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-coral md:text-xs"
+                        className="w-full rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-primary-forte md:text-xs"
                       />
                       <span className="text-xs text-neutro-muted">até</span>
                       <input
@@ -284,7 +284,7 @@ export function DadosNegocioSection({
                         onChange={(e) =>
                           mudarHorarioDia(dia.chave, "fecha", e.target.value)
                         }
-                        className="w-full rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-coral md:text-xs"
+                        className="w-full rounded-button border border-neutro-border bg-fundo px-2 py-1.5 text-base text-escuro outline-none focus:border-primary-forte md:text-xs"
                       />
                     </div>
                   ) : (

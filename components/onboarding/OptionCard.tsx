@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 
 function CheckBadge() {
   return (
-    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-coral text-white">
+    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-text">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
         <path
           d="M4 12 L9 17 L20 6"
-          stroke="white"
+          stroke="#0A0A0A"
           strokeWidth={3}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -45,15 +45,15 @@ export function OptionCard({
           ? "flex-row items-center"
           : "flex-col items-center p-5 text-center",
         selected
-          ? "border-coral bg-coral-light"
-          : "border-neutro-border bg-superficie hover:border-coral/40",
+          ? "border-primary-forte bg-primary-light"
+          : "border-neutro-border bg-superficie hover:border-primary-forte/40",
       )}
     >
       <Icon
         className={cn(
           "flex-shrink-0",
           description ? "h-6 w-6" : "h-7 w-7",
-          selected ? "text-coral" : "text-neutro-muted-strong",
+          selected ? "text-primary-forte" : "text-neutro-muted-strong",
         )}
         strokeWidth={2}
       />

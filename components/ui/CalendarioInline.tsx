@@ -92,9 +92,9 @@ export function CalendarioInline({
               className={cn(
                 "mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold",
                 selecionado
-                  ? "bg-coral text-white"
+                  ? "bg-primary text-primary-text"
                   : hoje
-                    ? "border border-coral text-coral"
+                    ? "border border-primary-forte text-primary-forte"
                     : "text-escuro hover:bg-fundo",
               )}
             >

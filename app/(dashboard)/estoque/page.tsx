@@ -74,7 +74,7 @@ export default function EstoquePage() {
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo
           </button>
@@ -98,7 +98,7 @@ export default function EstoquePage() {
           <div className="mt-2 flex flex-col gap-1">
             {produtosAbaixoDoMinimo.map((p) => (
               <p key={p.id} className="text-xs text-neutro-muted">
-                {p.nome} — restam {p.quantidade_estoque} un. (mínimo {p.quantidade_minima})
+                {p.nome}: restam {p.quantidade_estoque} un. (mínimo {p.quantidade_minima})
               </p>
             ))}
           </div>

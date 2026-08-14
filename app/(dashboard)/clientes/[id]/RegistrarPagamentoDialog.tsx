@@ -67,7 +67,7 @@ export function RegistrarPagamentoDialog({
               setCentavos(digitos ? Number(digitos) : 0);
             }}
             aria-label="Valor pago"
-            className="w-full max-w-[220px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-coral outline-none focus:border-coral"
+            className="w-full max-w-[220px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
           />
         </div>
 

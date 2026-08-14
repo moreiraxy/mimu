@@ -18,7 +18,7 @@ export function ListaTransacoes({
         </p>
         <Link
           href="/financeiro/nova-entrada"
-          className="mt-3 inline-block text-sm font-semibold text-coral"
+          className="mt-3 inline-block text-sm font-semibold text-primary-forte"
         >
           + Registrar a primeira
         </Link>

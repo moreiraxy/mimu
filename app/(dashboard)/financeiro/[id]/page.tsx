@@ -177,7 +177,7 @@ export default function DetalheTransacaoPage() {
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Editar
           </button>

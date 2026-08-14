@@ -40,7 +40,7 @@ export default function FinanceiroPage() {
         <button
           type="button"
           onClick={refetch}
-          className="text-sm font-semibold text-coral"
+          className="text-sm font-semibold text-primary-forte"
         >
           Tentar de novo
         </button>
@@ -72,13 +72,13 @@ export default function FinanceiroPage() {
       <div className="flex gap-3">
         <Link
           href="/financeiro/nova-entrada"
-          className="flex-1 rounded-button bg-coral py-3 text-center text-sm font-bold text-white"
+          className="flex-1 rounded-button bg-primary py-3 text-center text-sm font-bold text-primary-text"
         >
           + Entrada
         </Link>
         <Link
           href="/financeiro/nova-saida"
-          className="flex-1 rounded-button border-[1.5px] border-coral py-3 text-center text-sm font-bold text-coral"
+          className="flex-1 rounded-button border-[1.5px] border-primary-forte py-3 text-center text-sm font-bold text-primary-forte"
         >
           − Saída
         </Link>

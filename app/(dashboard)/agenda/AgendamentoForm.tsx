@@ -173,7 +173,7 @@ export function AgendamentoForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitarValor}
           aria-label="Valor previsto"
-          className="w-full max-w-[240px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-coral outline-none focus:border-coral"
+          className="w-full max-w-[240px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
       </div>
 
@@ -216,7 +216,7 @@ export function AgendamentoForm({
               className={cn(
                 "flex-shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
                 horario === h
-                  ? "border-coral bg-coral text-white"
+                  ? "border-primary-forte bg-primary text-primary-text"
                   : "border-neutro-border bg-superficie text-escuro",
               )}
             >
@@ -243,7 +243,7 @@ export function AgendamentoForm({
               className={cn(
                 "rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
                 duracaoMinutos === opcao.minutos
-                  ? "border-coral bg-coral text-white"
+                  ? "border-primary-forte bg-primary text-primary-text"
                   : "border-neutro-border bg-superficie text-escuro",
               )}
             >
@@ -273,7 +273,7 @@ export function AgendamentoForm({
               className={cn(
                 "flex-1 rounded-button border py-2.5 text-sm font-semibold transition-colors",
                 status === s
-                  ? "border-coral bg-coral text-white"
+                  ? "border-primary-forte bg-primary text-primary-text"
                   : "border-neutro-border bg-superficie text-escuro",
               )}
             >

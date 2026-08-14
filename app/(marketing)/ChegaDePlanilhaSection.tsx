@@ -171,7 +171,7 @@ export function ChegaDePlanilhaSection() {
               : { type: "spring", bounce: 0, duration: 0.7, delay: 0.1 }
           }
         >
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-primary-forte">
             Chega de planilha
           </p>
           <h2 className="mt-4 font-display text-[1.75rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
@@ -182,9 +182,9 @@ export function ChegaDePlanilhaSection() {
           </p>
 
           <div className="mt-7 flex items-center gap-3.5 rounded-2xl bg-fundo px-4 py-4">
-            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-coral">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary">
               <svg width="17" height="13" viewBox="0 0 48 36" fill="none">
-                <path d={MARK_PATH} stroke="white" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
+                <path d={MARK_PATH} stroke="#0A0A0A" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
             <p className="text-[15px] font-bold text-escuro">
@@ -194,7 +194,7 @@ export function ChegaDePlanilhaSection() {
 
           <Link
             href="/cadastro"
-            className="mt-6 inline-flex rounded-full bg-coral px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-coral/25 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97]"
+            className="mt-6 inline-flex rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-text shadow-lg shadow-primary/25 transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97]"
           >
             Começar grátis
           </Link>

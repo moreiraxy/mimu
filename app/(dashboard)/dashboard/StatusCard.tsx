@@ -8,12 +8,14 @@ import type { StatusNegocio } from "@/lib/calculations";
 
 const STATUS_CONFIG: Record<
   StatusNegocio,
-  { icone: typeof TrendingUp; label: string; bg: string }
+  { icone: typeof TrendingUp; label: string; bg: string; texto: string }
 > = {
-  otimo: { icone: TrendingUp, label: "Ótimo dia!", bg: "bg-verde" },
-  atencao: { icone: AlertTriangle, label: "Atenção", bg: "bg-ambar" },
-  prejuizo: { icone: TrendingDown, label: "Dia difícil", bg: "bg-[#EF4444]" },
-  recorde: { icone: Trophy, label: "Recorde!", bg: "bg-coral" },
+  // `texto` acompanha o fundo: verde, âmbar e vermelho pedem texto branco,
+  // mas o néon da marca não — branco sobre #CCFF00 dá 1.18:1 e some.
+  otimo: { icone: TrendingUp, label: "Ótimo dia!", bg: "bg-verde", texto: "text-white" },
+  atencao: { icone: AlertTriangle, label: "Atenção", bg: "bg-ambar", texto: "text-white" },
+  prejuizo: { icone: TrendingDown, label: "Dia difícil", bg: "bg-[#EF4444]", texto: "text-white" },
+  recorde: { icone: Trophy, label: "Recorde!", bg: "bg-primary", texto: "text-primary-text" },
 };
 
 const FRASES: Record<
@@ -32,7 +34,7 @@ const FRASES: Record<
   },
   prejuizo: {
     manha: "Dia difícil pela frente. Vamos com calma.",
-    tarde: "Segue com calma — nem todo dia é igual.",
+    tarde: "Segue com calma. Nem todo dia é igual.",
     noite: "Foi um dia difícil. Amanhã é um novo recomeço.",
   },
   recorde: {
@@ -100,29 +102,30 @@ export function StatusCard({
     <Link
       href="/faturamento"
       className={cn(
-        "relative block overflow-hidden rounded-[20px] p-5 text-white",
+        "relative block overflow-hidden rounded-[20px] p-5",
         config.bg,
+        config.texto,
       )}
     >
       {status === "recorde" && <Confete />}
 
-      <p className="flex items-center gap-1.5 text-xs text-white/75">
+      <p className="flex items-center gap-1.5 text-xs opacity-75">
         <config.icone className="h-3.5 w-3.5" strokeWidth={2.25} />
         {config.label}
       </p>
-      <p className="mt-1 text-sm text-white">{frase}</p>
+      <p className="mt-1 text-sm">{frase}</p>
 
       <div className="mt-4 flex justify-between">
         <div>
-          <p className="text-[11px] text-white/70">Realizado</p>
+          <p className="text-[11px] opacity-70">Realizado</p>
           <p className="text-lg font-semibold">{formatCurrency(realizado)}</p>
         </div>
         <div>
-          <p className="text-[11px] text-white/70">Previsto</p>
+          <p className="text-[11px] opacity-70">Previsto</p>
           <p className="text-lg font-semibold">{formatCurrency(previsto)}</p>
         </div>
         <div>
-          <p className="text-[11px] text-white/70">Meta</p>
+          <p className="text-[11px] opacity-70">Meta</p>
           <p className="text-lg font-semibold">{formatCurrency(meta)}</p>
         </div>
       </div>

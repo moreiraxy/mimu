@@ -60,7 +60,7 @@ export function SemanaView({
             onClick={() => onSelecionarDia(dia.iso)}
             className={cn(
               "flex flex-col items-center gap-1 rounded-card p-1.5",
-              ehHoje ? "bg-coral-light" : "bg-superficie border border-neutro-border",
+              ehHoje ? "bg-primary-light" : "bg-superficie border border-neutro-border",
             )}
           >
             <span className="text-[9px] font-semibold text-neutro-muted">
@@ -69,7 +69,7 @@ export function SemanaView({
             <span
               className={cn(
                 "text-xs font-semibold",
-                ehHoje ? "text-coral" : "text-escuro",
+                ehHoje ? "text-primary-forte" : "text-escuro",
               )}
             >
               {dia.numero}

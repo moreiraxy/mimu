@@ -90,7 +90,7 @@ export default function NovaEntradaPage() {
     }
 
     showToast(
-      resultado.offline ? "Entrada salva — vai sincronizar depois." : "Entrada registrada!",
+      resultado.offline ? "Entrada salva! Vai sincronizar depois." : "Entrada registrada!",
       DollarSign,
     );
     setConcluidoOffline(resultado.offline);
@@ -107,7 +107,7 @@ export default function NovaEntradaPage() {
         titulo="Entrada registrada!"
         subtitulo={
           concluidoOffline
-            ? "Você estava sem conexão — assim que voltar, ela sincroniza automaticamente."
+            ? "Você estava sem conexão. Assim que voltar, ela sincroniza automaticamente."
             : undefined
         }
         onNovo={() => {

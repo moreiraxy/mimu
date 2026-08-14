@@ -51,7 +51,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={refetch}
-          className="text-sm font-semibold text-coral"
+          className="text-sm font-semibold text-primary-forte"
         >
           Tentar de novo
         </button>
@@ -83,7 +83,7 @@ export default function DashboardPage() {
         <div>
           <p className="flex items-center gap-1.5 text-sm text-neutro-muted">
             {saudacaoPorHorario()}, {primeiroNome}
-            <Hand className="h-4 w-4 text-coral" strokeWidth={2.25} />
+            <Hand className="h-4 w-4 text-primary-forte" strokeWidth={2.25} />
           </p>
           <p className="text-xs text-neutro-muted">
             {formatDataComDiaSemana()}
@@ -101,7 +101,7 @@ export default function DashboardPage() {
             href={acao.href}
             className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-coral-light text-coral">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary-forte">
               <acao.icone className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="text-[11px] font-semibold leading-tight text-escuro">
@@ -112,14 +112,14 @@ export default function DashboardPage() {
       </div>
 
       {primeiroAcesso ? (
-        <div className="rounded-[20px] bg-coral p-5 text-white">
-          <p className="text-sm text-white/90">
+        <div className="rounded-[20px] bg-primary p-5 text-primary-text">
+          <p className="text-sm text-primary-text/80">
             Bem-vinda, {primeiroNome}! Registre sua primeira venda para
             começar.
           </p>
           <Link
             href="/financeiro"
-            className="mt-4 inline-flex items-center justify-center rounded-button bg-superficie px-4 py-2.5 text-sm font-semibold text-coral"
+            className="mt-4 inline-flex items-center justify-center rounded-button bg-superficie px-4 py-2.5 text-sm font-semibold text-primary-forte"
           >
             + Nova venda
           </Link>

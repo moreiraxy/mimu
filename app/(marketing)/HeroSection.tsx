@@ -9,7 +9,7 @@ import { PhoneTilt } from "@/components/marketing/PhoneTilt";
 import { VALOR_MENSAL_MIMU } from "@/lib/planos";
 
 const AVATARES = [
-  { iniciais: "AN", cor: "bg-coral" },
+  { iniciais: "AN", cor: "bg-primary" },
   { iniciais: "RO", cor: "bg-verde" },
   { iniciais: "CA", cor: "bg-ambar" },
 ] as const;
@@ -105,7 +105,7 @@ export function HeroSection() {
       >
         <Link
           href="/cadastro"
-          className="w-full max-w-xs rounded-full bg-coral px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-coral/30 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:w-auto sm:text-base"
+          className="w-full max-w-xs rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-text shadow-lg shadow-primary/30 transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97] sm:w-auto sm:text-base"
         >
           Começar grátis por 7 dias
         </Link>
@@ -190,24 +190,24 @@ export function HeroSection() {
                       <p className="text-[11px] text-neutro-muted">Bom dia,</p>
                       <p className="mt-px text-[15px] font-extrabold text-escuro">Andréia</p>
                     </div>
-                    <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[10px] bg-coral">
+                    <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[10px] bg-primary">
                       <svg width="16" height="12" viewBox="0 0 48 36" fill="none">
-                        <path d={MARK_PATH} stroke="white" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
+                        <path d={MARK_PATH} stroke="#0A0A0A" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-coral p-[15px]">
-                    <p className="mb-1 text-[11px] text-white/80">Ótimo dia!</p>
-                    <p className="mb-3 text-[13px] text-white">82% da meta de hoje.</p>
+                  <div className="rounded-2xl bg-primary p-[15px]">
+                    <p className="mb-1 text-[11px] text-primary-text/70">Ótimo dia!</p>
+                    <p className="mb-3 text-[13px] text-primary-text">82% da meta de hoje.</p>
                     <div className="mb-2.5 flex justify-between">
                       <div>
-                        <p className="text-[9px] text-white/70">Realizado</p>
-                        <p className="text-base font-extrabold text-white">R$ 410</p>
+                        <p className="text-[9px] text-primary-text/60">Realizado</p>
+                        <p className="text-base font-extrabold text-primary-text">R$ 410</p>
                       </div>
                       <div>
-                        <p className="text-[9px] text-white/70">Meta</p>
-                        <p className="text-base font-extrabold text-white">R$ 500</p>
+                        <p className="text-[9px] text-primary-text/60">Meta</p>
+                        <p className="text-base font-extrabold text-primary-text">R$ 500</p>
                       </div>
                     </div>
                     <div className="h-[5px] w-full rounded-md bg-white/25">
@@ -278,7 +278,7 @@ export function HeroSection() {
           floatSeconds={6.5}
           floatDelay={2.1}
         >
-          <span className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full bg-coral text-[9px] font-extrabold text-white lg:h-[29px] lg:w-[29px] lg:text-[11px]">
+          <span className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full bg-primary text-[9px] font-extrabold text-primary-text lg:h-[29px] lg:w-[29px] lg:text-[11px]">
             CA
           </span>
           <p className="text-xs leading-snug text-escuro lg:text-sm">
@@ -309,7 +309,7 @@ export function HeroSection() {
           <div className="w-full">
             <p className="mb-1.5 text-[11px] text-neutro-muted lg:text-[13px]">Meta do dia</p>
             <div className="mb-1.5 h-[6px] w-full rounded-md bg-neutro-border lg:h-[7px]">
-              <div className="h-full w-[82%] rounded-md bg-coral" />
+              <div className="h-full w-[82%] rounded-md bg-primary" />
             </div>
             <p className="text-xs font-bold text-escuro lg:text-sm">82% concluída</p>
           </div>

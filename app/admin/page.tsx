@@ -33,7 +33,7 @@ const FILTROS: { id: Filtro; label: string }[] = [
 const STATUS: Record<string, { texto: string; classe: string }> = {
   ativa: { texto: "Pagante", classe: "bg-verde-light text-verde-dark" },
   trial: { texto: "Em teste", classe: "bg-ambar-light text-ambar-dark" },
-  vencida: { texto: "Vencida", classe: "bg-coral-light text-coral" },
+  vencida: { texto: "Vencida", classe: "bg-primary-light text-primary-forte" },
   cancelada: { texto: "Cancelada", classe: "bg-neutro-border text-neutro-muted-strong" },
   sem_assinatura: {
     texto: "Sem assinatura",
@@ -125,7 +125,7 @@ export default function PainelAdmin() {
       </header>
 
       {erro && (
-        <p className="rounded-xl bg-coral-light px-4 py-3 text-sm text-coral">
+        <p className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary-forte">
           {erro}
         </p>
       )}
@@ -176,7 +176,7 @@ export default function PainelAdmin() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por negócio, e-mail ou tipo"
-            className="h-11 w-full rounded-xl border border-neutro-border bg-superficie pl-10 pr-4 text-sm text-escuro outline-none placeholder:text-neutro-muted focus:border-coral"
+            className="h-11 w-full rounded-xl border border-neutro-border bg-superficie pl-10 pr-4 text-sm text-escuro outline-none placeholder:text-neutro-muted focus:border-primary-forte"
           />
         </div>
         <div className="flex gap-1.5 overflow-x-auto">
@@ -187,7 +187,7 @@ export default function PainelAdmin() {
               onClick={() => setFiltro(f.id)}
               className={`h-11 shrink-0 rounded-xl px-4 text-sm font-bold transition-colors ${
                 filtro === f.id
-                  ? "bg-coral text-white"
+                  ? "bg-primary text-primary-text"
                   : "bg-superficie text-neutro-muted-strong hover:text-escuro"
               }`}
             >
@@ -237,7 +237,7 @@ function Indicador({
         <span className="text-xs font-bold uppercase tracking-wide">{rotulo}</span>
       </div>
       <p className="mt-2 font-display text-2xl font-bold text-escuro">{valor}</p>
-      {selo && <p className="mt-0.5 text-xs font-bold text-coral">{selo}</p>}
+      {selo && <p className="mt-0.5 text-xs font-bold text-primary-forte">{selo}</p>}
     </div>
   );
 }
@@ -373,7 +373,7 @@ function LinhaConta({
           </span>
 
           {dias !== null && (
-            <span className={`text-xs font-bold ${dias <= 3 ? "text-coral" : "text-neutro-muted-strong"}`}>
+            <span className={`text-xs font-bold ${dias <= 3 ? "text-primary-forte" : "text-neutro-muted-strong"}`}>
               {dias > 0 ? `${dias}d restantes` : "trial vencido"}
             </span>
           )}
@@ -414,16 +414,16 @@ function LinhaConta({
                   onClick={() => alternar([...m.chaves])}
                   className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-bold transition-colors disabled:opacity-50 ${
                     ligado
-                      ? "border-coral bg-coral-light text-coral"
+                      ? "border-primary-forte bg-primary-light text-primary-forte"
                       : "border-neutro-border text-neutro-muted-strong hover:text-escuro"
                   }`}
                 >
                   <span
                     className={`flex h-4 w-4 items-center justify-center rounded-md border ${
-                      ligado ? "border-coral bg-coral" : "border-neutro-border"
+                      ligado ? "border-primary-forte bg-primary" : "border-neutro-border"
                     }`}
                   >
-                    {ligado && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                    {ligado && <Check className="h-3 w-3 text-primary-text" strokeWidth={3} />}
                   </span>
                   {m.label}
                 </button>
@@ -492,7 +492,7 @@ function LinhaConta({
       <ConfirmDialog
         open={confirmando === "excluir"}
         title={`Excluir ${conta.nome_negocio}?`}
-        description="Isso apaga a conta e tudo que ela tem — clientes, vendas, agenda e conversas. Não dá para desfazer nem recuperar depois."
+        description="Isso apaga a conta e tudo que ela tem: clientes, vendas, agenda e conversas. Não dá para desfazer nem recuperar depois."
         confirmLabel="Excluir para sempre"
         exigirTexto={conta.nome_negocio}
         exigirTextoRotulo={`Digite “${conta.nome_negocio}” para confirmar`}

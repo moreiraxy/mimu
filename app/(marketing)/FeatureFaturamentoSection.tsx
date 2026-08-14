@@ -74,7 +74,7 @@ export function FeatureFaturamentoSection() {
         </ParallaxFloat>
 
         <SpringIn delay={0.1} className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-primary-forte">
             Faturamento previsto
           </p>
           <h2 className="mt-4 max-w-md font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
@@ -86,7 +86,7 @@ export function FeatureFaturamentoSection() {
           </p>
           <Link
             href="/cadastro"
-            className="mt-7 inline-flex items-center justify-center rounded-full border-[1.5px] border-coral px-7 py-3 text-sm font-bold text-coral transition-colors duration-200 hover:bg-coral hover:text-white active:scale-[0.97]"
+            className="mt-7 inline-flex items-center justify-center rounded-full border-[1.5px] border-primary-forte px-7 py-3 text-sm font-bold text-primary-forte transition-colors duration-200 hover:bg-primary hover:text-primary-text active:scale-[0.97]"
           >
             Começar grátis
           </Link>

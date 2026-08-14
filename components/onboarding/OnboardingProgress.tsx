@@ -7,7 +7,7 @@ export function OnboardingProgress({ step }: { step: 1 | 2 | 3 }) {
           <div
             key={s}
             className={`h-1.5 flex-1 rounded-full ${
-              s <= step ? "bg-coral" : "bg-neutro-border"
+              s <= step ? "bg-primary" : "bg-neutro-border"
             }`}
           />
         ))}

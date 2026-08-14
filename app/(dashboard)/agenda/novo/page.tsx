@@ -84,7 +84,7 @@ export default function NovoAgendamentoPage({
 
     showToast(
       resultado.offline
-        ? "Agendamento salvo — vai sincronizar quando a conexão voltar."
+        ? "Agendamento salvo! Vai sincronizar quando a conexão voltar."
         : "Agendamento criado!",
       Calendar,
     );

@@ -10,7 +10,7 @@
  * `https://site.com//assinar`, que buscadores tratam como outra página.
  */
 export const URL_SITE = (
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://mimu.app"
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://mimu.up.railway.app"
 ).replace(/\/+$/, "");
 
 /** Monta uma URL absoluta a partir de um caminho interno. */

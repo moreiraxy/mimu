@@ -40,9 +40,9 @@ export function VisaoHoje({
             {formatCurrency(realizado)}
           </p>
         </div>
-        <div className="rounded-card border-2 border-dashed border-coral bg-superficie p-4">
+        <div className="rounded-card border-2 border-dashed border-primary-forte bg-superficie p-4">
           <p className="text-xs text-neutro-muted">Previsto</p>
-          <p className="mt-1 text-xl font-bold text-coral">
+          <p className="mt-1 text-xl font-bold text-primary-forte">
             {formatCurrency(previsto)}
           </p>
         </div>

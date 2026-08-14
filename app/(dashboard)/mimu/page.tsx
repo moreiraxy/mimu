@@ -570,7 +570,7 @@ export default function MimuChatPage() {
             type="button"
             aria-label="Limpar histórico"
             onClick={() => setConfirmAberto(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-button text-neutro-muted transition-colors hover:bg-coral-light hover:text-coral"
+            className="flex h-9 w-9 items-center justify-center rounded-button text-neutro-muted transition-colors hover:bg-primary-light hover:text-primary-forte"
           >
             <Trash2 className="h-[18px] w-[18px]" strokeWidth={2} />
           </button>
@@ -621,7 +621,7 @@ export default function MimuChatPage() {
               type="button"
               onClick={() => enviarMensagem(chip)}
               disabled={enviando}
-              className="flex-shrink-0 rounded-full border border-coral-border bg-coral-light px-3.5 py-1.5 text-xs font-medium text-coral transition-colors hover:bg-coral hover:text-white disabled:opacity-50"
+              className="flex-shrink-0 rounded-full border border-primary-border bg-primary-light px-3.5 py-1.5 text-xs font-medium text-primary-forte transition-colors hover:bg-primary hover:text-primary-text disabled:opacity-50"
             >
               {chip}
             </button>
@@ -637,7 +637,7 @@ export default function MimuChatPage() {
               "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-button transition-colors",
               gravando
                 ? "bg-erro text-white"
-                : "text-neutro-muted hover:bg-coral-light hover:text-coral",
+                : "text-neutro-muted hover:bg-primary-light hover:text-primary-forte",
             )}
           >
             <Mic className="h-5 w-5" strokeWidth={2} />
@@ -650,7 +650,7 @@ export default function MimuChatPage() {
             onChange={(event) => aoDigitar(event.target.value)}
             onKeyDown={aoTeclar}
             placeholder="Fala com a Mimu..."
-            className="max-h-[120px] flex-1 resize-none touch-manipulation rounded-button border border-neutro-border bg-fundo px-3.5 py-2.5 text-base text-escuro outline-none placeholder:text-neutro-muted focus:border-coral md:text-sm"
+            className="max-h-[120px] flex-1 resize-none touch-manipulation rounded-button border border-neutro-border bg-fundo px-3.5 py-2.5 text-base text-escuro outline-none placeholder:text-neutro-muted focus:border-primary-forte md:text-sm"
           />
 
           <button
@@ -658,7 +658,7 @@ export default function MimuChatPage() {
             aria-label="Enviar mensagem"
             onClick={() => enviarMensagem(inputValue)}
             disabled={!inputValue.trim() || enviando}
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-button bg-coral text-white transition-colors hover:bg-coral-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-button bg-primary text-primary-text transition-colors hover:bg-primary-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
           >
             <Send className="h-[18px] w-[18px]" strokeWidth={2.25} />
           </button>
@@ -708,7 +708,7 @@ function Balao({
           className={cn(
             "rounded-card px-4 py-2.5 text-sm text-escuro",
             isUser
-              ? "rounded-br-sm border border-coral-border bg-coral-light"
+              ? "rounded-br-sm border border-primary-border bg-primary-light"
               : "rounded-bl-sm border border-neutro-border bg-superficie",
           )}
         >
@@ -815,7 +815,7 @@ function CartaoConfirmacaoRegistro({
           type="button"
           onClick={onConfirmar}
           disabled={confirmando}
-          className="flex-1 rounded-button bg-coral py-2 text-sm font-semibold text-white transition-colors hover:bg-coral-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
+          className="flex-1 rounded-button bg-primary py-2 text-sm font-semibold text-primary-text transition-colors hover:bg-primary-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
         >
           {confirmando ? "Salvando..." : "Confirmar"}
         </button>
@@ -832,7 +832,7 @@ function CartaoResposta({ card }: { card: MimuCard }) {
   return (
     <div className="w-full min-w-[220px] rounded-card border border-neutro-border bg-superficie p-4">
       <p className="text-xs text-neutro-muted">{card.titulo}</p>
-      <p className="mt-1 text-2xl font-bold text-coral">
+      <p className="mt-1 text-2xl font-bold text-primary-forte">
         {formatCurrency(card.valor)}
       </p>
       {temComparacao && (

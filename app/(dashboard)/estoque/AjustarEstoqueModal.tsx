@@ -70,7 +70,7 @@ export function AjustarEstoqueModal({
             <select
               value={produtoId}
               onChange={(e) => setProdutoId(e.target.value)}
-              className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-coral md:text-sm"
+              className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
             >
               {produtos.length === 0 && <option value="">Nenhum produto ativo</option>}
               {produtos.map((p) => (
@@ -90,7 +90,7 @@ export function AjustarEstoqueModal({
                 className={cn(
                   "flex-1 rounded-button border py-2.5 text-sm font-semibold transition-colors",
                   tipo === opcao
-                    ? "border-coral bg-coral-light text-coral"
+                    ? "border-primary-forte bg-primary-light text-primary-forte"
                     : "border-neutro-border text-neutro-muted-strong",
                 )}
               >

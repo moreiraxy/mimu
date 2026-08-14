@@ -87,7 +87,7 @@ export function VisaoMes({
         <div className="relative flex h-[180px] w-[180px] items-center justify-center">
           <ProgressoCircular percentual={dados.percentual} />
           <div className="absolute flex flex-col items-center">
-            <p className="text-2xl font-bold text-coral">
+            <p className="text-2xl font-bold text-primary-forte">
               {Math.round(dados.percentual)}%
             </p>
             <p className="text-xs text-neutro-muted">da meta</p>
@@ -109,7 +109,7 @@ export function VisaoMes({
         <CardMes
           label="Previsto restante"
           valor={formatCurrency(dados.previstoRestante)}
-          cor="text-coral"
+          cor="text-primary-forte"
         />
         <CardMes
           label="Meta mensal"

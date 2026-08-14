@@ -60,7 +60,7 @@ export default function ProdutosPage() {
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo
           </button>
@@ -93,7 +93,7 @@ export default function ProdutosPage() {
             className={cn(
               "flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
               filtro === opcao
-                ? "bg-coral text-white"
+                ? "bg-primary text-primary-text"
                 : "border border-neutro-border text-neutro-muted-strong",
             )}
           >

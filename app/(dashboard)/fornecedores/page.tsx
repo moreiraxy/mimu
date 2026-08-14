@@ -65,7 +65,7 @@ export default function FornecedoresPage() {
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-coral"
+            className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo
           </button>
@@ -83,7 +83,7 @@ export default function FornecedoresPage() {
             type="button"
             onClick={() => setModalAberto(true)}
             aria-label="Novo fornecedor"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-coral transition-colors hover:bg-coral-light"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-primary-forte transition-colors hover:bg-primary-light"
           >
             <Plus className="h-5 w-5" strokeWidth={2.25} />
           </button>
@@ -102,7 +102,7 @@ export default function FornecedoresPage() {
               href={`/fornecedores/${f.id}`}
               className="flex items-center gap-3 rounded-card border border-neutro-border bg-superficie p-3"
             >
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
                 <Truck className="h-4 w-4" strokeWidth={2.25} />
               </span>
               <div className="min-w-0 flex-1">

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 // Só usamos tons já existentes na paleta da marca (coral/verde/âmbar) — sem
 // introduzir cores novas fora da identidade visual.
 const PALETA_AVATAR = [
-  { bg: "bg-coral-light", texto: "text-coral" },
+  { bg: "bg-primary-light", texto: "text-primary-forte" },
   { bg: "bg-verde-light", texto: "text-verde-dark" },
   { bg: "bg-ambar-light", texto: "text-ambar-text" },
 ];

@@ -110,10 +110,10 @@ export function MenuLateral({
                   // 52px de altura: alvo de toque confortável, bem acima dos
                   // 44px mínimos.
                   "flex h-[52px] items-center gap-3.5 rounded-button px-3 transition-colors",
-                  ativo ? "bg-coral-light text-coral" : "text-escuro hover:bg-neutro-border",
+                  ativo ? "bg-primary-light text-primary-forte" : "text-escuro hover:bg-neutro-border",
                 )}
               >
-                <Icon size={22} className={ativo ? "text-coral" : "text-neutro-icon"} />
+                <Icon size={22} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
                 <span className="flex-1 text-[15px] font-semibold">{label}</span>
                 {href === "/mimu" && alertas > 0 && (
                   <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-erro px-1.5 text-[11px] font-bold leading-none text-white">
@@ -134,13 +134,13 @@ export function MenuLateral({
                 className={cn(
                   "flex h-[52px] items-center gap-3.5 rounded-button px-3 transition-colors",
                   pathname === "/admin"
-                    ? "bg-coral-light text-coral"
+                    ? "bg-primary-light text-primary-forte"
                     : "text-escuro hover:bg-neutro-border",
                 )}
               >
                 <ShieldCheck
                   size={22}
-                  className={pathname === "/admin" ? "text-coral" : "text-neutro-icon"}
+                  className={pathname === "/admin" ? "text-primary-forte" : "text-neutro-icon"}
                 />
                 <span className="flex-1 text-[15px] font-semibold">Painel</span>
               </Link>

@@ -40,7 +40,7 @@ export function HeaderMarketing() {
           <div className="flex flex-shrink-0 items-center gap-2">
             <Link
               href="/cadastro"
-              className="rounded-full bg-coral px-4 py-2 text-xs font-bold text-white transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97] sm:px-5 sm:text-[13px]"
+              className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-text transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97] sm:px-5 sm:text-[13px]"
             >
               Começar grátis
             </Link>
@@ -118,7 +118,7 @@ export function HeaderMarketing() {
                 <Link
                   href="/cadastro"
                   onClick={() => setAberto(false)}
-                  className="flex items-center justify-center rounded-full bg-coral py-3 text-sm font-bold text-white transition-transform duration-150 active:scale-[0.97]"
+                  className="flex items-center justify-center rounded-full bg-primary py-3 text-sm font-bold text-primary-text transition-transform duration-150 active:scale-[0.97]"
                 >
                   Começar grátis
                 </Link>

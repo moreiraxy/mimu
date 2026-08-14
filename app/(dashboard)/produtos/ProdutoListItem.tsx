@@ -18,7 +18,7 @@ export function ProdutoListItem({ produto }: { produto: Produto }) {
           : "border-neutro-border bg-fundo opacity-70",
       )}
     >
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
         <Package className="h-4 w-4" strokeWidth={2.25} />
       </span>
       <div className="min-w-0 flex-1">

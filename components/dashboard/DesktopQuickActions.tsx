@@ -29,7 +29,7 @@ export function DesktopQuickActions() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-button bg-coral px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-coral-hover"
+        className="flex items-center gap-2 rounded-button bg-primary px-4 py-2.5 text-sm font-bold text-primary-text shadow-sm transition-colors hover:bg-primary-hover"
       >
         <Plus className="h-4 w-4" strokeWidth={2.5} />
         Nova ação
@@ -52,7 +52,7 @@ export function DesktopQuickActions() {
                   "flex items-center gap-3 rounded-button px-3 py-2.5 text-left text-sm font-semibold text-escuro transition-colors hover:bg-fundo",
                 )}
               >
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-coral-light text-coral">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
                   <acao.icone className="h-4 w-4" strokeWidth={2.25} />
                 </span>
                 {acao.label}

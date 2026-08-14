@@ -322,7 +322,7 @@ export default function PerfilClientePage() {
           <button
             type="button"
             onClick={() => setMostrarTodasVisitas(true)}
-            className="mt-3 text-xs font-semibold text-coral"
+            className="mt-3 text-xs font-semibold text-primary-forte"
           >
             Ver todas
           </button>
@@ -339,7 +339,7 @@ export default function PerfilClientePage() {
       <div className="mt-6 flex flex-col gap-3">
         <Link
           href={`/agenda/novo?clienteId=${cliente.id}&clienteNome=${encodeURIComponent(cliente.nome)}`}
-          className="w-full rounded-button bg-coral py-3 text-center text-sm font-bold text-white"
+          className="w-full rounded-button bg-primary py-3 text-center text-sm font-bold text-primary-text"
         >
           Agendar novamente
         </Link>

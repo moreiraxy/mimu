@@ -23,7 +23,7 @@ export default function AgendaPage() {
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-semibold",
                 visualizacao === opcao
-                  ? "bg-superficie text-coral shadow-sm"
+                  ? "bg-superficie text-primary-forte shadow-sm"
                   : "text-neutro-muted",
               )}
             >

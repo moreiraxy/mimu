@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   } catch (err) {
     if (err instanceof InvalidWebhookSignatureError) {
       console.error(
-        "Webhook do Mercado Pago rejeitado — assinatura inválida:",
+        "Webhook do Mercado Pago rejeitado, assinatura inválida:",
         err.reason,
       );
       return NextResponse.json(

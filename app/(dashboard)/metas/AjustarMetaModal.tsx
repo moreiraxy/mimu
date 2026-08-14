@@ -59,7 +59,7 @@ export function AjustarMetaModal({
             setCentavos(digitos ? Number(digitos) : 0);
           }}
           aria-label="Meta mensal"
-          className="mt-4 w-full rounded-button border border-neutro-border bg-fundo px-4 py-3 text-center text-2xl font-semibold text-coral outline-none focus:border-coral"
+          className="mt-4 w-full rounded-button border border-neutro-border bg-fundo px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
 
         <div className="mt-5 flex gap-3">

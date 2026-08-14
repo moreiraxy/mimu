@@ -40,7 +40,7 @@ export function CadernoPlanilhaMemoriaSection() {
           <ParallaxFloat key={item.titulo} strength={item.parallax} className="h-full">
             <EntradaMockup delay={indice * 0.1}>
               <div className="flex h-full flex-col rounded-card border border-neutro-border bg-fundo p-6">
-                <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-coral-light text-coral">
+                <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-primary-light text-primary-forte">
                   <item.icone className="h-5 w-5" strokeWidth={1.75} />
                 </span>
                 <p className="text-[15px] font-bold text-escuro">{item.titulo}</p>
@@ -61,10 +61,10 @@ export function CadernoPlanilhaMemoriaSection() {
           com ícone e subtexto de urgência, pra fechar com força antes do footer. */}
       <ParallaxFloat strength={95} className="mx-auto mt-2 max-w-2xl">
         <EntradaMockup delay={0.15}>
-          <div className="rounded-[26px] bg-coral-light px-8 py-12 text-center sm:py-16">
-            <span className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-coral">
+          <div className="rounded-[26px] bg-primary-light px-8 py-12 text-center sm:py-16">
+            <span className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary">
               <svg width="26" height="20" viewBox="0 0 48 36" fill="none">
-                <path d={MARK_PATH} stroke="white" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
+                <path d={MARK_PATH} stroke="#0A0A0A" strokeWidth={5.5} strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
             <p className="mx-auto max-w-xl font-display text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.05] tracking-tight text-escuro">
@@ -75,9 +75,9 @@ export function CadernoPlanilhaMemoriaSection() {
             </p>
             <Link
               href="/cadastro"
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-coral px-[48px] py-[20px] text-[18px] font-bold text-white shadow-lg shadow-coral/30 transition-transform duration-150 hover:bg-coral-hover active:scale-[0.97]"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-[48px] py-[20px] text-[18px] font-bold text-primary-text shadow-lg shadow-primary/30 transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97]"
             >
-              Começar agora — 7 dias grátis
+              Começar agora, 7 dias grátis
               <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
             </Link>
           </div>

@@ -101,7 +101,7 @@ export function VisaoSemana({
                 key={dia.iso}
                 className={cn(
                   "flex flex-1 flex-col items-center gap-1 rounded-card py-1",
-                  dia.ehHoje && "bg-coral-light",
+                  dia.ehHoje && "bg-primary-light",
                 )}
               >
                 <span className="text-[9px] font-semibold text-neutro-muted">
@@ -116,7 +116,7 @@ export function VisaoSemana({
                   </div>
                   <div className="flex h-full flex-1 flex-col-reverse justify-start">
                     <div
-                      className="w-full rounded-t-sm bg-coral/35"
+                      className="w-full rounded-t-sm bg-primary/35"
                       style={{ height: `${alturaPrevisto}%` }}
                     />
                   </div>
@@ -124,7 +124,7 @@ export function VisaoSemana({
                 <span
                   className={cn(
                     "text-[10px] font-semibold",
-                    dia.ehHoje ? "text-coral" : "text-neutro-muted",
+                    dia.ehHoje ? "text-primary-forte" : "text-neutro-muted",
                   )}
                 >
                   {DIAS_SEMANA[i]}

@@ -51,7 +51,7 @@ export function ResumoSemanalCard({
                     />
                     {dia.previsto > 0 && (
                       <div
-                        className="w-full bg-coral-light"
+                        className="w-full bg-primary-light"
                         style={{ height: `${alturaPrevisto}%` }}
                       />
                     )}

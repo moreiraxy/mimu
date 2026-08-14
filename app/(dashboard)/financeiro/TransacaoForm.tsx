@@ -148,7 +148,7 @@ export function TransacaoForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitarValor}
           aria-label="Valor"
-          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-coral outline-none focus:border-coral"
+          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
       </div>
 
@@ -181,7 +181,7 @@ export function TransacaoForm({
               onClick={() => setCategoria(opcao.nome)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
                 categoria === opcao.nome
-                  ? "border-coral bg-coral text-white"
+                  ? "border-primary-forte bg-primary text-primary-text"
                   : "border-neutro-border bg-superficie text-escuro"
               }`}
             >
@@ -205,7 +205,7 @@ export function TransacaoForm({
               onClick={() => setFormaPagamento(forma.valor)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
                 formaPagamento === forma.valor
-                  ? "border-coral bg-coral text-white"
+                  ? "border-primary-forte bg-primary text-primary-text"
                   : "border-neutro-border bg-superficie text-escuro"
               }`}
             >
@@ -272,7 +272,7 @@ export function TransacaoForm({
                     onClick={() => setParcelas(n)}
                     className={`flex-1 rounded-button border py-2 text-sm font-semibold transition-colors ${
                       parcelas === n
-                        ? "border-coral bg-coral text-white"
+                        ? "border-primary-forte bg-primary text-primary-text"
                         : "border-neutro-border bg-superficie text-escuro"
                     }`}
                   >
@@ -282,7 +282,7 @@ export function TransacaoForm({
               </div>
               {valor > 0 && (
                 <p className="text-xs text-neutro-muted">
-                  {parcelas}x de {formatCurrency(valorParcela)} — próxima em{" "}
+                  {parcelas}x de {formatCurrency(valorParcela)}, próxima em{" "}
                   {String(proximaParcela.getDate()).padStart(2, "0")}/
                   {String(proximaParcela.getMonth() + 1).padStart(2, "0")}
                 </p>

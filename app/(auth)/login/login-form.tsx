@@ -72,7 +72,7 @@ export function LoginForm({
       </form>
 
       <div className="flex items-center justify-between text-sm">
-        <Link href="/recuperar-senha" className="font-medium text-coral">
+        <Link href="/recuperar-senha" className="font-medium text-primary-forte">
           Esqueci minha senha
         </Link>
         <Link href="/cadastro" className="text-neutro-muted">

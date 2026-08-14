@@ -78,7 +78,7 @@ export function FeatureMimuChatSection() {
               className="flex h-[340px] flex-col rounded-2xl bg-fundo p-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
             >
               <div className="flex items-center gap-2.5 border-b border-neutro-border pb-3">
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-coral text-sm font-bold text-white">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-text">
                   M
                 </span>
                 <span className="text-sm font-bold text-escuro">Mimu</span>
@@ -89,7 +89,7 @@ export function FeatureMimuChatSection() {
               </div>
 
               <div className="flex flex-1 flex-col gap-2.5 pt-4">
-                <Bolha visivel={estagio >= 1} align="end" className="bg-coral-light">
+                <Bolha visivel={estagio >= 1} align="end" className="bg-primary-light">
                   <p className="text-[13px] text-escuro">quanto vendi essa semana?</p>
                 </Bolha>
 
@@ -140,7 +140,7 @@ export function FeatureMimuChatSection() {
         </ParallaxFloat>
 
         <SpringIn delay={0.1} className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-coral">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-primary-forte">
             Mimu, sua assistente
           </p>
           <h2 className="mt-4 max-w-md font-display text-[1.6rem] font-bold leading-tight tracking-tight text-escuro sm:text-4xl">
@@ -152,7 +152,7 @@ export function FeatureMimuChatSection() {
           </p>
           <Link
             href="/cadastro"
-            className="mt-7 inline-flex items-center justify-center rounded-full border-[1.5px] border-coral px-7 py-3 text-sm font-bold text-coral transition-colors duration-200 hover:bg-coral hover:text-white active:scale-[0.97]"
+            className="mt-7 inline-flex items-center justify-center rounded-full border-[1.5px] border-primary-forte px-7 py-3 text-sm font-bold text-primary-forte transition-colors duration-200 hover:bg-primary hover:text-primary-text active:scale-[0.97]"
           >
             Começar grátis
           </Link>

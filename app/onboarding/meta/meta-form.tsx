@@ -72,7 +72,7 @@ export function MetaForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitar}
           aria-label="Meta mensal de faturamento"
-          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-coral outline-none focus:border-coral"
+          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
         <p className="mt-3 min-h-[20px] text-center text-sm text-neutro-muted">
           {metaDiaria !== null
