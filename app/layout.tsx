@@ -88,6 +88,10 @@ export const metadata: Metadata = {
     // trocar só o conteúdo do /icon.svg deixava a aba com o ícone antigo.
     // Nome de arquivo novo força a busca.
     icon: [
+      // O .ico entra porque o navegador pede /favicon.ico sozinho, mesmo sem
+      // declaração nenhuma. Antes ele levava 404 e sobrava o palpite do
+      // navegador, que costuma ser um ícone velho guardado no perfil dele.
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
       { url: "/icon.svg", type: "image/svg+xml" },

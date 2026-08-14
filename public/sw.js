@@ -1,7 +1,11 @@
 // Service worker da Mimu: cache para modo offline + push notifications reais.
 // Fica em /public pra ser servido na raiz (escopo "/") sem config extra do Next.
 
-const CACHE_VERSION = "mimu-v2";
+// Subir este número apaga os caches antigos no `activate` (ver abaixo). Foi
+// preciso subir porque a versão v2 guardou o ícone da marca antiga em modo
+// cache-first, e quem tinha o app instalado continuava vendo o coral na aba
+// mesmo com o arquivo novo no servidor.
+const CACHE_VERSION = "mimu-v3";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const PRECACHE_URLS = ["/", "/manifest.webmanifest", "/icon.svg"];
 
@@ -32,13 +36,18 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-/** JS/CSS/fontes/ícones gerados pelo build — cache first, praticamente imutáveis. */
+/**
+ * Só o que o build gera com hash no nome pode ser cache-first: esses arquivos
+ * são imutáveis por construção, porque qualquer mudança gera outro nome.
+ *
+ * /icon.svg e /manifest.webmanifest saíram daqui de propósito. O caminho
+ * deles nunca muda, mas o conteúdo muda — e `cacheFirst` nunca revalida.
+ * Na prática, quem instalou o app antes da troca de marca ficou com o ícone
+ * antigo preso para sempre. Agora eles passam por `networkFirst`: buscam o
+ * atual e só caem no cache se estiver sem conexão.
+ */
 function ehAssetEstatico(url) {
-  return (
-    url.pathname.startsWith("/_next/static/") ||
-    url.pathname === "/icon.svg" ||
-    url.pathname === "/manifest.webmanifest"
-  );
+  return url.pathname.startsWith("/_next/static/");
 }
 
 self.addEventListener("fetch", (event) => {
