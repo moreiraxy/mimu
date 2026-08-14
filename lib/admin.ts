@@ -48,6 +48,8 @@ export type ContaAdmin = {
   endereco: string | null;
   onboarding_concluido: boolean;
   modulos_ativos: string[];
+  suspensa_em: string | null;
+  suspensa_motivo: string | null;
   entrou_em: string;
   ultimo_acesso: string | null;
   status_assinatura: string;

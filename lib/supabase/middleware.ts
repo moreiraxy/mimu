@@ -29,6 +29,10 @@ const ROTAS_SEM_GATE_DE_ASSINATURA = [
   "/admin",
 ];
 
+// Onde para quem teve a conta suspensa pelo painel admin. Fica fora do gate
+// para não virar um redirect infinito pra si mesma.
+const ROTA_CONTA_SUSPENSA = "/conta-suspensa";
+
 function comecaCom(pathname: string, rotas: string[]): boolean {
   return rotas.some(
     (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
@@ -92,20 +96,35 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Gate de assinatura — só pra quem está logado, fora do onboarding, fora
-  // das próprias telas de assinatura, e fora de rotas de API (que cuidam da
-  // própria autorização internamente e não podem virar um redirect HTML).
+  // Gates de acesso — só pra quem está logado e fora de rotas de API (que
+  // cuidam da própria autorização internamente e não podem virar um redirect
+  // HTML). A consulta a `empresas` é uma só, compartilhada pelos dois gates.
   if (
     user &&
     !isGuestOnlyRoute &&
     !pathname.startsWith("/api/") &&
-    !comecaCom(pathname, ROTAS_SEM_GATE_DE_ASSINATURA)
+    pathname !== ROTA_CONTA_SUSPENSA
   ) {
     const { data: empresa } = await supabase
       .from("empresas")
-      .select("id, onboarding_concluido")
+      .select("id, onboarding_concluido, suspensa_em")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    // Suspensão vem primeiro, e de propósito NÃO respeita
+    // ROTAS_SEM_GATE_DE_ASSINATURA: quem foi tirada da plataforma não pode
+    // contornar a suspensão indo pagar em /assinar. É a diferença entre
+    // "sua assinatura venceu" (resolve pagando) e "sua conta foi suspensa"
+    // (só quem administra desfaz).
+    if (empresa?.suspensa_em) {
+      const url = request.nextUrl.clone();
+      url.pathname = ROTA_CONTA_SUSPENSA;
+      return NextResponse.redirect(url);
+    }
+
+    if (comecaCom(pathname, ROTAS_SEM_GATE_DE_ASSINATURA)) {
+      return response;
+    }
 
     // Onboarding ainda não terminou — a própria dashboard layout já manda
     // pra /onboarding; não faz sentido cobrar assinatura de quem nem

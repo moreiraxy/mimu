@@ -36,7 +36,7 @@ export default function AssinarPage() {
       <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
         <div className="flex flex-col items-center text-center">
           <span className="rounded-full bg-verde-light px-3 py-1 text-xs font-semibold text-verde-dark">
-            14 dias grátis para novos usuários
+            7 dias grátis para novos usuários
           </span>
 
           <p className="mt-4 text-lg font-semibold text-escuro">

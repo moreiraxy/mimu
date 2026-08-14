@@ -59,6 +59,8 @@ export interface Database {
           meta_mensal: number | null;
           meta_diaria: number | null;
           modulos_ativos: string[];
+          suspensa_em: string | null;
+          suspensa_motivo: string | null;
           tema: Tema;
           onboarding_concluido: boolean;
           clientes_por_semana_media: number | null;
@@ -78,6 +80,8 @@ export interface Database {
           meta_mensal?: number | null;
           meta_diaria?: number | null;
           modulos_ativos?: string[];
+          suspensa_em?: string | null;
+          suspensa_motivo?: string | null;
           tema?: Tema;
           onboarding_concluido?: boolean;
           clientes_por_semana_media?: number | null;
@@ -601,6 +605,8 @@ export interface Database {
           endereco: string | null;
           onboarding_concluido: boolean;
           modulos_ativos: string[];
+          suspensa_em: string | null;
+          suspensa_motivo: string | null;
           entrou_em: string;
           ultimo_acesso: string | null;
           status_assinatura: string;

@@ -7,6 +7,7 @@ import {
 import { MODULOS } from "@/lib/modulos";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import type { ContaAdmin } from "@/lib/admin";
 
@@ -63,6 +64,35 @@ export default function PainelAdmin() {
       ativo = false;
     };
   }, []);
+
+  // A conta some da lista sem recarregar tudo. Os indicadores do topo são
+  // recalculados junto: deixar "Contas: 12" depois de excluir uma passaria a
+  // impressão de que a exclusão não funcionou.
+  function removerConta(empresaId: string) {
+    const saindo = contas.find((c) => c.empresa_id === empresaId);
+    setContas((atuais) => atuais.filter((c) => c.empresa_id !== empresaId));
+
+    if (!saindo) return;
+    setResumo((r) =>
+      r === null
+        ? r
+        : {
+            ...r,
+            total: r.total - 1,
+            pagantes:
+              saindo.status_assinatura === "ativa" ? r.pagantes - 1 : r.pagantes,
+            emTrial:
+              saindo.status_assinatura === "trial" ? r.emTrial - 1 : r.emTrial,
+            vencidas: ["vencida", "cancelada"].includes(saindo.status_assinatura)
+              ? r.vencidas - 1
+              : r.vencidas,
+            receitaMensal:
+              saindo.status_assinatura === "ativa"
+                ? r.receitaMensal - (saindo.valor_mensal ?? 0)
+                : r.receitaMensal,
+          },
+    );
+  }
 
   const visiveis = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -173,7 +203,11 @@ export default function PainelAdmin() {
 
       <div className="mt-3 flex flex-col gap-2">
         {visiveis.map((c) => (
-          <LinhaConta key={c.empresa_id} conta={c} />
+          <LinhaConta
+            key={c.empresa_id}
+            conta={c}
+            onExcluida={removerConta}
+          />
         ))}
         {!carregando && visiveis.length === 0 && (
           <p className="rounded-xl bg-superficie px-4 py-8 text-center text-sm text-neutro-muted">
@@ -208,7 +242,13 @@ function Indicador({
   );
 }
 
-function LinhaConta({ conta }: { conta: ContaAdmin }) {
+function LinhaConta({
+  conta,
+  onExcluida,
+}: {
+  conta: ContaAdmin;
+  onExcluida: (empresaId: string) => void;
+}) {
   const status = STATUS[conta.status_assinatura] ?? STATUS.sem_assinatura!;
   const dias = conta.dias_restantes_trial;
   const [aberta, setAberta] = useState(false);
@@ -216,8 +256,60 @@ function LinhaConta({ conta }: { conta: ContaAdmin }) {
   // clique piscaria a tela inteira. O servidor continua sendo a verdade —
   // se o PATCH falhar, isto volta ao que era.
   const [modulos, setModulos] = useState<string[]>(conta.modulos_ativos ?? []);
+  const [suspensaEm, setSuspensaEm] = useState<string | null>(conta.suspensa_em);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [confirmando, setConfirmando] = useState<"suspender" | "excluir" | null>(
+    null,
+  );
+
+  const suspensa = suspensaEm !== null;
+
+  async function mudarSuspensao(suspender: boolean) {
+    const anterior = suspensaEm;
+    setSuspensaEm(suspender ? new Date().toISOString() : null);
+    setSalvando(true);
+    setErro(null);
+
+    try {
+      const r = await fetch(`/api/admin/contas/${conta.empresa_id}/suspensao`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ suspender }),
+      });
+      if (!r.ok) {
+        const corpo = await r.json().catch(() => null);
+        throw new Error(corpo?.error ?? String(r.status));
+      }
+    } catch (e) {
+      setSuspensaEm(anterior);
+      setErro(e instanceof Error ? e.message : "Não consegui salvar.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  async function excluir() {
+    setSalvando(true);
+    setErro(null);
+    try {
+      const r = await fetch(`/api/admin/contas/${conta.empresa_id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        // A rota confere o nome de novo no servidor — o diálogo é a trava
+        // para a pessoa, não a autorização.
+        body: JSON.stringify({ confirmacao: conta.nome_negocio }),
+      });
+      if (!r.ok) {
+        const corpo = await r.json().catch(() => null);
+        throw new Error(corpo?.error ?? String(r.status));
+      }
+      onExcluida(conta.empresa_id);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não consegui excluir.");
+      setSalvando(false);
+    }
+  }
 
   async function alternar(chaves: string[]) {
     const ligado = chaves.every((c) => modulos.includes(c));
@@ -261,6 +353,13 @@ function LinhaConta({ conta }: { conta: ContaAdmin }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* Suspensa vem antes do status de assinatura porque manda nele: a
+              conta pode estar "Pagante" e mesmo assim sem acesso. */}
+          {suspensa && (
+            <span className="rounded-full bg-erro px-2.5 py-1 text-[11px] font-bold text-white">
+              Suspensa
+            </span>
+          )}
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${status.classe}`}>
             {status.texto}
           </span>
@@ -321,8 +420,74 @@ function LinhaConta({ conta }: { conta: ContaAdmin }) {
           <p className="mt-3 text-xs text-neutro-muted">
             Toda alteração aqui fica registrada com o seu e-mail e a data.
           </p>
+
+          {/* Ações que tiram a pessoa da plataforma. Separadas por uma borda e
+              jogadas para o fim de propósito: não devem ficar ao lado dos
+              toggles de módulo, onde um clique errado é barato. */}
+          <div className="mt-5 border-t border-neutro-border pt-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-neutro-muted">
+              Acesso
+            </p>
+            <p className="mt-1.5 text-xs text-neutro-muted">
+              {suspensa
+                ? "A conta está bloqueada. Os dados continuam guardados e reativar devolve o acesso na hora."
+                : "Suspender bloqueia o acesso na hora, sem apagar nada nem mexer na cobrança."}
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={salvando}
+                onClick={() =>
+                  suspensa ? mudarSuspensao(false) : setConfirmando("suspender")
+                }
+                className={`rounded-xl border px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-50 ${
+                  suspensa
+                    ? "border-verde-dark text-verde-dark hover:bg-verde-light"
+                    : "border-neutro-border text-neutro-muted-strong hover:text-escuro"
+                }`}
+              >
+                {suspensa ? "Reativar acesso" : "Suspender acesso"}
+              </button>
+
+              <button
+                type="button"
+                disabled={salvando}
+                onClick={() => setConfirmando("excluir")}
+                className="rounded-xl border border-erro px-4 py-2.5 text-sm font-bold text-erro transition-colors hover:bg-erro hover:text-white disabled:opacity-50"
+              >
+                Excluir conta
+              </button>
+            </div>
+          </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmando === "suspender"}
+        title={`Suspender ${conta.nome_negocio}?`}
+        description="O acesso é bloqueado na hora. Nada é apagado e você pode reativar quando quiser."
+        confirmLabel="Suspender"
+        onConfirm={() => {
+          setConfirmando(null);
+          mudarSuspensao(true);
+        }}
+        onCancel={() => setConfirmando(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmando === "excluir"}
+        title={`Excluir ${conta.nome_negocio}?`}
+        description="Isso apaga a conta e tudo que ela tem — clientes, vendas, agenda e conversas. Não dá para desfazer nem recuperar depois."
+        confirmLabel="Excluir para sempre"
+        exigirTexto={conta.nome_negocio}
+        exigirTextoRotulo={`Digite “${conta.nome_negocio}” para confirmar`}
+        onConfirm={() => {
+          setConfirmando(null);
+          excluir();
+        }}
+        onCancel={() => setConfirmando(null)}
+      />
     </article>
   );
 }

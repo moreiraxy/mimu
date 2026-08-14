@@ -5,7 +5,9 @@ import { VALOR_MENSAL_MIMU } from "@/lib/mercadopago";
 
 type Supabase = SupabaseClient<Database>;
 
-const DIAS_TRIAL = 14;
+// 7 dias é o que a landing page e a página de preço prometem. Já foi 14
+// aqui, o que dava ao cadastro o dobro do anunciado; alinhado ao site.
+const DIAS_TRIAL = 7;
 
 /** Chamado uma vez, ao concluir o onboarding — cada empresa só ganha um trial. */
 export async function criarAssinaturaTrial(

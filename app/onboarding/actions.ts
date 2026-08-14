@@ -108,7 +108,7 @@ export async function concluirOnboarding(input: {
     );
   }
 
-  // Início do trial de 14 dias — a partir de agora o middleware passa a
+  // Início do trial de 7 dias — a partir de agora o middleware passa a
   // exigir uma assinatura em dia pra deixar acessar o app.
   await criarAssinaturaTrial(supabase, empresa.id);
 
