@@ -258,6 +258,7 @@ function LinhaConta({
   const [modulos, setModulos] = useState<string[]>(conta.modulos_ativos ?? []);
   const [suspensaEm, setSuspensaEm] = useState<string | null>(conta.suspensa_em);
   const [salvando, setSalvando] = useState(false);
+  const [salvo, setSalvo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [confirmando, setConfirmando] = useState<"suspender" | "excluir" | null>(
     null,
@@ -321,6 +322,7 @@ function LinhaConta({
     setModulos(proximo);
     setSalvando(true);
     setErro(null);
+    setSalvo(false);
 
     try {
       const r = await fetch(`/api/admin/contas/${conta.empresa_id}/modulos`, {
@@ -328,10 +330,16 @@ function LinhaConta({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ modulos: proximo }),
       });
-      if (!r.ok) throw new Error(String(r.status));
-    } catch {
+      if (!r.ok) {
+        // Mostra o motivo que veio do servidor em vez de um "não consegui"
+        // genérico: quando isso falha, o texto exato é a única pista de por quê.
+        const corpo = await r.json().catch(() => null);
+        throw new Error(corpo?.error ?? `Erro ${r.status}`);
+      }
+      setSalvo(true);
+    } catch (e) {
       setModulos(anterior); // desfaz: o servidor não aceitou
-      setErro("Não consegui salvar.");
+      setErro(e instanceof Error ? e.message : "Não consegui salvar.");
     } finally {
       setSalvando(false);
     }
@@ -386,7 +394,13 @@ function LinhaConta({
               Módulos
             </p>
             {salvando && <span className="text-xs text-neutro-muted">salvando…</span>}
-            {erro && <span className="text-xs font-bold text-coral">{erro}</span>}
+            {!salvando && salvo && !erro && (
+              <span className="flex items-center gap-1 text-xs font-bold text-verde-dark">
+                <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                salvo
+              </span>
+            )}
+            {erro && <span className="text-xs font-bold text-erro">{erro}</span>}
           </div>
 
           <div className="flex flex-wrap gap-2">
