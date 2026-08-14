@@ -116,11 +116,17 @@ export async function updateSession(request: NextRequest) {
     // pessoa não teria como assinar: ela pediu para pagar, então vai pro
     // checkout. (Trocar de plano com assinatura em dia é outra conversa, e
     // ainda não existe.)
-    url.pathname =
-      pathname === "/cadastro" && url.searchParams.has("plano")
-        ? "/assinar"
-        : "/dashboard";
-    url.searchParams.delete("plano");
+    const indoPagar =
+      pathname === "/cadastro" && url.searchParams.has("plano");
+    url.pathname = indoPagar ? "/assinar" : "/dashboard";
+
+    // O plano SÓ é descartado quando o destino é o painel, onde ele não
+    // significa nada. Indo pro checkout ele tem que seguir junto: sem o
+    // parâmetro a tela caía no plano padrão, e quem clicava em "Assinar
+    // Premium" via o Pro no checkout.
+    if (!indoPagar) {
+      url.searchParams.delete("plano");
+    }
     return NextResponse.redirect(url);
   }
 
