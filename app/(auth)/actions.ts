@@ -146,7 +146,10 @@ export async function signIn(
     return { error: traduzErroSupabase(error.message) };
   }
 
-  redirect("/dashboard");
+  // Veio de um plano da landing: o destino é o checkout, não o painel. Quem
+  // clicou em "Seja Pro" e entrou na conta quer assinar, não olhar o dia.
+  const planoLogin = planoValido(formData.get("plano"));
+  redirect(planoLogin ? `/assinar?plano=${planoLogin}` : "/dashboard");
 }
 
 export async function requestPasswordReset(

@@ -20,9 +20,12 @@ function SubmitButton() {
 export function LoginForm({
   confirmacaoPendente,
   senhaRedefinida,
+  plano = "",
 }: {
   confirmacaoPendente: boolean;
   senhaRedefinida: boolean;
+  /** Plano escolhido na landing, repassado para o destino depois do login. */
+  plano?: string;
 }) {
   const [state, formAction] = useFormState(signIn, initialState);
 
@@ -49,6 +52,7 @@ export function LoginForm({
       )}
 
       <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="plano" value={plano} />
         <Input
           label="E-mail"
           name="email"

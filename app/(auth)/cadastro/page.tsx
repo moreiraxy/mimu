@@ -107,7 +107,13 @@ function FormularioCadastro() {
 
       <p className="text-center text-sm text-neutro-muted">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-primary-forte">
+        {/* Leva o plano junto: sem isto, quem já tem conta clicava em
+            "Entrar", logava e caía no dashboard, e a escolha de plano
+            simplesmente sumia no caminho. */}
+        <Link
+          href={plano ? `/login?plano=${plano}` : "/login"}
+          className="font-medium text-primary-forte"
+        >
           Entrar
         </Link>
       </p>

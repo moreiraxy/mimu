@@ -33,7 +33,11 @@ const ITENS_INCLUIDOS = [
  * da URL: quem chega aqui já decidiu, e deixar o preço vir do endereço
  * permitiria assinar o Premium pagando o valor do Pro.
  */
-export default async function AssinarPage() {
+export default async function AssinarPage({
+  searchParams,
+}: {
+  searchParams: { plano?: string };
+}) {
   const supabase = createClient();
   const {
     data: { user },
@@ -43,7 +47,22 @@ export default async function AssinarPage() {
     ? await buscarEmpresaEAssinatura(supabase, user.id)
     : { assinatura: null };
 
-  const plano = planoValido(assinatura?.plano) ?? PLANO_PADRAO;
+  // Plano pedido agora (veio da landing, direto ou passando pelo login).
+  // Só é aplicado se a assinatura ainda NÃO estiver ativa: mexer no plano de
+  // quem já paga seria uma troca de plano de verdade, com cobrança
+  // proporcional, e isso ainda não existe. Mesmo aplicando, o preço continua
+  // vindo da tabela do servidor — a URL escolhe o plano, nunca o valor.
+  const pedido = planoValido(searchParams.plano);
+
+  if (pedido && assinatura && assinatura.status !== "ativa" && assinatura.plano !== pedido) {
+    await supabase
+      .from("assinaturas")
+      .update({ plano: pedido, valor_mensal: PLANOS[pedido].valorMensal })
+      .eq("id", assinatura.id);
+    assinatura.plano = pedido;
+  }
+
+  const plano = planoValido(assinatura?.plano) ?? pedido ?? PLANO_PADRAO;
   const { nome: nomePlano, valorMensal } = PLANOS[plano];
 
   return conteudo(nomePlano, valorMensal, assinatura?.status === "pendente");
