@@ -3,8 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <!--
+      PNG antes do SVG de propósito. Navegador guarda favicon de forma
+      agressiva: mudar o conteúdo do /icon.svg mantendo o mesmo caminho não
+      surtia efeito, e a aba continuava com o ícone da marca antiga. Os
+      arquivos abaixo têm nome novo, então são buscados do zero.
+    -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
     <!-- Verde neon Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
     <meta name="theme-color" content="#0A0A0A" />
     <title>Mimu · seu negócio, organizado</title>
@@ -20,7 +28,17 @@
       property="og:description"
       content="Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar. Enquanto você trabalha, a Mimu cuida do seu negócio."
     />
-    <meta property="og:image" content="/img/cZvP0DOqHSNkDTt3e2Xi97Yc3qo.png" />
+    <!--
+      Imagem que aparece quando o link é compartilhado. Precisa ser absoluta:
+      WhatsApp e redes buscam essa URL de fora, e caminho relativo não resolve
+      para elas.
+    -->
+    <meta property="og:image" content="https://mimu.up.railway.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Mimu: enquanto você trabalha, a Mimu cuida do seu negócio." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://mimu.up.railway.app/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="robots" content="max-image-preview:large" />
 

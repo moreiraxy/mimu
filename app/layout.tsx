@@ -66,15 +66,32 @@ export const metadata: Metadata = {
     title: "Mimu · seu negócio, organizado",
     description:
       "Vendas, faturamento, agenda e clientes num app só. Feito para quem hoje controla tudo no caderno ou na memória.",
+    // Sem isto o link compartilhado no WhatsApp aparecia sem prévia nenhuma.
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Mimu: enquanto você trabalha, a Mimu cuida do seu negócio.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mimu · seu negócio, organizado",
     description:
       "Vendas, faturamento, agenda e clientes num app só. 7 dias grátis, sem cartão.",
+    images: ["/og.png"],
   },
   icons: {
-    icon: "/icon.svg",
+    // PNG antes do SVG: o navegador guarda favicon de forma agressiva, e
+    // trocar só o conteúdo do /icon.svg deixava a aba com o ícone antigo.
+    // Nome de arquivo novo força a busca.
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
     // PNG e não SVG: o iOS ignora SVG em apple-touch-icon, e o resultado era
     // a tela de início do iPhone continuar mostrando o ícone antigo mesmo
     // depois da troca de marca. 180x180 é o tamanho que ele pede.
