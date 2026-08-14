@@ -101,9 +101,22 @@ export async function POST() {
       expiraEm: expiracao.toISOString(),
     });
   } catch (err) {
-    console.error("Erro ao criar pagamento Pix no Mercado Pago:", err);
+    // O log guarda o que o Mercado Pago respondeu, não só "deu erro". Sem
+    // isso, uma recusa do lado deles (conta sem chave Pix cadastrada, por
+    // exemplo) chegava aqui como uma falha genérica e não havia como
+    // descobrir a causa olhando o log.
+    const detalhe = err as { message?: string; cause?: unknown; status?: number };
+    console.error("Erro ao criar pagamento Pix no Mercado Pago:", {
+      mensagem: detalhe?.message,
+      status: detalhe?.status,
+      causa: JSON.stringify(detalhe?.cause ?? null),
+    });
+
     return NextResponse.json(
-      { error: "Não foi possível gerar o Pix agora. Tente de novo." },
+      {
+        error:
+          "Não foi possível gerar o Pix agora. Tente pelo cartão ou fale com a gente.",
+      },
       { status: 502 },
     );
   }

@@ -89,6 +89,11 @@ export default function AssinarCartaoPage() {
             theme: "default",
             customVariables: {
               baseColor: "#CCFF00",
+              // O texto do botão de pagar precisa ser escuro: o padrão do
+              // Mercado Pago é branco, e branco sobre o néon da marca dá
+              // 1.18:1 de contraste — o "Pagar" some do botão.
+              baseColorSecondaryVariant: "#0A0A0A",
+              buttonTextColor: "#0A0A0A",
               formBackgroundColor: "#FFFFFF",
               borderRadiusMedium: "12px",
             },

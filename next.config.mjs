@@ -23,11 +23,25 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      // sdk.mercadopago.com é o SDK que monta o formulário de cartão. Sem
+      // liberar aqui, o navegador bloqueia o script, o formulário nunca
+      // aparece e pagar com cartão fica impossível — que era o sintoma.
+      // mlstatic.com é o CDN de onde esse SDK puxa os próprios pedaços.
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://sdk.mercadopago.com https://*.mlstatic.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https:",
-      "connect-src 'self' https://*.supabase.co https://api.groq.com",
-      "font-src 'self'",
+      // O SDK conversa com a API do Mercado Pago para transformar o número do
+      // cartão num token. É justamente esse desenho que faz o cartão NÃO
+      // passar pelo nosso servidor.
+      "connect-src 'self' https://*.supabase.co https://api.groq.com https://api.mercadopago.com https://*.mercadolibre.com https://*.mercadopago.com https://*.mlstatic.com",
+      "font-src 'self' https://*.mlstatic.com",
+      // Os campos de cartão são iframes do próprio Mercado Pago: é o que
+      // impede o número do cartão de encostar no nosso código.
+      // Além dos campos de cartão, o Mercado Pago abre um iframe do
+      // mercadolibre.com para a checagem antifraude do dispositivo. Bloqueado,
+      // ele não some da tela mas a análise fica cega, e isso derruba
+      // aprovação de cartão.
+      "frame-src 'self' https://*.mercadopago.com https://*.mercadopago.com.br https://*.mercadolibre.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

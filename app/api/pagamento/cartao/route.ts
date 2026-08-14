@@ -129,7 +129,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ status: "pendente" });
   } catch (err) {
-    console.error("Erro ao criar pagamento com cartão no Mercado Pago:", err);
+    const detalhe = err as { message?: string; cause?: unknown; status?: number };
+    console.error("Erro ao criar pagamento com cartão no Mercado Pago:", {
+      mensagem: detalhe?.message,
+      status: detalhe?.status,
+      causa: JSON.stringify(detalhe?.cause ?? null),
+    });
     return NextResponse.json(
       { error: "Verifique os dados do cartão." },
       { status: 400 },
