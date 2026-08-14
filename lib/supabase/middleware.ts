@@ -111,7 +111,16 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isGuestOnlyRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    // Quem já tem conta e clica num plano pago na landing cai aqui, em
+    // /cadastro?plano=X. Mandar pro /dashboard jogaria a escolha fora e a
+    // pessoa não teria como assinar: ela pediu para pagar, então vai pro
+    // checkout. (Trocar de plano com assinatura em dia é outra conversa, e
+    // ainda não existe.)
+    url.pathname =
+      pathname === "/cadastro" && url.searchParams.has("plano")
+        ? "/assinar"
+        : "/dashboard";
+    url.searchParams.delete("plano");
     return NextResponse.redirect(url);
   }
 
