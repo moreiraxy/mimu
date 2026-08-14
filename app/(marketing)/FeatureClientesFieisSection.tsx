@@ -33,7 +33,7 @@ export function FeatureClientesFieisSection() {
                 </span>
                 <div>
                   <p className="text-sm font-bold text-escuro">Maria das Graças</p>
-                  <span className="mt-1 inline-flex animate-pulse-badge items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-bold text-ambar-text">
+                  <span className="mt-1 inline-flex animate-pulse-badge items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-bold text-ambar-texto">
                     <Star className="h-2.5 w-2.5 fill-ambar-text" strokeWidth={0} />
                     Cliente Fiel
                   </span>

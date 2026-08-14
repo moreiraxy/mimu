@@ -159,7 +159,7 @@ export default function AssinarCartaoPage() {
         <div ref={brickRef} id={BRICK_CONTAINER_ID} className="mt-4" />
 
         {erro && (
-          <p className="mt-4 rounded-button bg-erro-light px-3 py-2 text-center text-sm text-erro">
+          <p className="mt-4 rounded-button bg-erro-light px-3 py-2 text-center text-sm text-erro-texto">
             {erro}
           </p>
         )}

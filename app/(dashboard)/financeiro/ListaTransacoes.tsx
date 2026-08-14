@@ -60,7 +60,7 @@ function TotalDoDia({ itens }: { itens: TransacaoComCliente[] }) {
 
   return (
     <p
-      className={`text-xs font-semibold ${positivo ? "text-verde-dark" : "text-erro"}`}
+      className={`text-xs font-semibold ${positivo ? "text-verde-texto" : "text-erro-texto"}`}
     >
       {positivo ? "+" : ""}
       {formatCurrency(total)}

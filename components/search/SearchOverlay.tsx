@@ -304,7 +304,7 @@ export function SearchOverlay({
                   <span
                     className={cn(
                       "text-sm font-semibold",
-                      t.tipo === "entrada" ? "text-verde-dark" : "text-erro",
+                      t.tipo === "entrada" ? "text-verde-texto" : "text-erro-texto",
                     )}
                   >
                     {t.tipo === "entrada" ? "+" : "-"}

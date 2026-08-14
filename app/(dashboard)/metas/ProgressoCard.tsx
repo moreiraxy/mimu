@@ -65,7 +65,7 @@ export function ProgressoCard({
             <p
               className={cn(
                 "text-sm font-semibold",
-                vaiBaterMeta ? "text-verde-dark" : "text-ambar-dark",
+                vaiBaterMeta ? "text-verde-texto" : "text-ambar-texto",
               )}
             >
               No ritmo atual você vai fechar em {formatCurrency(projecaoFechamento)}

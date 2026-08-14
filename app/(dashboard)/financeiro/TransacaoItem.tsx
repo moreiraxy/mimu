@@ -85,7 +85,7 @@ export function TransacaoItem({
           </p>
         </div>
         <p
-          className={`flex-shrink-0 text-sm font-semibold ${positiva ? "text-verde" : "text-erro"}`}
+          className={`flex-shrink-0 text-sm font-semibold ${positiva ? "text-verde-texto" : "text-erro-texto"}`}
         >
           {positiva ? "+" : "−"} {formatCurrency(Number(transacao.valor))}
         </p>

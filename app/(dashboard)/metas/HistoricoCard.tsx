@@ -36,8 +36,8 @@ export function HistoricoCard({
                   <span
                     className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                       bateu
-                        ? "bg-verde-light text-verde-dark"
-                        : "bg-erro-light text-erro"
+                        ? "bg-verde-light text-verde-texto"
+                        : "bg-erro-light text-erro-texto"
                     }`}
                   >
                     {bateu ? (

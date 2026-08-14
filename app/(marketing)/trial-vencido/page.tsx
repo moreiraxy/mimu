@@ -8,7 +8,7 @@ export default function TrialVencidoPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-primary-light px-6 py-10 text-center">
       <Logo size="md" />
 
-      <span className="mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-ambar-light text-ambar-dark">
+      <span className="mt-8 flex h-16 w-16 items-center justify-center rounded-full bg-ambar-light text-ambar-texto">
         <Clock className="h-7 w-7" strokeWidth={1.75} />
       </span>
 

@@ -68,7 +68,7 @@ export function SecundariosCards({
             <p
               className={cn(
                 "text-lg font-semibold",
-                subiu ? "text-verde-dark" : "text-erro",
+                subiu ? "text-verde-texto" : "text-erro-texto",
               )}
             >
               {subiu ? "+" : ""}

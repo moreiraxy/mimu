@@ -35,7 +35,7 @@ export default function AssinarPage() {
 
       <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
         <div className="flex flex-col items-center text-center">
-          <span className="rounded-full bg-verde-light px-3 py-1 text-xs font-semibold text-verde-dark">
+          <span className="rounded-full bg-verde-light px-3 py-1 text-xs font-semibold text-verde-texto">
             7 dias grátis para novos usuários
           </span>
 
@@ -58,7 +58,7 @@ export default function AssinarPage() {
               </span>
               <span className="text-sm text-escuro">{item.label}</span>
               <Check
-                className="ml-auto h-4 w-4 flex-shrink-0 text-verde"
+                className="ml-auto h-4 w-4 flex-shrink-0 text-verde-texto"
                 strokeWidth={2.5}
               />
             </li>

@@ -140,7 +140,7 @@ export default function DashboardPage() {
           className="rounded-card border border-neutro-border bg-superficie p-4"
         >
           <p className="text-xs text-neutro-muted">A receber</p>
-          <p className="mt-1 text-lg font-semibold text-verde">
+          <p className="mt-1 text-lg font-semibold text-verde-texto">
             {formatCurrency(dados.totalAReceber)}
           </p>
         </Link>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
           className="rounded-card border border-neutro-border bg-superficie p-4"
         >
           <p className="text-xs text-neutro-muted">A pagar</p>
-          <p className="mt-1 text-lg font-semibold text-ambar">
+          <p className="mt-1 text-lg font-semibold text-ambar-texto">
             {formatCurrency(dados.totalAPagar)}
           </p>
         </Link>

@@ -56,7 +56,7 @@ export function AgendamentoLinha({
             naoCompareceu
               ? "text-neutro-muted line-through"
               : concluido
-                ? "text-verde"
+                ? "text-verde-texto"
                 : "text-primary-forte",
           )}
         >

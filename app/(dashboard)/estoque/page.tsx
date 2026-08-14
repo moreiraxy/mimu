@@ -16,9 +16,9 @@ const TIPO_CONFIG: Record<
   TipoMovimentacaoEstoque,
   { label: string; icone: typeof ArrowUpCircle; cor: string }
 > = {
-  entrada: { label: "Entrada", icone: ArrowUpCircle, cor: "text-verde-dark" },
-  saida: { label: "Saída", icone: ArrowDownCircle, cor: "text-erro" },
-  ajuste: { label: "Correção", icone: Settings2, cor: "text-ambar-dark" },
+  entrada: { label: "Entrada", icone: ArrowUpCircle, cor: "text-verde-texto" },
+  saida: { label: "Saída", icone: ArrowDownCircle, cor: "text-erro-texto" },
+  ajuste: { label: "Correção", icone: Settings2, cor: "text-ambar-texto" },
 };
 
 export default function EstoquePage() {
@@ -88,8 +88,8 @@ export default function EstoquePage() {
       <PageHeader title="Estoque" />
 
       {produtosAbaixoDoMinimo.length > 0 && (
-        <div className="mb-4 rounded-card bg-[#FFF8EE] p-4">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-ambar-text">
+        <div className="mb-4 rounded-card bg-ambar-light p-4">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-ambar-texto">
             <AlertTriangle className="h-4 w-4" strokeWidth={2.25} />
             {produtosAbaixoDoMinimo.length === 1
               ? "1 produto com estoque baixo"

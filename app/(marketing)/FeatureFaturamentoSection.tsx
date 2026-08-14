@@ -42,13 +42,13 @@ export function FeatureFaturamentoSection() {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-xl bg-verde-light p-4">
                   <p className="text-xs text-neutro-muted">Realizado</p>
-                  <p className="mt-1 text-xl font-extrabold text-verde">
+                  <p className="mt-1 text-xl font-extrabold text-verde-texto">
                     <ContagemNumero valor={410} formatar={formatarReais} ativo={contagemAtiva} duracao={1300} />
                   </p>
                 </div>
                 <div className="rounded-xl bg-ambar-light p-4">
                   <p className="text-xs text-neutro-muted">Previsto</p>
-                  <p className="mt-1 text-xl font-extrabold text-ambar-dark">
+                  <p className="mt-1 text-xl font-extrabold text-ambar-texto">
                     <ContagemNumero valor={90} formatar={formatarReais} ativo={contagemAtiva} duracao={1000} />
                   </p>
                 </div>

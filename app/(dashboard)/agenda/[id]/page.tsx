@@ -316,7 +316,7 @@ export default function DetalheAgendamentoPage() {
           </Button>
           <Button
             variant="secondary"
-            className="flex-1 border-erro text-erro"
+            className="flex-1 border-erro text-erro-texto"
             onClick={() => setConfirmandoCancelamento(true)}
           >
             Cancelar
@@ -358,7 +358,7 @@ export default function DetalheAgendamentoPage() {
               {agendamento.cliente.nome}
             </p>
             {agendamento.cliente.cliente_fiel && (
-              <span className="flex items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-semibold text-ambar-text">
+              <span className="flex items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-semibold text-ambar-texto">
                 <Star className="h-2.5 w-2.5" fill="currentColor" strokeWidth={0} />
                 Cliente Fiel
               </span>

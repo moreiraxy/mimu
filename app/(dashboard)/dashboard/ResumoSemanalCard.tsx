@@ -93,7 +93,7 @@ function VariacaoSemanal({
 
   return (
     <p
-      className={`text-xs font-semibold ${positiva ? "text-verde-dark" : "text-erro"}`}
+      className={`text-xs font-semibold ${positiva ? "text-verde-texto" : "text-erro-texto"}`}
     >
       {positiva ? "+" : ""}
       {variacao}% vs semana passada

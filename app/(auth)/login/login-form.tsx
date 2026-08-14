@@ -38,12 +38,12 @@ export function LoginForm({
       </div>
 
       {confirmacaoPendente && (
-        <p className="rounded-button bg-verde-light px-3 py-2 text-sm text-verde-dark">
+        <p className="rounded-button bg-verde-light px-3 py-2 text-sm text-verde-texto">
           Conta criada! Confira seu e-mail para confirmar antes de entrar.
         </p>
       )}
       {senhaRedefinida && (
-        <p className="rounded-button bg-verde-light px-3 py-2 text-sm text-verde-dark">
+        <p className="rounded-button bg-verde-light px-3 py-2 text-sm text-verde-texto">
           Senha atualizada. Entre com a sua nova senha.
         </p>
       )}
@@ -64,7 +64,7 @@ export function LoginForm({
           required
         />
         {state?.error && (
-          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro">
+          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
             {state.error}
           </p>
         )}

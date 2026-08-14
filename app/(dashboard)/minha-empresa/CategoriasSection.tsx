@@ -64,7 +64,7 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
               type="button"
               aria-label={`Excluir categoria ${categoria.nome}`}
               onClick={() => excluir(categoria.id)}
-              className="flex h-4 w-4 items-center justify-center rounded-full text-neutro-muted transition-colors hover:bg-erro-light hover:text-erro"
+              className="flex h-4 w-4 items-center justify-center rounded-full text-neutro-muted transition-colors hover:bg-erro-light hover:text-erro-texto"
             >
               <X className="h-3 w-3" strokeWidth={2.5} />
             </button>

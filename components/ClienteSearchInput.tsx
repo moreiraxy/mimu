@@ -97,7 +97,7 @@ export function ClienteSearchInput({
                 {cliente.nome}
                 {cliente.cliente_fiel && (
                   <Star
-                    className="ml-1.5 inline h-3 w-3 text-ambar-text"
+                    className="ml-1.5 inline h-3 w-3 text-ambar-texto"
                     fill="currentColor"
                     strokeWidth={0}
                   />

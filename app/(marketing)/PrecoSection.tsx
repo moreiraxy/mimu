@@ -156,7 +156,7 @@ export function PrecoSection() {
                 <ul className="mt-8 flex flex-col gap-3 text-left">
                   {ITENS_INCLUIDOS.map((item) => (
                     <li key={item} className="flex items-center gap-2.5">
-                      <Check className="h-[17px] w-[17px] flex-shrink-0 text-verde" strokeWidth={2.6} />
+                      <Check className="h-[17px] w-[17px] flex-shrink-0 text-verde-texto" strokeWidth={2.6} />
                       <p className="text-sm text-escuro">{item}</p>
                     </li>
                   ))}
@@ -207,7 +207,7 @@ export function PrecoSection() {
                       linha.economiaCor === "coral"
                         ? "text-primary-forte"
                         : linha.economiaCor === "verde"
-                          ? "text-verde"
+                          ? "text-verde-texto"
                           : ativa
                             ? "text-primary-forte"
                             : "text-escuro"

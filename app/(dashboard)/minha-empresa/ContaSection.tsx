@@ -89,7 +89,7 @@ export function ContaSection({ empresa }: { empresa: Empresa }) {
               onChange={(e) => setConfirmarSenha(e.target.value)}
             />
             {erroSenha && (
-              <p className="rounded-button bg-erro-light px-3 py-2 text-xs text-erro">
+              <p className="rounded-button bg-erro-light px-3 py-2 text-xs text-erro-texto">
                 {erroSenha}
               </p>
             )}
@@ -133,7 +133,7 @@ export function ContaSection({ empresa }: { empresa: Empresa }) {
             router.push("/login");
             router.refresh();
           }}
-          className="flex items-center justify-center gap-2 rounded-button border border-erro py-3 text-sm font-semibold text-erro transition-colors hover:bg-erro-light"
+          className="flex items-center justify-center gap-2 rounded-button border border-erro py-3 text-sm font-semibold text-erro-texto transition-colors hover:bg-erro-light"
         >
           <LogOut className="h-4 w-4" strokeWidth={2.25} />
           Sair da conta

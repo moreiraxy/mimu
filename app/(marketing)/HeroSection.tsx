@@ -218,11 +218,11 @@ export function HeroSection() {
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-xl border border-neutro-border bg-superficie p-[11px]">
                       <p className="mb-1 text-[10px] text-neutro-muted">A receber</p>
-                      <p className="text-sm font-extrabold text-verde">R$ 240</p>
+                      <p className="text-sm font-extrabold text-verde-texto">R$ 240</p>
                     </div>
                     <div className="rounded-xl border border-neutro-border bg-superficie p-[11px]">
                       <p className="mb-1 text-[10px] text-neutro-muted">A pagar</p>
-                      <p className="text-sm font-extrabold text-ambar">R$ 180</p>
+                      <p className="text-sm font-extrabold text-ambar-texto">R$ 180</p>
                     </div>
                   </div>
 

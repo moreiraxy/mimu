@@ -65,7 +65,7 @@ export function AlertasCard({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-card bg-[#FFF8EE] p-4">
+    <div className="flex flex-col gap-3 rounded-card bg-ambar-light p-4">
       {alertas.map((alerta) => {
         const { icone: Icone, bg } = ICONE_POR_TIPO[alerta.tipo];
         const meta = extrairMetadata(alerta.metadata);

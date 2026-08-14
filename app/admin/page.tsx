@@ -31,8 +31,8 @@ const FILTROS: { id: Filtro; label: string }[] = [
 
 /** Rótulo e cor por status — o texto é o que a dona do produto lê, não o enum do banco. */
 const STATUS: Record<string, { texto: string; classe: string }> = {
-  ativa: { texto: "Pagante", classe: "bg-verde-light text-verde-dark" },
-  trial: { texto: "Em teste", classe: "bg-ambar-light text-ambar-dark" },
+  ativa: { texto: "Pagante", classe: "bg-verde-light text-verde-texto" },
+  trial: { texto: "Em teste", classe: "bg-ambar-light text-ambar-texto" },
   vencida: { texto: "Vencida", classe: "bg-primary-light text-primary-forte" },
   cancelada: { texto: "Cancelada", classe: "bg-neutro-border text-neutro-muted-strong" },
   sem_assinatura: {
@@ -395,12 +395,12 @@ function LinhaConta({
             </p>
             {salvando && <span className="text-xs text-neutro-muted">salvando…</span>}
             {!salvando && salvo && !erro && (
-              <span className="flex items-center gap-1 text-xs font-bold text-verde-dark">
+              <span className="flex items-center gap-1 text-xs font-bold text-verde-texto">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} />
                 salvo
               </span>
             )}
-            {erro && <span className="text-xs font-bold text-erro">{erro}</span>}
+            {erro && <span className="text-xs font-bold text-erro-texto">{erro}</span>}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -457,7 +457,7 @@ function LinhaConta({
                 }
                 className={`rounded-xl border px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-50 ${
                   suspensa
-                    ? "border-verde-dark text-verde-dark hover:bg-verde-light"
+                    ? "border-verde-dark text-verde-texto hover:bg-verde-light"
                     : "border-neutro-border text-neutro-muted-strong hover:text-escuro"
                 }`}
               >
@@ -468,7 +468,7 @@ function LinhaConta({
                 type="button"
                 disabled={salvando}
                 onClick={() => setConfirmando("excluir")}
-                className="rounded-xl border border-erro px-4 py-2.5 text-sm font-bold text-erro transition-colors hover:bg-erro hover:text-white disabled:opacity-50"
+                className="rounded-xl border border-erro px-4 py-2.5 text-sm font-bold text-erro-texto transition-colors hover:bg-erro hover:text-white disabled:opacity-50"
               >
                 Excluir conta
               </button>

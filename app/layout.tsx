@@ -75,7 +75,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/icon.svg",
-    apple: "/icon.svg",
+    // PNG e não SVG: o iOS ignora SVG em apple-touch-icon, e o resultado era
+    // a tela de início do iPhone continuar mostrando o ícone antigo mesmo
+    // depois da troca de marca. 180x180 é o tamanho que ele pede.
+    apple: [{ url: "/icons/icon-180.png", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,

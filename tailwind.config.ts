@@ -29,17 +29,22 @@ const config: Config = {
           light: "rgb(var(--primary-light) / <alpha-value>)",
           border: "rgb(var(--primary-border) / <alpha-value>)",
         },
+        // Mesma separação da primary: DEFAULT é PREENCHIMENTO (fica igual nos
+        // dois temas, é identidade), `texto` é a versão legível que troca de
+        // claridade com o tema.
         verde: {
           DEFAULT: "#2DBE8C", // entradas, sucesso, faturamento positivo
           light: "rgb(var(--verde-light) / <alpha-value>)",
-          dark: "#1C7A54",
+          texto: "rgb(var(--verde-texto) / <alpha-value>)",
+          dark: "rgb(var(--verde-texto) / <alpha-value>)",
         },
         ambar: {
           DEFAULT: "#F4A653", // alertas, pendências, contas a pagar
           light: "rgb(var(--ambar-light) / <alpha-value>)",
           soft: "rgb(var(--ambar-soft) / <alpha-value>)",
-          dark: "#8A5A1C",
-          text: "#B9762A",
+          texto: "rgb(var(--ambar-texto) / <alpha-value>)",
+          dark: "rgb(var(--ambar-texto) / <alpha-value>)",
+          text: "rgb(var(--ambar-texto) / <alpha-value>)",
         },
         fundo: "rgb(var(--fundo) / <alpha-value>)", // background do app
         superficie: "rgb(var(--superficie) / <alpha-value>)", // cards, modais, inputs — era bg-white fixo
@@ -47,7 +52,8 @@ const config: Config = {
         erro: {
           DEFAULT: "#E8564A",
           light: "rgb(var(--erro-light) / <alpha-value>)",
-          dark: "#C2453F",
+          texto: "rgb(var(--erro-texto) / <alpha-value>)",
+          dark: "rgb(var(--erro-texto) / <alpha-value>)",
         },
         neutro: {
           border: "rgb(var(--neutro-border) / <alpha-value>)",

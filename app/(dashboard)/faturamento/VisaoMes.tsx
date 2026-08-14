@@ -104,7 +104,7 @@ export function VisaoMes({
         <CardMes
           label="Realizado"
           valor={formatCurrency(dados.realizadoMes)}
-          cor="text-verde"
+          cor="text-verde-texto"
         />
         <CardMes
           label="Previsto restante"
@@ -136,7 +136,7 @@ export function VisaoMes({
           <p
             className={cn(
               "mt-1 text-xs font-semibold",
-              dados.variacaoVsMesPassado >= 0 ? "text-verde-dark" : "text-erro",
+              dados.variacaoVsMesPassado >= 0 ? "text-verde-texto" : "text-erro-texto",
             )}
           >
             Projeção deste mês está{" "}

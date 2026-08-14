@@ -136,7 +136,7 @@ export default function AssinarPixPage() {
 
         {!carregando && erro && !dados && (
           <div className="mt-6 flex flex-col items-center gap-4 text-center">
-            <p className="text-sm text-erro">{erro}</p>
+            <p className="text-sm text-erro-texto">{erro}</p>
             <Button className="w-full" onClick={gerarPix}>
               Tentar de novo
             </Button>
@@ -145,7 +145,7 @@ export default function AssinarPixPage() {
 
         {!carregando && recusado && (
           <div className="mt-6 flex flex-col items-center gap-4 text-center">
-            <XCircle className="h-10 w-10 text-erro" strokeWidth={1.75} />
+            <XCircle className="h-10 w-10 text-erro-texto" strokeWidth={1.75} />
             <p className="text-sm text-escuro">
               Esse Pix não foi aprovado. Tente gerar um novo código.
             </p>
@@ -175,7 +175,7 @@ export default function AssinarPixPage() {
               className="h-56 w-56 rounded-card border border-neutro-border"
             />
 
-            <p className="text-sm font-semibold text-ambar-text">
+            <p className="text-sm font-semibold text-ambar-texto">
               Expira em {formatarContagem(segundosRestantes)}
             </p>
 

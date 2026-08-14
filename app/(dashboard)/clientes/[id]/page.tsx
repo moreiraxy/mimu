@@ -236,7 +236,7 @@ export default function PerfilClientePage() {
         <div className="flex items-center gap-2">
           <p className="text-lg font-semibold text-escuro">{cliente.nome}</p>
           {cliente.cliente_fiel && (
-            <span className="flex items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[11px] font-semibold text-ambar-text">
+            <span className="flex items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[11px] font-semibold text-ambar-texto">
               <Star className="h-3 w-3" fill="currentColor" strokeWidth={0} />
               Cliente Fiel
             </span>
@@ -270,7 +270,7 @@ export default function PerfilClientePage() {
           </p>
         )}
         {clienteSumido && (
-          <p className="mt-3 rounded-button bg-ambar-light px-3 py-2 text-sm text-ambar-text">
+          <p className="mt-3 rounded-button bg-ambar-light px-3 py-2 text-sm text-ambar-texto">
             Faz um tempo que {cliente.nome.split(" ")[0]} não aparece
           </p>
         )}
@@ -278,7 +278,7 @@ export default function PerfilClientePage() {
 
       {saldoFiado > 0 && (
         <div className="mt-4 rounded-card bg-erro-light p-4">
-          <p className="text-sm font-semibold text-erro">
+          <p className="text-sm font-semibold text-erro-texto">
             Saldo fiado: {formatCurrency(saldoFiado)}
           </p>
           <Button

@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 // introduzir cores novas fora da identidade visual.
 const PALETA_AVATAR = [
   { bg: "bg-primary-light", texto: "text-primary-forte" },
-  { bg: "bg-verde-light", texto: "text-verde-dark" },
-  { bg: "bg-ambar-light", texto: "text-ambar-text" },
+  { bg: "bg-verde-light", texto: "text-verde-texto" },
+  { bg: "bg-ambar-light", texto: "text-ambar-texto" },
 ];
 
 function corPorNome(nome: string) {

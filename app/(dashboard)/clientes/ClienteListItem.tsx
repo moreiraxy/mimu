@@ -17,7 +17,7 @@ export function ClienteListItem({ cliente }: { cliente: Cliente }) {
             {cliente.nome}
           </p>
           {cliente.cliente_fiel && (
-            <span className="flex flex-shrink-0 items-center gap-0.5 rounded-full bg-ambar-soft px-1.5 py-0.5 text-[10px] font-semibold text-ambar-text">
+            <span className="flex flex-shrink-0 items-center gap-0.5 rounded-full bg-ambar-soft px-1.5 py-0.5 text-[10px] font-semibold text-ambar-texto">
               <Star className="h-2.5 w-2.5" fill="currentColor" strokeWidth={0} />
               Fiel
             </span>

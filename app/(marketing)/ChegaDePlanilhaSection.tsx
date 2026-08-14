@@ -95,7 +95,7 @@ export function ChegaDePlanilhaSection() {
                     as="p"
                     visivel={prontoEsquerda}
                     delay={0.6}
-                    className="animate-blink-erro rounded-sm bg-erro-light px-1 py-0.5 text-erro-dark"
+                    className="animate-blink-erro rounded-sm bg-erro-light px-1 py-0.5 text-erro-texto"
                   >
                     #REF!
                   </Celula>
@@ -115,7 +115,7 @@ export function ChegaDePlanilhaSection() {
                   initial={{ opacity: 0 }}
                   animate={prontoEsquerda ? { opacity: 1 } : {}}
                   transition={{ duration: 0.2, delay: 0.8 }}
-                  className="animate-blink-erro text-[11px] font-bold text-erro-dark"
+                  className="animate-blink-erro text-[11px] font-bold text-erro-texto"
                 >
                   #REF! fórmula quebrada
                 </motion.p>
@@ -143,19 +143,19 @@ export function ChegaDePlanilhaSection() {
               <p className="mb-3 text-xl font-extrabold text-escuro">R$ 580</p>
               <div className="mb-1.5 flex justify-between">
                 <p className="text-[11px] text-escuro">Maria · Escova</p>
-                <p className="flex items-center gap-1 text-[11px] font-semibold text-verde">
+                <p className="flex items-center gap-1 text-[11px] font-semibold text-verde-texto">
                   R$ 120 <Check className="h-3 w-3" strokeWidth={3} />
                 </p>
               </div>
               <div className="mb-2.5 flex justify-between">
                 <p className="text-[11px] text-escuro">Carol · Manicure</p>
-                <p className="flex items-center gap-1 text-[11px] font-semibold text-verde">
+                <p className="flex items-center gap-1 text-[11px] font-semibold text-verde-texto">
                   R$ 90 <Check className="h-3 w-3" strokeWidth={3} />
                 </p>
               </div>
               <div className="flex justify-between border-t border-neutro-border pt-2.5">
                 <p className="text-[11px] text-neutro-muted">Saldo do caixa</p>
-                <p className="text-sm font-extrabold text-verde">R$ 470,00</p>
+                <p className="text-sm font-extrabold text-verde-texto">R$ 470,00</p>
               </div>
             </motion.div>
           </ParallaxFloat>

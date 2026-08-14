@@ -82,7 +82,7 @@ export function FeatureMimuChatSection() {
                   M
                 </span>
                 <span className="text-sm font-bold text-escuro">Mimu</span>
-                <span className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-verde">
+                <span className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-verde-texto">
                   <span className="h-1.5 w-1.5 rounded-full bg-verde" />
                   Online
                 </span>
@@ -125,7 +125,7 @@ export function FeatureMimuChatSection() {
                         : { opacity: 0, scale: 0.85 }
                     }
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="mt-0.5 text-xs font-bold text-verde"
+                    className="mt-0.5 text-xs font-bold text-verde-texto"
                   >
                     +21% vs semana passada
                   </motion.p>

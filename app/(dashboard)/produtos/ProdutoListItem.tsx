@@ -40,7 +40,7 @@ export function ProdutoListItem({ produto }: { produto: Produto }) {
           className={cn(
             "flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
             estoqueBaixo
-              ? "bg-erro-light text-erro"
+              ? "bg-erro-light text-erro-texto"
               : "bg-fundo text-neutro-muted-strong",
           )}
         >

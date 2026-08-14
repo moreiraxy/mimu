@@ -36,7 +36,7 @@ export function VisaoHoje({
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-card border-2 border-verde bg-superficie p-4">
           <p className="text-xs text-neutro-muted">Realizado</p>
-          <p className="mt-1 text-xl font-bold text-verde">
+          <p className="mt-1 text-xl font-bold text-verde-texto">
             {formatCurrency(realizado)}
           </p>
         </div>

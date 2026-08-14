@@ -26,6 +26,15 @@
      * 5.37:1 sobre branco, é quem carrega texto, ícone e borda no tema claro.
      */
     --primary-forte: 92 115 0;
+    /*
+     * Cores de TEXTO precisam trocar de claridade junto com o tema: o mesmo
+     * verde que é legível sobre branco some sobre preto, e vice-versa. Aqui
+     * (tema claro) são os tons escuros; em .dark, os claros. Todas medidas
+     * acima de 4.5:1 contra a superfície e contra o próprio tom "-light".
+     */
+    --verde-texto: 28 122 84;
+    --ambar-texto: 138 90 28;
+    --erro-texto: 178 58 52;
     --primary-light: 247 255 224;
     --primary-border: 223 242 160;
     --verde-light: 230 247 239;
@@ -49,6 +58,9 @@
     --neutro-disabled: 28 28 28;
     --neutro-disabled-text: 110 110 110;
     --primary-forte: 204 255 0;
+    --verde-texto: 45 190 140;
+    --ambar-texto: 244 166 83;
+    --erro-texto: 255 138 128;
     --primary-light: 26 32 0;
     --primary-border: 58 71 0;
     --verde-light: 22 48 42;

@@ -231,7 +231,7 @@ export default function ComprasPage({
                           type="button"
                           onClick={() => handleRemoverItem(index)}
                           aria-label="Remover item"
-                          className="text-neutro-muted hover:text-erro"
+                          className="text-neutro-muted hover:text-erro-texto"
                         >
                           <Trash2 className="h-4 w-4" strokeWidth={2} />
                         </button>
@@ -257,7 +257,7 @@ export default function ComprasPage({
         />
 
         {erro && (
-          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro">{erro}</p>
+          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">{erro}</p>
         )}
 
         <Button

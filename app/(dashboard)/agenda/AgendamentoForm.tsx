@@ -139,7 +139,7 @@ export function AgendamentoForm({
       <div>
         <ClienteSearchInput value={cliente} onChange={setCliente} />
         {cliente?.cliente_fiel && (
-          <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-ambar-soft px-2.5 py-1 text-xs font-semibold text-ambar-text">
+          <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-ambar-soft px-2.5 py-1 text-xs font-semibold text-ambar-texto">
             <Star className="h-3 w-3" fill="currentColor" strokeWidth={0} />
             Cliente Fiel
           </span>
@@ -284,7 +284,7 @@ export function AgendamentoForm({
       </div>
 
       {erro && (
-        <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro">
+        <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
           {erro}
         </p>
       )}

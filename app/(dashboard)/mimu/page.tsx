@@ -745,8 +745,8 @@ function CartaoConfirmacaoRegistro({
   if (registro.confirmado) {
     return (
       <div className="flex w-full min-w-[220px] items-center gap-2 rounded-card border border-verde/30 bg-verde-light px-4 py-3">
-        <Check className="h-4 w-4 flex-shrink-0 text-verde" strokeWidth={2.5} />
-        <p className="text-sm font-semibold text-verde-dark">
+        <Check className="h-4 w-4 flex-shrink-0 text-verde-texto" strokeWidth={2.5} />
+        <p className="text-sm font-semibold text-verde-texto">
           {registro.tipoRegistro === "agendamento"
             ? "Agendamento criado!"
             : "Registrado!"}
@@ -844,7 +844,7 @@ function CartaoResposta({ card }: { card: MimuCard }) {
             <span
               className={cn(
                 "flex items-center gap-0.5 font-semibold",
-                subiu ? "text-verde" : "text-erro",
+                subiu ? "text-verde-texto" : "text-erro-texto",
               )}
             >
               {subiu ? (

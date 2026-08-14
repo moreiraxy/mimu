@@ -189,7 +189,7 @@ export default function DetalheTransacaoPage() {
           <IconeCategoria className="h-6 w-6" strokeWidth={2} />
         </span>
         <p
-          className={`mt-2 text-2xl font-bold ${positiva ? "text-verde" : "text-erro"}`}
+          className={`mt-2 text-2xl font-bold ${positiva ? "text-verde-texto" : "text-erro-texto"}`}
         >
           {positiva ? "+" : "−"} {formatCurrency(Number(transacao.valor))}
         </p>
@@ -243,8 +243,8 @@ export default function DetalheTransacaoPage() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                         vencida
-                          ? "bg-verde-light text-verde-dark"
-                          : "bg-ambar-light text-ambar-text"
+                          ? "bg-verde-light text-verde-texto"
+                          : "bg-ambar-light text-ambar-texto"
                       }`}
                     >
                       {vencida ? "Realizada" : "A vencer"}
@@ -259,7 +259,7 @@ export default function DetalheTransacaoPage() {
 
       <Button
         variant="secondary"
-        className="mt-6 w-full border-erro text-erro"
+        className="mt-6 w-full border-erro text-erro-texto"
         onClick={() => setConfirmandoExclusao(true)}
       >
         Excluir

@@ -31,8 +31,24 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutro-border bg-superficie [padding-bottom:env(safe-area-inset-bottom)] md:hidden">
-        <nav className="mx-auto flex h-16 max-w-[430px] items-stretch justify-around">
+      {/* Barra flutuante: descolada das bordas, cantos arredondados e sombra,
+          em vez de colada no fim da tela. Fica sobre o conteúdo com fundo
+          translúcido e desfoque, então o que está atrás continua sendo
+          percebido enquanto rola. A margem de baixo soma o safe-area do
+          iPhone, senão a barra encosta no indicador de gestos. */}
+      <div
+        className="fixed inset-x-0 z-40 px-3 md:hidden"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
+      >
+        <nav
+          className={cn(
+            "mx-auto flex h-16 max-w-[430px] items-stretch justify-around",
+            "rounded-[26px] border border-neutro-border bg-superficie/85 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.28)]",
+            // Sem o fallback opaco, num navegador sem backdrop-filter a barra
+            // fica 15% transparente e o texto de trás atravessa ela.
+            "supports-[backdrop-filter]:bg-superficie/70 supports-[backdrop-filter]:backdrop-blur-xl",
+          )}
+        >
           {barra.map(({ href, label, Icon }) => {
             const ativo = pathname === href;
             return (

@@ -293,7 +293,7 @@ export function TransacaoForm({
       )}
 
       {erro && (
-        <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro">
+        <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
           {erro}
         </p>
       )}
