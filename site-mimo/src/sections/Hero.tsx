@@ -44,11 +44,11 @@ export function Hero() {
           <AnimatedText
             as="h1"
             text={"Enquanto você trabalha,\na Mimu cuida do seu negócio."}
-            className="font-display text-[40px] leading-[1.1] font-extrabold tracking-[-1.2px] text-ink md:text-[52px] md:tracking-[-1.56px] lg:text-[64px] lg:leading-[70.4px] lg:tracking-[-1.92px]"
+            className="text-balance font-display text-[40px] leading-[1.1] font-extrabold tracking-[-1.2px] text-ink md:text-[52px] md:tracking-[-1.56px] lg:text-[64px] lg:leading-[70.4px] lg:tracking-[-1.92px]"
           />
 
           <Revelar atraso={220}>
-            <p className="max-w-[620px] font-display text-base leading-[1.4] font-medium tracking-[-0.32px] text-muted-strong md:text-lg lg:text-xl lg:leading-[28px] lg:tracking-[-0.4px]">
+            <p className="max-w-[620px] text-balance font-display text-base leading-[1.4] font-medium tracking-[-0.32px] text-muted-strong md:text-lg lg:text-xl lg:leading-[28px] lg:tracking-[-0.4px]">
               Assistente de gestão para microempreendedores de bairro: vendas,
               faturamento, agenda e clientes em um só lugar.
             </p>

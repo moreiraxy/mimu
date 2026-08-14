@@ -22,6 +22,26 @@ const NAV = [
 const SCROLL_THRESHOLD = 3;
 const MORPH = "400ms cubic-bezier(0.34, 1.26, 0.64, 1)";
 
+/**
+ * A lista cobre TODAS as propriedades que mudam entre o estado solto e o
+ * grudado. Antes ficavam de fora sombra, cor da borda, desfoque e o
+ * espaçamento entre os itens: eles saltavam de um valor para o outro no meio
+ * de uma transição suave, e era isso que fazia a mudança parecer um corte.
+ */
+const TRANSICAO_MORPH = [
+  "width",
+  "height",
+  "background-color",
+  "border-radius",
+  "border-color",
+  "padding",
+  "gap",
+  "box-shadow",
+  "backdrop-filter",
+]
+  .map((prop) => `${prop} ${MORPH}`)
+  .join(", ");
+
 /** Tamanho compacto pedido só pro CTA do navbar — o resto do site continua no Button padrão (49px). */
 const NAV_CTA_STYLE = {
   height: "40px",
@@ -35,6 +55,11 @@ const NAV_CTA_STYLE = {
 export function Header() {
   const [open, setOpen] = useState(false);
   const [stuck, setStuck] = useState(false);
+  // Entrada do navbar: ele desce e aparece no primeiro quadro depois da
+  // montagem. Começar em `false` e virar no efeito é o que garante que o
+  // navegador pinte o estado inicial antes de animar — mudar direto no
+  // render não dispara transição nenhuma.
+  const [entrou, setEntrou] = useState(false);
 
   // Lock the page behind the mobile drawer.
   useEffect(() => {
@@ -45,14 +70,24 @@ export function Header() {
   }, [open]);
 
   useEffect(() => {
+    const entrada = requestAnimationFrame(() => setEntrou(true));
     const onScroll = () => setStuck(window.scrollY > SCROLL_THRESHOLD);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      cancelAnimationFrame(entrada);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-5 z-50 flex flex-col items-center px-6 md:px-10 lg:px-0">
+    <header
+      className="fixed inset-x-0 top-5 z-50 flex flex-col items-center px-6 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:px-10 lg:px-0"
+      style={{
+        opacity: entrou ? 1 : 0,
+        transform: entrou ? "translateY(0)" : "translateY(-14px)",
+      }}
+    >
       <div
         className={`flex items-center ${
           stuck
@@ -69,10 +104,10 @@ export function Header() {
                 backdropFilter: "blur(20px) saturate(180%)",
                 WebkitBackdropFilter: "blur(20px) saturate(180%)",
                 borderColor: "rgba(255, 255, 255, 0.06)",
-                transition: `width ${MORPH}, height ${MORPH}, background-color ${MORPH}, border-radius ${MORPH}, padding ${MORPH}`,
+                transition: TRANSICAO_MORPH,
               }
             : {
-                transition: `width ${MORPH}, height ${MORPH}, background-color ${MORPH}, border-radius ${MORPH}, padding ${MORPH}`,
+                transition: TRANSICAO_MORPH,
               }
         }
       >

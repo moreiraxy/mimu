@@ -92,11 +92,11 @@ export function Testimonials() {
             <div>
               <Card {...DEPOIMENTOS[inicio]!} numero={inicio + 1} />
             </div>
-            {/* .tm-col-offset, desce 210px e desloca 48px à direita. O
-                parallax entra por DENTRO desse nó: o `transform:translate`
-                do deslocamento é do próprio offset, e o hook sobrescreveria
-                se fosse no mesmo elemento. */}
-            <div className="flex flex-col items-center md:pt-[210px] md:[transform:translate(48px)]">
+            {/* Só o degrau vertical (210px), que é o que dá o escalonamento.
+                O deslocamento de 48px à direita que vinha do template saiu:
+                ele empurrava o par inteiro, deixando as duas colunas 24px
+                fora do eixo central da página. */}
+            <div className="flex flex-col items-center md:pt-[210px]">
               <div>
                 <Card {...DEPOIMENTOS[inicio + 1]!} numero={inicio + 2} />
               </div>

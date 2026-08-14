@@ -178,13 +178,20 @@ export function PricingV2() {
                 os 7 dias; quem escolhe um plano pago cai no checkout depois
                 do cadastro, em vez de ganhar um teste que não pediu.
               */}
-              <Button
-                to={plano.id === "basico" ? "/cadastro" : `/cadastro?plano=${plano.id}`}
-                variant={plano.botaoVariant}
-                className="mt-8 w-full justify-center"
-              >
-                {plano.botaoTexto}
-              </Button>
+              {/* `mt-auto` no invólucro, e não no botão: empurra o bloco para
+                  o rodapé do card sem engordar o botão por dentro. Sem isso o
+                  botão nascia logo abaixo da última linha de benefício, e como
+                  os planos têm quantidades diferentes de benefícios os três
+                  botões ficavam em alturas diferentes. */}
+              <div className="mt-auto pt-8">
+                <Button
+                  to={plano.id === "basico" ? "/cadastro" : `/cadastro?plano=${plano.id}`}
+                  variant={plano.botaoVariant}
+                  className="w-full justify-center"
+                >
+                  {plano.botaoTexto}
+                </Button>
+              </div>
             </div>
             </Revelar>
             </div>

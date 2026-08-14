@@ -13,6 +13,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+    <!--
+      O manifesto é o que dá nome e ícone ao app quando o navegador oferece
+      instalar, e é dele que sai a marca mostrada junto do nome no desktop.
+      As páginas do app (Next) já declaravam; esta, que é HTML estático vindo
+      do build da landing, não declarava — então quem chegava pela home via a
+      identidade antiga do navegador em vez da nossa.
+    -->
+    <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
     <!-- Verde neon Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
     <meta name="theme-color" content="#0A0A0A" />
     <title>Mimu · seu negócio, organizado</title>
