@@ -1,0 +1,21 @@
+# Fora do contexto de build do Railway.
+#
+# site-v2/ e site-mimo/ são projetos SEPARADOS que vivem neste repositório
+# como material da landing page — o Next daqui não os constrói nem os serve.
+#
+# Precisam ficar de fora por um motivo concreto: cada um traz o próprio
+# lockfile (site-mimo tem inclusive um bun.lock), e o Nixpacks decide qual
+# gerenciador de pacotes usar varrendo os lockfiles do contexto. Com três
+# package.json e um lock de Bun no meio, ele mudou a estratégia de instalação
+# e passou a instalar só as dependências de produção — 69 pacotes em vez de
+# 495. Como tailwindcss, postcss e typescript são devDependencies e o Next
+# precisa delas em tempo de BUILD, o build quebrou com
+# "Cannot find module 'tailwindcss'".
+#
+# Deixando de fora, o contexto volta a ser exatamente o que era no último
+# deploy que funcionou — e de quebra o upload fica ~36MB menor.
+site-v2/
+site-mimo/
+
+# Material de referência da marca, sem efeito em runtime.
+brand/
