@@ -14,7 +14,18 @@ import {
   schemaRecuperarSenha,
 } from "@/lib/validacao/auth";
 
-export type AuthFormState = { error?: string; success?: boolean } | undefined;
+export type AuthFormState =
+  | {
+      error?: string;
+      success?: boolean;
+      /**
+       * Liga o botão de reenviar confirmação na tela de login. É diferente de
+       * um erro comum: a senha está certa, só falta confirmar o e-mail, e
+       * quem cai aqui precisa de um caminho, não de uma mensagem.
+       */
+      precisaConfirmar?: boolean;
+    }
+  | undefined;
 
 /** IP do cliente a partir dos headers de proxy — "desconhecido" só acontece em ambientes sem proxy (ex.: dev local sem Vercel). */
 function obterIP(): string {
@@ -32,6 +43,15 @@ function traduzErroSupabase(message: string): string {
   }
   if (message.includes("Password should be at least")) {
     return "A senha precisa ter no mínimo 6 caracteres.";
+  }
+  if (message.includes("Email not confirmed")) {
+    return "Falta confirmar seu e-mail. Procure a mensagem que enviamos.";
+  }
+  // O Supabase limita quantos e-mails saem por hora. Com o servidor de e-mail
+  // padrão dele esse teto é baixo, e quando estoura a conta é criada mas o
+  // e-mail de confirmação nunca chega — a pessoa fica presa sem saber por quê.
+  if (message.includes("rate limit") || message.includes("Too many requests")) {
+    return "Muitos cadastros em pouco tempo. Espere alguns minutos e tente de novo.";
   }
 
   // Fora de produção, mostra a mensagem real do Supabase para facilitar
@@ -144,7 +164,10 @@ export async function signIn(
   });
 
   if (error) {
-    return { error: traduzErroSupabase(error.message) };
+    return {
+      error: traduzErroSupabase(error.message),
+      precisaConfirmar: error.message.includes("Email not confirmed"),
+    };
   }
 
   // Veio de um plano da landing: o destino é o checkout, não o painel. Quem
@@ -185,6 +208,53 @@ export async function requestPasswordReset(
 
   if (error) {
     return { error: "Não foi possível enviar o link agora. Tente de novo." };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Reenvia o e-mail de confirmação.
+ *
+ * Existe porque a confirmação pode falhar sem culpa de ninguém: o e-mail cai
+ * no spam, ou o limite de envio do Supabase estoura e a mensagem nem sai. Sem
+ * um jeito de pedir de novo, a conta fica criada e inacessível para sempre.
+ *
+ * A resposta é a mesma dando certo ou errado de propósito: dizer "esse e-mail
+ * não existe" transformaria esta tela num jeito de descobrir quem tem conta
+ * na Mimu.
+ */
+export async function reenviarConfirmacao(
+  _prevState: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const email = String(formData.get("email") ?? "").trim();
+
+  if (!email) {
+    return { error: "Escreva seu e-mail primeiro." };
+  }
+
+  // Mesmo limite do login: sem isso, o botão vira um jeito de disparar
+  // e-mail em cima de qualquer endereço.
+  if (await excedeuLimite("login", email)) {
+    return { error: "Muitas tentativas. Espere alguns minutos." };
+  }
+  await registrarTentativa("login", email);
+
+  const origin = headers().get("origin");
+  const supabase = createClient();
+
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${origin}/onboarding` },
+  });
+
+  if (error) {
+    console.error("Falha ao reenviar confirmação:", error.message);
+    if (error.message.includes("rate limit")) {
+      return { error: "Já enviamos há pouco. Espere alguns minutos." };
+    }
   }
 
   return { success: true };

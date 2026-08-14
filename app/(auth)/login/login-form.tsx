@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { signIn, type AuthFormState } from "../actions";
+import { reenviarConfirmacao, signIn, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
 const initialState: AuthFormState = undefined;
+
+function BotaoReenviar() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="secondary" className="w-full" disabled={pending}>
+      {pending ? "Enviando..." : "Reenviar e-mail de confirmação"}
+    </Button>
+  );
+}
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -28,6 +38,14 @@ export function LoginForm({
   plano?: string;
 }) {
   const [state, formAction] = useFormState(signIn, initialState);
+  const [reenvio, reenviarAction] = useFormState(
+    reenviarConfirmacao,
+    initialState,
+  );
+  // O e-mail digitado fica guardado aqui porque o reenvio é um formulário
+  // separado: sem isso a pessoa teria que escrever o endereço de novo, logo
+  // depois de já ter escrito.
+  const [email, setEmail] = useState("");
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,6 +76,8 @@ export function LoginForm({
           name="email"
           type="email"
           autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <Input
@@ -74,6 +94,25 @@ export function LoginForm({
         )}
         <SubmitButton />
       </form>
+
+      {/* Só aparece quando o login falhou por falta de confirmação. É o
+          caminho de saída de quem não recebeu o e-mail: sem ele a conta fica
+          criada e inacessível, e a pessoa não tem o que fazer. */}
+      {state?.precisaConfirmar && !reenvio?.success && (
+        <form action={reenviarAction} className="flex flex-col gap-2">
+          <input type="hidden" name="email" value={email} />
+          <BotaoReenviar />
+          {reenvio?.error && (
+            <p className="text-center text-xs text-erro-texto">{reenvio.error}</p>
+          )}
+        </form>
+      )}
+
+      {reenvio?.success && (
+        <p className="rounded-button bg-verde-light px-3 py-2 text-center text-sm text-verde-texto">
+          E-mail reenviado. Confira sua caixa de entrada e o spam.
+        </p>
+      )}
 
       <div className="flex items-center justify-between text-sm">
         <Link href="/recuperar-senha" className="font-medium text-primary-forte">
