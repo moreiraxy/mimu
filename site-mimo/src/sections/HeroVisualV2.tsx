@@ -138,7 +138,7 @@ function FloatCard({
       className={`absolute z-30 lg:z-10 ${className}`}
       data-parallax=""
       data-parallax-strength={parallaxStrength}
-      data-parallax-pattern={1}
+      data-parallax-pattern={2}
     >
       <div
         className="animate-hero-float"
@@ -173,7 +173,7 @@ function AvatarBubble({
       className={`absolute z-10 hidden flex-col items-center gap-1.5 sm:flex ${className}`}
       data-parallax=""
       data-parallax-strength={parallaxStrength}
-      data-parallax-pattern={1}
+      data-parallax-pattern={2}
     >
       <div
         className="animate-hero-float flex flex-col items-center gap-1.5"
@@ -317,7 +317,12 @@ function Celular() {
       // o celular agora é a peça que mais anda da Hero (avatares 28–35), que
       // é o que se quer: ele é o objeto principal.
       data-parallax-strength={45}
-      data-parallax-pattern={1}
+      // Padrão 2 inverte o sentido: o aparelho SOBE enquanto a página desce.
+      // Com o padrão 1 ele descia junto com o scroll, o que anula a sensação
+      // de profundidade — parecia só um elemento preso na página.
+      // Todo o hero usa o mesmo padrão de propósito: direções misturadas na
+      // mesma cena leem como bug, não como camadas.
+      data-parallax-pattern={2}
       style={{ perspective: 1000 }}
     >
       {/* nó 1: flutuação (CSS `animation`, translateY) */}
@@ -369,7 +374,7 @@ export function HeroVisualV2() {
       </p>
 
       <FloatCard
-        className="left-[-14px] top-[20%] origin-left scale-[0.58] sm:scale-[0.68] lg:left-[-240px] lg:top-[27%] lg:scale-100"
+        className="left-[-14px] top-[20%] origin-left scale-[0.74] sm:scale-[0.85] lg:left-[-240px] lg:top-[27%] lg:scale-100"
         parallaxStrength={25}
         floatSeconds={3}
       >
@@ -384,7 +389,7 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="bottom-[16%] left-[-14px] origin-left scale-[0.58] sm:scale-[0.68] lg:bottom-auto lg:left-[-225px] lg:top-[46%] lg:scale-100"
+        className="bottom-[16%] left-[-14px] origin-left scale-[0.74] sm:scale-[0.85] lg:bottom-auto lg:left-[-225px] lg:top-[46%] lg:scale-100"
         parallaxStrength={20}
         floatSeconds={3.5}
       >
@@ -400,7 +405,7 @@ export function HeroVisualV2() {
 
       {/* Lado direito: faturamento semanal em cima, meta do dia embaixo. */}
       <FloatCard
-        className="right-[-14px] top-[34%] origin-right scale-[0.58] sm:scale-[0.68] lg:right-[-260px] lg:top-[23%] lg:scale-100"
+        className="right-[-14px] top-[34%] origin-right scale-[0.74] sm:scale-[0.85] lg:right-[-260px] lg:top-[23%] lg:scale-100"
         parallaxStrength={18}
         floatSeconds={4.5}
       >
@@ -442,7 +447,7 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="bottom-[2%] right-[-14px] origin-right scale-[0.58] sm:scale-[0.68] lg:right-[-225px] lg:scale-100"
+        className="bottom-[2%] right-[-14px] origin-right scale-[0.74] sm:scale-[0.85] lg:right-[-225px] lg:scale-100"
         parallaxStrength={22}
         floatSeconds={5}
       >
