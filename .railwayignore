@@ -4,11 +4,10 @@
 # como material da landing page — o Next daqui não os constrói nem os serve.
 # Mandá-los para o builder é enviar ~36MB por deploy sem nenhum uso.
 #
-# Isto é economia de upload, não correção de build: quem consertava o build
-# quebrado era o .npmrc (o Railway compila com NODE_ENV=production, que faz
-# o npm pular as devDependencies de que o `next build` precisa).
+# site-mimo/ NÃO entra mais aqui: a landing page passou a ser construída em
+# todo deploy (npm run build:lp) e servida pelo public/ do Next. Deixá-la de
+# fora faria o deploy publicar a LP antiga sem avisar ninguém.
 site-v2/
-site-mimo/
 
 # Material de referência da marca, sem efeito em runtime.
 brand/

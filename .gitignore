@@ -50,3 +50,11 @@ next-env.d.ts
 
 # claude code
 .claude/
+
+# Landing page compilada (site-mimo) copiada para cá pelo build.
+# O fonte vive em site-mimo/; versionar a cópia duplicaria 36MB de imagem e
+# criaria duas verdades sobre o que está no ar.
+/public/assets/
+/public/img/
+/public/lp.html
+/public/fonts/marca/

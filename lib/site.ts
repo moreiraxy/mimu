@@ -27,5 +27,6 @@ export function urlAbsoluta(caminho: string): string {
  */
 export const PAGINAS_PUBLICAS = [
   { caminho: "/", prioridade: 1, frequencia: "weekly" as const },
+  { caminho: "/historias", prioridade: 0.7, frequencia: "monthly" as const },
   { caminho: "/cadastro", prioridade: 0.8, frequencia: "monthly" as const },
 ];

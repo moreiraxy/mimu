@@ -6,9 +6,15 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 // /redefinir-senha depende de um token de recuperação que chega no #hash da
 // URL — o servidor nunca vê esse hash, então essa rota fica de fora tanto da
 // exigência de sessão quanto do redirect de "usuário já logado".
-// "/" é a landing page pública — quem já está logada é redirecionada pro
-// /dashboard dentro do próprio page.tsx (getEmpresaAtual), não aqui.
+// "/" é a landing page pública; o redirect de quem já está logada acontece
+// mais abaixo, não na página, porque "/" agora é reescrito para o HTML dela.
 const ALWAYS_PUBLIC_ROUTES = ["/redefinir-senha", "/"];
+
+// Páginas internas da landing page (histórias de clientes e textos legais).
+// Precisam ser públicas pelo motivo óbvio: quem lê a política de privacidade
+// antes de se cadastrar ainda não tem conta. Como o slug é dinâmico, a
+// comparação é por prefixo e não por igualdade.
+const ROTAS_PUBLICAS_DA_LANDING = ["/historias", "/legal"];
 
 // Notificação servidor-a-servidor do Mercado Pago — nunca tem sessão de
 // usuário, então fica de fora até da exigência de login.
@@ -78,7 +84,20 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (comecaCom(pathname, ROTAS_PUBLICAS_DA_LANDING)) {
+    return response;
+  }
+
   if (ALWAYS_PUBLIC_ROUTES.includes(pathname)) {
+    // Quem já é cliente não precisa ver a página de vendas. Essa decisão
+    // morava na page.tsx da raiz, mas "/" agora é reescrito para o HTML da
+    // landing page (next.config.mjs) e aquela página deixou de ser servida —
+    // se ficasse lá, a regra simplesmente sumiria sem ninguém perceber.
+    if (user && pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
     return response;
   }
 

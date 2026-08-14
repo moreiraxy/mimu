@@ -5,12 +5,13 @@
   "description": "Mimu — PWA de gestão para microempreendedores brasileiros",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run build:lp && next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:lp": "npm --prefix site-mimo ci && npm --prefix site-mimo run build && node scripts/copiar-lp.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
