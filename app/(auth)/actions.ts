@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import { planoValido } from "@/lib/planos";
+import { destinoAposLogin } from "@/lib/destino-pos-login";
 import { avisarAdminsNovoCadastro } from "@/lib/admin-avisos";
 import {
   primeiroErroZod,
@@ -149,7 +150,17 @@ export async function signIn(
   // Veio de um plano da landing: o destino é o checkout, não o painel. Quem
   // clicou em "Seja Pro" e entrou na conta quer assinar, não olhar o dia.
   const planoLogin = planoValido(formData.get("plano"));
-  redirect(planoLogin ? `/assinar?plano=${planoLogin}` : "/dashboard");
+  if (planoLogin) {
+    redirect(`/assinar?plano=${planoLogin}`);
+  }
+
+  // Sem plano na mão, o destino sai do estado da conta. Mandar todo mundo
+  // pro /dashboard fazia quem tem pagamento pendente entrar no painel e só
+  // ser barrada ao recarregar a página.
+  const { data: usuario } = await supabase.auth.getUser();
+  redirect(
+    usuario.user ? await destinoAposLogin(supabase, usuario.user.id) : "/dashboard",
+  );
 }
 
 export async function requestPasswordReset(

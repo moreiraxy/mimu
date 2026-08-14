@@ -74,63 +74,81 @@ function conteudo(
   jaEscolheuPago: boolean,
 ) {
   return (
-    <div className="flex min-h-screen flex-col items-center bg-primary-light px-6 py-10">
+    // `dark` pelo mesmo motivo do cadastro e do onboarding: esta tela é a
+    // continuação de uma landing preta, e quem chega aqui está no meio de uma
+    // decisão de compra. Trocar para um fundo claro no meio do caminho fazia
+    // parecer outro produto. Antes o fundo era verde-limão claro e o botão do
+    // Pix era de um verde que não existe na marca.
+    <div className="dark flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
       <Logo size="md" />
 
-      <h1 className="mt-8 text-center text-2xl font-semibold text-escuro">
-        {jaEscolheuPago ? "Falta só o pagamento" : "Escolha seu plano"}
-      </h1>
+      <div className="mt-9 w-full max-w-[400px]">
+        <h1 className="text-center font-display text-[26px] font-bold leading-tight text-escuro">
+          {jaEscolheuPago ? "Falta só o pagamento" : "Escolha como pagar"}
+        </h1>
+        <p className="mt-2 text-center text-sm text-neutro-muted">
+          {jaEscolheuPago
+            ? "Sua conta já está pronta. Assim que o pagamento cair, o app libera."
+            : "Cancele quando quiser, sem multa e sem fidelidade."}
+        </p>
 
-      <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">
-        <div className="flex flex-col items-center text-center">
-          {!jaEscolheuPago && (
-            <span className="rounded-full bg-verde-light px-3 py-1 text-xs font-semibold text-verde-texto">
-              7 dias grátis para novos usuários
-            </span>
-          )}
+        <div className="mt-7 overflow-hidden rounded-card border border-neutro-border bg-superficie">
+          <div className="flex flex-col items-center border-b border-neutro-border px-6 py-7 text-center">
+            {!jaEscolheuPago && (
+              <span className="rounded-full bg-primary-light px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wide text-primary-forte">
+                7 dias grátis para começar
+              </span>
+            )}
 
-          <p className="mt-4 text-lg font-semibold text-escuro">
-            Mimu {nomePlano}
-          </p>
-          <p className="mt-1 flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-primary-forte">
-              R$ {valorMensal}
-            </span>
-            <span className="text-sm text-neutro-muted">/mês</span>
-          </p>
+            <p className="mt-4 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-neutro-muted">
+              Plano {nomePlano}
+            </p>
+            <p className="mt-1.5 flex items-baseline gap-1.5">
+              <span className="font-display text-[44px] font-bold leading-none text-escuro">
+                R$ {valorMensal}
+              </span>
+              <span className="text-sm text-neutro-muted">/mês</span>
+            </p>
+          </div>
+
+          <ul className="flex flex-col gap-3.5 px-6 py-6">
+            {ITENS_INCLUIDOS.map((item) => (
+              <li key={item.label} className="flex items-center gap-3">
+                {/* Só o ícone e o texto. Antes cada linha trazia ícone, texto
+                    E um check no fim, três elementos dizendo a mesma coisa
+                    numa lista onde tudo está incluído. */}
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
+                  <item.icone className="h-4 w-4" strokeWidth={2.25} />
+                </span>
+                <span className="text-[15px] text-escuro">{item.label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <ul className="mt-6 flex flex-col gap-3">
-          {ITENS_INCLUIDOS.map((item) => (
-            <li key={item.label} className="flex items-center gap-3">
-              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
-                <item.icone className="h-3.5 w-3.5" strokeWidth={2.25} />
-              </span>
-              <span className="text-sm text-escuro">{item.label}</span>
-              <Check
-                className="ml-auto h-4 w-4 flex-shrink-0 text-verde-texto"
-                strokeWidth={2.5}
-              />
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-7 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          {/* Pix na frente e em destaque: é como a maior parte do público da
+              Mimu paga, e cai na hora. */}
           <Link
             href="/assinar/pix"
-            className="flex items-center justify-center gap-2 rounded-button bg-verde py-3.5 text-sm font-bold text-white transition-colors hover:bg-verde-dark"
+            className="flex h-[52px] items-center justify-center gap-2 rounded-button bg-primary text-[15px] font-bold text-primary-text transition-colors hover:bg-primary-hover"
           >
-            <QrCode className="h-4 w-4" strokeWidth={2.25} />
+            <QrCode className="h-[18px] w-[18px]" strokeWidth={2.25} />
             Pagar com Pix
           </Link>
           <Link
             href="/assinar/cartao"
-            className="flex items-center justify-center gap-2 rounded-button bg-primary py-3.5 text-sm font-bold text-primary-text transition-colors hover:bg-primary-hover"
+            className="flex h-[52px] items-center justify-center gap-2 rounded-button border border-neutro-border text-[15px] font-bold text-escuro transition-colors hover:border-primary-forte hover:text-primary-forte"
           >
-            <CreditCard className="h-4 w-4" strokeWidth={2.25} />
+            <CreditCard className="h-[18px] w-[18px]" strokeWidth={2.25} />
             Pagar com Cartão
           </Link>
         </div>
+
+        <p className="mt-5 text-center text-xs text-neutro-muted">
+          Pagamento processado pelo Mercado Pago. A Mimu não guarda os dados do
+          seu cartão.
+        </p>
       </div>
     </div>
   );

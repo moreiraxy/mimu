@@ -116,7 +116,7 @@ export default function AssinarPixPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-primary-light px-6 py-10">
+    <div className="dark flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
       <Logo size="md" />
 
       <div className="mt-8 w-full max-w-sm rounded-card border border-neutro-border bg-superficie p-6 shadow-sm">

@@ -134,7 +134,7 @@ export default function AssinarCartaoPage() {
   }, [scriptPronto, router, showToast]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-primary-light px-6 py-10">
+    <div className="dark flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onReady={() => setScriptPronto(true)}
