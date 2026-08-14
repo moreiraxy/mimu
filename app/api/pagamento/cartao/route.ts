@@ -6,6 +6,8 @@ import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
 
 interface CartaoPayload {
   token?: string;
+  /** Identificador do aparelho, gerado pelo SDK do Mercado Pago no navegador. */
+  device_id?: string | null;
   issuer_id?: string;
   payment_method_id?: string;
   installments?: number;
@@ -76,6 +78,10 @@ export async function POST(request: Request) {
         issuer_id: body.issuer_id ? Number(body.issuer_id) : undefined,
         external_reference: assinatura.id,
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/pagamento/webhook`,
+        // É o que aparece na fatura do cartão. Sem isso, a cobrança chega com
+        // um nome genérico e a pessoa não reconhece: é uma das maiores causas
+        // de contestação. Máximo de 22 caracteres.
+        statement_descriptor: "MIMU",
         payer: {
           email: body.payer?.email || user.email || "",
           identification: body.payer?.identification?.number
@@ -86,6 +92,12 @@ export async function POST(request: Request) {
             : undefined,
         },
       },
+      // O identificador do aparelho vai como cabeçalho (X-Meli-Session-Id),
+      // não no corpo. É por ele que a análise antifraude do Mercado Pago
+      // liga o pagamento ao dispositivo que preencheu o cartão.
+      requestOptions: body.device_id
+        ? { meliSessionId: body.device_id }
+        : undefined,
     });
 
     if (!pagamentoMP.id) {

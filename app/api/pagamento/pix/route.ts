@@ -59,6 +59,7 @@ export async function POST() {
         payment_method_id: "pix",
         date_of_expiration: expiracao.toISOString(),
         external_reference: assinatura.id,
+        statement_descriptor: "MIMU",
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/pagamento/webhook`,
         payer: {
           email: user.email ?? "",

@@ -27,7 +27,7 @@ const securityHeaders = [
       // liberar aqui, o navegador bloqueia o script, o formulário nunca
       // aparece e pagar com cartão fica impossível — que era o sintoma.
       // mlstatic.com é o CDN de onde esse SDK puxa os próprios pedaços.
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://sdk.mercadopago.com https://*.mlstatic.com",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://sdk.mercadopago.com https://www.mercadopago.com https://*.mlstatic.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https:",
       // O SDK conversa com a API do Mercado Pago para transformar o número do

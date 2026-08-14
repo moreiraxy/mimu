@@ -55,6 +55,13 @@ declare global {
       publicKey: string,
       options?: { locale?: string },
     ) => MercadoPagoInstance;
+    /**
+     * Identificador do aparelho, gerado sozinho pelo SDK do Mercado Pago
+     * assim que ele carrega. Vai junto com o pagamento e é o que permite a
+     * análise antifraude reconhecer o dispositivo — sem ele, o Mercado Pago
+     * marca a integração como incompleta e a aprovação de cartão cai.
+     */
+    MP_DEVICE_SESSION_ID?: string;
   }
 }
 
@@ -114,7 +121,13 @@ export default function AssinarCartaoPage() {
             const resposta = await fetch("/api/pagamento/cartao", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(formData),
+              // O identificador do aparelho só existe aqui no navegador; o
+              // servidor não tem como calculá-lo. Por isso ele viaja junto e
+              // é repassado ao Mercado Pago na criação do pagamento.
+              body: JSON.stringify({
+                ...formData,
+                device_id: window.MP_DEVICE_SESSION_ID ?? null,
+              }),
             });
             const json = await resposta.json();
 
@@ -143,6 +156,21 @@ export default function AssinarCartaoPage() {
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onReady={() => setScriptPronto(true)}
+      />
+      {/*
+        Script separado do SDK, e obrigatório: é ele que calcula o
+        identificador do aparelho e o publica em window.MP_DEVICE_SESSION_ID.
+        Sem ele, a análise antifraude do Mercado Pago não reconhece o
+        dispositivo, a integração fica marcada como incompleta no painel e a
+        aprovação de cartão cai.
+
+        `view="checkout"` diz ao Mercado Pago em que etapa da compra estamos,
+        que é o que ele usa para calibrar a análise.
+      */}
+      <Script
+        src="https://www.mercadopago.com/v2/security.js"
+        strategy="afterInteractive"
+        {...{ view: "checkout" }}
       />
 
       <Logo size="md" />
