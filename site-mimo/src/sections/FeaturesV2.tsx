@@ -1,4 +1,3 @@
-import { Parallax } from "../components/Parallax";
 import { SectionHeading } from "../components/SectionHeading";
 import { useInView } from "../hooks/useInView";
 
@@ -141,7 +140,7 @@ function CardShell({
     // O parallax fica no nó de fora porque o de dentro já anima `transform`
     // na entrada — o hook escreve inline e mataria a entrada se dividissem
     // o mesmo elemento.
-    <Parallax forca={forca} padrao={padrao} className="h-[420px] md:h-130">
+    <div className="h-[420px] md:h-130">
       <div
         ref={ref}
         className={`group relative flex h-full flex-col overflow-hidden rounded-[24px] px-7 pt-10 ${bg} ${className}`}
@@ -153,7 +152,7 @@ function CardShell({
       >
         {children}
       </div>
-    </Parallax>
+    </div>
   );
 }
 

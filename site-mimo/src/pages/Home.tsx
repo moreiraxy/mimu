@@ -6,7 +6,7 @@ import { Security } from "../sections/Security";
 import { Testimonials } from "../sections/Testimonials";
 import { FeaturesV2 } from "../sections/FeaturesV2";
 import { PricingV2 } from "../sections/PricingV2";
-import { RaioX } from "../sections/RaioX";
+import { Diagnostico } from "../sections/Diagnostico";
 
 // Integrations ("Tudo num lugar só" / "Caderno, planilha ou memória") saiu da
 // composição a pedido — o arquivo continua no repo, só não é mais montado.
@@ -23,7 +23,7 @@ export default function Home() {
         <Hero />
         <FeaturesV2 />
         <Testimonials />
-        <RaioX />
+        <Diagnostico />
         <Security />
         <PricingV2 />
         <Faqs />

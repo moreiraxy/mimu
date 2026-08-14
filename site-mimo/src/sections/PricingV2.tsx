@@ -3,7 +3,6 @@ import gsap from "gsap";
 import { AnimatedText } from "../components/AnimatedText";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
-import { Parallax } from "../components/Parallax";
 import { Revelar } from "../components/Revelar";
 
 /**
@@ -15,8 +14,10 @@ import { Revelar } from "../components/Revelar";
  * `<Script strategy="beforeInteractive">` que só existe no Next — aqui é
  * `import gsap from "gsap"` de verdade, funciona igual em qualquer bundler).
  *
- * Texto e preços ainda são os do Pierre (conexão de banco) — a pedido
- * explícito, não alterados nesta etapa.
+ * Os planos descrevem o que a Mimu faz de verdade. A versão anterior herdou
+ * do template o "conecte seu banco", que a Mimu não faz: prometer integração
+ * bancária numa página de vendas é o tipo de erro que só aparece depois que
+ * a pessoa assina.
  */
 
 type Periodo = "mensal" | "anual";
@@ -24,15 +25,15 @@ type Periodo = "mensal" | "anual";
 const PLANOS = [
   {
     id: "basico",
-    nome: "Básico",
-    subtitulo: "Pra você começar a organizar suas finanças agora",
+    nome: "Grátis",
+    subtitulo: "Sete dias com tudo liberado, sem cartão de crédito",
     preco: { mensal: "Grátis", anual: "Grátis" },
-    sufixo: null,
+    sufixo: { mensal: "por 7 dias", anual: "por 7 dias" },
     features: [
-      "Conecte 1 banco",
+      "Os 5 módulos liberados",
       "1 agente inteligente",
-      "Limite de conversas",
-      "Converse no WhatsApp",
+      "Conversas com a Mimu com limite",
+      "Alertas inteligentes e novidades",
     ],
     destaque: false,
     badge: null,
@@ -42,15 +43,16 @@ const PLANOS = [
   {
     id: "pro",
     nome: "Pro",
-    subtitulo: "Pra quem quer clareza real sobre o próprio dinheiro",
+    subtitulo: "Pra quem quer o negócio organizado todo dia, sem pensar nisso",
     preco: { mensal: "R$ 39", anual: "R$ 399" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
-      "Conecta até 5 bancos",
-      "Conversas ilimitadas",
+      "Os 5 módulos liberados",
+      "Conversas ilimitadas com a Mimu",
       "2 agentes inteligentes",
-      "Lembretes de pagamentos",
-      "Relatórios personalizados",
+      "Suporte 24 horas por WhatsApp",
+      "Grupo VIP com as novidades primeiro",
+      "Alertas inteligentes e novidades",
     ],
     destaque: true,
     badge: "Mais Popular",
@@ -60,14 +62,14 @@ const PLANOS = [
   {
     id: "premium",
     nome: "Premium",
-    subtitulo: "Pra quem quer o máximo de automação e visão completa do patrimônio",
+    subtitulo: "Pra quem quer a Mimu trabalhando no automático o dia inteiro",
     preco: { mensal: "R$ 199", anual: "R$ 1.990" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Até 10 agentes inteligentes",
-      "Bancos ilimitados",
-      "Acesso prioritário a novidades",
-      "Alertas inteligentes avançados",
+      "Inteligência artificial ilimitada",
+      "Fale com a Mimu direto no seu WhatsApp",
+      "Alertas inteligentes e novidades",
       "Suporte exclusivo",
     ],
     destaque: false,
@@ -136,14 +138,7 @@ export function PricingV2() {
 
         <div ref={gridRef} className="mt-10 grid w-full grid-cols-1 items-start gap-5 md:grid-cols-3">
           {PLANOS.map((plano, i) => (
-            <Parallax
-              key={plano.id}
-              // Mesma direção em todos; o card do meio (o destacado) anda
-              // mais devagar e fica quase parado enquanto os vizinhos sobem.
-              forca={[30, 16, 30][i]}
-              padrao={1}
-              className="h-full"
-            >
+            <div className="h-full">
             <Revelar atraso={i * 120} className="h-full">
             <div
               className={`flex h-full flex-col rounded-[24px] border p-8 ${
@@ -186,7 +181,7 @@ export function PricingV2() {
               </Button>
             </div>
             </Revelar>
-            </Parallax>
+            </div>
           ))}
         </div>
       </Container>

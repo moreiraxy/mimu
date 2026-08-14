@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Img } from "../components/Img";
-import { Parallax } from "../components/Parallax";
 import { SectionHeading } from "../components/SectionHeading";
 import { useInView } from "../hooks/useInView";
 
@@ -78,14 +77,9 @@ export function Security() {
             {CARDS.map((card, i) => (
               // Todos no mesmo sentido (padrão 1); a sensação de camadas vem
               // só da diferença de força entre os cards.
-              <Parallax
-                key={card.title}
-                forca={[34, 20, 20, 34][i]}
-                padrao={1}
-                className="h-full"
-              >
+              <div className="h-full">
                 <Card {...card} />
-              </Parallax>
+              </div>
             ))}
           </div>
 

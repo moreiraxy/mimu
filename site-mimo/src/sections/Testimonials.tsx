@@ -1,5 +1,4 @@
 import { AnimatedText } from "../components/AnimatedText";
-import { Parallax } from "../components/Parallax";
 import { useInView } from "../hooks/useInView";
 
 /**
@@ -90,17 +89,17 @@ export function Testimonials() {
             className="flex w-full flex-col items-center overflow-visible px-6 md:flex-row md:items-start md:justify-center"
             style={{ gap: "clamp(32px, 5vw, 96px)" }}
           >
-            <Parallax forca={38} padrao={1}>
+            <div>
               <Card {...DEPOIMENTOS[inicio]!} numero={inicio + 1} />
-            </Parallax>
+            </div>
             {/* .tm-col-offset — desce 210px e desloca 48px à direita. O
                 parallax entra por DENTRO desse nó: o `transform:translate`
                 do deslocamento é do próprio offset, e o hook sobrescreveria
                 se fosse no mesmo elemento. */}
             <div className="flex flex-col items-center md:pt-[210px] md:[transform:translate(48px)]">
-              <Parallax forca={22} padrao={1}>
+              <div>
                 <Card {...DEPOIMENTOS[inicio + 1]!} numero={inicio + 2} />
-              </Parallax>
+              </div>
             </div>
           </div>
         ))}

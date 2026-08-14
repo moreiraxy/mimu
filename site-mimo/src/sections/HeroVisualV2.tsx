@@ -107,11 +107,16 @@ function BoltIcon({ className }: { className?: string }) {
  * O deslocamento deles é fixo em px (-225 a -260), medido pro desktop. Entre
  * 460px (onde ficavam visíveis antes) e 1200px a margem que sobra ao lado do
  * celular é bem menor que isso — em 460px são ~60px de folga pra um card que
- * pede 240px, então ele saía quase inteiro da tela. Não é caso de reduzir o
- * número: nessa faixa não existe espaço lateral, e encavalar o card em cima
- * do celular esconderia a tela do app, que é o que a Hero quer mostrar.
- * Os avatares continuam desde `sm` porque são pequenos e posicionados em %,
- * então acompanham a largura em vez de estourar.
+ * pede 240px, então ele saía quase inteiro da tela.
+ *
+ * No celular eles agora aparecem encolhidos (58%) e ancorados na borda, com
+ * `origin-left`/`origin-right` para a redução puxar o card PARA DENTRO da
+ * tela em vez de deixá-lo sangrando pela lateral. Encavalam de leve o
+ * aparelho, o que é o ponto: eles são o que a Mimu avisa, e sem eles a Hero
+ * no celular era só um telefone parado.
+ *
+ * z-30 no mobile (contra z-10 no desktop) porque ali eles passam por cima do
+ * aparelho; no desktop ficam ao lado e não disputam.
  */
 function FloatCard({
   className,
@@ -130,7 +135,7 @@ function FloatCard({
 
   return (
     <div
-      className={`absolute z-10 hidden lg:block ${className}`}
+      className={`absolute z-30 lg:z-10 ${className}`}
       data-parallax=""
       data-parallax-strength={parallaxStrength}
       data-parallax-pattern={1}
@@ -364,7 +369,7 @@ export function HeroVisualV2() {
       </p>
 
       <FloatCard
-        className="left-0 top-[27%] lg:left-[-240px]"
+        className="left-[-14px] top-[20%] origin-left scale-[0.58] sm:scale-[0.68] lg:left-[-240px] lg:top-[27%] lg:scale-100"
         parallaxStrength={25}
         floatSeconds={3}
       >
@@ -379,7 +384,7 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="left-0 top-[46%] lg:left-[-225px]"
+        className="bottom-[16%] left-[-14px] origin-left scale-[0.58] sm:scale-[0.68] lg:bottom-auto lg:left-[-225px] lg:top-[46%] lg:scale-100"
         parallaxStrength={20}
         floatSeconds={3.5}
       >
@@ -395,7 +400,7 @@ export function HeroVisualV2() {
 
       {/* Lado direito: faturamento semanal em cima, meta do dia embaixo. */}
       <FloatCard
-        className="right-0 top-[23%] lg:right-[-260px]"
+        className="right-[-14px] top-[34%] origin-right scale-[0.58] sm:scale-[0.68] lg:right-[-260px] lg:top-[23%] lg:scale-100"
         parallaxStrength={18}
         floatSeconds={4.5}
       >
@@ -437,7 +442,7 @@ export function HeroVisualV2() {
       </FloatCard>
 
       <FloatCard
-        className="bottom-[3%] right-0 lg:right-[-225px]"
+        className="bottom-[2%] right-[-14px] origin-right scale-[0.58] sm:scale-[0.68] lg:right-[-225px] lg:scale-100"
         parallaxStrength={22}
         floatSeconds={5}
       >
