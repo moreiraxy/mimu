@@ -227,7 +227,7 @@ function Cell({ logo }: { logo: Logo }) {
         }}
       >
         {/* Fundo do ladrilho: era `bg-superficie` (escuro), quase invisível
-            contra a página escura depois do rebrand — os ícones ficavam
+            contra a página escura depois do rebrand, os ícones ficavam
             "apagados". Vidro claro em vez de escuro devolve o contraste que
             o design original (sobre página clara) já tinha de graça. */}
         <div className="relative z-[1] flex size-[81px] items-center justify-center rounded-xl bg-white/10 backdrop-blur-[7px] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:border-[1.1px] after:border-white/15 after:content-['']">

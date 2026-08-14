@@ -177,6 +177,15 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
+      // Escolheu plano pago e ainda não pagou: o caminho dela é o checkout.
+      // Mandar pra /trial-vencido diria "seu período gratuito acabou" pra
+      // quem nunca teve período gratuito.
+      if (assinatura.status === "pendente") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/assinar";
+        return NextResponse.redirect(url);
+      }
+
       if (
         assinatura.status === "vencida" ||
         assinatura.status === "cancelada"

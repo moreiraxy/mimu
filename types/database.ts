@@ -34,8 +34,19 @@ export type TipoAlerta =
   | "tentativa_prompt_injection";
 export type TipoCategoria = "entrada" | "saida";
 export type TipoMovimentacaoEstoque = "entrada" | "saida" | "ajuste";
-export type StatusAssinatura = "trial" | "ativa" | "cancelada" | "vencida";
-export type PlanoAssinatura = "basico" | "completo";
+// "pendente": escolheu um plano pago e ainda não pagou. Ver a migration
+// 20260814030000_assinatura_pendente.sql para o porquê de ser um estado
+// próprio e não um reaproveitamento de "cancelada".
+export type StatusAssinatura =
+  | "trial"
+  | "ativa"
+  | "cancelada"
+  | "vencida"
+  | "pendente";
+// Os planos pagos vivem em lib/planos.ts, que é a fonte do preço. "completo"
+// é o nome antigo, mantido porque contas criadas antes desta mudança já
+// gravaram esse valor.
+export type PlanoAssinatura = "basico" | "completo" | "pro" | "premium";
 export type StatusPagamentoMP =
   | "pendente"
   | "aprovado"

@@ -72,7 +72,7 @@ export function Logo({
     <span className={`flex items-center gap-2.5 ${className}`}>
       <MimuIcon className="size-9 rounded-[10px]" />
       <span className="flex flex-col">
-        {/* Wordmark em Indie Flower (brand book novo) — a única aplicação de
+        {/* Wordmark em Indie Flower (brand book novo), a única aplicação de
             `font-brand` no site; títulos continuam em `font-display`
             (Geist), senão virariam cursiva junto. */}
         <span

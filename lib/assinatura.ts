@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import type { Assinatura } from "@/types";
 import { VALOR_MENSAL_MIMU } from "@/lib/mercadopago";
+import { PLANOS, type PlanoPago } from "@/lib/planos";
 
 type Supabase = SupabaseClient<Database>;
 
@@ -24,6 +25,27 @@ export async function criarAssinaturaTrial(
     trial_inicio: agora.toISOString(),
     trial_fim: trialFim.toISOString(),
     valor_mensal: VALOR_MENSAL_MIMU,
+  });
+}
+
+/**
+ * Criada quando a pessoa escolhe um plano PAGO na landing: a conta nasce sem
+ * teste grátis e sem acesso, esperando o pagamento.
+ *
+ * Existe como linha (em vez de simplesmente não haver assinatura) porque o
+ * checkout precisa de um id para referenciar no Mercado Pago, e é por ele que
+ * o webhook encontra a assinatura na volta.
+ */
+export async function criarAssinaturaPendente(
+  supabase: Supabase,
+  empresaId: string,
+  plano: PlanoPago,
+) {
+  return supabase.from("assinaturas").insert({
+    empresa_id: empresaId,
+    status: "pendente",
+    plano,
+    valor_mensal: PLANOS[plano].valorMensal,
   });
 }
 
@@ -68,6 +90,8 @@ export function acessoLiberado(
 ): boolean {
   if (assinatura.status === "ativa") return true;
   if (assinatura.status === "trial") return !trialVencido(assinatura);
+  // 'pendente' cai aqui: escolheu plano pago e ainda não pagou, então não
+  // tem acesso — o gate do middleware manda pro checkout.
   return false;
 }
 

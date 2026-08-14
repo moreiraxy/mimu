@@ -211,7 +211,7 @@ function TelaDoCelular() {
         borderRadius: "10.09% / 4.68%",
       }}
     >
-      {/* barra de status: altura fixa em % da tela, não em flex-grow — o
+      {/* barra de status: altura fixa em % da tela, não em flex-grow, o
           bloco de conteúdo abaixo ancora nela com `top`/`bottom` (mesma
           técnica do celular real em app/(marketing)/HeroSection.tsx). Um
           `flex-1` dentro de um `flex-col` cujo próprio pai também depende
@@ -328,19 +328,19 @@ function Celular() {
       {/* nó 1: flutuação (CSS `animation`, translateY) */}
       <div className="animate-hero-float relative h-full w-full" style={{ animationDuration: "4s" }}>
         {/* nó 2: tilt 3D no scroll (`useScrollTilt` escreve rotateX/rotateY
-            aqui via JS) — precisa ser outro nó, senão a `animation` do pai
+            aqui via JS), precisa ser outro nó, senão a `animation` do pai
             e o `style.transform` imperativo do tilt brigam pela mesma
             propriedade no mesmo elemento. */}
         <div ref={tiltRef} className="relative h-full w-full">
           <TelaDoCelular />
 
-          {/* Dynamic Island — medida na mesma imagem (x 174–312, y 31–71 de
+          {/* Dynamic Island, medida na mesma imagem (x 174–312, y 31–71 de
               496x1021), redesenhada porque caiu dentro do furo da tela. */}
           <div className="absolute left-[35%] top-[3%] z-10 flex h-[4%] w-[28%] items-center justify-end rounded-full bg-black pr-[6%]">
             <div className="h-[22%] w-[8%] rounded-full bg-[#1a1a2e]" />
           </div>
 
-          {/* Moldura real do site-v2 — mesmos pixels: titânio, botões
+          {/* Moldura real do site-v2, mesmos pixels: titânio, botões
               laterais, Dynamic Island (a do físico, agora só decorativa por
               baixo do furo) e sombra. `object-fit: fill` porque o
               contêiner já carrega o aspect-ratio nativo da imagem (496:1021),
@@ -368,7 +368,7 @@ export function HeroVisualV2() {
       ))}
 
       {/* Lado esquerdo: rótulo estático + dois alertas independentes, cada
-          um com a própria sombra — não agrupados num card só. */}
+          um com a própria sombra, não agrupados num card só. */}
       <p className="absolute left-0 top-[20%] z-10 hidden w-[150px] text-[10px] font-bold uppercase tracking-[0.08em] text-muted lg:left-[-240px] lg:block">
         A Mimu te alerta
       </p>

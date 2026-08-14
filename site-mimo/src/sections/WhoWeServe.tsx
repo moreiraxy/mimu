@@ -82,7 +82,7 @@ const SLIDES: Slide[] = [
       "Cada horário marcado já entra como faturamento previsto. No fim do dia, a conta fecha sozinha.",
     quote:
       "“Antes eu não sabia se estava dando lucro. Hoje a Mimu me manda um resumo todo dia, e isso mudou como eu penso o salão.”",
-    name: "Andréia — Salão da Andréia",
+    name: "Andréia · Salão da Andréia",
     negocio: "Salão da Andréia",
     photo: {
       file: "VP4n0N3HEflTYvIgEmpU43TdyJs.jpg",
@@ -98,7 +98,7 @@ const SLIDES: Slide[] = [
       "A Mimu lembra quem te deve antes de você esquecer, e avisa quando um produto está acabando.",
     quote:
       "“Uso para controlar fiado e estoque no mesmo lugar. A Mimu lembra quem me deve antes de eu esquecer.”",
-    name: "Rodrigo — Mercadinho do Rodrigo",
+    name: "Rodrigo · Mercadinho do Rodrigo",
     negocio: "Mercadinho do Rodrigo",
     photo: {
       file: "iKpvJMIZX1gNUN2z9Psp3FJbsBs.jpg",
@@ -114,7 +114,7 @@ const SLIDES: Slide[] = [
       "Clientes, valores e retornos organizados sem você parar o atendimento para anotar.",
     quote:
       "“Recomendo para toda amiga que também trabalha por conta. É simples, e parece que fizeram pensando em mim.”",
-    name: "Carol — Manicure da Carol",
+    name: "Carol · Manicure da Carol",
     negocio: "Manicure da Carol",
     photo: {
       file: "VmwSRfGMKk7SftNa0lRKvsynM.jpg",
@@ -133,7 +133,7 @@ export function WhoWeServe() {
     >
       {/* Container: 90%/1200px, 40px between title and carousel below 1200. */}
       <div className="container-page flex flex-col items-start gap-10 lg:gap-15">
-        {/* Title Wrapper — a bottom-aligned row from 744 up, column below. */}
+        {/* Title Wrapper, a bottom-aligned row from 744 up, column below. */}
         <div className="flex w-full flex-col items-center gap-4 md:flex-row md:items-end md:justify-center md:gap-10 lg:gap-15">
           {/* Label & Heading, `flex: 3 0 0`. */}
           <div className="flex w-full flex-none flex-col items-center gap-4 md:w-px md:flex-[3_0_0] md:items-start lg:gap-5">
@@ -262,7 +262,7 @@ function Carousel() {
           ))}
         </div>
 
-        {/* Progress Bar — the original only renders it on the Desktop variants. */}
+        {/* Progress Bar, the original only renders it on the Desktop variants. */}
         <div className="hidden w-min flex-none flex-row items-center justify-start gap-4 overflow-clip lg:flex">
           <div className="relative flex w-[66px] flex-none flex-col items-center justify-center overflow-clip rounded-[100px]">
             <span
@@ -367,7 +367,7 @@ function Card({
       tabIndex={0}
       className="flex w-full flex-col items-center justify-center gap-3 overflow-clip lg:h-full lg:flex-row"
     >
-      {/* Content Card — `flex: 2.5 0 0` over a 1188px track, but its 8px of
+      {/* Content Card, `flex: 2.5 0 0` over a 1188px track, but its 8px of
           padding floors the flex base, which is why it lands on 813. */}
       <div className="flex w-full flex-none flex-col items-center justify-center overflow-clip rounded-xl bg-sand p-2 lg:h-full lg:w-px lg:flex-[2.5_0_0] lg:flex-row">
         <div className="flex w-full flex-none flex-col items-start justify-start gap-[9px] overflow-clip p-4 lg:h-full lg:w-px lg:flex-[1_0_0] lg:justify-between lg:gap-0 lg:p-5">
@@ -417,7 +417,7 @@ function Card({
         </div>
       </div>
 
-      {/* Testimonial Card — `flex: 1 0 0` plus a 28px padding floor, so 375. */}
+      {/* Testimonial Card, `flex: 1 0 0` plus a 28px padding floor, so 375. */}
       <div className="relative flex w-full flex-none flex-col items-start justify-center gap-10 overflow-clip rounded-xl bg-ink p-6 lg:h-full lg:w-px lg:flex-[1_0_0] lg:justify-between lg:gap-0 lg:p-7">
         <span
           aria-hidden="true"

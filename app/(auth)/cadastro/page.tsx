@@ -1,6 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { signUp, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
@@ -17,8 +19,13 @@ function SubmitButton() {
   );
 }
 
-export default function CadastroPage() {
+function FormularioCadastro() {
   const [state, formAction] = useFormState(signUp, initialState);
+  // Plano escolhido lá na landing. Vem por query e segue num campo oculto —
+  // é o que decide, no fim do onboarding, entre ganhar os 7 dias de teste ou
+  // ir direto pro pagamento. Quem chega aqui sem plano nenhum é tratado como
+  // quem escolheu o grátis. A validação de verdade é no servidor.
+  const plano = useSearchParams().get("plano") ?? "";
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,6 +39,7 @@ export default function CadastroPage() {
       </div>
 
       <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="plano" value={plano} />
         <Input
           label="Nome completo"
           name="nome_completo"
@@ -75,5 +83,19 @@ export default function CadastroPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+/**
+ * `useSearchParams` obriga a página a ser dinâmica, a não ser que fique
+ * dentro de um limite de Suspense. Envolver só o formulário deixa o resto da
+ * tela ser gerado na build: sem isto o build falha ao pré-renderizar
+ * /cadastro.
+ */
+export default function CadastroPage() {
+  return (
+    <Suspense fallback={null}>
+      <FormularioCadastro />
+    </Suspense>
   );
 }

@@ -81,7 +81,7 @@ export function Testimonials() {
         />
       </div>
 
-      {/* .tm-cards — gap 200px entre as fileiras */}
+      {/* .tm-cards, gap 200px entre as fileiras */}
       <div className="relative z-[2] mt-16 flex w-full flex-col items-center overflow-visible md:mt-24" style={{ gap: 200 }}>
         {[0, 2].map((inicio) => (
           <div
@@ -92,7 +92,7 @@ export function Testimonials() {
             <div>
               <Card {...DEPOIMENTOS[inicio]!} numero={inicio + 1} />
             </div>
-            {/* .tm-col-offset — desce 210px e desloca 48px à direita. O
+            {/* .tm-col-offset, desce 210px e desloca 48px à direita. O
                 parallax entra por DENTRO desse nó: o `transform:translate`
                 do deslocamento é do próprio offset, e o hook sobrescreveria
                 se fosse no mesmo elemento. */}

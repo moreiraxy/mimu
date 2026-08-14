@@ -42,7 +42,7 @@ export function SectionHeading({
         centered ? "lg:items-center lg:text-center" : ""
       }`}
     >
-      {/* The eyebrow is a dot plus uppercase mono text, 10px apart — the dot is
+      {/* The eyebrow is a dot plus uppercase mono text, 10px apart, the dot is
           a real element in the original, not decoration we can skip. */}
       <div
         className={`flex items-center gap-2.5 ${eyebrowClassName ?? (onDark ? "text-cream" : "text-ink")}`}
@@ -66,7 +66,7 @@ export function SectionHeading({
       />
 
       {/* Preset z9blpo: 15/17/19/20 across the four tiers, 1.4em line-height
-          only in the 1200-1439 band, and ink at 80% opacity — not a 0.7 alpha.
+          only in the 1200-1439 band, and ink at 80% opacity, not a 0.7 alpha.
           The dark sections carry full cream instead. */}
       {paragraph && <Paragraph text={paragraph} onDark={onDark} />}
     </div>

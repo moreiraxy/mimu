@@ -76,7 +76,7 @@ export function Header() {
               }
         }
       >
-        <Link to="/" aria-label="Mimu — início">
+        <Link to="/" aria-label="Mimu, início">
           <Logo tone="dark" />
         </Link>
 
@@ -128,7 +128,7 @@ export function Header() {
               />
             ))}
             {/* `flex flex-col` estica os filhos por padrão (`align-items:
-                stretch`) — os NavLinks acima não mostram isso por não
+                stretch`), os NavLinks acima não mostram isso por não
                 terem fundo, mas o Button tem `bg-coral` e ficava esticado
                 à largura inteira do menu. `self-center` tira ele dessa
                 esticada e deixa do tamanho do conteúdo, como no desktop. */}

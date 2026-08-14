@@ -199,7 +199,7 @@ function PlanCard({ plan }: { plan: Plan }) {
               {plan.perMonth}
             </p>
             <p className="font-display text-xs text-muted">{plan.note}</p>
-            {/* O verde é reservado a entrada e ganho — que é exatamente o que a
+            {/* O verde é reservado a entrada e ganho, que é exatamente o que a
                 economia representa aqui. */}
             {plan.economia && (
               <p className="mt-1 rounded-[1000px] bg-verde-light px-2.5 py-1 font-display text-[11px] font-bold text-verde">

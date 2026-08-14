@@ -149,7 +149,7 @@ function Card({
         </h3>
         {/* ponytail: one block, not one span per line. `tokenization: line`
             would stagger the second line 75ms behind the first, but Framer
-            gets its line boxes from per-character inline-block spans — and
+            gets its line boxes from per-character inline-block spans, and
             character-level boxes move the wrap points. Line 1's timing is
             exact; later lines land with it instead of 75ms after. */}
         <p

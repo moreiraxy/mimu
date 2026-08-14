@@ -4,7 +4,7 @@ import Lenis from "lenis";
 declare global {
   interface Window {
     /** Exposto só pro Preloader travar/destravar o scroll durante a intro
-        — Lenis rola a página via transform, então `overflow:hidden` no
+       . Lenis rola a página via transform, então `overflow:hidden` no
         body sozinho não segura wheel/touch por baixo dele. */
     __lenis?: Lenis;
   }

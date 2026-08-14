@@ -167,7 +167,7 @@ export function FeaturesV2() {
         />
 
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
-          {/* Card 1 — conversa real, mesmos exemplos do FAQ (Faqs.tsx). */}
+          {/* Card 1, conversa real, mesmos exemplos do FAQ (Faqs.tsx). */}
           <CardShell bg="bg-ink-soft" delayMs={100} forca={34} padrao={1}>
             <h3 className="max-w-[280px] font-display text-[28px] leading-[1.1] font-medium tracking-[-0.5px] text-cream md:text-[34px]">
               Fala com a Mimu <span className="text-cream/40">pelo WhatsApp</span>
@@ -177,7 +177,7 @@ export function FeaturesV2() {
             </p>
 
             {/* As três mensagens entram em sequência, como numa conversa
-                chegando de verdade — 3 atrasos de 140ms a partir do card. */}
+                chegando de verdade, 3 atrasos de 140ms a partir do card. */}
             <div className="mt-auto mb-7 flex flex-col gap-2">
               <Balao lado="dir" atraso={500}>vendi uma escova por 120</Balao>
               <Balao lado="esq" atraso={780}>Anotado! Já entrou no seu caixa de hoje. 🙌</Balao>
@@ -185,13 +185,13 @@ export function FeaturesV2() {
             </div>
           </CardShell>
 
-          {/* Card 2 — mesma agenda do mockup do hero (HeroVisualV2.tsx). */}
+          {/* Card 2, mesma agenda do mockup do hero (HeroVisualV2.tsx). */}
           <CardShell bg="bg-ink-soft" delayMs={300} forca={16} padrao={1}>
             <h3 className="max-w-[280px] font-display text-[28px] leading-[1.1] font-medium tracking-[-0.5px] text-cream md:text-[34px]">
               Agenda e clientes, <span className="text-cream/40">sem esquecer</span>
             </h3>
             <p className="mt-3 max-w-[280px] text-sm leading-snug text-cream/60">
-              Cada cliente, cada horário, cada fiado — tudo no mesmo lugar, sem caderno.
+              Cada cliente, cada horário, cada fiado, tudo no mesmo lugar, sem caderno.
             </p>
 
             <div className="mt-auto mb-7 rounded-xl border border-borda bg-superficie p-3.5">
@@ -210,13 +210,13 @@ export function FeaturesV2() {
             </div>
           </CardShell>
 
-          {/* Card 3 — em destaque (bg-coral), mesmos alertas do hero. */}
+          {/* Card 3, em destaque (bg-coral), mesmos alertas do hero. */}
           <CardShell bg="bg-coral" delayMs={500} forca={34} padrao={1}>
             <h3 className="max-w-[280px] font-display text-[28px] leading-[1.1] font-medium tracking-[-0.5px] text-primary-text md:text-[34px]">
               Alertas <span className="text-primary-text/50">na hora certa</span>
             </h3>
             <p className="mt-3 max-w-[280px] text-sm leading-snug text-primary-text/70">
-              A Mimu avisa antes de você precisar perguntar — recorde do dia, fiado em aberto, o que for.
+              A Mimu avisa antes de você precisar perguntar: recorde do dia, fiado em aberto, o que for.
             </p>
 
             <div className="mt-auto mb-7 flex flex-col gap-2">

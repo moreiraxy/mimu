@@ -153,7 +153,7 @@ function AssistenteMimu() {
 
       <CardText
         title="A Mimu registra enquanto você atende"
-        body="Fala comigo como fala com uma amiga: “vendi uma escova por 120”. Eu entendo, confirmo e organizo tudo — sem formulário e sem menu."
+        body="Fala comigo como fala com uma amiga: “vendi uma escova por 120”. Eu entendo, confirmo e organizo tudo, sem formulário e sem menu."
       />
 
       <div className="mt-auto flex justify-center pt-8">
@@ -305,7 +305,7 @@ function ChegaDePlanilha() {
             className="w-full rounded-md"
           />
         </Reveal>
-        {/* Blurred tray the panel sits in — `Widget Wrapper`
+        {/* Blurred tray the panel sits in, `Widget Wrapper`
             (framer-tr1eos): enter ys, transition vs. */}
         <Reveal
           delay={300}

@@ -19,7 +19,7 @@ export function Cta() {
 
           {/* Scrim: 160% tall and offset a pixel left, exactly as measured.
               O gradiente saiu do preto do template para o escuro da marca
-              (#1E1E2E) — o manual não admite preto puro nem em sobreposição. */}
+              (#1E1E2E), o manual não admite preto puro nem em sobreposição. */}
           <div
             aria-hidden="true"
             className="absolute top-0 left-[-1px] -z-10 h-[160%] w-full opacity-50"
@@ -39,7 +39,7 @@ export function Cta() {
           </p>
 
           <Button to="/cadastro" variant="light">
-            Começar agora — 7 dias grátis
+            Começar agora, 7 dias grátis
           </Button>
         </div>
       </div>

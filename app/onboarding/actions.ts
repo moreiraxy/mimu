@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calcularMetaDiaria } from "@/lib/formatters";
-import { criarAssinaturaTrial } from "@/lib/assinatura";
+import { criarAssinaturaPendente, criarAssinaturaTrial } from "@/lib/assinatura";
+import { planoValido } from "@/lib/planos";
 
 type ActionState = { error?: string } | undefined;
 
@@ -108,8 +109,34 @@ export async function concluirOnboarding(input: {
     );
   }
 
-  // Início do trial de 7 dias — a partir de agora o middleware passa a
-  // exigir uma assinatura em dia pra deixar acessar o app.
+  // Os 7 dias de teste são só de quem escolheu o plano grátis. Quem clicou
+  // num plano pago na landing sai daqui SEM assinatura, e é isso que faz o
+  // middleware mandar a pessoa para /assinar: ela pediu para pagar, não para
+  // testar. Criar um trial aqui daria 7 dias de graça para quem já tinha
+  // decidido assinar.
+  const planoEscolhido = planoValido(
+    (await supabase.auth.getUser()).data.user?.user_metadata?.plano_escolhido,
+  );
+
+  if (planoEscolhido) {
+    // O erro é checado de propósito: sem isso a falha do insert passava calada
+    // e a pessoa chegava ao checkout sem assinatura nenhuma para pagar. Foi
+    // exatamente o que aconteceu quando 'premium' não cabia no check da
+    // coluna `plano`.
+    const { error } = await criarAssinaturaPendente(
+      supabase,
+      empresa.id,
+      planoEscolhido,
+    );
+
+    if (error) {
+      console.error("Erro ao criar assinatura pendente:", error);
+      return { error: "Não consegui preparar seu plano. Tente de novo." };
+    }
+
+    redirect("/assinar");
+  }
+
   await criarAssinaturaTrial(supabase, empresa.id);
 
   redirect("/bem-vindo");

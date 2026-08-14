@@ -74,7 +74,7 @@ export function HowItWorks() {
             <Step
               number="01"
               title="É só falar. A Mimu anota."
-              body="Manda mensagem como manda para uma amiga: “vendi uma escova por 120”. Ela entende, confirma e lança na hora — sem formulário, sem menu, sem cadastro de produto."
+              body="Manda mensagem como manda para uma amiga: “vendi uma escova por 120”. Ela entende, confirma e lança na hora, sem formulário, sem menu, sem cadastro de produto."
               visual={<RegistrarVisual />}
             />
             <Step

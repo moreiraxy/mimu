@@ -15,11 +15,11 @@ const FAQS = [
   },
   {
     q: "Quanto tempo leva para começar?",
-    a: "Cerca de 2 minutos. Você diz o que faz — salão, mercadinho, lanchonete — e a Mimu já deixa tudo preparado do seu jeito. Dá para registrar a primeira venda no mesmo dia, sem cadastrar produto por produto antes.",
+    a: "Cerca de 2 minutos. Você diz o que faz (salão, mercadinho, lanchonete) e a Mimu já deixa tudo preparado do seu jeito. Dá para registrar a primeira venda no mesmo dia, sem cadastrar produto por produto antes.",
   },
   {
     q: "É de graça mesmo nos primeiros dias?",
-    a: "São 7 dias grátis com tudo liberado, e não pedimos cartão de crédito para começar. Se você gostar, escolhe o plano que preferir depois. Se não gostar, é só parar de usar — não cobramos nada.",
+    a: "São 7 dias grátis com tudo liberado, e não pedimos cartão de crédito para começar. Se você gostar, escolhe o plano que preferir depois. Se não gostar, é só parar de usar. Não cobramos nada.",
   },
   {
     q: "E se a internet cair no meio do movimento?",
@@ -39,7 +39,7 @@ const FAQS = [
   },
   {
     q: "Posso cancelar quando quiser?",
-    a: "Pode, a qualquer momento e sem multa. Não tem fidelidade nem letra miúda. E se quiser levar seu histórico embora, você exporta tudo antes — os dados são seus.",
+    a: "Pode, a qualquer momento e sem multa. Não tem fidelidade nem letra miúda. E se quiser levar seu histórico embora, você exporta tudo antes. Os dados são seus.",
   },
 ];
 

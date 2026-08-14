@@ -15,9 +15,10 @@ import { Revelar } from "../components/Revelar";
  * `import gsap from "gsap"` de verdade, funciona igual em qualquer bundler).
  *
  * Os planos descrevem o que a Mimu faz de verdade. A versão anterior herdou
- * do template o "conecte seu banco", que a Mimu não faz: prometer integração
- * bancária numa página de vendas é o tipo de erro que só aparece depois que
- * a pessoa assina.
+ * do template o "conecte seu banco" e a contagem de "agentes inteligentes",
+ * duas coisas que não existem no produto: a Mimu é uma só, e não há
+ * integração bancária. Prometer isso numa página de vendas é o tipo de erro
+ * que só é descoberto depois que a pessoa assina.
  */
 
 type Periodo = "mensal" | "anual";
@@ -31,7 +32,6 @@ const PLANOS = [
     sufixo: { mensal: "por 7 dias", anual: "por 7 dias" },
     features: [
       "Os 5 módulos liberados",
-      "1 agente inteligente",
       "Conversas com a Mimu com limite",
       "Alertas inteligentes e novidades",
     ],
@@ -49,7 +49,6 @@ const PLANOS = [
     features: [
       "Os 5 módulos liberados",
       "Conversas ilimitadas com a Mimu",
-      "2 agentes inteligentes",
       "Suporte 24 horas por WhatsApp",
       "Grupo VIP com as novidades primeiro",
       "Alertas inteligentes e novidades",
@@ -62,13 +61,15 @@ const PLANOS = [
   {
     id: "premium",
     nome: "Premium",
-    subtitulo: "Pra quem quer a Mimu trabalhando no automático o dia inteiro",
+    subtitulo: "Pra quem quer a Mimu junto o dia inteiro, inclusive no WhatsApp",
     preco: { mensal: "R$ 199", anual: "R$ 1.990" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
-      "Até 10 agentes inteligentes",
-      "Inteligência artificial ilimitada",
+      "Os 5 módulos liberados",
+      "Conversas ilimitadas com a Mimu",
       "Fale com a Mimu direto no seu WhatsApp",
+      "Suporte 24 horas por WhatsApp",
+      "Grupo VIP com as novidades primeiro",
       "Alertas inteligentes e novidades",
       "Suporte exclusivo",
     ],
@@ -172,8 +173,13 @@ export function PricingV2() {
                 ))}
               </ul>
 
+              {/*
+                O plano escolhido viaja no link. Quem escolhe o grátis ganha
+                os 7 dias; quem escolhe um plano pago cai no checkout depois
+                do cadastro, em vez de ganhar um teste que não pediu.
+              */}
               <Button
-                to="/cadastro"
+                to={plano.id === "basico" ? "/cadastro" : `/cadastro?plano=${plano.id}`}
                 variant={plano.botaoVariant}
                 className="mt-8 w-full justify-center"
               >

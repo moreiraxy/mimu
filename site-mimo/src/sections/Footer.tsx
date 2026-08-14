@@ -184,7 +184,7 @@ function Newsletter() {
 
       <form onSubmit={onSubmit} className="flex w-full flex-col gap-4">
         {/* Empilhado, não lado a lado: no rodapé de 4 colunas esta coluna é
-            estreita, e o botão em `grow-[0.3]` ficava com ~23% da linha —
+            estreita, e o botão em `grow-[0.3]` ficava com ~23% da linha,
             "Quero receber" quebrava em duas linhas e vazava do botão. */}
         <div className="flex w-full flex-col gap-2">
           <label className="relative flex h-11 w-full items-center rounded-md border border-borda bg-bg py-2 pr-2 pl-4 focus-within:border-coral">

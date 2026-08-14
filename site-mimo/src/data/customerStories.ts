@@ -87,7 +87,7 @@ export const STORIES: Story[] = [
     heading: "Agora eu sei, todo dia, se o salão deu lucro",
     company: "Salão da Andréia",
     about:
-      "O Salão da Andréia funciona há nove anos na mesma rua, com duas cadeiras e uma clientela que vem de indicação. Andréia atende, compra material, cobra e fecha o caixa — tudo sozinha.",
+      "O Salão da Andréia funciona há nove anos na mesma rua, com duas cadeiras e uma clientela que vem de indicação. Andréia atende, compra material, cobra e fecha o caixa, tudo sozinha.",
     info: [
       ["Onde fica", "Zona Norte, São Paulo"],
       ["Tamanho", "2 pessoas"],
@@ -121,7 +121,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O problema" },
       {
         t: "p",
-        text: "Andréia sabia quanto entrava — mais ou menos. Sabia quanto gastava — mais ou menos. O que ela não sabia era a conta dos dois juntos. O movimento ficava anotado num caderno atrás do balcão, os gastos de material iam para a memória, e o mês só fechava quando ela sentava no domingo à noite para tentar lembrar de tudo. Quase sempre faltava alguma coisa.",
+        text: "Andréia sabia quanto entrava, mais ou menos. Sabia quanto gastava, mais ou menos. O que ela não sabia era a conta dos dois juntos. O movimento ficava anotado num caderno atrás do balcão, os gastos de material iam para a memória, e o mês só fechava quando ela sentava no domingo à noite para tentar lembrar de tudo. Quase sempre faltava alguma coisa.",
       },
       {
         t: "quote",
@@ -133,12 +133,12 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O que ela precisava" },
       {
         t: "p",
-        text: "Três coisas, e nenhuma delas era um sistema complicado. Primeira: registrar a venda no intervalo entre uma cliente e outra, sem parar o atendimento. Segunda: enxergar o dia inteiro numa tela só — o que entrou, o que ainda vai entrar e o que precisa ser pago. Terceira: nada que exigisse aprender computador, porque o salão não tem computador.",
+        text: "Três coisas, e nenhuma delas era um sistema complicado. Primeira: registrar a venda no intervalo entre uma cliente e outra, sem parar o atendimento. Segunda: enxergar o dia inteiro numa tela só: o que entrou, o que ainda vai entrar e o que precisa ser pago. Terceira: nada que exigisse aprender computador, porque o salão não tem computador.",
       },
       { t: "h2", text: "A solução" },
       {
         t: "p",
-        text: "Andréia configurou a Mimu em dois minutos, no próprio celular. Passou a mandar mensagem no intervalo dos atendimentos — “escova da Maria, 120” — e a Mimu entendia, confirmava e lançava. A agenda do dia virou faturamento previsto: assim que marcava um horário, o valor já aparecia como entrada esperada. No fim da tarde, o resumo chegava pronto.",
+        text: "Andréia configurou a Mimu em dois minutos, no próprio celular. Passou a mandar mensagem no intervalo dos atendimentos, “escova da Maria, 120”, e a Mimu entendia, confirmava e lançava. A agenda do dia virou faturamento previsto: assim que marcava um horário, o valor já aparecia como entrada esperada. No fim da tarde, o resumo chegava pronto.",
       },
       {
         t: "quote",
@@ -158,7 +158,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O resultado" },
       {
         t: "p",
-        text: "O domingo à noite deixou de ser dia de fechar conta. As seis horas que Andréia gastava por semana tentando reconstruir o movimento voltaram para o salão — e parte delas virou horário disponível na agenda. Com o previsto na tela, ela passou a comprar material sabendo quanto ia entrar na semana, e parou de antecipar compra que podia esperar.",
+        text: "O domingo à noite deixou de ser dia de fechar conta. As seis horas que Andréia gastava por semana tentando reconstruir o movimento voltaram para o salão, e parte delas virou horário disponível na agenda. Com o previsto na tela, ela passou a comprar material sabendo quanto ia entrar na semana, e parou de antecipar compra que podia esperar.",
       },
       {
         t: "quote",
@@ -192,7 +192,7 @@ export const STORIES: Story[] = [
     heading: "O fiado deixou de sumir no caderno",
     company: "Mercadinho do Rodrigo",
     about:
-      "O Mercadinho do Rodrigo atende a vizinhança há doze anos. Boa parte dos clientes compra fiado e acerta no fim do mês — um arranjo de confiança que funciona há uma década e que nenhum sistema tinha conseguido acompanhar.",
+      "O Mercadinho do Rodrigo atende a vizinhança há doze anos. Boa parte dos clientes compra fiado e acerta no fim do mês, um arranjo de confiança que funciona há uma década e que nenhum sistema tinha conseguido acompanhar.",
     info: [
       ["Onde fica", "Bairro Santa Rita, Contagem"],
       ["Tamanho", "3 pessoas"],
@@ -230,7 +230,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O problema" },
       {
         t: "p",
-        text: "Caderno molha, rasga e some. Pior: o que estava escrito nem sempre era legível dali a três semanas. Rodrigo perdia dinheiro de dois jeitos — o que ele esquecia de anotar e o que ele anotava mas não conseguia mais ler. Quando o cliente dizia “acho que já paguei”, não havia como discordar.",
+        text: "Caderno molha, rasga e some. Pior: o que estava escrito nem sempre era legível dali a três semanas. Rodrigo perdia dinheiro de dois jeitos: o que ele esquecia de anotar e o que ele anotava mas não conseguia mais ler. Quando o cliente dizia “acho que já paguei”, não havia como discordar.",
       },
       {
         t: "quote",
@@ -242,12 +242,12 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O que ele precisava" },
       {
         t: "p",
-        text: "Um lugar onde o fiado ficasse guardado com data e valor, que ele pudesse consultar na frente do cliente sem constrangimento, e que continuasse funcionando quando a internet do bairro caísse — o que acontece com frequência.",
+        text: "Um lugar onde o fiado ficasse guardado com data e valor, que ele pudesse consultar na frente do cliente sem constrangimento, e que continuasse funcionando quando a internet do bairro caísse, o que acontece com frequência.",
       },
       { t: "h2", text: "A solução" },
       {
         t: "p",
-        text: "Rodrigo passou a lançar o fiado na hora, falando com a Mimu enquanto embalava a compra. Cada cliente ficou com seu histórico: quanto deve, desde quando, e o que foi levando. Quando alguém paga, ele avisa e a Mimu dá baixa e atualiza o caixa. Nos dias em que a internet cai, ele registra do mesmo jeito — sobe sozinho depois.",
+        text: "Rodrigo passou a lançar o fiado na hora, falando com a Mimu enquanto embalava a compra. Cada cliente ficou com seu histórico: quanto deve, desde quando, e o que foi levando. Quando alguém paga, ele avisa e a Mimu dá baixa e atualiza o caixa. Nos dias em que a internet cai, ele registra do mesmo jeito, sobe sozinho depois.",
       },
       {
         t: "quote",
@@ -267,7 +267,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O resultado" },
       {
         t: "p",
-        text: "No primeiro mês, a Mimu apontou R$ 940 em fiado que já tinha vencido e que Rodrigo não estava cobrando porque simplesmente não lembrava. Ele mandou mensagem para cada um, e quase todos pagaram — nenhum deles estava fugindo, todos tinham esquecido também.",
+        text: "No primeiro mês, a Mimu apontou R$ 940 em fiado que já tinha vencido e que Rodrigo não estava cobrando porque simplesmente não lembrava. Ele mandou mensagem para cada um, e quase todos pagaram, nenhum deles estava fugindo, todos tinham esquecido também.",
       },
       {
         t: "p",
@@ -305,7 +305,7 @@ export const STORIES: Story[] = [
     heading: "Organizada sem parar de atender nenhuma vez",
     company: "Manicure da Carol",
     about:
-      "Carol atende em domicílio e em casa. Não tem funcionário, não tem ponto comercial e não tem hora livre no meio do dia — cada atendimento emenda no outro.",
+      "Carol atende em domicílio e em casa. Não tem funcionário, não tem ponto comercial e não tem hora livre no meio do dia, cada atendimento emenda no outro.",
     info: [
       ["Onde fica", "Atende em domicílio, Niterói"],
       ["Tamanho", "1 pessoa"],
@@ -338,7 +338,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O problema" },
       {
         t: "p",
-        text: "Quem trabalha por conta não tem intervalo administrativo. Carol saía de um atendimento e entrava no outro, e a anotação ficava para “mais tarde” — que virava a noite, que virava o dia seguinte, que virava nunca. No fim da semana ela reconstruía de memória quanto tinha recebido, e sempre com a sensação de estar esquecendo alguém.",
+        text: "Quem trabalha por conta não tem intervalo administrativo. Carol saía de um atendimento e entrava no outro, e a anotação ficava para “mais tarde”, que virava a noite, que virava o dia seguinte, que virava nunca. No fim da semana ela reconstruía de memória quanto tinha recebido, e sempre com a sensação de estar esquecendo alguém.",
       },
       {
         t: "quote",
@@ -355,7 +355,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "A solução" },
       {
         t: "p",
-        text: "Carol passou a registrar no caminho, enquanto esperava o transporte. Uma frase — “pé e mão da Fernanda, 70” — e estava lançado. O cadastro das clientes foi se formando sozinho, sem ela precisar preencher nada: a Mimu foi guardando quem era, quanto pagava e de quanto em quanto tempo voltava.",
+        text: "Carol passou a registrar no caminho, enquanto esperava o transporte. Uma frase, “pé e mão da Fernanda, 70”, e estava lançado. O cadastro das clientes foi se formando sozinho, sem ela precisar preencher nada: a Mimu foi guardando quem era, quanto pagava e de quanto em quanto tempo voltava.",
       },
       {
         t: "img",
@@ -368,7 +368,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O resultado" },
       {
         t: "p",
-        text: "Todos os atendimentos passaram a ser registrados no mesmo dia, o que antes nunca acontecia. Com o histórico de frequência na mão, Carol começou a perceber quem estava demorando mais que o normal para voltar e a mandar uma mensagem — e boa parte dessas clientes remarcou.",
+        text: "Todos os atendimentos passaram a ser registrados no mesmo dia, o que antes nunca acontecia. Com o histórico de frequência na mão, Carol começou a perceber quem estava demorando mais que o normal para voltar e a mandar uma mensagem, e boa parte dessas clientes remarcou.",
       },
       {
         t: "p",
@@ -440,7 +440,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O problema" },
       {
         t: "p",
-        text: "Marcos não tinha um problema de controle: tinha um problema de adesão. Ele já sabia que precisava organizar o caixa, e já tinha tentado. Os dois aplicativos anteriores exigiam cadastrar serviço por serviço, escolher categoria e preencher formulário — coisas que ninguém faz com a tesoura na mão e um cliente esperando.",
+        text: "Marcos não tinha um problema de controle: tinha um problema de adesão. Ele já sabia que precisava organizar o caixa, e já tinha tentado. Os dois aplicativos anteriores exigiam cadastrar serviço por serviço, escolher categoria e preencher formulário, coisas que ninguém faz com a tesoura na mão e um cliente esperando.",
       },
       {
         t: "quote",
@@ -465,7 +465,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "A solução" },
       {
         t: "p",
-        text: "Marcos configurou a Mimu numa terça de manhã, entre dois cortes. Levou dois minutos: disse que era barbearia e pronto. Não teve cadastro de serviço, não teve categoria para escolher. Ele mostrou para os outros dois barbeiros no mesmo dia — a explicação inteira foi “manda mensagem falando o que você fez e quanto foi”.",
+        text: "Marcos configurou a Mimu numa terça de manhã, entre dois cortes. Levou dois minutos: disse que era barbearia e pronto. Não teve cadastro de serviço, não teve categoria para escolher. Ele mostrou para os outros dois barbeiros no mesmo dia, a explicação inteira foi “manda mensagem falando o que você fez e quanto foi”.",
       },
       {
         t: "quote",
@@ -477,7 +477,7 @@ export const STORIES: Story[] = [
       { t: "h2", text: "O resultado" },
       {
         t: "p",
-        text: "Os três barbeiros usam desde a primeira semana, sem ninguém cobrar. O caderno saiu do balcão. Marcos passou a saber quanto cada cadeira faz por dia, o que antes ele só estimava — e usou esse número para reorganizar a escala do fim de semana, quando o movimento é maior.",
+        text: "Os três barbeiros usam desde a primeira semana, sem ninguém cobrar. O caderno saiu do balcão. Marcos passou a saber quanto cada cadeira faz por dia, o que antes ele só estimava, e usou esse número para reorganizar a escala do fim de semana, quando o movimento é maior.",
       },
       {
         t: "quote",

@@ -98,8 +98,8 @@ export default function Legal() {
           </div>
         </section>
 
-        {/* The article container narrows to 60% of the viewport at 1200+ — not
-            the 90% every other container on the site uses — so `container-page`
+        {/* The article container narrows to 60% of the viewport at 1200+, not
+            the 90% every other container on the site uses, so `container-page`
             does not apply here. */}
         <article className="flex w-full flex-col items-center justify-center overflow-clip pb-10 lg:pb-15">
           <div className="mx-auto flex w-[90%] max-w-[1200px] flex-col items-center justify-start gap-10 overflow-clip md:flex-row md:justify-center lg:w-[60%] lg:gap-15">

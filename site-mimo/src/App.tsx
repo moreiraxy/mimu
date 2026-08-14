@@ -26,7 +26,7 @@ export default function App() {
         {/* Rotas em português: a URL é parte do que o visitante lê, e um site
             todo em pt-BR com /customer-stories na barra de endereço denuncia o
             template por baixo. Os slugs de história e de documento legal
-            também são pt-BR — ver data/customerStories.ts e data/legal.ts. */}
+            também são pt-BR, ver data/customerStories.ts e data/legal.ts. */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/historias" element={<Historias />} />

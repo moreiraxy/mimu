@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
+import { planoValido } from "@/lib/planos";
 import { avisarAdminsNovoCadastro } from "@/lib/admin-avisos";
 import {
   primeiroErroZod,
@@ -58,6 +59,13 @@ export async function signUp(
 
   const { nomeCompleto, nomeNegocio, email, password } = validacao.data;
 
+  // Plano escolhido na landing. Passa pela lista branca: qualquer coisa fora
+  // dela vira null, e null é tratado como "escolheu o grátis". Guardar aqui
+  // não é decisão de dinheiro — o preço quem define é o servidor, na hora do
+  // pagamento (lib/planos.ts). Isto só decide se a conta ganha ou não os 7
+  // dias de teste, e escolher o grátis é uma opção aberta a qualquer pessoa.
+  const plano = planoValido(formData.get("plano"));
+
   const ip = obterIP();
   if (await excedeuLimite("cadastro", ip)) {
     return {
@@ -73,7 +81,11 @@ export async function signUp(
     email,
     password,
     options: {
-      data: { nome_completo: nomeCompleto, nome_negocio: nomeNegocio },
+      data: {
+        nome_completo: nomeCompleto,
+        nome_negocio: nomeNegocio,
+        plano_escolhido: plano,
+      },
       emailRedirectTo: `${origin}/onboarding`,
     },
   });

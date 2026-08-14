@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEmpresaEAssinatura, ativarAssinatura } from "@/lib/assinatura";
-import { mpPayment, VALOR_MENSAL_MIMU } from "@/lib/mercadopago";
+import { mpPayment } from "@/lib/mercadopago";
+import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
 
 interface CartaoPayload {
   token?: string;
@@ -48,6 +49,13 @@ export async function POST(request: Request) {
     );
   }
 
+  // O preço vem do plano gravado NA ASSINATURA e é resolvido aqui pela
+  // tabela de lib/planos.ts. Nada de valor no corpo da requisição: aceitar
+  // um número do navegador deixaria qualquer pessoa assinar o Premium por
+  // um centavo trocando o payload.
+  const plano = planoValido(assinatura.plano) ?? PLANO_PADRAO;
+  const { nome: nomePlano, valorMensal } = PLANOS[plano];
+
   const body = (await request.json().catch(() => null)) as CartaoPayload | null;
 
   if (!body?.token || !body.payment_method_id) {
@@ -60,8 +68,8 @@ export async function POST(request: Request) {
   try {
     const pagamentoMP = await mpPayment.create({
       body: {
-        transaction_amount: VALOR_MENSAL_MIMU,
-        description: "Assinatura Mimu (Plano Completo)",
+        transaction_amount: valorMensal,
+        description: `Assinatura Mimu (${nomePlano})`,
         token: body.token,
         installments: body.installments || 1,
         payment_method_id: body.payment_method_id,
@@ -97,7 +105,7 @@ export async function POST(request: Request) {
     await supabase.from("pagamentos").insert({
       empresa_id: empresa.id,
       assinatura_id: assinatura.id,
-      valor: VALOR_MENSAL_MIMU,
+      valor: valorMensal,
       status: statusInterno,
       forma_pagamento: "cartao",
       mp_payment_id: String(pagamentoMP.id),

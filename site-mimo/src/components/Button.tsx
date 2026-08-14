@@ -35,7 +35,7 @@ export function Button({
   variant?: Variant;
   className?: string;
   /** Passthrough pra sobrescrever dimensões (ex.: CTA compacto do navbar)
-      sem depender de qual utilitário Tailwind "ganha" — inline sempre
+      sem depender de qual utilitário Tailwind "ganha", inline sempre
       bate as classes de base, então não conflita com o `h-[49px]` etc. */
   style?: CSSProperties;
 }) {

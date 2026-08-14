@@ -186,7 +186,7 @@ function Card({ story }: { story: Story }) {
       <div
         className={`relative flex w-full flex-col items-center gap-5 overflow-clip rounded-lg bg-sand p-3 after:border after:border-[#1e1e2e1a] md:h-full md:flex-row md:gap-0 md:rounded-xl ${RING}`}
       >
-        {/* Cover panel. flex 1 against the copy panel's 2 — 1.2 on tablet. */}
+        {/* Cover panel. flex 1 against the copy panel's 2, 1.2 on tablet. */}
         <div
           className={`relative flex h-[200px] w-full flex-none flex-col items-center justify-center overflow-clip rounded-lg p-4 after:border after:border-[#1e1e2e0d] md:h-full md:w-px md:flex-[1.2_0_0] lg:flex-[1_0_0] ${RING}`}
         >
