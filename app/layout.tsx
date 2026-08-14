@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { URL_SITE } from "@/lib/site";
 import localFont from "next/font/local";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -27,10 +28,51 @@ const spaceGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Mimu · seu negócio, organizado",
+  // Base de todas as URLs relativas do metadata. Sem ela, o Next monta as
+  // tags de compartilhamento com caminho relativo, e WhatsApp e redes sociais
+  // não conseguem resolver a imagem nem o link.
+  metadataBase: new URL(URL_SITE),
+  title: {
+    default: "Mimu · seu negócio, organizado",
+    // As telas internas viram "Financeiro · Mimu" sem repetir a marca à mão.
+    template: "%s · Mimu",
+  },
   description:
     "Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda e clientes em um só lugar.",
   applicationName: "Mimu",
+  // Buscadores grandes ignoram keywords há anos. Ficam porque alguns
+  // buscadores menores e ferramentas de IA ainda leem — custo zero, não
+  // confundir com estratégia de SEO.
+  keywords: [
+    "gestão para microempreendedor",
+    "aplicativo para MEI",
+    "controle de vendas",
+    "controle financeiro simples",
+    "agenda para salão de beleza",
+    "sistema para mercadinho",
+    "caderninho digital",
+    "controle de clientes",
+    "fluxo de caixa para pequeno negócio",
+    "app de gestão em português",
+  ],
+  authors: [{ name: "Mimu" }],
+  creator: "Mimu",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Mimu",
+    url: URL_SITE,
+    title: "Mimu · seu negócio, organizado",
+    description:
+      "Vendas, faturamento, agenda e clientes num app só. Feito para quem hoje controla tudo no caderno ou na memória.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mimu · seu negócio, organizado",
+    description:
+      "Vendas, faturamento, agenda e clientes num app só. 7 dias grátis, sem cartão.",
+  },
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
