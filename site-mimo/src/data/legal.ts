@@ -96,7 +96,7 @@ const TERMOS_BLOCKS: Block[] = [
   { h: "4. Teste grátis" },
   { p: ["Você tem 7 dias para usar a Mimu inteira sem pagar nada e sem informar cartão de crédito. Ao fim do teste, o acesso aos recursos pagos é interrompido até você escolher um plano. A gente não cobra automaticamente quem só testou."] },
   { h: "5. Planos e cobrança" },
-  { p: [{ b: "5.1 Planos" }, " A Mimu tem um único conjunto de recursos e quatro periodicidades: mensal (R$ 39), trimestral (R$ 99), semestral (R$ 179) e anual (R$ 299). Todos dão acesso às mesmas funções, o que muda é o tempo contratado e o valor por mês."] },
+  { p: [{ b: "5.1 Planos" }, " A Mimu tem dois planos pagos. O Pro custa R$ 39 por mês ou R$ 399 por ano, e o Premium custa R$ 199 por mês ou R$ 1.990 por ano. A diferença entre eles está no que cada um inclui, e a página de preços mostra a lista completa. Em qualquer um deles os cinco módulos ficam liberados."] },
   { p: [{ b: "5.2 Renovação" }, " A assinatura se renova automaticamente ao fim de cada período, pelo mesmo prazo, até você cancelar. Ao informar uma forma de pagamento, você autoriza essa cobrança recorrente."] },
   { p: [{ b: "5.3 Mudança de preço" }, " Se os valores mudarem, avisamos com pelo menos 30 dias de antecedência. Quem já é assinante mantém o preço até o fim do período contratado, e pode cancelar antes da renovação se não concordar com o valor novo."] },
   { p: [{ b: "5.4 Arrependimento e reembolso" }, " Você pode desistir em até 7 dias corridos após a contratação e receber o valor de volta integralmente, como garante o Código de Defesa do Consumidor. Passado esse prazo, planos de mais de um mês podem ser reembolsados proporcionalmente ao tempo não usado. Peça em ", { a: "oi@mimu.app", href: "mailto:oi@mimu.app" }, "."] },

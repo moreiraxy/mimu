@@ -19,8 +19,10 @@ export type Block =
   | { t: "h2"; text: string }
   | { t: "p"; text: string }
   /** Citação destacada: a linha 0 é a fala, a linha 1 é a assinatura. */
-  | { t: "quote"; lines: string[] }
-  | { t: "img"; file: string; alt: string; w: number; h: number; ratio: number };
+  | { t: "quote"; lines: string[] };
+// O bloco "img" saiu junto com as fotos do template. Mantê-lo no tipo
+// obrigaria o renderizador a tratar um caso que não existe mais, e deixaria
+// a porta aberta para outra foto emprestada voltar sem ninguém notar.
 
 export type Asset = { file: string; alt: string; w: number; h: number };
 

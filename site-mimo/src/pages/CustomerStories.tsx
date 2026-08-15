@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Revelar } from "../components/Revelar";
 import { Link } from "react-router";
 import { AnimatedText } from "../components/AnimatedText";
 import { Header } from "../components/Header";
@@ -116,7 +117,7 @@ export default function CustomerStories() {
           <div className="container-page flex flex-col items-center gap-10 lg:gap-15">
             {/* Label & tabs: one row from 744 up, a stack below it with the
                 tabs moved above the label (order 1 / order 0). */}
-            <div className="flex w-full flex-none flex-col items-start justify-center gap-5 overflow-clip md:flex-row md:gap-4 lg:gap-5">
+            <Revelar className="flex w-full flex-none flex-col items-start justify-center gap-5 overflow-clip md:flex-row md:gap-4 lg:gap-5">
               <div className="order-0 flex w-min flex-none items-center gap-2.5 text-coral md:order-none">
                 <span
                   aria-hidden="true"
@@ -144,12 +145,17 @@ export default function CustomerStories() {
                   </button>
                 ))}
               </div>
-            </div>
+            </Revelar>
 
+            {/* Cartões entram escalonados, 90ms entre um e outro: a grade
+                inteira aparecendo de uma vez lê como um salto, e o atraso faz
+                o olho seguir a leitura em vez de receber tudo pronto. */}
             <ul className="grid w-full grid-cols-1 justify-center gap-4 md:grid-cols-2">
-              {shown.map((story) => (
+              {shown.map((story, i) => (
                 <li key={story.slug} className="w-full">
-                  <StoryCard story={story} />
+                  <Revelar atraso={i * 90} className="h-full">
+                    <StoryCard story={story} />
+                  </Revelar>
                 </li>
               ))}
             </ul>
@@ -207,8 +213,12 @@ function Hero() {
           </div>
         </div>
 
-        <Slide />
-        <LogoStrip />
+        <Revelar atraso={120} className="w-full">
+          <Slide />
+        </Revelar>
+        <Revelar atraso={220} className="w-full">
+          <LogoStrip />
+        </Revelar>
       </div>
     </section>
   );

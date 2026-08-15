@@ -1,4 +1,5 @@
 import { useParams } from "react-router";
+import { Revelar } from "../components/Revelar";
 import { CapaHistoria } from "../components/CapaHistoria";
 import { AnimatedText } from "../components/AnimatedText";
 import { Header } from "../components/Header";
@@ -122,21 +123,29 @@ export default function CustomerStory() {
           {/* Only the tablet band lets this box overflow; the sticky sidebar
               still works either way because `clip` is not a scroll container. */}
           <div className="container-page flex flex-col items-start justify-center gap-10 overflow-clip md:flex-row md:overflow-visible lg:gap-15 lg:overflow-clip">
-            <Sidebar story={story} />
+            <Revelar className="contents">
+              <Sidebar story={story} />
+            </Revelar>
 
             <div className="flex w-full flex-none flex-col items-start gap-5 overflow-clip md:w-px md:flex-[3_0_0] lg:gap-6">
-              <div className="relative flex aspect-[1.43617] w-full flex-none items-center justify-center overflow-clip rounded-xl md:aspect-[1.5] lg:aspect-[1.94286]">
+              <Revelar className="relative flex aspect-[1.43617] w-full flex-none items-center justify-center overflow-clip rounded-xl md:aspect-[1.5] lg:aspect-[1.94286]">
                 <CapaHistoria
                   negocio={story.company}
                   ramo={story.category}
                   className="absolute inset-0 size-full rounded-[inherit]"
                 />
-              </div>
+              </Revelar>
 
-              <Pullquote story={story} />
-              <Stats story={story} />
+              <Revelar atraso={60} className="w-full">
+                <Pullquote story={story} />
+              </Revelar>
+              <Revelar atraso={100} className="w-full">
+                <Stats story={story} />
+              </Revelar>
               <Body blocks={story.body} />
-              <CaseCta heading={story.ctaHeading} />
+              <Revelar className="w-full">
+                <CaseCta heading={story.ctaHeading} />
+              </Revelar>
             </div>
           </div>
         </section>
@@ -239,7 +248,7 @@ function Pullquote({ story }: { story: Story }) {
   return (
     <div className="relative flex w-full flex-none items-start justify-between overflow-clip rounded-xl bg-superficie p-4 lg:p-5">
       <figure className="flex w-[85%] flex-none flex-col items-start justify-start gap-6">
-        <blockquote className="w-full flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] break-words whitespace-pre-wrap text-ink-soft md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
+        <blockquote className="w-full flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] break-words whitespace-pre-wrap text-ink/80 md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
           {story.quote}
         </blockquote>
 
@@ -255,7 +264,7 @@ function Pullquote({ story }: { story: Story }) {
             <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] whitespace-pre text-ink opacity-80 md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
               {story.name}
             </p>
-            <p className="w-auto flex-none font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-ink-soft opacity-60 md:text-[14px] lg:text-[15px] xl:text-base">
+            <p className="w-auto flex-none font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-ink/80 opacity-60 md:text-[14px] lg:text-[15px] xl:text-base">
               {story.role}
             </p>
           </figcaption>
@@ -342,7 +351,15 @@ function GridIcon() {
   );
 }
 
-/** The article. One 32px rule sets every gap; a pull quote overrides it to 20. */
+/**
+ * O artigo. Uma regra de 32px define todos os espaços; a citação destacada
+ * troca para 20.
+ *
+ * Cada bloco entra sozinho quando chega na tela, e não a seção inteira de uma
+ * vez: o texto é longo, e revelar tudo junto faria o movimento acontecer bem
+ * longe de onde a pessoa está lendo. Sem atraso entre eles, de propósito —
+ * escalonar parágrafo por parágrafo atrasaria a leitura em vez de acompanhar.
+ */
 function Body({ blocks }: { blocks: Block[] }) {
   return (
     <div className="w-full flex-none">
@@ -351,53 +368,37 @@ function Body({ blocks }: { blocks: Block[] }) {
 
         if (b.t === "h2") {
           return (
-            <h2
-              key={i}
-              className={`font-display text-2xl leading-[1.1] font-medium tracking-[-0.04em] break-words whitespace-pre-wrap text-ink [text-wrap:wrap] md:text-[28px] lg:text-[32px] xl:text-[36px] ${gap}`}
-            >
-              {b.text}
-            </h2>
+            <Revelar key={i} className={gap}>
+              <h2 className="font-display text-2xl leading-[1.1] font-medium tracking-[-0.04em] break-words whitespace-pre-wrap text-ink [text-wrap:wrap] md:text-[28px] lg:text-[32px] xl:text-[36px]">
+                {b.text}
+              </h2>
+            </Revelar>
           );
         }
 
         if (b.t === "p") {
           return (
-            <p
-              key={i}
-              className={`font-display text-base leading-[1.4] font-normal tracking-[-0.02em] break-words whitespace-pre-wrap text-ink/85 md:text-[17px] lg:text-[18px] ${gap}`}
-            >
-              {b.text}
-            </p>
-          );
-        }
-
-        if (b.t === "img") {
-          return (
-            <Img
-              key={i}
-              src={`/img/${b.file}`}
-              alt={b.alt}
-              width={b.w}
-              height={b.h}
-              sizes="(min-width: 1200px) 760px, (min-width: 744px) 60vw, 90vw"
-              className={`w-full rounded-xl ${gap}`}
-            />
-          );
-        }
-
-        /* Pull quote: 24px of left padding cleared for a 4px full-height bar,
-           drawn with ::before so it never enters the text flow. */
-        return (
-          <blockquote
-            key={i}
-            className={`relative pl-6 font-display text-base leading-[1.4] font-medium tracking-normal break-words whitespace-pre-wrap text-ink-soft italic before:absolute before:top-0 before:left-0 before:block before:h-full before:w-1 before:bg-borda before:content-[''] md:text-[17px] lg:text-[18px] ${gap}`}
-          >
-            {b.lines.map((line, j) => (
-              <p key={j} className={j === 0 ? "" : "mt-5"}>
-                {line}
+            <Revelar key={i} className={gap}>
+              <p className="font-display text-base leading-[1.4] font-normal tracking-[-0.02em] break-words whitespace-pre-wrap text-ink/85 md:text-[17px] lg:text-[18px]">
+                {b.text}
               </p>
-            ))}
-          </blockquote>
+            </Revelar>
+          );
+        }
+
+        /* Citação destacada: 24px de recuo à esquerda abrindo espaço para uma
+           barra de 4px em altura cheia, desenhada com ::before para nunca
+           entrar no fluxo do texto. */
+        return (
+          <Revelar key={i} className={gap}>
+            <blockquote className="relative pl-6 font-display text-base leading-[1.4] font-medium tracking-normal break-words whitespace-pre-wrap text-ink/80 italic before:absolute before:top-0 before:left-0 before:block before:h-full before:w-1 before:bg-coral before:content-[''] md:text-[17px] lg:text-[18px]">
+              {b.lines.map((line, j) => (
+                <p key={j} className={j === 0 ? "" : "mt-5"}>
+                  {line}
+                </p>
+              ))}
+            </blockquote>
+          </Revelar>
         );
       })}
     </div>
