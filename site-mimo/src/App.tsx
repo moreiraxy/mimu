@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { CursorDot } from "./components/CursorDot";
 import { Preloader } from "./components/Preloader";
+import { IrAoTopo } from "./components/IrAoTopo";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { useParallaxFloat } from "./hooks/useParallaxFloat";
 import { useAnimateOnView } from "./hooks/useAnimateOnView";
@@ -20,6 +21,9 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {/* Dentro do BrowserRouter de propósito: ele lê a rota atual, e fora
+          daqui não teria acesso a ela. */}
+      <IrAoTopo />
       <Preloader />
       <CursorDot />
       <Suspense fallback={null}>
