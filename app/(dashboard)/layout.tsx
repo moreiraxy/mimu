@@ -36,9 +36,21 @@ export default async function DashboardGroupLayout({
   // a um 404.
   const admin = await ehAdmin(user.id);
 
+  // Os módulos vão daqui para a navegação como valor inicial.
+  //
+  // Antes, a barra de baixo e a sidebar liam `empresa.modulos_ativos` do
+  // AuthProvider, que busca a empresa DE NOVO no navegador. Na primeira
+  // visita esse dado só chegava depois de uma ida ao servidor, então a
+  // navegação nascia com a lista vazia e mostrava só Home e Empresa. Recarregar
+  // "resolvia" porque a resposta já estava no cache — foi o "só funciona na
+  // segunda vez".
+  //
+  // Aqui o servidor já tem a empresa em mãos: é só entregar.
+  const modulos = empresa.modulos_ativos ?? [];
+
   return (
     <div className="min-h-screen bg-fundo">
-      <Sidebar admin={admin} />
+      <Sidebar admin={admin} modulosIniciais={modulos} />
 
       <div className="md:ml-[72px] lg:ml-60">
         <div className="flex justify-end gap-3 px-4 pt-4 md:px-8 md:pt-6">
@@ -46,14 +58,14 @@ export default async function DashboardGroupLayout({
           <DesktopQuickActions />
         </div>
 
-        <div className="mx-auto max-w-[430px] px-4 pb-32 pt-4 md:max-w-none md:px-6 md:pb-10 md:pt-6 lg:px-8 lg:pb-10 lg:pt-2">
+        <div className="mx-auto max-w-[430px] px-4 pb-36 pt-4 md:max-w-none md:px-6 md:pb-10 md:pt-6 lg:px-8 lg:pb-10 lg:pt-2">
           <PushPermissionPrompt />
           {children}
         </div>
       </div>
 
       <Fab />
-      <BottomNav admin={admin} />
+      <BottomNav admin={admin} modulosIniciais={modulos} />
     </div>
   );
 }

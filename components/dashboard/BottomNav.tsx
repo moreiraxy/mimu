@@ -10,13 +10,31 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 import { cn } from "@/lib/utils";
 
-export function BottomNav({ admin = false }: { admin?: boolean }) {
+export function BottomNav({
+  admin = false,
+  modulosIniciais,
+}: {
+  admin?: boolean;
+  /**
+   * Módulos vindos do servidor, que já tinha a empresa em mãos.
+   *
+   * Sem isto a barra nascia com a lista vazia e só se completava depois que o
+   * AuthProvider terminava de buscar a empresa no navegador — era o "só
+   * aparece na segunda visita".
+   */
+  modulosIniciais?: string[];
+}) {
   const pathname = usePathname();
   const { empresa } = useAuth();
   const { alertas } = useAlertasProativos();
   const [menuAberto, setMenuAberto] = useState(false);
 
-  const { barra, menu, temMais } = dividirNavegacao(empresa?.modulos_ativos ?? []);
+  // O do cliente só entra quando existir: ele é a fonte para mudanças feitas
+  // durante a sessão (ligar um módulo em Minha Empresa reflete na hora), mas
+  // o do servidor é quem faz a primeira pintura já estar certa.
+  const { barra, menu, temMais } = dividirNavegacao(
+    empresa?.modulos_ativos ?? modulosIniciais ?? [],
+  );
 
   /**
    * Indicador que desliza entre as abas, como nas barras novas do Android.
@@ -26,6 +44,34 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
    * às vezes existe, às vezes não. Dividir a largura por uma contagem daria
    * errado justamente nas contas que mudam.
    */
+  /**
+   * Compacta ao rolar para baixo, volta ao subir.
+   *
+   * É o gesto das barras do Instagram e do WhatsApp: enquanto a pessoa
+   * desce a lista, a barra recolhe e devolve altura para o conteúdo; ao
+   * subir, ela reaparece inteira. O limiar de 8px evita que o tranco de um
+   * toque faça a barra piscar.
+   */
+  const [compacta, setCompacta] = useState(false);
+
+  useEffect(() => {
+    let anterior = window.scrollY;
+
+    const aoRolar = () => {
+      const atual = window.scrollY;
+      const desceu = atual > anterior;
+      if (Math.abs(atual - anterior) > 8) {
+        // Perto do topo ela nunca fica compacta: ali não há o que ganhar em
+        // espaço, e a barra menor pareceria um defeito.
+        setCompacta(desceu && atual > 90);
+        anterior = atual;
+      }
+    };
+
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    return () => window.removeEventListener("scroll", aoRolar);
+  }, []);
+
   const navRef = useRef<HTMLElement>(null);
   const [indicador, setIndicador] = useState<{ x: number; w: number } | null>(
     null,
@@ -40,7 +86,10 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
       if (!alvo) return setIndicador(null);
       const n = nav.getBoundingClientRect();
       const a = alvo.getBoundingClientRect();
-      setIndicador({ x: a.left - n.left + a.width / 2, w: 56 });
+      // A largura vem do próprio item, com uma folga de 8px de cada lado: a
+      // pílula precisa envolver o ícone E o rótulo, e o rótulo é mais largo
+      // que o ícone. Uma largura fixa cobriria só o desenho.
+      setIndicador({ x: a.left - n.left + a.width / 2, w: Math.max(a.width - 8, 48) });
     };
 
     medir();
@@ -49,7 +98,7 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
     const obs = new ResizeObserver(medir);
     obs.observe(nav);
     return () => obs.disconnect();
-  }, [pathname, barra.length, temMais]);
+  }, [pathname, barra.length, temMais, compacta]);
 
   // O "Mais" só aparece quando há algo a mais pra mostrar — a não ser que seja
   // a única porta de entrada do painel admin, já que a sidebar é `md:` pra cima
@@ -71,12 +120,17 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
           iPhone, senão a barra encosta no indicador de gestos. */}
       <div
         className="fixed inset-x-0 z-40 px-3 md:hidden"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 20px)" }}
       >
         <nav
           ref={navRef}
           className={cn(
-            "relative mx-auto flex h-[72px] max-w-[430px] items-stretch justify-around",
+            "relative mx-auto flex max-w-[430px] items-stretch justify-around",
+            // A altura é a única coisa que muda entre inteira e compacta, e a
+            // transição fica no elemento, não numa classe condicional: assim
+            // ela vale nos dois sentidos, encolhendo e voltando.
+            "transition-[height] duration-300 ease-out motion-reduce:transition-none",
+            compacta ? "h-[60px]" : "h-[80px]",
             "rounded-[28px] border border-neutro-border shadow-[0_10px_36px_-10px_rgba(0,0,0,0.4)]",
             // Sem o fallback opaco, num navegador sem backdrop-filter a barra
             // fica quase transparente e o texto de trás atravessa ela.
@@ -90,7 +144,7 @@ export function BottomNav({ admin = false }: { admin?: boolean }) {
           {indicador && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-2.5 h-9 rounded-full bg-primary-light transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none"
+              className="pointer-events-none absolute inset-y-2 rounded-[20px] bg-primary-light transition-[transform,width] duration-300 ease-out motion-reduce:transition-none"
               style={{
                 width: indicador.w,
                 transform: `translateX(${indicador.x - indicador.w / 2}px)`,

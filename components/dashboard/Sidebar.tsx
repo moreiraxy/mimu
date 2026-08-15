@@ -10,11 +10,18 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { navItemsVisiveis } from "@/components/dashboard/navItems";
 import { cn } from "@/lib/utils";
 
-export function Sidebar({ admin = false }: { admin?: boolean }) {
+export function Sidebar({
+  admin = false,
+  modulosIniciais,
+}: {
+  admin?: boolean;
+  /** Mesmo motivo do BottomNav: primeira pintura já com os módulos certos. */
+  modulosIniciais?: string[];
+}) {
   const pathname = usePathname();
   const { user, empresa } = useAuth();
   const { alertas } = useAlertasProativos();
-  const itens = navItemsVisiveis(empresa?.modulos_ativos ?? []);
+  const itens = navItemsVisiveis(empresa?.modulos_ativos ?? modulosIniciais ?? []);
 
   const nomeCompleto = user?.user_metadata?.nome_completo as
     | string

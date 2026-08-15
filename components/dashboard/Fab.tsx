@@ -62,7 +62,7 @@ export function Fab() {
         verdade (o próprio botão +, e os itens do menu quando aberto)
         reativa com `pointer-events-auto`.
       */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(72px+env(safe-area-inset-bottom)+32px)] z-50 flex justify-center lg:hidden">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(80px+env(safe-area-inset-bottom)+36px)] z-50 flex justify-center lg:hidden">
         <div className="flex w-full max-w-[430px] flex-col items-end gap-3 px-4">
           <div
             className={cn(
