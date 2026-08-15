@@ -16,9 +16,14 @@ const ALWAYS_PUBLIC_ROUTES = ["/redefinir-senha", "/"];
 // comparação é por prefixo e não por igualdade.
 const ROTAS_PUBLICAS_DA_LANDING = ["/historias", "/legal"];
 
-// Notificação servidor-a-servidor do Mercado Pago — nunca tem sessão de
-// usuário, então fica de fora até da exigência de login.
-const ROTAS_PUBLICAS_SEM_AUTH = ["/api/pagamento/webhook"];
+// Chamadas de servidor para servidor: nunca têm sessão de usuário, então
+// ficam de fora até da exigência de login. Cada uma se protege por conta
+// própria — o webhook confere a assinatura do Mercado Pago, e a tarefa
+// diária exige um segredo no cabeçalho.
+const ROTAS_PUBLICAS_SEM_AUTH = [
+  "/api/pagamento/webhook",
+  "/api/cron/alertas-diarios",
+];
 
 // Exige login, mas nunca entra no gate de assinatura abaixo — senão
 // /assinar acaba redirecionando pra /assinar (loop).
