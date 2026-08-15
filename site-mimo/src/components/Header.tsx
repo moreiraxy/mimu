@@ -82,7 +82,7 @@ export function Header() {
 
   return (
     <header
-      className="fixed inset-x-0 top-5 z-50 flex flex-col items-center px-6 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:px-10 lg:px-0"
+      className="fixed inset-x-0 top-3 z-50 flex flex-col items-center px-6 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:px-10 lg:px-0"
       style={{
         opacity: entrou ? 1 : 0,
         transform: entrou ? "translateY(0)" : "translateY(-14px)",
@@ -92,7 +92,7 @@ export function Header() {
         className={`flex items-center ${
           stuck
             ? "h-[57px] w-auto gap-11 rounded-[100px] border py-1 pr-1 pl-5 shadow-lg shadow-ink/5"
-            : "h-[49px] w-full max-w-[1200px] justify-between rounded-none border-transparent bg-transparent p-0"
+            : "h-[64px] w-full max-w-[1200px] justify-between rounded-[100px] border-transparent px-5"
         }`}
         style={
           stuck
@@ -107,6 +107,14 @@ export function Header() {
                 transition: TRANSICAO_MORPH,
               }
             : {
+                // Translucidez leve também no estado solto, no espírito das
+                // barras novas do Instagram e do WhatsApp no Android: dá
+                // corpo ao cabeçalho sem virar uma faixa opaca cortando a
+                // página. Fica bem mais fraca que a do estado grudado, que
+                // precisa separar de verdade o conteúdo rolando por baixo.
+                background: "rgba(10, 10, 10, 0.28)",
+                backdropFilter: "blur(14px) saturate(140%)",
+                WebkitBackdropFilter: "blur(14px) saturate(140%)",
                 transition: TRANSICAO_MORPH,
               }
         }
