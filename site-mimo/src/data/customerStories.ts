@@ -147,14 +147,6 @@ export const STORIES: Story[] = [
           "Andréia, Salão da Andréia",
         ],
       },
-      {
-        t: "img",
-        file: "9YFD5qeREtDHEDRwOkGMDa458A.jpg",
-        alt: "Duas pessoas conversando sobre o movimento do negócio em uma mesa clara.",
-        w: 600,
-        h: 337,
-        ratio: 1.7804154302670623,
-      },
       { t: "h2", text: "O resultado" },
       {
         t: "p",
@@ -256,14 +248,6 @@ export const STORIES: Story[] = [
           "Rodrigo, Mercadinho do Rodrigo",
         ],
       },
-      {
-        t: "img",
-        file: "DKpcX1kASlpg6vB0cppXDOa5WM.jpg",
-        alt: "Pessoa conferindo o movimento do negócio em um aparelho sobre a bancada.",
-        w: 500,
-        h: 333,
-        ratio: 1.4992503748125936,
-      },
       { t: "h2", text: "O resultado" },
       {
         t: "p",
@@ -357,14 +341,6 @@ export const STORIES: Story[] = [
         t: "p",
         text: "Carol passou a registrar no caminho, enquanto esperava o transporte. Uma frase, “pé e mão da Fernanda, 70”, e estava lançado. O cadastro das clientes foi se formando sozinho, sem ela precisar preencher nada: a Mimu foi guardando quem era, quanto pagava e de quanto em quanto tempo voltava.",
       },
-      {
-        t: "img",
-        file: "Jhux45eGhbpDpSJre40r4VTaQ.jpg",
-        alt: "Duas pessoas revisando informações do trabalho em um ambiente claro.",
-        w: 982,
-        h: 655,
-        ratio: 1.499236641221374,
-      },
       { t: "h2", text: "O resultado" },
       {
         t: "p",
@@ -453,14 +429,6 @@ export const STORIES: Story[] = [
       {
         t: "p",
         text: "Algo que os três barbeiros usassem sem ninguém precisar cobrar. Se dependesse de lembrete, ia falhar na segunda semana, como já tinha falhado duas vezes.",
-      },
-      {
-        t: "img",
-        file: "Y6hJ3PcmySTnfK3wvO487b3DxCo.jpg",
-        alt: "Dois profissionais conferindo os números do negócio em uma mesa de trabalho.",
-        w: 912,
-        h: 608,
-        ratio: 1.5,
       },
       { t: "h2", text: "A solução" },
       {

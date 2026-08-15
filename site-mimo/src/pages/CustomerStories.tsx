@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { AnimatedText } from "../components/AnimatedText";
 import { Header } from "../components/Header";
 import { Img } from "../components/Img";
+import { CapaHistoria } from "../components/CapaHistoria";
 import { Cta } from "../sections/Cta";
 import { Footer } from "../sections/Footer";
 import { CATEGORIES, STORIES, type Story } from "../data/customerStories";
@@ -24,7 +25,7 @@ import { useInView } from "../hooks/useInView";
  * markup carries — those two disagree (the button's fallback says rgb(24,24,24)
  * where the token is #1e1e2e):
  *   #1e1e2e ink   #f7f6f3 cream   #ece9e2 sand   #2a2a3d ink-soft
- *   #1e1e2e0d 5%  #1e1e2e1a 10%   #1e1e2e4d 30%  #1e1e2e80 50%  #1e1e2ed9 85%
+ *   #1e1e2e0d 5%  #1e1e2e1a 10%   #0a0a0a4d 30%  #1e1e2e80 50%  #1e1e2ed9 85%
  *   #f7f6f34d 30% #f7f6f380 50%   #f7f6f3b3 70%  #ece9e280 50%
  *
  * Four type tiers, not three — 1200-1439 is its own band and only >=1440 hits
@@ -80,14 +81,19 @@ const SLIDE = {
 
 /* The ticker's six logos. Height is fixed at 28px by `.framer-1umyk35`, so each
    width is 28 x the aspect-ratio the markup authors on that logo's box. */
-const LOGOS = [
-  { file: "vUm0vA8Dmi1IMLYCkSq3igQufj0.png", w: 103 },
-  { file: "RGWerGYxB7gPSTeSaNBn9AHsHs.png", w: 108 },
-  { file: "U33wYOhqq6O4vefxlMnUx0olQpM.png", w: 95 },
-  { file: "P2IsyypkpTAE44YCupLqzwsXIbc.png", w: 110 },
-  { file: "FGRs57VIqVv8f6o8Tk6T5IIYL8.png", w: 140 },
-  { file: "AIMSVje1JIVczKzZE97Em3GNiA.png", w: 116 },
-];
+/*
+ * O ticker de logomarcas saiu daqui.
+ *
+ * Eram seis marcas do template original (Startup, Techify, Architect,
+ * Marketly, Natural, Camera) exibidas como se fossem clientes da Mimu. Não
+ * são, e nunca foram: nenhuma delas tem relação com o produto. Uma parceria
+ * inventada numa página que existe justamente para provar resultado é o pior
+ * lugar possível para inventar.
+ *
+ * A prova social honesta continua acima do lugar onde eles ficavam, na linha
+ * "Mais de 400 negócios de bairro já contam com a Mimu", e nas próprias
+ * histórias, que são reais.
+ */
 
 export default function CustomerStories() {
   // "Todas" é a primeira entrada de CATEGORIES e o estado inicial; as demais
@@ -186,7 +192,7 @@ function Hero() {
 
           <div className="flex w-full flex-none flex-col items-center gap-[22px] md:w-px md:flex-[1_0_0] md:items-start">
             <p
-              className="w-[90%] max-w-[550px] text-center font-display text-[15px] leading-[1.4] font-medium tracking-[-0.03em] text-[#1e1e2ed9] md:w-full md:max-w-[650px] md:text-left md:text-[17px] lg:text-[19px] xl:text-[20px]"
+              className="w-[90%] max-w-[550px] text-center font-display text-[15px] leading-[1.4] font-medium tracking-[-0.03em] text-ink/85 md:w-full md:max-w-[650px] md:text-left md:text-[17px] lg:text-[19px] xl:text-[20px]"
               style={reveal}
             >
               Salão, mercadinho, barbearia e trabalho por conta: quem já trocou
@@ -219,113 +225,59 @@ function Hero() {
  */
 function Slide() {
   return (
-    <div className="relative h-[466px] w-full flex-none md:h-[449px] lg:aspect-[2.4] lg:h-auto">
-      <div className="relative flex size-full flex-row items-start justify-between overflow-clip rounded-xl p-6">
-        <Img
-          src={`/img/${SLIDE.image.file}`}
-          alt={SLIDE.image.alt}
-          width={SLIDE.image.w}
-          height={SLIDE.image.h}
-          priority
-          sizes="(min-width: 1200px) 1200px, 90vw"
-          className="absolute inset-0 size-full rounded-[inherit] object-cover object-[right_bottom]"
-        />
+    <div className="relative w-full flex-none">
+      {/*
+        No template este slide era uma foto de fundo com a citação escrita por
+        cima. Sem foto, a citação vira o slide: ela é o conteúdo, e o que fazia
+        o peso visual era a imagem, não a diagramação.
 
-        {/* The scrim's first stop moves 21% -> 0% and the last 112% -> 114%
-            below 744; both are authored inline, not in a class. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 z-0 size-full overflow-clip opacity-80 md:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(30, 30, 46, 0) 0%, #1e1e2e 114%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 z-0 hidden size-full overflow-clip opacity-80 md:block"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(30, 30, 46, 0) 21%, #1e1e2e 112%)",
-          }}
-        />
-
-        <div className="relative z-1 flex h-full w-px flex-[1_0_0] flex-col items-start justify-end gap-6">
-          {/* Pinned top-right; from 744 up it swings out 32px past the card
-              edge and rotates a quarter turn, so it reads down the side. */}
-          <div className="absolute top-0 right-0 z-2 flex w-min items-center md:top-1/2 md:right-[-32px] md:-translate-y-1/2 md:rotate-90">
-            <div className="z-1 flex w-min items-center gap-1">
-              <Pip active />
-              <Pip />
-              <Pip />
-            </div>
-          </div>
-
-          <div className="flex h-px w-full flex-[1_0_0] flex-col items-start justify-center gap-5">
-            <Link
-              to={SLIDE.href}
-              className="flex h-px w-full flex-[1_0_0] flex-col items-end justify-start gap-2.5 no-underline md:flex-row"
-            >
-              {/* Below 744 the logo moves above the quote (order 0 / order 1). */}
-              <div className="order-1 w-full flex-none md:order-none md:w-px md:flex-[1_0_0]">
-                <figure className="flex w-full flex-col items-start justify-end gap-7">
-                  <blockquote className="w-full flex-none font-display text-[22px] leading-[1.3] font-medium tracking-[-0.03em] break-words whitespace-pre-wrap text-cream md:text-[25px] md:leading-[1.2] lg:text-[28px] xl:text-[31px]">
-                    {SLIDE.quote}
-                  </blockquote>
-
-                  <div className="flex w-full flex-none items-end justify-start gap-3">
-                    <span className="relative aspect-square w-14 flex-none overflow-clip rounded-[1000px]">
-                      <Img
-                        src={`/img/${SLIDE.avatar.file}`}
-                        alt={SLIDE.avatar.alt}
-                        width={SLIDE.avatar.w}
-                        height={SLIDE.avatar.h}
-                        sizes="56px"
-                        className="absolute inset-0 size-full rounded-[inherit] object-cover object-center"
-                      />
-                    </span>
-
-                    <figcaption className="flex w-px flex-[1_0_0] flex-col items-center gap-1 overflow-clip">
-                      <p className="w-full flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] break-words whitespace-pre-wrap text-cream opacity-80 md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
-                        {SLIDE.name}
-                      </p>
-                      <p className="w-full flex-none font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] break-words whitespace-pre-wrap text-cream opacity-60 md:text-[14px] lg:text-[15px] xl:text-base">
-                        {SLIDE.role}
-                      </p>
-                    </figcaption>
-                  </div>
-                </figure>
-              </div>
-
-              <div className="order-0 z-1 flex h-px w-full flex-[1_0_0] flex-col items-start justify-start md:order-none md:h-full md:w-px md:items-end md:justify-end">
-                <p className="font-display text-base leading-[1.2] font-extrabold tracking-[-0.02em] text-cream md:text-lg">
-                  {SLIDE.negocio}
-                </p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** A progress pill: 48x10 while its slide runs, 10x10 once it is done. */
-function Pip({ active = false }: { active?: boolean }) {
-  return (
-    <div className="flex w-min items-center">
-      <div
-        className={`relative h-2.5 overflow-hidden rounded-[34px] ${
-          active ? "w-12 bg-[#f7f6f380]" : "w-2.5 bg-white"
-        }`}
+        Saíram também as bolinhas de progresso do carrossel: elas indicavam
+        três slides, e aqui existe um só. Indicador de navegação que não navega
+        para lugar nenhum é ruído.
+      */}
+      <Link
+        to={SLIDE.href}
+        className="group relative flex w-full flex-col justify-between gap-10 overflow-hidden rounded-xl border border-borda bg-superficie p-8 no-underline transition-colors hover:border-coral/40 md:p-12 lg:min-h-[380px]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
       >
-        {active && (
-          <div
-            className="absolute top-0 left-0 h-full w-0 rounded-[34px] bg-white"
-            style={{ transition: "width 40ms linear" }}
-          />
-        )}
-      </div>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(55% 80% at 15% 0%, rgba(204,255,0,0.10) 0%, transparent 70%)",
+          }}
+        />
+
+        <blockquote className="relative max-w-[860px] font-display text-[24px] leading-[1.25] font-medium tracking-[-0.03em] text-ink md:text-[30px] lg:text-[36px]">
+          {SLIDE.quote}
+        </blockquote>
+
+        <figcaption className="relative flex flex-wrap items-center gap-3">
+          {/* Iniciais em vez de foto: as do template eram de banco de imagens,
+              e uma delas mostrava um homem assinando como "Andréia". Rosto
+              emprestado numa página de depoimento é o tipo de detalhe que,
+              quando notado, derruba a credibilidade de tudo em volta. */}
+          <span className="flex size-12 flex-none items-center justify-center rounded-full bg-coral font-display text-[15px] font-extrabold text-primary-text">
+            {SLIDE.name.slice(0, 2).toUpperCase()}
+          </span>
+
+          <span className="flex flex-col">
+            <span className="font-display text-[15px] font-bold text-ink">
+              {SLIDE.name}
+            </span>
+            <span className="text-sm text-muted">{SLIDE.role}</span>
+          </span>
+
+          <span className="ml-auto font-mono text-[11px] tracking-[0.12em] text-muted uppercase">
+            {SLIDE.negocio}
+          </span>
+        </figcaption>
+      </Link>
     </div>
   );
 }
@@ -346,33 +298,6 @@ function LogoStrip() {
         <Rule />
       </div>
 
-      {/* The seam is hidden by the original's own five-stop mask, not the
-          8%/92% one the shared marquee utility carries. */}
-      <div
-        className="flex w-full items-center overflow-x-clip opacity-70"
-        style={{
-          maskImage:
-            "linear-gradient(90deg, rgba(0,0,0,0) 2%, rgba(0,0,0,0.8) 22%, rgb(0,0,0) 49.62%, rgba(0,0,0,0.8) 76.03%, rgba(0,0,0,0) 97%)",
-        }}
-      >
-        <ul className="marquee-track flex w-max items-center gap-[60px]">
-          {/* Two identical passes, so translating exactly -50% lands on the
-              same frame the loop started on. */}
-          {[0, 1].map((pass) =>
-            LOGOS.map((logo) => (
-              <li key={`${pass}-${logo.file}`} className="shrink-0">
-                <Img
-                  src={`/img/${logo.file}`}
-                  alt=""
-                  width={logo.w}
-                  height={28}
-                  className="h-7 w-auto object-contain"
-                />
-              </li>
-            )),
-          )}
-        </ul>
-      </div>
     </div>
   );
 }
@@ -404,15 +329,14 @@ export function StoryCard({ story }: { story: Story }) {
     >
       <div className="relative flex aspect-[1.66667] w-full flex-none items-center justify-center overflow-clip rounded-lg">
         <div
-          className={`absolute top-0 left-0 z-1 size-full overflow-clip rounded-[inherit] after:border after:border-[#1e1e2e0d] ${RING}`}
+          className={`absolute top-0 left-0 z-1 size-full overflow-clip rounded-[inherit] after:border after:border-borda ${RING}`}
         >
-          <Img
-            src={`/img/${c.image.file}`}
-            alt={c.image.alt}
-            width={c.image.w}
-            height={c.image.h}
-            sizes="(min-width: 1200px) 588px, (min-width: 744px) 50vw, 90vw"
-            className="size-full rounded-[inherit] object-cover object-center"
+          {/* Capa desenhada no lugar da aquarela do template, que ainda vinha
+              com o lockup "Marca + Payflow" impresso por cima. */}
+          <CapaHistoria
+            negocio={story.company}
+            ramo={c.label}
+            className="size-full rounded-[inherit]"
           />
         </div>
       </div>
@@ -429,7 +353,7 @@ export function StoryCard({ story }: { story: Story }) {
             <p className="w-full flex-none overflow-clip font-display text-2xl leading-[1.1] font-extrabold tracking-[-0.02em] break-words whitespace-pre-wrap text-coral md:text-[28px] lg:text-[36px]">
               {c.metric}
             </p>
-            <p className="w-full flex-none overflow-clip font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] break-words whitespace-pre-wrap text-[#1e1e2ed9] md:text-[14px] lg:text-[15px] xl:text-base">
+            <p className="w-full flex-none overflow-clip font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] break-words whitespace-pre-wrap text-ink/85 md:text-[14px] lg:text-[15px] xl:text-base">
               {c.metricLabel}
             </p>
           </div>

@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 import { Navigate, useParams } from "react-router";
 import { Header } from "../components/Header";
-import { Img } from "../components/Img";
 import { Footer } from "../sections/Footer";
 import { useInView } from "../hooks/useInView";
 import { LEGAL, type Block, type Part } from "../data/legal";
@@ -39,7 +38,16 @@ import { LEGAL, type Block, type Part } from "../data/legal";
 const EASE = "cubic-bezier(0.6, 0, 0.4, 1)";
 
 /** 85% do escuro da marca (#1E1E2E), o tom de corpo de texto do manual. */
-const INK_85 = "#1e1e2ed9";
+/**
+ * O template original era claro e fixava o corpo do texto em #1e1e2e (quase
+ * preto) com 85% de opacidade. Depois da troca de marca o fundo virou
+ * #0a0a0a, e esse texto passou a dar 1,05:1 de contraste — some da tela.
+ *
+ * Agora sai do token de cor, então acompanha a marca sozinho. `text-ink/85`
+ * dá branco a 85%, que é a mesma intenção do original: corpo um pouco mais
+ * suave que os títulos, sem deixar de ser legível.
+ */
+const CLASSE_CORPO = "text-ink/85";
 
 /**
  * The overlay is a single gradient stop pair, and its second stop sits at
@@ -47,7 +55,6 @@ const INK_85 = "#1e1e2ed9";
  * well short of the 70% the token names. As porcentagens são do original; a cor
  * passou para o escuro da marca, já que o manual não admite preto puro.
  */
-const OVERLAY = "linear-gradient(180deg, #1e1e2e00 0%, #1e1e2eb3 171%)";
 
 export default function Legal() {
   const { slug } = useParams();
@@ -68,18 +75,32 @@ export default function Legal() {
             {/* Banner: a 3.375 letterbox at 1200+, a flat 320px on tablet, and
                 a 1.20536 portrait capped at 320px below 744. */}
             <div className="relative flex aspect-[1.20536] max-h-[320px] w-full flex-none flex-col items-center justify-center gap-4 overflow-clip rounded-xl p-6 md:aspect-auto md:h-[320px] md:max-h-none lg:aspect-[3.375] lg:h-auto">
-              <Img
-                src="/img/AeRcUuogo8PqQ4xMEzB8fSQo3c.jpg"
-                alt="Pintura em aquarela de colinas com neblina e pinheiros sob um céu nublado."
-                width={4297}
-                height={3159}
-                priority
-                className="absolute inset-0 size-full rounded-xl object-cover object-[center_bottom]"
+              {/*
+                Aqui havia uma aquarela de colinas com neblina, vinda do
+                template. Numa política de privacidade ela não ilustra nada:
+                é decoração emprestada num documento que a pessoa abre para
+                entender o que acontece com os dados dela.
+
+                No lugar, a superfície escura da marca com a mesma grade de
+                pontos das outras seções. Sem imagem para procurar, sem imagem
+                emprestada para explicar.
+              */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-xl bg-superficie"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+                  backgroundSize: "24px 24px",
+                }}
               />
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-0 opacity-80"
-                style={{ background: OVERLAY }}
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                  background:
+                    "radial-gradient(70% 90% at 50% 0%, rgba(204,255,0,0.10) 0%, transparent 65%)",
+                }}
               />
 
               {/* `order: 1` below 744 is the original's: on mobile the date
@@ -121,8 +142,7 @@ export default function Legal() {
                     </Heading>
                   ) : (
                     <p
-                      className="font-display text-[16px] leading-[1.4em] font-normal tracking-[-0.02em] [&:not(:first-child)]:mt-5 md:text-[17px] lg:text-[18px]"
-                      style={{ color: INK_85 }}
+                      className={`font-display text-[16px] leading-[1.4em] font-normal tracking-[-0.02em] ${CLASSE_CORPO} [&:not(:first-child)]:mt-5 md:text-[17px] lg:text-[18px]`}
                     >
                       {block.p.map(renderPart)}
                     </p>

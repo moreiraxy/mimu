@@ -184,11 +184,11 @@ function Card({ story }: { story: Story }) {
   return (
     <li className="relative z-[1] h-auto w-full flex-none md:sticky md:top-[140px] md:aspect-[1.675] md:max-h-[450px] md:max-w-[800px] lg:aspect-auto lg:h-[485px] lg:max-h-none lg:max-w-none">
       <div
-        className={`relative flex w-full flex-col items-center gap-5 overflow-clip rounded-lg bg-sand p-3 after:border after:border-[#1e1e2e1a] md:h-full md:flex-row md:gap-0 md:rounded-xl ${RING}`}
+        className={`relative flex w-full flex-col items-center gap-5 overflow-clip rounded-lg bg-superficie p-3 after:border after:border-borda md:h-full md:flex-row md:gap-0 md:rounded-xl ${RING}`}
       >
         {/* Cover panel. flex 1 against the copy panel's 2, 1.2 on tablet. */}
         <div
-          className={`relative flex h-[200px] w-full flex-none flex-col items-center justify-center overflow-clip rounded-lg p-4 after:border after:border-[#1e1e2e0d] md:h-full md:w-px md:flex-[1.2_0_0] lg:flex-[1_0_0] ${RING}`}
+          className={`relative flex h-[200px] w-full flex-none flex-col items-center justify-center overflow-clip rounded-lg p-4 after:border after:border-borda md:h-full md:w-px md:flex-[1.2_0_0] lg:flex-[1_0_0] ${RING}`}
         >
           <Img
             src={`/img/${story.cover.file}`}
@@ -202,7 +202,7 @@ function Card({ story }: { story: Story }) {
             className="absolute inset-0 z-0 size-full overflow-clip opacity-80"
             style={{
               background:
-                "linear-gradient(180deg, #1e1e2e00 15%, #1e1e2e4d 100%)",
+                "linear-gradient(180deg, #0a0a0a00 15%, #0a0a0a4d 100%)",
             }}
           />
           {/* O nome do negócio no lugar da logo: branco sobre a foto, no mesmo
@@ -225,7 +225,7 @@ function Card({ story }: { story: Story }) {
                 <p className="w-full flex-none overflow-clip font-display text-[28px] leading-none font-extrabold tracking-[-0.03em] break-words text-coral md:text-[27px] lg:text-[36px] xl:text-[39px]">
                   {story.metric}
                 </p>
-                <p className="w-full flex-none overflow-clip font-display text-[11px] leading-[1.3] font-medium tracking-[-0.02em] break-words text-[#1e1e2ed9] md:text-xs lg:text-[13px] xl:text-sm">
+                <p className="w-full flex-none overflow-clip font-display text-[11px] leading-[1.3] font-medium tracking-[-0.02em] break-words text-ink/85 md:text-xs lg:text-[13px] xl:text-sm">
                   {story.metricLabel}
                 </p>
               </div>
@@ -240,7 +240,7 @@ function Card({ story }: { story: Story }) {
 
           {/* Dashed divider: on the left edge at 1200+, on top below that. */}
           <div
-            className={`relative flex w-full flex-none flex-col items-start justify-center gap-4 overflow-clip pt-5 after:border-t after:border-dashed after:border-[#1e1e2e1a] lg:h-full lg:w-px lg:flex-[1_0_0] lg:justify-between lg:gap-0 lg:pt-0 lg:pl-7 lg:after:border-t-0 lg:after:border-l ${RING}`}
+            className={`relative flex w-full flex-none flex-col items-start justify-center gap-4 overflow-clip pt-5 after:border-t after:border-dashed after:border-borda lg:h-full lg:w-px lg:flex-[1_0_0] lg:justify-between lg:gap-0 lg:pt-0 lg:pl-7 lg:after:border-t-0 lg:after:border-l ${RING}`}
           >
             {/* At 744-1199 only, the original gives the quote order 0 and this
                 block order 1, so the identity drops below it. */}

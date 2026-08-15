@@ -1,4 +1,5 @@
 import { useParams } from "react-router";
+import { CapaHistoria } from "../components/CapaHistoria";
 import { AnimatedText } from "../components/AnimatedText";
 import { Header } from "../components/Header";
 import { Img } from "../components/Img";
@@ -48,10 +49,22 @@ import { Pill, RING, StoryCard } from "./CustomerStories";
 
 /** The three share targets. The X mark ships as SVG; the other two match the
     files the footer already uses for Facebook and LinkedIn. */
+/**
+ * Onde dá para compartilhar uma história.
+ *
+ * Saíram X, Facebook e LinkedIn: os ícones eram PNGs do template, e o público
+ * da Mimu não compartilha por lá. Ficaram WhatsApp, que é como se compartilha
+ * qualquer coisa no Brasil, e copiar o link, que serve para todo o resto.
+ *
+ * Os ícones agora são SVG inline: nítidos em qualquer tela, herdam a cor por
+ * currentColor e não dependem de arquivo de imagem carregar.
+ */
 const SHARE = [
-  ["Share on X", "https://x.com/intent/post?url="],
-  ["Share on Facebook", "https://www.facebook.com/sharer/sharer.php?u="],
-  ["Share on LinkedIn", "https://www.linkedin.com/sharing/share-offsite/?url="],
+  {
+    rotulo: "Compartilhar no WhatsApp",
+    href: "https://wa.me/?text=",
+    caminho: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z",
+  },
 ] as const;
 
 export default function CustomerStory() {
@@ -86,9 +99,9 @@ export default function CustomerStory() {
               {/* 5px square: aspect-ratio 1 against an explicit 5px width. */}
               <span
                 aria-hidden="true"
-                className="aspect-square w-[5px] flex-none overflow-clip rounded-[100px] bg-[#1e1e2e4d]"
+                className="aspect-square w-[5px] flex-none overflow-clip rounded-[100px] bg-muted"
               />
-              <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-[#1e1e2e80] md:text-base lg:text-[17px] lg:leading-[1.4] xl:text-[18px] xl:leading-[1.3]">
+              <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-muted md:text-base lg:text-[17px] lg:leading-[1.4] xl:text-[18px] xl:leading-[1.3]">
                 {story.category}
               </p>
             </div>
@@ -113,14 +126,10 @@ export default function CustomerStory() {
 
             <div className="flex w-full flex-none flex-col items-start gap-5 overflow-clip md:w-px md:flex-[3_0_0] lg:gap-6">
               <div className="relative flex aspect-[1.43617] w-full flex-none items-center justify-center overflow-clip rounded-xl md:aspect-[1.5] lg:aspect-[1.94286]">
-                <Img
-                  src={`/img/${story.banner.file}`}
-                  alt={story.banner.alt}
-                  width={story.banner.w}
-                  height={story.banner.h}
-                  priority
-                  sizes="(min-width: 1200px) 760px, (min-width: 744px) 60vw, 90vw"
-                  className="absolute inset-0 size-full rounded-[inherit] object-cover object-center"
+                <CapaHistoria
+                  negocio={story.company}
+                  ramo={story.category}
+                  className="absolute inset-0 size-full rounded-[inherit]"
                 />
               </div>
 
@@ -182,31 +191,32 @@ function Sidebar({ story }: { story: Story }) {
         </p>
 
         <div className="flex min-w-max items-center justify-center gap-3 bg-bg">
-          {story.shareIcons.map((file, i) => {
-            const target = SHARE[i];
-            if (!target) return null;
-            const [label, href] = target;
-            return (
-              <a
-                key={file}
-                href={href + encodeURIComponent(url)}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={label}
-                className="block size-6 overflow-hidden transition-transform hover:scale-110"
-              >
-                <img
-                  src={`/img/${file}`}
-                  alt=""
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  decoding="async"
-                  className="size-full object-cover"
-                />
-              </a>
-            );
-          })}
+          {SHARE.map(({ rotulo, href, caminho }) => (
+            <a
+              key={rotulo}
+              href={href + encodeURIComponent(url)}
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label={rotulo}
+              className="flex size-6 items-center justify-center text-muted transition-colors hover:text-ink"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="size-5">
+                <path d={caminho} />
+              </svg>
+            </a>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => navigator.clipboard?.writeText(url)}
+            aria-label="Copiar link da história"
+            className="flex size-6 items-center justify-center text-muted transition-colors hover:text-ink"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-5">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -219,7 +229,7 @@ function Divider() {
   return (
     <div
       aria-hidden="true"
-      className="h-px w-full flex-none overflow-clip bg-[#1e1e2e1a]"
+      className="h-px w-full flex-none overflow-clip bg-borda"
     />
   );
 }
@@ -227,7 +237,7 @@ function Divider() {
 /** Sand card holding the customer quote, with the outline quote mark on top. */
 function Pullquote({ story }: { story: Story }) {
   return (
-    <div className="relative flex w-full flex-none items-start justify-between overflow-clip rounded-xl bg-sand p-4 lg:p-5">
+    <div className="relative flex w-full flex-none items-start justify-between overflow-clip rounded-xl bg-superficie p-4 lg:p-5">
       <figure className="flex w-[85%] flex-none flex-col items-start justify-start gap-6">
         <blockquote className="w-full flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] break-words whitespace-pre-wrap text-ink-soft md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
           {story.quote}
@@ -235,18 +245,14 @@ function Pullquote({ story }: { story: Story }) {
 
         <div className="flex w-min flex-none items-end justify-start gap-3">
           <span className="relative aspect-square w-14 flex-none overflow-clip rounded-[1000px]">
-            <Img
-              src={`/img/${story.avatar.file}`}
-              alt={story.avatar.alt}
-              width={story.avatar.w}
-              height={story.avatar.h}
-              sizes="56px"
-              className="absolute inset-0 size-full rounded-[inherit] object-cover object-center"
-            />
+            {/* Iniciais, não foto: as do template eram de banco de imagens. */}
+            <span className="absolute inset-0 flex size-full items-center justify-center rounded-[inherit] bg-coral font-display text-[18px] font-extrabold text-primary-text">
+              {story.name.slice(0, 2).toUpperCase()}
+            </span>
           </span>
 
           <figcaption className="flex w-min flex-none flex-col items-start gap-1 overflow-clip">
-            <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] whitespace-pre text-ink-soft opacity-80 md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
+            <p className="w-auto flex-none font-display text-[15px] leading-[1.3] font-medium tracking-[-0.03em] whitespace-pre text-ink opacity-80 md:text-[17px] lg:text-[19px] lg:leading-[1.4] xl:text-[20px] xl:leading-[1.3]">
               {story.name}
             </p>
             <p className="w-auto flex-none font-display text-[13px] leading-[1.3] font-medium tracking-[-0.02em] whitespace-pre text-ink-soft opacity-60 md:text-[14px] lg:text-[15px] xl:text-base">
@@ -265,7 +271,7 @@ function Pullquote({ story }: { story: Story }) {
           style={{ imageRendering: "pixelated" }}
         >
           <path
-            fill="#1e1e2e1a"
+            fill="currentColor" className="text-borda"
             d="M 13.639 33.412 C 5.719 31.866 0.003 24.929 0 16.86 C 0 7.554 7.554 0 16.86 0 C 26.166 0 33.719 7.554 33.719 16.86 C 33.719 29.261 29.542 36.963 24.638 41.778 C 17.13 49.15 7.729 49.79 7.729 49.79 C 6.773 49.861 5.862 49.373 5.392 48.537 C 4.922 47.702 4.977 46.67 5.534 45.89 C 5.534 45.89 10.002 39.6 12.788 34.947 C 13.078 34.459 13.372 33.921 13.639 33.412 Z M 50.869 33.412 C 42.95 31.866 37.234 24.929 37.231 16.86 C 37.231 7.554 44.784 0 54.09 0 C 63.396 0 70.95 7.554 70.95 16.86 C 70.95 29.261 66.772 36.963 61.868 41.778 C 54.361 49.15 44.959 49.79 44.959 49.79 C 44.003 49.861 43.093 49.373 42.623 48.537 C 42.153 47.702 42.208 46.67 42.765 45.89 C 42.765 45.89 47.233 39.6 50.018 34.947 C 50.308 34.459 50.602 33.921 50.869 33.412 Z"
           />
         </svg>
@@ -358,7 +364,7 @@ function Body({ blocks }: { blocks: Block[] }) {
           return (
             <p
               key={i}
-              className={`font-display text-base leading-[1.4] font-normal tracking-[-0.02em] break-words whitespace-pre-wrap text-[#1e1e2ed9] md:text-[17px] lg:text-[18px] ${gap}`}
+              className={`font-display text-base leading-[1.4] font-normal tracking-[-0.02em] break-words whitespace-pre-wrap text-ink/85 md:text-[17px] lg:text-[18px] ${gap}`}
             >
               {b.text}
             </p>
@@ -384,7 +390,7 @@ function Body({ blocks }: { blocks: Block[] }) {
         return (
           <blockquote
             key={i}
-            className={`relative pl-6 font-display text-base leading-[1.4] font-medium tracking-normal break-words whitespace-pre-wrap text-ink-soft italic before:absolute before:top-0 before:left-0 before:block before:h-full before:w-1 before:bg-[#1e1e2e1a] before:content-[''] md:text-[17px] lg:text-[18px] ${gap}`}
+            className={`relative pl-6 font-display text-base leading-[1.4] font-medium tracking-normal break-words whitespace-pre-wrap text-ink-soft italic before:absolute before:top-0 before:left-0 before:block before:h-full before:w-1 before:bg-borda before:content-[''] md:text-[17px] lg:text-[18px] ${gap}`}
           >
             {b.lines.map((line, j) => (
               <p key={j} className={j === 0 ? "" : "mt-5"}>
@@ -402,13 +408,15 @@ function Body({ blocks }: { blocks: Block[] }) {
 function CaseCta({ heading }: { heading: string }) {
   return (
     <div className="relative z-2 flex w-full flex-none flex-col items-center justify-center gap-5 overflow-clip rounded-xl py-20">
-      <Img
-        src="/img/AeRcUuogo8PqQ4xMEzB8fSQo3c.jpg"
-        alt="A serene watercolor landscape used as the call-to-action background."
-        width={4297}
-        height={3159}
-        sizes="(min-width: 1200px) 760px, (min-width: 744px) 60vw, 90vw"
-        className="absolute inset-0 size-full rounded-[inherit] object-cover object-[center_bottom]"
+      {/* Mesma aquarela do template, mesma troca: superfície da marca. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 rounded-[inherit] bg-superficie"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
       />
 
       {/* 160% tall and a pixel to the left, exactly as authored. */}
@@ -416,7 +424,7 @@ function CaseCta({ heading }: { heading: string }) {
         aria-hidden="true"
         className="absolute top-0 left-[-1px] z-0 h-[160%] w-full overflow-clip opacity-[0.48]"
         style={{
-          background: "linear-gradient(180deg, #1e1e2e -30%, #1e1e2e00 61.5921%)",
+          background: "linear-gradient(180deg, #0a0a0a -30%, #0a0a0a00 61.5921%)",
         }}
       />
 

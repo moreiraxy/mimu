@@ -8,14 +8,17 @@ export function Cta() {
     <section id="comecar" className="w-full bg-bg py-10 lg:py-15">
       <div className="container-page">
         <div className="relative z-2 flex flex-col items-center gap-4 overflow-clip rounded-xl py-30 md:gap-5">
-          <Img
-            src="/img/AeRcUuogo8PqQ4xMEzB8fSQo3c.jpg"
-            alt="Pintura em aquarela de colinas verdes sob um céu nublado, representando o crescimento tranquilo de um negócio."
-            width={4297}
-            height={3159}
-            sizes="(min-width: 1200px) 1200px, 90vw"
-            className="absolute inset-0 -z-10 size-full rounded-xl object-cover object-bottom"
-          />
+        {/* Aqui havia a mesma aquarela do template. Trocada pela superfície da
+            marca: um bloco de chamada não precisa de foto emprestada. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 rounded-xl bg-superficie"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+            backgroundSize: "24px 24px",
+          }}
+        />
 
           {/* Scrim: 160% tall and offset a pixel left, exactly as measured.
               O gradiente saiu do preto do template para o escuro da marca
