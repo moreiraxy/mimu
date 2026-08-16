@@ -1,0 +1,4 @@
+node_modules/
+# Os vídeos renderizados: 10 MB de binário que o Git guardaria de novo inteiro
+# a cada render. Quem quiser o arquivo roda `npm run render:vertical`.
+out/
