@@ -101,6 +101,29 @@
   body {
     @apply bg-fundo text-escuro antialiased transition-colors duration-200;
   }
+
+  /*
+   * O zoom ao tocar num campo.
+   *
+   * iOS e Android dão zoom automático quando um campo de digitação tem fonte
+   * menor que 16px — é o navegador tentando ajudar a ler o que se digita. O
+   * efeito é aquele salto ao abrir o teclado, e a tela fica torta depois.
+   *
+   * O WhatsApp não faz isso porque os campos dele já são grandes o bastante.
+   * A correção aqui é a mesma: 16px em todo campo, e só em tela de toque. No
+   * computador os tamanhos originais continuam valendo.
+   *
+   * A alternativa comum seria travar o zoom no viewport com `maximum-scale=1`,
+   * mas isso tira o recurso de quem precisa aumentar a tela para enxergar.
+   * Aumentar a fonte resolve sem custo para ninguém.
+   */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -73,23 +73,32 @@ export function BottomNav({
   }, []);
 
   const navRef = useRef<HTMLElement>(null);
-  const [indicador, setIndicador] = useState<{ x: number; w: number } | null>(
-    null,
-  );
+  const [indicador, setIndicador] = useState<{
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  } | null>(null);
 
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
 
     const medir = () => {
-      const alvo = nav.querySelector<HTMLElement>("[data-ativo='true']");
+      // Mede a MOLDURA DO ÍCONE, não o item inteiro. É o formato da barra do
+      // WhatsApp: a marca do "você está aqui" é uma pílula deitada atrás do
+      // ícone, e o rótulo fica embaixo, fora dela. Envolvendo ícone e rótulo
+      // juntos saía um losango alto, que é o que destoava da referência.
+      const alvo = nav.querySelector<HTMLElement>("[data-pilula='true']");
       if (!alvo) return setIndicador(null);
       const n = nav.getBoundingClientRect();
       const a = alvo.getBoundingClientRect();
-      // A largura vem do próprio item, com uma folga de 8px de cada lado: a
-      // pílula precisa envolver o ícone E o rótulo, e o rótulo é mais largo
-      // que o ícone. Uma largura fixa cobriria só o desenho.
-      setIndicador({ x: a.left - n.left + a.width / 2, w: Math.max(a.width - 8, 48) });
+      setIndicador({
+        x: a.left - n.left,
+        y: a.top - n.top,
+        w: a.width,
+        h: a.height,
+      });
     };
 
     medir();
@@ -131,11 +140,15 @@ export function BottomNav({
             // ela vale nos dois sentidos, encolhendo e voltando.
             "transition-[height] duration-300 ease-out motion-reduce:transition-none",
             compacta ? "h-[60px]" : "h-[80px]",
-            "rounded-[28px] border border-neutro-border shadow-[0_10px_36px_-10px_rgba(0,0,0,0.4)]",
-            // Sem o fallback opaco, num navegador sem backdrop-filter a barra
-            // fica quase transparente e o texto de trás atravessa ela.
-            "bg-superficie/90",
-            "supports-[backdrop-filter]:bg-superficie/60 supports-[backdrop-filter]:backdrop-blur-2xl",
+            // Cantos totalmente arredondados, como na referência: com raio
+            // fixo de 28px numa barra de 80px o canto ficava "quase" redondo,
+            // que lê como erro de medida em vez de decisão.
+            "rounded-full border border-neutro-border shadow-[0_10px_36px_-10px_rgba(0,0,0,0.45)]",
+            // Mais opaca que antes. A referência é quase sólida: translucidez
+            // demais deixa o conteúdo passar por trás dos rótulos e atrapalha
+            // a leitura justamente do que serve para se localizar.
+            "bg-superficie/95",
+            "supports-[backdrop-filter]:bg-superficie/80 supports-[backdrop-filter]:backdrop-blur-2xl",
           )}
         >
           {/* A pílula fica ATRÁS dos itens (-z-0 com os links em relative), e
@@ -144,11 +157,15 @@ export function BottomNav({
           {indicador && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-2 rounded-[20px] bg-primary-light transition-[transform,width] duration-300 ease-out motion-reduce:transition-none"
+              // Pílula discreta, e não um bloco colorido: na referência ela
+              // só marca onde você está, sem competir com o ícone. O destaque
+              // de cor fica no próprio ícone e no rótulo, que já mudam para a
+              // cor da marca.
+              className="pointer-events-none absolute left-0 top-0 rounded-full bg-primary-light transition-transform duration-300 ease-out motion-reduce:transition-none"
               style={{
                 width: indicador.w,
-                transform: `translateX(${indicador.x - indicador.w / 2}px)`,
-                left: 0,
+                height: indicador.h,
+                transform: `translate(${indicador.x}px, ${indicador.y}px)`,
               }}
             />
           )}
@@ -162,8 +179,16 @@ export function BottomNav({
                 data-ativo={ativo}
                 className="relative flex flex-1 flex-col items-center justify-center gap-1"
               >
-                <span className="relative">
-                  <Icon size={22} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
+                {/* 64×32 em pixel, e não na escala do app: é a medida exata
+                    da pílula da barra do Android, e a raiz daqui é 14px — na
+                    escala em rem ela sairia 12% menor que a referência.
+                    Existe em todos os itens, ativo ou não, para o ícone não
+                    pular de lugar quando a aba muda. */}
+                <span
+                  data-pilula={ativo}
+                  className="relative flex h-[32px] w-[64px] items-center justify-center"
+                >
+                  <Icon size={24} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
                   {href === "/mimu" && alertas.length > 0 && (
                     <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-erro px-1 text-[9px] font-bold leading-none text-white">
                       {alertas.length > 9 ? "9+" : alertas.length}
@@ -195,10 +220,15 @@ export function BottomNav({
               data-ativo={atualEstaNoMenu}
               className="relative flex flex-1 flex-col items-center justify-center gap-1"
             >
-              <MoreHorizontal
-                size={22}
-                className={atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"}
-              />
+              <span
+                data-pilula={atualEstaNoMenu}
+                className="flex h-[32px] w-[64px] items-center justify-center"
+              >
+                <MoreHorizontal
+                  size={24}
+                  className={atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"}
+                />
+              </span>
               <span
                 className={cn(
                   "text-[10px] font-semibold leading-none",

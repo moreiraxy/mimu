@@ -10,12 +10,45 @@ const STATUS_CONFIG: Record<
   StatusNegocio,
   { icone: typeof TrendingUp; label: string; bg: string; texto: string }
 > = {
-  // `texto` acompanha o fundo: verde, âmbar e vermelho pedem texto branco,
-  // mas o néon da marca não — branco sobre #CCFF00 dá 1.18:1 e some.
-  otimo: { icone: TrendingUp, label: "Ótimo dia!", bg: "bg-verde", texto: "text-white" },
-  atencao: { icone: AlertTriangle, label: "Atenção", bg: "bg-ambar", texto: "text-white" },
-  prejuizo: { icone: TrendingDown, label: "Dia difícil", bg: "bg-[#EF4444]", texto: "text-white" },
-  recorde: { icone: Trophy, label: "Recorde!", bg: "bg-primary", texto: "text-primary-text" },
+  /*
+   * Fundo em tom suave e texto na cor, em vez de um bloco chapado saturado.
+   *
+   * O motivo é proporção. Numa tela quase preta com um só acento néon, um
+   * vermelho igualmente saturado ocupando um cartão inteiro compete com a
+   * marca em vez de acompanhá-la — foi o que deixou a interface "desornada".
+   *
+   * Os tons "-light" já trocam com o tema (claro: pastel; escuro: um fundo
+   * profundo da mesma família), então o mesmo código serve aos dois. A cor
+   * segue dizendo o que precisa dizer, só que na tipografia e no ícone, que
+   * é onde a informação está.
+   *
+   * O estado "Recorde!" mantém o preenchimento cheio de propósito: ele é a
+   * comemoração, e é o único momento em que gritar faz sentido.
+   */
+  otimo: {
+    icone: TrendingUp,
+    label: "Ótimo dia!",
+    bg: "bg-verde-light",
+    texto: "text-verde-texto",
+  },
+  atencao: {
+    icone: AlertTriangle,
+    label: "Atenção",
+    bg: "bg-ambar-light",
+    texto: "text-ambar-texto",
+  },
+  prejuizo: {
+    icone: TrendingDown,
+    label: "Dia difícil",
+    bg: "bg-erro-light",
+    texto: "text-erro-texto",
+  },
+  recorde: {
+    icone: Trophy,
+    label: "Recorde!",
+    bg: "bg-primary",
+    texto: "text-primary-text",
+  },
 };
 
 const FRASES: Record<
@@ -109,30 +142,42 @@ export function StatusCard({
     >
       {status === "recorde" && <Confete />}
 
-      <p className="flex items-center gap-1.5 text-xs opacity-75">
+      {/* A cor semântica fica no selo de estado. Os números seguem neutros:
+          é o que se lê primeiro, e tingir valor de dinheiro de vermelho ou
+          verde faz o olho ler emoção antes de ler a quantia. */}
+      <p className="flex items-center gap-1.5 text-xs font-bold">
         <config.icone className="h-3.5 w-3.5" strokeWidth={2.25} />
         {config.label}
       </p>
-      <p className="mt-1 text-sm">{frase}</p>
+      <p className={cn("mt-1 text-sm", status === "recorde" ? "" : "text-escuro")}>
+        {frase}
+      </p>
 
-      <div className="mt-4 flex justify-between">
+      <div
+        className={cn(
+          "mt-4 flex justify-between",
+          status === "recorde" ? "" : "text-escuro",
+        )}
+      >
         <div>
-          <p className="text-[11px] opacity-70">Realizado</p>
+          <p className="text-[11px] opacity-60">Realizado</p>
           <p className="text-lg font-semibold">{formatCurrency(realizado)}</p>
         </div>
         <div>
-          <p className="text-[11px] opacity-70">Previsto</p>
+          <p className="text-[11px] opacity-60">Previsto</p>
           <p className="text-lg font-semibold">{formatCurrency(previsto)}</p>
         </div>
         <div>
-          <p className="text-[11px] opacity-70">Meta</p>
+          <p className="text-[11px] opacity-60">Meta</p>
           <p className="text-lg font-semibold">{formatCurrency(meta)}</p>
         </div>
       </div>
 
-      <div className="mt-3 h-1.5 w-full rounded-full bg-white/30">
+      {/* A barra usa a própria cor do estado, não branco fixo: sobre os fundos
+          suaves novos, o branco a 30% quase sumia. */}
+      <div className="mt-3 h-1.5 w-full rounded-full bg-current/15">
         <div
-          className="h-full rounded-full bg-superficie transition-[width]"
+          className="h-full rounded-full bg-current transition-[width]"
           style={{ width: `${larguraBarra}%` }}
         />
       </div>
