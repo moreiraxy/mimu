@@ -139,7 +139,14 @@ export function BottomNav({
             // transição fica no elemento, não numa classe condicional: assim
             // ela vale nos dois sentidos, encolhendo e voltando.
             "transition-[height] duration-300 ease-out motion-reduce:transition-none",
-            compacta ? "h-[60px]" : "h-[80px]",
+            // 64px é a altura da barra do WhatsApp: a pílula de 32 mais o
+            // rótulo, com uma folga curta em cima e embaixo. Estava em 80 —
+            // a medida do Material Design para uma barra COLADA no fim da
+            // tela, que ganha altura porque encosta na borda. Esta aqui
+            // flutua, com margem e sombra por fora, e nessa altura sobrava
+            // ar dentro dela: lia como uma barra gorda, não como uma barra
+            // espaçosa.
+            compacta ? "h-[52px]" : "h-[64px]",
             // Cantos totalmente arredondados, como na referência: com raio
             // fixo de 28px numa barra de 80px o canto ficava "quase" redondo,
             // que lê como erro de medida em vez de decisão.

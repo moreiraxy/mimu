@@ -34,6 +34,23 @@ function autorizado(request: Request): boolean {
  */
 const STATUS_QUE_RECEBEM = ["trial", "ativa"] as const;
 
+/**
+ * Confere só a autorização, sem gerar nem enviar nada.
+ *
+ * O segredo mora em dois lugares que precisam bater: a variável no Railway,
+ * que a rota lê, e o Vault do Supabase, de onde o agendamento tira o
+ * cabeçalho. Se um for trocado sem o outro, a tarefa passa a responder 404
+ * todo dia — em silêncio, porque falhar fechado é justamente não contar nada
+ * a quem chama. Sem esta rota, descobrir isso exigia disparar a tarefa de
+ * verdade e mandar aviso para todo mundo só para ver se o número batia.
+ */
+export async function GET(request: Request) {
+  if (!autorizado(request)) {
+    return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true, rota: "alertas-diarios" });
+}
+
 export async function POST(request: Request) {
   if (!autorizado(request)) {
     // 404 e não 401: confirmar que a rota existe já entrega que há uma tarefa
