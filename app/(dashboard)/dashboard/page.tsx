@@ -8,6 +8,7 @@ import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 import { LogoMark } from "@/components/Logo";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { cn } from "@/lib/utils";
 import {
   calcularProgressoMeta,
   calcularStatusNegocio,
@@ -60,9 +61,8 @@ export default function DashboardPage() {
   }
 
   const primeiroNome =
-    (user?.user_metadata?.nome_completo as string | undefined)?.split(
-      " ",
-    )[0] ?? "por aqui";
+    (user?.user_metadata?.nome_completo as string | undefined)?.split(" ")[0] ??
+    "por aqui";
   const metaDiaria = empresa?.meta_diaria ?? 0;
   const progressoDiario = calcularProgressoMeta(
     dados.faturamentoHoje,
@@ -78,7 +78,7 @@ export default function DashboardPage() {
     dados.totalAPagar === 0;
 
   return (
-    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl lg:gap-6">
+    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
       <header className="flex items-center justify-between">
         <div>
           <p className="flex items-center gap-1.5 text-sm text-neutro-muted">
@@ -94,17 +94,22 @@ export default function DashboardPage() {
         </Link>
       </header>
 
-      <div className="grid grid-cols-4 gap-2 lg:max-w-md">
+      {/* Quatro atalhos ocupando a linha inteira. O `max-w-md` que havia aqui
+          prendia os quatro num quarto da tela e deixava o resto da linha vazio.
+          No computador eles viram ícone e texto lado a lado: numa caixa larga,
+          o empilhamento do celular deixaria um miolo pequeno boiando no meio
+          de muito espaço. */}
+      <div className="grid grid-cols-4 gap-2 lg:gap-3">
         {ACOES_RAPIDAS.map((acao) => (
           <Link
             key={acao.label}
             href={acao.href}
-            className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo"
+            className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3.5 lg:text-left"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary-forte">
               <acao.icone className="h-4 w-4" strokeWidth={2.25} />
             </span>
-            <span className="text-[11px] font-semibold leading-tight text-escuro">
+            <span className="text-[11px] font-semibold leading-tight text-escuro lg:text-sm">
               {acao.label}
             </span>
           </Link>
@@ -114,8 +119,7 @@ export default function DashboardPage() {
       {primeiroAcesso ? (
         <div className="rounded-[20px] bg-primary p-5 text-primary-text">
           <p className="text-sm text-primary-text/80">
-            Bem-vinda, {primeiroNome}! Registre sua primeira venda para
-            começar.
+            Bem-vinda, {primeiroNome}! Registre sua primeira venda para começar.
           </p>
           <Link
             href="/financeiro"
@@ -134,7 +138,10 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:max-w-md">
+      {/* Os dois saldos e a agenda dividem a mesma linha no computador. Sozinha,
+          cada uma dessas coisas é pequena demais para uma linha inteira, e era
+          daí que vinha a sensação de tela vazia. */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:items-start lg:gap-6">
         <Link
           href="/financeiro"
           className="rounded-card border border-neutro-border bg-superficie p-4"
@@ -153,25 +160,36 @@ export default function DashboardPage() {
             {formatCurrency(dados.totalAPagar)}
           </p>
         </Link>
+        <div className="col-span-2">
+          <AgendaHojeCard agendamentos={dados.agendamentosHoje} />
+        </div>
       </div>
 
-      <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
-        <AgendaHojeCard agendamentos={dados.agendamentosHoje} />
+      {/* O gráfico divide a linha com os alertas — mas só quando existe algum.
+          O cartão de alertas some quando não há nada a dizer, e reservar um
+          terço da linha para ele abriria um vão do tamanho dele. */}
+      <div
+        className={cn(
+          "flex flex-col gap-5 lg:gap-6",
+          alertas.length > 0 && "lg:grid lg:grid-cols-3 lg:items-start",
+        )}
+      >
+        <div className={cn(alertas.length > 0 && "lg:col-span-2")}>
+          <ResumoSemanalCard
+            resumo={dados.resumoSemanal}
+            semanaAtual={dados.faturamentoSemanaAtual}
+            semanaPassada={dados.faturamentoSemanaPassada}
+          />
+        </div>
         <AlertasCard alertas={alertas} onDispensar={dispensar} />
       </div>
-
-      <ResumoSemanalCard
-        resumo={dados.resumoSemanal}
-        semanaAtual={dados.faturamentoSemanaAtual}
-        semanaPassada={dados.faturamentoSemanaPassada}
-      />
     </FadeIn>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl lg:gap-6">
+    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1.5">
           <Skeleton className="h-4 w-32" />
@@ -179,7 +197,7 @@ function DashboardSkeleton() {
         </div>
         <Skeleton className="h-9 w-9 rounded-2xl" />
       </div>
-      <div className="grid grid-cols-4 gap-2 lg:max-w-md">
+      <div className="grid grid-cols-4 gap-2 lg:gap-3">
         <Skeleton className="h-[74px] rounded-card" />
         <Skeleton className="h-[74px] rounded-card" />
         <Skeleton className="h-[74px] rounded-card" />

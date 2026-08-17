@@ -142,40 +142,58 @@ export function StatusCard({
     >
       {status === "recorde" && <Confete />}
 
-      {/* A cor semântica fica no selo de estado. Os números seguem neutros:
-          é o que se lê primeiro, e tingir valor de dinheiro de vermelho ou
-          verde faz o olho ler emoção antes de ler a quantia. */}
-      <p className="flex items-center gap-1.5 text-xs font-bold">
-        <config.icone className="h-3.5 w-3.5" strokeWidth={2.25} />
-        {config.label}
-      </p>
-      <p className={cn("mt-1 text-sm", status === "recorde" ? "" : "text-escuro")}>
-        {frase}
-      </p>
+      {/*
+        No celular tudo se empilha. Num cartão largo, o recado fica à esquerda
+        e os números à direita, na mesma linha de base.
 
-      <div
-        className={cn(
-          "mt-4 flex justify-between",
-          status === "recorde" ? "" : "text-escuro",
-        )}
-      >
-        <div>
-          <p className="text-[11px] opacity-60">Realizado</p>
-          <p className="text-lg font-semibold">{formatCurrency(realizado)}</p>
+        Empilhado numa tela larga, o conteúdo ocupava só o terço esquerdo e
+        sobrava meio metro de cor chapada à direita, que foi o que deu a
+        sensação de tela mal usada. Os números encostam à direita porque é ali
+        que o olho procura quantia, e o recado fica onde a leitura começa.
+      */}
+      <div className="lg:flex lg:items-end lg:justify-between lg:gap-12">
+        <div className="lg:min-w-0">
+          {/* A cor semântica fica no selo de estado. Os números seguem
+              neutros: é o que se lê primeiro, e tingir valor de dinheiro de
+              vermelho ou verde faz o olho ler emoção antes da quantia. */}
+          <p className="flex items-center gap-1.5 text-xs font-bold">
+            <config.icone className="h-3.5 w-3.5" strokeWidth={2.25} />
+            {config.label}
+          </p>
+          <p
+            className={cn(
+              "mt-1 text-sm",
+              status === "recorde" ? "" : "text-escuro",
+            )}
+          >
+            {frase}
+          </p>
         </div>
-        <div>
-          <p className="text-[11px] opacity-60">Previsto</p>
-          <p className="text-lg font-semibold">{formatCurrency(previsto)}</p>
-        </div>
-        <div>
-          <p className="text-[11px] opacity-60">Meta</p>
-          <p className="text-lg font-semibold">{formatCurrency(meta)}</p>
+
+        <div
+          className={cn(
+            "mt-4 flex justify-between gap-4 sm:justify-start sm:gap-14 lg:mt-0 lg:shrink-0",
+            status === "recorde" ? "" : "text-escuro",
+          )}
+        >
+          <div>
+            <p className="text-[11px] opacity-60">Realizado</p>
+            <p className="text-lg font-semibold">{formatCurrency(realizado)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] opacity-60">Previsto</p>
+            <p className="text-lg font-semibold">{formatCurrency(previsto)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] opacity-60">Meta</p>
+            <p className="text-lg font-semibold">{formatCurrency(meta)}</p>
+          </div>
         </div>
       </div>
 
       {/* A barra usa a própria cor do estado, não branco fixo: sobre os fundos
           suaves novos, o branco a 30% quase sumia. */}
-      <div className="mt-3 h-1.5 w-full rounded-full bg-current/15">
+      <div className="bg-current/15 mt-3 h-1.5 w-full rounded-full">
         <div
           className="h-full rounded-full bg-current transition-[width]"
           style={{ width: `${larguraBarra}%` }}
