@@ -60,9 +60,8 @@ export default function DashboardPage() {
   }
 
   const primeiroNome =
-    (user?.user_metadata?.nome_completo as string | undefined)?.split(
-      " ",
-    )[0] ?? "por aqui";
+    (user?.user_metadata?.nome_completo as string | undefined)?.split(" ")[0] ??
+    "por aqui";
   const metaDiaria = empresa?.meta_diaria ?? 0;
   const progressoDiario = calcularProgressoMeta(
     dados.faturamentoHoje,
@@ -78,8 +77,21 @@ export default function DashboardPage() {
     dados.totalAPagar === 0;
 
   return (
-    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl lg:gap-6">
-      <header className="flex items-center justify-between">
+    /*
+     * No celular é uma coluna só. No computador vira duas, e não uma coluna
+     * esticada: antes cada bloco ocupava a largura inteira ou ficava preso num
+     * `max-w-md` sozinho na linha, o que deixava metade da tela vazia à
+     * direita de quase tudo.
+     *
+     * As duas colunas são `contents` no celular. Assim os blocos continuam
+     * sendo filhos diretos desta coluna flex e a ordem de leitura no telefone
+     * fica inteiramente nas classes `order-*` de cada um, sem depender de onde
+     * eles estão no arquivo. É o que permite agrupar por coluna aqui sem
+     * bagunçar o celular: no computador, a mesma ordem de leitura não serve,
+     * porque lá as coisas acontecem lado a lado.
+     */
+    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:grid lg:max-w-6xl lg:grid-cols-3 lg:items-start lg:gap-6">
+      <header className="order-1 flex items-center justify-between lg:order-none lg:col-span-3">
         <div>
           <p className="flex items-center gap-1.5 text-sm text-neutro-muted">
             {saudacaoPorHorario()}, {primeiroNome}
@@ -94,84 +106,96 @@ export default function DashboardPage() {
         </Link>
       </header>
 
-      <div className="grid grid-cols-4 gap-2 lg:max-w-md">
-        {ACOES_RAPIDAS.map((acao) => (
-          <Link
-            key={acao.label}
-            href={acao.href}
-            className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary-forte">
-              <acao.icone className="h-4 w-4" strokeWidth={2.25} />
-            </span>
-            <span className="text-[11px] font-semibold leading-tight text-escuro">
-              {acao.label}
-            </span>
-          </Link>
-        ))}
+      {/* Coluna lateral: o que se consulta de relance. */}
+      <div className="contents lg:col-span-1 lg:flex lg:flex-col lg:gap-6">
+        <div className="order-2 grid grid-cols-4 gap-2 lg:order-none lg:grid-cols-2">
+          {ACOES_RAPIDAS.map((acao) => (
+            <Link
+              key={acao.label}
+              href={acao.href}
+              className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary-forte">
+                <acao.icone className="h-4 w-4" strokeWidth={2.25} />
+              </span>
+              <span className="text-[11px] font-semibold leading-tight text-escuro">
+                {acao.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+
+        <div className="order-5 lg:order-none">
+          <AgendaHojeCard agendamentos={dados.agendamentosHoje} />
+        </div>
+        <div className="order-6 lg:order-none">
+          <AlertasCard alertas={alertas} onDispensar={dispensar} />
+        </div>
       </div>
 
-      {primeiroAcesso ? (
-        <div className="rounded-[20px] bg-primary p-5 text-primary-text">
-          <p className="text-sm text-primary-text/80">
-            Bem-vinda, {primeiroNome}! Registre sua primeira venda para
-            começar.
-          </p>
+      {/* Coluna principal: o que se lê e compara. */}
+      <div className="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-6">
+        {primeiroAcesso ? (
+          <div className="order-3 rounded-[20px] bg-primary p-5 text-primary-text lg:order-none">
+            <p className="text-sm text-primary-text/80">
+              Bem-vinda, {primeiroNome}! Registre sua primeira venda para
+              começar.
+            </p>
+            <Link
+              href="/financeiro"
+              className="mt-4 inline-flex items-center justify-center rounded-button bg-superficie px-4 py-2.5 text-sm font-semibold text-primary-forte"
+            >
+              + Nova venda
+            </Link>
+          </div>
+        ) : (
+          <div className="order-3 lg:order-none">
+            <StatusCard
+              status={statusDiario}
+              realizado={dados.faturamentoHoje}
+              previsto={dados.faturamentoPrevisto}
+              meta={metaDiaria}
+              progresso={progressoDiario}
+            />
+          </div>
+        )}
+
+        <div className="order-4 grid grid-cols-2 gap-3 lg:order-none">
           <Link
             href="/financeiro"
-            className="mt-4 inline-flex items-center justify-center rounded-button bg-superficie px-4 py-2.5 text-sm font-semibold text-primary-forte"
+            className="rounded-card border border-neutro-border bg-superficie p-4"
           >
-            + Nova venda
+            <p className="text-xs text-neutro-muted">A receber</p>
+            <p className="mt-1 text-lg font-semibold text-verde-texto">
+              {formatCurrency(dados.totalAReceber)}
+            </p>
+          </Link>
+          <Link
+            href="/financeiro"
+            className="rounded-card border border-neutro-border bg-superficie p-4"
+          >
+            <p className="text-xs text-neutro-muted">A pagar</p>
+            <p className="mt-1 text-lg font-semibold text-ambar-texto">
+              {formatCurrency(dados.totalAPagar)}
+            </p>
           </Link>
         </div>
-      ) : (
-        <StatusCard
-          status={statusDiario}
-          realizado={dados.faturamentoHoje}
-          previsto={dados.faturamentoPrevisto}
-          meta={metaDiaria}
-          progresso={progressoDiario}
-        />
-      )}
 
-      <div className="grid grid-cols-2 gap-3 lg:max-w-md">
-        <Link
-          href="/financeiro"
-          className="rounded-card border border-neutro-border bg-superficie p-4"
-        >
-          <p className="text-xs text-neutro-muted">A receber</p>
-          <p className="mt-1 text-lg font-semibold text-verde-texto">
-            {formatCurrency(dados.totalAReceber)}
-          </p>
-        </Link>
-        <Link
-          href="/financeiro"
-          className="rounded-card border border-neutro-border bg-superficie p-4"
-        >
-          <p className="text-xs text-neutro-muted">A pagar</p>
-          <p className="mt-1 text-lg font-semibold text-ambar-texto">
-            {formatCurrency(dados.totalAPagar)}
-          </p>
-        </Link>
+        <div className="order-7 lg:order-none">
+          <ResumoSemanalCard
+            resumo={dados.resumoSemanal}
+            semanaAtual={dados.faturamentoSemanaAtual}
+            semanaPassada={dados.faturamentoSemanaPassada}
+          />
+        </div>
       </div>
-
-      <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
-        <AgendaHojeCard agendamentos={dados.agendamentosHoje} />
-        <AlertasCard alertas={alertas} onDispensar={dispensar} />
-      </div>
-
-      <ResumoSemanalCard
-        resumo={dados.resumoSemanal}
-        semanaAtual={dados.faturamentoSemanaAtual}
-        semanaPassada={dados.faturamentoSemanaPassada}
-      />
     </FadeIn>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl lg:gap-6">
+    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1.5">
           <Skeleton className="h-4 w-32" />

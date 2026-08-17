@@ -153,9 +153,13 @@ export function StatusCard({
         {frase}
       </p>
 
+      {/* No celular os três ocupam a largura e ficam espaçados. Num cartão
+          largo, espalhar do mesmo jeito jogaria "Realizado" e "Meta" a meio
+          metro um do outro, e ninguém lê três números como um conjunto assim.
+          A partir do tablet eles se agrupam à esquerda, com espaço fixo. */}
       <div
         className={cn(
-          "mt-4 flex justify-between",
+          "mt-4 flex justify-between gap-4 sm:justify-start sm:gap-14",
           status === "recorde" ? "" : "text-escuro",
         )}
       >
