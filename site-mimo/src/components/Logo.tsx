@@ -25,6 +25,15 @@ export interface Tracado {
   visivel: boolean;
   duracaoMs: number;
   easing: string;
+  /**
+   * Avisa quando o traço chegou ao fim de verdade.
+   *
+   * Quem usa isso precisa saber que a letra ficou inteira, e não que o relógio
+   * marcou o tempo previsto. Numa página carregando, a thread principal
+   * atrasa o começo da transição sem atrasar os outros temporizadores, e aí o
+   * que vem depois começa com o "M" ainda pela metade.
+   */
+  aoTerminar?: () => void;
 }
 
 /** O "M". `stroke` acompanha `currentColor` para o símbolo servir a qualquer fundo. */
@@ -54,6 +63,17 @@ export function MimuMark({
         pathLength={tracado ? 1 : undefined}
         strokeDasharray={tracado ? 1 : undefined}
         strokeDashoffset={tracado ? (tracado.visivel ? 0 : 1) : undefined}
+        onTransitionEnd={
+          tracado?.aoTerminar
+            ? (evento) => {
+                // O elemento tem outras transições possíveis; só a do traço
+                // significa "a letra ficou pronta".
+                if (evento.propertyName === "stroke-dashoffset") {
+                  tracado.aoTerminar?.();
+                }
+              }
+            : undefined
+        }
         style={
           tracado
             ? {

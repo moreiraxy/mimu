@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MimuIcon } from "./Logo";
 
 /**
@@ -58,6 +58,12 @@ const DURACAO = {
   /** Um respiro com o "M" inteiro na tela antes de ele sair voando. */
   respiro: 120,
   /**
+   * Rede de segurança: se o fim do traço não for avisado (aba em segundo
+   * plano, navegador que não dispara o evento), a intro segue mesmo assim.
+   * Uma abertura travada para sempre é muito pior que uma letra incompleta.
+   */
+  esperaMaximaDoTraco: 400,
+  /**
    * O voo é mais curto que a cortina de propósito. Com os dois no mesmo
    * tempo, a cortina terminava muito antes (a curva é bem adiantada) e
    * sobrava meio segundo de um quadrado solto atravessando uma página já
@@ -68,9 +74,14 @@ const DURACAO = {
   cortina: 640,
 } as const;
 
-/** Quanto tempo a intro fica na tela, do começo ao desmonte. */
-const TOTAL =
-  DURACAO.atrasoTraco + DURACAO.traco + DURACAO.respiro + DURACAO.cortina;
+/**
+ * Prazo máximo de espera pelo fim do traço, contado da montagem.
+ *
+ * Não é a duração da intro: quem manda no momento de voar é o traço terminar
+ * de verdade. Isto é só o limite para o caso de esse aviso nunca chegar.
+ */
+const LIMITE_DO_TRACO =
+  DURACAO.atrasoTraco + DURACAO.traco + DURACAO.esperaMaximaDoTraco;
 
 type Estagio = "entrando" | "escrevendo" | "entregando" | "fim";
 
@@ -107,6 +118,43 @@ export function Preloader() {
   const [estagio, setEstagio] = useState<Estagio>("entrando");
   const [alvo, setAlvo] = useState<Alvo | null>(null);
   const marcaRef = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
+  const jaEntregou = useRef(false);
+
+  /**
+   * O traço acabou: pode entregar.
+   *
+   * Antes isto era um temporizador fixo, e era daí que vinha a letra pela
+   * metade. Os dois relógios eram armados juntos, mas quem atrasava era só o
+   * começo da transição: numa página carregando, a thread principal segura o
+   * primeiro quadro do desenho e não segura o relógio do voo. A marca saía
+   * voando com metade do "M" escrito.
+   *
+   * Agora quem dá a partida é o fim do desenho, medido pelo navegador. Se ele
+   * demorar, o voo espera.
+   */
+  const entregar = useCallback(() => {
+    if (jaEntregou.current) return;
+    jaEntregou.current = true;
+
+    timers.current.push(
+      window.setTimeout(() => {
+        // A medida é tirada AGORA, e não na montagem: o cabeçalho tem a
+        // própria animação de entrada, e medir antes dela terminar daria a
+        // posição de onde ele estava, não de onde ficou.
+        setAlvo(medirAlvo(marcaRef.current));
+        setEstagio("entregando");
+
+        timers.current.push(
+          window.setTimeout(() => {
+            setVisivel(false);
+            document.body.style.overflow = "";
+            window.__lenis?.start();
+          }, DURACAO.cortina),
+        );
+      }, DURACAO.respiro),
+    );
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -125,26 +173,17 @@ export function Preloader() {
       window.__lenis?.start();
     };
 
-    const timers = [
-      setTimeout(() => setEstagio("escrevendo"), DURACAO.atrasoTraco),
-      setTimeout(() => {
-        // A medida é tirada AGORA, e não na montagem: o cabeçalho tem a
-        // própria animação de entrada, e medir antes dela terminar daria a
-        // posição de onde ele estava, não de onde ficou.
-        setAlvo(medirAlvo(marcaRef.current));
-        setEstagio("entregando");
-      }, DURACAO.atrasoTraco + DURACAO.traco + DURACAO.respiro),
-      setTimeout(() => {
-        setVisivel(false);
-        liberar();
-      }, TOTAL),
-    ];
+    const meus = timers.current;
+    meus.push(
+      window.setTimeout(() => setEstagio("escrevendo"), DURACAO.atrasoTraco),
+      window.setTimeout(entregar, LIMITE_DO_TRACO),
+    );
 
     return () => {
-      timers.forEach(clearTimeout);
+      meus.forEach(clearTimeout);
       liberar();
     };
-  }, []);
+  }, [entregar]);
 
   if (!visivel) return null;
 
@@ -212,6 +251,7 @@ export function Preloader() {
               visivel: escrito,
               duracaoMs: DURACAO.traco,
               easing: EASE_TRACO,
+              aoTerminar: entregar,
             }}
           />
         </div>
