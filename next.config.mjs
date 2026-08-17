@@ -50,6 +50,14 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    /**
+     * Liga o instrumentation.ts, que roda uma vez quando o servidor sobe.
+     * No Next 14 este gancho ainda é experimental e precisa ser pedido; sem
+     * esta linha o arquivo é simplesmente ignorado, sem erro nenhum.
+     */
+    instrumentationHook: true,
+  },
   /**
    * A landing page é um projeto Vite separado (site-mimo), compilado a cada
    * build para dentro do public/ daqui. Estas reescritas fazem o Next servir
