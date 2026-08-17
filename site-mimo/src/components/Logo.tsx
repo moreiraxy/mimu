@@ -12,13 +12,31 @@
  * branco dentro do quadrado coral, e a única variação permitida é o fundo.
  */
 
+/**
+ * Como o traço aparece: pronto de uma vez, ou sendo desenhado.
+ *
+ * `pathLength={1}` normaliza o comprimento do caminho para 1, seja qual for o
+ * tamanho na tela. Sem isso seria preciso medir o path com `getTotalLength()`
+ * em JavaScript e guardar o número num estado — um valor a mais para
+ * dessincronizar, e que quebraria calado se o desenho do "M" mudasse.
+ */
+export interface Tracado {
+  /** `false` esconde o traço inteiro; `true` desenha até o fim. */
+  visivel: boolean;
+  duracaoMs: number;
+  easing: string;
+}
+
 /** O "M". `stroke` acompanha `currentColor` para o símbolo servir a qualquer fundo. */
 export function MimuMark({
   className = "",
   strokeWidth = 5,
+  tracado,
 }: {
   className?: string;
   strokeWidth?: number;
+  /** Quando presente, o "M" é desenhado em vez de aparecer pronto. */
+  tracado?: Tracado;
 }) {
   return (
     <svg
@@ -33,6 +51,16 @@ export function MimuMark({
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
+        pathLength={tracado ? 1 : undefined}
+        strokeDasharray={tracado ? 1 : undefined}
+        strokeDashoffset={tracado ? (tracado.visivel ? 0 : 1) : undefined}
+        style={
+          tracado
+            ? {
+                transition: `stroke-dashoffset ${tracado.duracaoMs}ms ${tracado.easing}`,
+              }
+            : undefined
+        }
       />
     </svg>
   );
@@ -42,14 +70,21 @@ export function MimuMark({
  * O ícone fechado: "M" branco dentro do quadrado coral. É o bloco que aparece
  * no header, no rodapé e como ícone do app.
  */
-export function MimuIcon({ className = "" }: { className?: string }) {
+export function MimuIcon({
+  className = "",
+  tracado,
+}: {
+  className?: string;
+  /** Repassado ao "M": só a abertura do site usa, para desenhá-lo na hora. */
+  tracado?: Tracado;
+}) {
   return (
     <span
       className={`flex shrink-0 items-center justify-center bg-coral text-primary-text ${className}`}
     >
       {/* 58% da caixa: a proporção que o manual repete em todas as aplicações
           (42/72 na capa, 48/80 no logo, 92/168 no ícone do app). */}
-      <MimuMark className="h-[43%] w-[58%]" />
+      <MimuMark className="h-[43%] w-[58%]" tracado={tracado} />
     </span>
   );
 }

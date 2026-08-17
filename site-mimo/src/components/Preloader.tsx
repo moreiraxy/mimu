@@ -4,31 +4,45 @@ import { MimuIcon } from "./Logo";
 /**
  * Intro de carregamento.
  *
- * A versão anterior durava 2,9s e era uma sequência solta: o ícone crescia, a
- * marca deslizava 10px (movimento pequeno demais para ser lido como
- * intenção), uma linha decorativa crescia até 280px sem significar nada, e no
- * fim tudo sumia com um fade. A página aparecia atrás sem nenhuma relação com
- * o que tinha acabado de acontecer.
+ * A marca é medida contra a marca real do cabeçalho e voa até a posição exata
+ * dela enquanto a cortina sobe. Quem assiste vê um movimento só, do centro da
+ * tela até o canto onde o logo vive, e a página já está lá quando a cortina
+ * passa.
  *
- * Esta versão troca a lógica: em vez de acabar, a intro ENTREGA. A marca é
- * medida contra a marca real do cabeçalho e voa até a posição exata dela
- * enquanto a cortina sobe. Quem assiste vê um movimento só, do centro da tela
- * até o canto onde o logo vive — e a página já está lá quando a cortina passa.
+ * O "M" é DESENHADO, não revelado: o quadrado néon aparece e o traço se
+ * escreve dentro dele, de uma ponta à outra. Uma máscara passando por cima
+ * empurraria uma cortina; o traço percorrendo o caminho mostra a forma sendo
+ * feita, que é o que a marca é — uma linha contínua, sem tirar a caneta do
+ * papel.
  *
- * Também é bem mais curta: 1,44s no total contra 2,9s. Intro longa cobra o
- * tempo de quem chegou, e cobra de novo a cada visita.
+ * Não há mais o "mimu" escrito ao lado. Ele existia para a intro ter o que
+ * revelar, e agora quem revela é o próprio traço. Tirá-lo também consertou a
+ * pontaria do voo: a medida do destino divide a largura da marca do cabeçalho
+ * pela largura do que está voando, e com o wordmark junto essas duas larguras
+ * eram coisas diferentes, então a escala final saía pequena demais.
+ *
+ * 1,45s no total. Intro longa cobra o tempo de quem chegou, e cobra de novo a
+ * cada visita.
  */
 
 /** Saída padrão do site: começa rápido e desacelera, sem balanço. */
 const EASE_SAIDA = "cubic-bezier(0.22, 1, 0.36, 1)";
-/** Entrada com um respiro de overshoot, só na chegada da marca. */
+/** Entrada com um respiro de overshoot, só na chegada do quadrado. */
 const EASE_ENTRADA = "cubic-bezier(0.34, 1.4, 0.64, 1)";
 
 const DURACAO = {
-  /** Marca aparece no centro. */
-  entrada: 420,
-  /** Wordmark revelado por máscara, letra a letra da esquerda pra direita. */
-  wordmark: 380,
+  /** O quadrado néon aparece, ainda vazio. */
+  caixa: 360,
+  /**
+   * O traço começa ANTES de o quadrado terminar de crescer. Esperar o fim
+   * deixaria dois movimentos em fila, um depois do outro; a sobreposição faz
+   * os dois lerem como um gesto só.
+   */
+  atrasoTraco: 110,
+  /** O "M" sendo escrito, de ponta a ponta. */
+  traco: 580,
+  /** Um respiro com o "M" inteiro na tela antes de ele sair voando. */
+  respiro: 120,
   /**
    * O voo é mais curto que a cortina de propósito. Com os dois no mesmo
    * tempo, a cortina terminava muito antes (a curva é bem adiantada) e
@@ -41,9 +55,10 @@ const DURACAO = {
 } as const;
 
 /** Quanto tempo a intro fica na tela, do começo ao desmonte. */
-const TOTAL = DURACAO.entrada + DURACAO.wordmark + DURACAO.cortina;
+const TOTAL =
+  DURACAO.atrasoTraco + DURACAO.traco + DURACAO.respiro + DURACAO.cortina;
 
-type Estagio = "entrando" | "assinatura" | "entregando" | "fim";
+type Estagio = "entrando" | "escrevendo" | "entregando" | "fim";
 
 /** Onde a marca do cabeçalho está, em coordenadas de tela. */
 type Alvo = { x: number; y: number; escala: number };
@@ -97,14 +112,14 @@ export function Preloader() {
     };
 
     const timers = [
-      setTimeout(() => setEstagio("assinatura"), DURACAO.entrada),
+      setTimeout(() => setEstagio("escrevendo"), DURACAO.atrasoTraco),
       setTimeout(() => {
         // A medida é tirada AGORA, e não na montagem: o cabeçalho tem a
         // própria animação de entrada, e medir antes dela terminar daria a
         // posição de onde ele estava, não de onde ficou.
         setAlvo(medirAlvo(marcaRef.current));
         setEstagio("entregando");
-      }, DURACAO.entrada + DURACAO.wordmark),
+      }, DURACAO.atrasoTraco + DURACAO.traco + DURACAO.respiro),
       setTimeout(() => {
         setVisivel(false);
         liberar();
@@ -120,7 +135,7 @@ export function Preloader() {
   if (!visivel) return null;
 
   const dentro = estagio !== "entrando";
-  const assinado = estagio === "assinatura" || estagio === "entregando";
+  const escrito = estagio === "escrevendo" || estagio === "entregando";
   const entregando = estagio === "entregando";
 
   return (
@@ -146,7 +161,7 @@ export function Preloader() {
 
       <div
         ref={marcaRef}
-        className="relative flex items-center gap-3.5"
+        className="relative"
         style={{
           // Sem alvo medido, a marca sobe junto com a cortina em vez de voar
           // pra um lugar errado.
@@ -157,44 +172,35 @@ export function Preloader() {
             : "translate(0, 0) scale(1)",
           // Some no finalzinho do voo: embaixo dela está a marca de verdade
           // do cabeçalho, e as duas visíveis ao mesmo tempo entregariam o
-          // truque. O atraso deixa quase todo o percurso opaco.
-          opacity: entregando ? 0 : dentro ? 1 : 0,
+          // truque. O atraso deixa quase todo o percurso opaco. Quem faz a
+          // entrada é a caixa lá dentro, não este contêiner.
+          opacity: entregando ? 0 : 1,
           transition: entregando
             ? `transform ${DURACAO.voo}ms ${EASE_SAIDA}, opacity 160ms ease-in ${DURACAO.voo - 120}ms`
-            : `opacity ${DURACAO.entrada}ms ease-out`,
+            : "none",
         }}
       >
         <div
           style={{
-            transform: dentro ? "scale(1)" : "scale(0.84)",
-            transition: `transform ${DURACAO.entrada}ms ${EASE_ENTRADA}`,
+            transform: dentro ? "scale(1)" : "scale(0.72)",
+            opacity: dentro ? 1 : 0,
+            transition: `transform ${DURACAO.caixa}ms ${EASE_ENTRADA}, opacity ${DURACAO.caixa * 0.5}ms ease-out`,
           }}
         >
-          <MimuIcon className="size-14 rounded-[15px]" />
+          {/* 96px, e não os 56 de antes: naquele tamanho a marca dividia a
+              tela com o "mimu" escrito ao lado e o conjunto tinha presença.
+              Sozinha, ela precisa ocupar o centro por conta própria, senão a
+              abertura vira um ponto perdido no preto. O raio acompanha a
+              proporção de sempre, 27% do lado. */}
+          <MimuIcon
+            className="size-24 rounded-[26px]"
+            tracado={{
+              visivel: escrito,
+              duracaoMs: DURACAO.traco,
+              easing: EASE_SAIDA,
+            }}
+          />
         </div>
-
-        {/*
-          O wordmark é descoberto por máscara, da esquerda pra direita, como
-          se estivesse sendo escrito. A versão anterior deslizava 10px: um
-          movimento pequeno demais para ser percebido como decisão, e que só
-          deixava o texto "tremendo" ao aparecer.
-
-          Some junto com a cortina porque o destino é a marca do cabeçalho, e
-          lá o wordmark tem outro tamanho — levá-lo junto obrigaria a animar
-          dois alvos e a chegada ficaria imprecisa.
-        */}
-        <span
-          className="overflow-hidden font-brand text-[52px] leading-none text-white"
-          style={{
-            clipPath: assinado ? "inset(0 0 0 0)" : "inset(0 100% 0 0)",
-            opacity: entregando ? 0 : 1,
-            transition: entregando
-              ? "opacity 220ms ease-in"
-              : `clip-path ${DURACAO.wordmark}ms ${EASE_SAIDA}`,
-          }}
-        >
-          mimu
-        </span>
       </div>
     </div>
   );
