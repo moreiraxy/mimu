@@ -1,54 +1,40 @@
 /**
  * Roda uma vez, quando o servidor sobe.
  *
- * Serve a uma coisa só: publicar o CRON_SECRET no Vault do Supabase, para o
- * agendamento diário usar o mesmo segredo que a rota confere.
+ * Serve a uma coisa só: garantir que o segredo da tarefa diária exista antes
+ * do primeiro disparo. Quem cria é o banco, na primeira vez que alguém
+ * pergunta por ele; este boot é só quem faz a pergunta cedo, para o
+ * agendamento das 17h não ser o primeiro a descobrir que não havia nada.
  *
- * Antes o valor era copiado à mão nos dois lugares, e eles saíram de sincronia
- * sem ninguém perceber: a tarefa disparava no horário, o agendador registrava
- * "succeeded" (porque o SQL enfileirou a chamada com sucesso) e a resposta
- * HTTP, guardada num canto do banco, era 404. Os avisos diários simplesmente
- * não aconteciam, e nada gritava.
- *
- * Agora a variável do Railway é a única fonte. Trocar lá e dar deploy basta.
+ * Não existe mais nada para configurar à mão. O valor era digitado em dois
+ * lugares que precisavam concordar, deu errado três vezes seguidas, e na
+ * última o que estava no ambiente era o próprio espaço reservado da
+ * instrução. Agora o segredo nasce sozinho e mora num lugar só.
  */
 export async function register() {
   // `register` também é chamado no runtime edge, onde não há service role nem
   // motivo para isto acontecer duas vezes.
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
-  const segredo = process.env.CRON_SECRET;
-
-  if (!segredo) {
-    console.error(
-      "CRON_SECRET não está definida. A tarefa diária de alertas vai " +
-        "responder 404 e ninguém recebe aviso. Defina a variável no Railway " +
-        "e refaça o deploy.",
-    );
-    return;
-  }
-
   try {
     const { createServiceClient } = await import("@/lib/supabase/service");
-    const { error } = await createServiceClient().rpc("definir_segredo_cron", {
-      p_segredo: segredo,
-    });
+    const { error } = await createServiceClient().rpc("obter_segredo_cron");
 
     if (error) {
       console.error(
-        "Falha ao publicar o segredo da tarefa diária no Vault.",
+        "Não consegui preparar o segredo da tarefa diária de alertas.",
         error.message,
       );
       return;
     }
 
-    console.log("Segredo da tarefa diária publicado no Vault.");
+    console.log("Segredo da tarefa diária de alertas pronto.");
   } catch (erro) {
     // Nunca derruba o boot: sem os avisos diários o produto continua de pé, e
     // um servidor que não sobe seria um estrago muito maior que um alerta que
     // não chega.
     console.error(
-      "Erro inesperado ao publicar o segredo da tarefa diária.",
+      "Erro inesperado ao preparar o segredo da tarefa diária.",
       erro instanceof Error ? erro.message : String(erro),
     );
   }

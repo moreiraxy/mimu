@@ -639,10 +639,10 @@ export interface Database {
         Args: { p_empresa_id: string; p_tipo_negocio: string | null };
         Returns: undefined;
       };
-      /** Publica o CRON_SECRET do servidor no Vault. Ver instrumentation.ts. */
-      definir_segredo_cron: {
-        Args: { p_segredo: string };
-        Returns: undefined;
+      /** Devolve o segredo da tarefa diária, criando um se ainda não houver. */
+      obter_segredo_cron: {
+        Args: Record<string, never>;
+        Returns: string;
       };
     };
     Enums: { [_ in never]: never };

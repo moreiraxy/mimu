@@ -16,9 +16,38 @@ import type { StatusAssinatura } from "@/types/database";
  * precisar ler dados de todo mundo.
  */
 
-/** Sem sessão, a única barreira é este segredo. Sem ele configurado, a rota não roda. */
-function autorizado(request: Request): boolean {
-  const segredo = process.env.CRON_SECRET;
+/**
+ * O segredo vem do banco, não do ambiente.
+ *
+ * Ele já morava no Vault, porque é de lá que o agendamento tira o cabeçalho.
+ * A rota conferia contra uma variável de ambiente separada, e manter os dois
+ * valores iguais era trabalho manual que deu errado três vezes seguidas. Lendo
+ * do mesmo lugar, não existe mais como discordarem.
+ *
+ * Fica em cache no processo: a tarefa roda uma vez por dia, mas a rota também
+ * é chamada por quem chuta URL, e cada chute não precisa virar uma consulta.
+ */
+let segredoEmCache: string | null = null;
+
+async function segredoDoCron(): Promise<string | null> {
+  if (segredoEmCache) return segredoEmCache;
+
+  const { data, error } = await createServiceClient().rpc(
+    "obter_segredo_cron",
+  );
+
+  if (error || !data) {
+    console.error("Não consegui ler o segredo da tarefa diária.", error);
+    return null;
+  }
+
+  segredoEmCache = data;
+  return data;
+}
+
+/** Sem sessão, a única barreira é este segredo. Sem ele, a rota não roda. */
+async function autorizado(request: Request): Promise<boolean> {
+  const segredo = await segredoDoCron();
   if (!segredo) return false;
 
   const cabecalho = request.headers.get("authorization") ?? "";
@@ -37,22 +66,19 @@ const STATUS_QUE_RECEBEM = ["trial", "ativa"] as const;
 /**
  * Confere só a autorização, sem gerar nem enviar nada.
  *
- * O segredo mora em dois lugares que precisam bater: a variável no Railway,
- * que a rota lê, e o Vault do Supabase, de onde o agendamento tira o
- * cabeçalho. Se um for trocado sem o outro, a tarefa passa a responder 404
- * todo dia — em silêncio, porque falhar fechado é justamente não contar nada
- * a quem chama. Sem esta rota, descobrir isso exigia disparar a tarefa de
- * verdade e mandar aviso para todo mundo só para ver se o número batia.
+ * Serve para testar o encanamento sem disparar aviso para ninguém. Antes era
+ * a única forma de descobrir que o segredo estava errado sem mandar
+ * notificação para todo mundo só para ver se o número batia.
  */
 export async function GET(request: Request) {
-  if (!autorizado(request)) {
+  if (!(await autorizado(request))) {
     return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
   }
   return NextResponse.json({ ok: true, rota: "alertas-diarios" });
 }
 
 export async function POST(request: Request) {
-  if (!autorizado(request)) {
+  if (!(await autorizado(request))) {
     // 404 e não 401: confirmar que a rota existe já entrega que há uma tarefa
     // agendada aqui e convida a tentar adivinhar o segredo.
     return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
