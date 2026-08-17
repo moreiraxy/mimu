@@ -8,7 +8,10 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 // exigência de sessão quanto do redirect de "usuário já logado".
 // "/" é a landing page pública; o redirect de quem já está logada acontece
 // mais abaixo, não na página, porque "/" agora é reescrito para o HTML dela.
-const ALWAYS_PUBLIC_ROUTES = ["/redefinir-senha", "/"];
+// /auth/confirmar é onde os links dos e-mails aterrissam. Quem chega ali
+// ainda NÃO tem sessão: é justamente a rota que a cria. Exigir login aqui
+// mandaria a pessoa para o login com o link na mão, que era o sintoma.
+const ALWAYS_PUBLIC_ROUTES = ["/redefinir-senha", "/auth/confirmar", "/"];
 
 // Páginas internas da landing page (histórias de clientes e textos legais).
 // Precisam ser públicas pelo motivo óbvio: quem lê a política de privacidade

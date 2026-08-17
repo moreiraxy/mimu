@@ -27,15 +27,31 @@ function SubmitButton() {
   );
 }
 
+/**
+ * O que dizer quando alguém chega aqui vindo de um link de e-mail que não deu
+ * certo. "Inválido" sozinho faria a pessoa achar que o cadastro dela falhou,
+ * quando quase sempre o que houve foi demora ou um segundo clique no mesmo
+ * link.
+ */
+const RECADO_DO_LINK: Record<string, string> = {
+  "link-expirado":
+    "Esse link já foi usado ou passou da validade. Entre com sua senha, ou peça um novo e-mail de confirmação abaixo.",
+  "link-invalido":
+    "Não consegui ler esse link. Tente abrir de novo pelo e-mail, ou peça um novo abaixo.",
+};
+
 export function LoginForm({
   confirmacaoPendente,
   senhaRedefinida,
   plano = "",
+  erroDoLink = null,
 }: {
   confirmacaoPendente: boolean;
   senhaRedefinida: boolean;
   /** Plano escolhido na landing, repassado para o destino depois do login. */
   plano?: string;
+  /** Motivo pelo qual o link do e-mail não funcionou, vindo da URL. */
+  erroDoLink?: string | null;
 }) {
   const [state, formAction] = useFormState(signIn, initialState);
   const [reenvio, reenviarAction] = useFormState(
@@ -87,6 +103,11 @@ export function LoginForm({
           autoComplete="current-password"
           required
         />
+        {erroDoLink && RECADO_DO_LINK[erroDoLink] && (
+          <p className="rounded-button bg-ambar-light px-3 py-2 text-sm text-ambar-texto">
+            {RECADO_DO_LINK[erroDoLink]}
+          </p>
+        )}
         {state?.error && (
           <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
             {state.error}
