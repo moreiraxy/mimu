@@ -29,6 +29,20 @@ import { MimuIcon } from "./Logo";
 const EASE_SAIDA = "cubic-bezier(0.22, 1, 0.36, 1)";
 /** Entrada com um respiro de overshoot, só na chegada do quadrado. */
 const EASE_ENTRADA = "cubic-bezier(0.34, 1.4, 0.64, 1)";
+/**
+ * Curva do traço, e ela NÃO pode ser a EASE_SAIDA do site.
+ *
+ * Aquela é violentamente adiantada: com ela, o "M" ficava 55% desenhado em 15%
+ * do tempo e 96% na metade. O olho não lia isso como escrever, lia como a
+ * letra aparecendo de uma vez e depois a pontinha da última perna se
+ * arrastando sozinha pelo resto da animação. O movimento inteiro virava "uma
+ * perninha animando".
+ *
+ * Esta distribui: 6%, 34%, 65%, 83% e 94% ao longo do tempo, sem nenhum salto
+ * maior que 31% entre fatias. É o gesto de uma caneta, que sai do repouso,
+ * anda num ritmo constante e desacelera no fim.
+ */
+const EASE_TRACO = "cubic-bezier(0.3, 0.05, 0.25, 1)";
 
 const DURACAO = {
   /** O quadrado néon aparece, ainda vazio. */
@@ -40,7 +54,7 @@ const DURACAO = {
    */
   atrasoTraco: 110,
   /** O "M" sendo escrito, de ponta a ponta. */
-  traco: 580,
+  traco: 620,
   /** Um respiro com o "M" inteiro na tela antes de ele sair voando. */
   respiro: 120,
   /**
@@ -197,7 +211,7 @@ export function Preloader() {
             tracado={{
               visivel: escrito,
               duracaoMs: DURACAO.traco,
-              easing: EASE_SAIDA,
+              easing: EASE_TRACO,
             }}
           />
         </div>
