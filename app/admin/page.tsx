@@ -316,7 +316,16 @@ function LinhaConta({
   }
 
   async function alternar(chaves: string[]) {
-    const ligado = chaves.every((c) => modulos.includes(c));
+    /*
+     * `some` e não `every`, igual à tela da cliente.
+     *
+     * Com `every`, um cartão de duas chaves (Agenda e Clientes) só acendia se
+     * as DUAS estivessem ligadas. Como este painel liga chave por chave, dava
+     * para deixar uma conta com "agenda" sem "clientes": aqui o cartão
+     * aparecia apagado e no app dela a agenda funcionava. As duas telas
+     * discordavam sobre a mesma conta.
+     */
+    const ligado = chaves.some((c) => modulos.includes(c));
     const proximo = ligado
       ? modulos.filter((m) => !chaves.includes(m))
       : Array.from(new Set([...modulos, ...chaves]));
@@ -408,7 +417,7 @@ function LinhaConta({
 
           <div className="flex flex-wrap gap-2">
             {MODULOS.map((m) => {
-              const ligado = m.chaves.every((c) => modulos.includes(c));
+              const ligado = m.chaves.some((c) => modulos.includes(c));
               return (
                 <button
                   key={m.id}

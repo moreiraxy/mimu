@@ -68,10 +68,16 @@ function ToastBubble({ toast }: { toast: ToastItem }) {
 
   const visivel = entrou && !toast.saindo;
 
+  /*
+   * `text-fundo` e não `text-white`. O fundo do aviso é `escuro`, que inverte
+   * com o tema: no tema escuro ele é branco, e o texto branco por cima ficava
+   * invisível. Toda mensagem do app passa por aqui, inclusive "Não consegui
+   * salvar", então isso significava erro que ninguém lia.
+   */
   return (
     <div
       className={cn(
-        "pointer-events-auto flex w-full max-w-[380px] items-center justify-center gap-2 rounded-button bg-escuro px-4 py-3 text-center text-sm font-medium text-white shadow-lg transition-[transform,opacity] duration-[180ms] ease-out motion-reduce:duration-100",
+        "pointer-events-auto flex w-full max-w-[380px] items-center justify-center gap-2 rounded-button bg-escuro px-4 py-3 text-center text-sm font-medium text-fundo shadow-lg transition-[transform,opacity] duration-[180ms] ease-out motion-reduce:duration-100",
         visivel
           ? "translate-y-0 opacity-100"
           : "translate-y-2 opacity-0 motion-reduce:translate-y-0",

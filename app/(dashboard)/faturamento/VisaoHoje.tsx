@@ -48,9 +48,11 @@ export function VisaoHoje({
         </div>
       </div>
 
+      {/* text-fundo, não text-white: o fundo `escuro` fica branco no tema
+          escuro, e texto branco por cima desaparece. */}
       <div className="rounded-card bg-escuro p-4 text-center">
-        <p className="text-xs text-white/70">Potencial total do dia</p>
-        <p className="mt-1 text-2xl font-bold text-white">
+        <p className="text-xs text-fundo/70">Potencial total do dia</p>
+        <p className="mt-1 text-2xl font-bold text-fundo">
           {formatCurrency(potencial)}
         </p>
       </div>
