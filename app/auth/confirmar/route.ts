@@ -34,12 +34,29 @@ const TIPOS_ACEITOS = new Set<EmailOtpType>([
 ]);
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
   const tokenHash = searchParams.get("token_hash");
   const tipo = searchParams.get("type") as EmailOtpType | null;
 
-  const paraLogin = (motivo: string) =>
-    NextResponse.redirect(`${origin}/login?erro=${motivo}`);
+  /**
+   * O destino é montado a partir da URL da própria requisição, e NÃO com
+   * `origin` colado à mão.
+   *
+   * Atrás do proxy do Railway, `request.nextUrl.origin` é o endereço interno
+   * do contêiner: quem confirmava o e-mail era mandado para
+   * https://localhost:8080/login e batia numa página que não existe na
+   * máquina dela. Clonando a URL e trocando só o caminho, o Next percebe que
+   * o destino é o mesmo host e devolve um endereço relativo, que funciona em
+   * qualquer ambiente. É o que o middleware já fazia.
+   */
+  const paraRota = (caminho: string, erro?: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = caminho;
+    url.search = erro ? `?erro=${erro}` : "";
+    return NextResponse.redirect(url);
+  };
+
+  const paraLogin = (motivo: string) => paraRota("/login", motivo);
 
   if (!tokenHash || !tipo || !TIPOS_ACEITOS.has(tipo)) {
     return paraLogin("link-invalido");
@@ -62,9 +79,9 @@ export async function GET(request: NextRequest) {
   // A sessão já existe a partir daqui. Recuperação vai escolher a senha nova;
   // o resto entra no produto, no ponto certo para o estado da conta.
   if (tipo === "recovery") {
-    return NextResponse.redirect(`${origin}/redefinir-senha`);
+    return paraRota("/redefinir-senha");
   }
 
   const destino = await destinoAposLogin(supabase, data.user.id);
-  return NextResponse.redirect(`${origin}${destino}`);
+  return paraRota(destino);
 }

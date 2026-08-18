@@ -10,7 +10,19 @@ function configurarVapid(): boolean {
 
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  if (!publicKey || !privateKey) return false;
+  if (!publicKey || !privateKey) {
+    // Barulhento de propósito. Sem as chaves, TODO push do produto some sem
+    // deixar rastro: o aviso diário, o de novo cadastro, o do chat. Era um
+    // `return` mudo, e descobrir isso exigia adivinhar.
+    console.error(
+      "Push desativado: falta " +
+        [!publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY", !privateKey && "VAPID_PRIVATE_KEY"]
+          .filter(Boolean)
+          .join(" e ") +
+        " no ambiente. Nenhuma notificação sai enquanto isso.",
+    );
+    return false;
+  }
 
   webpush.setVapidDetails(
     process.env.VAPID_SUBJECT || "mailto:suporte@mimu.app",
@@ -58,6 +70,15 @@ export async function enviarPushParaEmpresa(
         );
       } catch (erro) {
         const statusCode = (erro as { statusCode?: number }).statusCode;
+        if (statusCode !== 404 && statusCode !== 410) {
+          // Falha que não é inscrição morta merece registro: é o único sinal
+          // de que o push parou de sair.
+          console.error("Push recusado pelo navegador.", {
+            empresaId,
+            statusCode,
+            corpo: (erro as { body?: string }).body?.slice(0, 120),
+          });
+        }
         if (statusCode === 404 || statusCode === 410) {
           // Inscrição expirada/revogada no navegador — remove pra não tentar de novo.
           await supabase

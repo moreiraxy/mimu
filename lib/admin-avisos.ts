@@ -26,7 +26,10 @@ export async function avisarAdminsNovoCadastro(
     const service = createServiceClient();
 
     const { data: admins } = await service.from("admins").select("user_id");
-    if (!admins || admins.length === 0) return;
+    if (!admins || admins.length === 0) {
+      console.error("Aviso de novo cadastro não saiu: nenhum admin cadastrado.");
+      return;
+    }
 
     // A empresa de cada admin — é ela que endereça o push.
     const { data: empresas } = await service
@@ -36,7 +39,13 @@ export async function avisarAdminsNovoCadastro(
         "user_id",
         admins.map((a) => a.user_id),
       );
-    if (!empresas || empresas.length === 0) return;
+    if (!empresas || empresas.length === 0) {
+      console.error(
+        "Aviso de novo cadastro não saiu: os admins não têm empresa, e é a " +
+          "empresa que endereça o push.",
+      );
+      return;
+    }
 
     await Promise.all(
       empresas.map((e) =>
