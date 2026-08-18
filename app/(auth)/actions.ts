@@ -7,6 +7,7 @@ import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import { planoValido } from "@/lib/planos";
 import { destinoAposLogin } from "@/lib/destino-pos-login";
 import { avisarAdminsNovoCadastro } from "@/lib/admin-avisos";
+import { registrarEvento } from "@/lib/eventos";
 import {
   primeiroErroZod,
   schemaCadastro,
@@ -119,6 +120,15 @@ export async function signUp(
       message: error.message,
       cause: error.cause,
     });
+    // O cadastro ficou três dias quebrado sem nada avisar. Este registro é o
+    // que faz uma falha assim aparecer no painel em vez de só no log.
+    await registrarEvento("cadastro_falhou", {
+      detalhe: {
+        motivo: error.message,
+        status: error.status ?? null,
+        codigo: (error as { code?: string }).code ?? null,
+      },
+    });
     return { error: traduzErroSupabase(error.message) };
   }
 
@@ -126,6 +136,10 @@ export async function signUp(
   // fire-and-forget): numa Server Action a resposta pode encerrar antes de
   // uma promessa solta terminar, e o aviso se perderia. A função inteira é
   // silenciosa por dentro, então isso não tem como quebrar o cadastro.
+  await registrarEvento("cadastro", {
+    userId: data.user?.id ?? null,
+    detalhe: { negocio: nomeNegocio, plano: plano || null },
+  });
   await avisarAdminsNovoCadastro(nomeNegocio);
 
   if (!data.session) {
@@ -164,11 +178,20 @@ export async function signIn(
   });
 
   if (error) {
+    await registrarEvento("login_falhou", {
+      detalhe: {
+        motivo: error.message,
+        precisaConfirmar: error.message.includes("Email not confirmed"),
+      },
+    });
     return {
       error: traduzErroSupabase(error.message),
       precisaConfirmar: error.message.includes("Email not confirmed"),
     };
   }
+
+  const { data: entrou } = await supabase.auth.getUser();
+  await registrarEvento("login", { userId: entrou.user?.id ?? null });
 
   // Veio de um plano da landing: o destino é o checkout, não o painel. Quem
   // clicou em "Seja Pro" e entrou na conta quer assinar, não olhar o dia.
@@ -180,9 +203,8 @@ export async function signIn(
   // Sem plano na mão, o destino sai do estado da conta. Mandar todo mundo
   // pro /dashboard fazia quem tem pagamento pendente entrar no painel e só
   // ser barrada ao recarregar a página.
-  const { data: usuario } = await supabase.auth.getUser();
   redirect(
-    usuario.user ? await destinoAposLogin(supabase, usuario.user.id) : "/dashboard",
+    entrou.user ? await destinoAposLogin(supabase, entrou.user.id) : "/dashboard",
   );
 }
 

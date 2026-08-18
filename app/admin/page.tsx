@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { SaudeSection } from "./SaudeSection";
 import {
   Search, Users, CreditCard, Clock, AlertTriangle, ChevronDown, Check,
 } from "lucide-react";
@@ -123,6 +124,8 @@ export default function PainelAdmin() {
           Contas da Mimu, assinaturas e módulos.
         </p>
       </header>
+
+      <SaudeSection />
 
       {erro && (
         <p className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary-forte">

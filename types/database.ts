@@ -461,6 +461,31 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["admin_auditoria"]["Insert"]>;
         Relationships: [];
       };
+      eventos: {
+        Row: {
+          id: string;
+          tipo: string;
+          empresa_id: string | null;
+          user_id: string | null;
+          detalhe: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tipo: string;
+          empresa_id?: string | null;
+          user_id?: string | null;
+          detalhe?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          tipo?: string;
+          empresa_id?: string | null;
+          user_id?: string | null;
+          detalhe?: Json | null;
+        };
+        Relationships: [];
+      };
       admins: {
         Row: {
           user_id: string;

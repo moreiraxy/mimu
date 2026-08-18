@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getGroq, DEFAULT_MODEL, MODELOS_RESERVA, modeloSumiu } from "@/lib/groq";
+import { registrarEvento } from "@/lib/eventos";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import {
   buildAlertaMessage,
@@ -436,6 +437,17 @@ async function responderConversa(supabase: Supabase, empresa: Empresa) {
     respostaTexto = resposta.choices[0]?.message?.content ?? "";
   } catch (err) {
     console.error("Erro ao chamar a API da Groq:", err);
+    // A Mimu já ficou muda por horas sem ninguém saber, porque a Groq
+    // aposentou o modelo e o 502 morria no log. Aqui isso vira linha no
+    // painel.
+    await registrarEvento("mimu_falhou", {
+      empresaId: empresa.id,
+      detalhe: {
+        modelo: DEFAULT_MODEL,
+        motivo: err instanceof Error ? err.message : String(err),
+        status: (err as { status?: number }).status ?? null,
+      },
+    });
     return NextResponse.json(
       {
         error:

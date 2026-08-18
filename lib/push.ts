@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { registrarEvento } from "@/lib/eventos";
 import type { createClient } from "@/lib/supabase/server";
 
 type Supabase = ReturnType<typeof createClient>;
@@ -49,7 +50,13 @@ export async function enviarPushParaEmpresa(
   empresaId: string,
   payload: PushPayload,
 ): Promise<void> {
-  if (!configurarVapid()) return;
+  if (!configurarVapid()) {
+    await registrarEvento("push_falhou", {
+      empresaId,
+      detalhe: { motivo: "chaves VAPID ausentes no ambiente" },
+    });
+    return;
+  }
 
   const { data: inscricoes } = await supabase
     .from("push_subscriptions")
