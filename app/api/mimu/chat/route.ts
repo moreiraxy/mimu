@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getGroq, DEFAULT_MODEL } from "@/lib/groq";
+import { getGroq, DEFAULT_MODEL, MODELOS_RESERVA, modeloSumiu } from "@/lib/groq";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import {
   buildAlertaMessage,
@@ -405,15 +405,34 @@ async function responderConversa(supabase: Supabase, empresa: Empresa) {
 
   let respostaTexto: string;
   try {
-    const resposta = await getGroq().chat.completions.create({
-      model: DEFAULT_MODEL,
-      max_tokens: 1000,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...mensagensParaIA,
-      ],
-    });
+    // Se o modelo principal for aposentado, tenta o reserva antes de desistir.
+    // Já aconteceu uma vez, e a Mimu ficou muda para todo mundo.
+    let ultimoErro: unknown = null;
+    let resposta = null;
 
+    for (const modelo of [DEFAULT_MODEL, ...MODELOS_RESERVA]) {
+      try {
+        resposta = await getGroq().chat.completions.create({
+          model: modelo,
+          max_tokens: 1000,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...mensagensParaIA,
+          ],
+        });
+        if (modelo !== DEFAULT_MODEL) {
+          console.error(
+            `Modelo ${DEFAULT_MODEL} indisponível. Respondendo com ${modelo}. Troque o padrão em lib/groq.ts.`,
+          );
+        }
+        break;
+      } catch (err) {
+        ultimoErro = err;
+        if (!modeloSumiu(err)) throw err;
+      }
+    }
+
+    if (!resposta) throw ultimoErro;
     respostaTexto = resposta.choices[0]?.message?.content ?? "";
   } catch (err) {
     console.error("Erro ao chamar a API da Groq:", err);
