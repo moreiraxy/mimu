@@ -141,15 +141,30 @@ export function useDashboard() {
       ),
     });
     setLoading(false);
-  }, [empresa, supabase]);
+  // Depende do ID e não do OBJETO empresa: o provider pode entregar um objeto
+  // novo com os mesmos dados (troca de token, revalidação), e comparar por
+  // referência fazia o painel refazer todas as consultas à toa.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [empresa?.id, supabase]);
+
+  /*
+   * Dois efeitos, e não um, de propósito.
+   *
+   * Antes era um só, com `carregandoEmpresa` entre as dependências. Isso fazia
+   * o painel buscar tudo DUAS vezes em todo carregamento: uma quando a empresa
+   * chegava, e outra logo depois, quando a flag de carregamento virava falsa.
+   * Oito consultas para mostrar os mesmos números.
+   *
+   * Buscar depende da empresa. A flag só diz quando parar de mostrar o
+   * esqueleto para quem não tem empresa nenhuma. São perguntas diferentes.
+   */
+  useEffect(() => {
+    if (empresa?.id) carregar();
+  }, [empresa?.id, carregar]);
 
   useEffect(() => {
-    if (empresa) {
-      carregar();
-    } else if (!carregandoEmpresa) {
-      setLoading(false);
-    }
-  }, [empresa, carregandoEmpresa, carregar]);
+    if (!empresa && !carregandoEmpresa) setLoading(false);
+  }, [empresa, carregandoEmpresa]);
 
   // Revalida a cada 30s e sempre que a aba volta a ficar em foco/visível —
   // dados financeiros mudam com frequência e não há realtime aqui ainda.
@@ -173,7 +188,7 @@ export function useDashboard() {
       window.removeEventListener("focus", revalidar);
       document.removeEventListener("visibilitychange", aoMudarVisibilidade);
     };
-  }, [empresa, carregar]);
+  }, [empresa?.id, carregar]);
 
   return {
     dados,

@@ -3,6 +3,7 @@
 import {
   createContext,
   useCallback,
+  useRef,
   useEffect,
   useState,
   type ReactNode,
@@ -40,12 +41,27 @@ export const AuthContext = createContext<AuthContextValue | undefined>(
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
+  /**
+   * De quem é a empresa que já está carregada.
+   *
+   * Sem isto, a empresa era buscada duas vezes em todo carregamento: o
+   * `getUser()` e o `onAuthStateChange` disparam os dois na montagem, e cada
+   * um chamava `loadEmpresa`. Pior que o pedido repetido era a consequência:
+   * cada resposta criava um OBJETO novo de empresa, e quem depende dela (o
+   * painel inteiro) refazia as próprias consultas. Medido num celular médio,
+   * eram 15 idas ao Supabase para montar o painel, com as mesmas quatro
+   * tabelas buscadas três vezes cada.
+   */
+  const donoCarregado = useRef<string | null>(null);
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadEmpresa = useCallback(
     async (userId: string) => {
+      if (donoCarregado.current === userId) return;
+      donoCarregado.current = userId;
+
       const { data, error: fetchError } = await supabase
         .from("empresas")
         .select("*")
@@ -53,6 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (fetchError) {
+        // Volta a marcar como não carregada: falhou, então a próxima tentativa
+        // precisa realmente tentar de novo em vez de achar que já tem.
+        donoCarregado.current = null;
         setEmpresa(null);
         setError("Não foi possível carregar os dados da empresa.");
         return;
@@ -80,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         await loadEmpresa(session.user.id);
       } else {
+        donoCarregado.current = null;
         setEmpresa(null);
         setError(null);
       }

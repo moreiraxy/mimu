@@ -148,9 +148,20 @@ export async function updateSession(request: NextRequest) {
     !pathname.startsWith("/api/") &&
     pathname !== ROTA_CONTA_SUSPENSA
   ) {
+    /*
+     * Empresa e assinatura numa consulta só, com junção.
+     *
+     * Eram duas idas em sequência, e o middleware roda em TODA navegação: a
+     * segunda só começava depois da primeira voltar, e as duas somavam ao
+     * tempo antes de qualquer pixel aparecer. Medido num celular médio, o HTML
+     * levava dois segundos para chegar.
+     *
+     * A junção é possível porque assinatura tem no máximo uma por empresa, e
+     * o gate abaixo já lia as duas de qualquer jeito.
+     */
     const { data: empresa } = await supabase
       .from("empresas")
-      .select("id, onboarding_concluido, suspensa_em")
+      .select("id, onboarding_concluido, suspensa_em, assinaturas(*)")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -173,11 +184,10 @@ export async function updateSession(request: NextRequest) {
     // pra /onboarding; não faz sentido cobrar assinatura de quem nem
     // chegou no fim do cadastro (o trial só nasce ao concluir).
     if (empresa?.onboarding_concluido) {
-      const { data: assinatura } = await supabase
-        .from("assinaturas")
-        .select("*")
-        .eq("empresa_id", empresa.id)
-        .maybeSingle();
+      // A junção devolve lista; a relação é de no máximo uma.
+      const assinatura = Array.isArray(empresa.assinaturas)
+        ? (empresa.assinaturas[0] ?? null)
+        : (empresa.assinaturas ?? null);
 
       if (!assinatura) {
         const url = request.nextUrl.clone();
