@@ -77,7 +77,7 @@ export default function ClientesPage() {
   }
 
   return (
-    <FadeIn className="flex flex-col gap-4 lg:mx-auto lg:max-w-3xl">
+    <FadeIn className="flex flex-col gap-4 lg:mx-auto lg:max-w-5xl">
       <div className="flex items-center gap-2 rounded-button border border-neutro-border bg-superficie px-3.5 py-2.5">
         <SearchIcon size={16} className="text-neutro-muted" />
         <input
@@ -111,7 +111,11 @@ export default function ClientesPage() {
           Nenhum cliente encontrado.
         </p>
       ) : (
-        <div className="flex flex-col gap-2">
+        // Duas colunas a partir de 1280: em coluna única de 768px cada linha
+        // tinha um vão entre o nome e o valor, e cabia metade dos itens na
+        // tela. Abaixo de 1280 a coluna ficaria estreita demais para o nome do
+        // cliente e o valor conviverem.
+        <div className="flex flex-col gap-2 xl:grid xl:grid-cols-2 xl:gap-3">
           {filtrados.map((cliente) => (
             <ClienteListItem key={cliente.id} cliente={cliente} />
           ))}

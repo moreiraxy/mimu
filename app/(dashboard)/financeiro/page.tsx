@@ -66,7 +66,7 @@ export default function FinanceiroPage() {
   }
 
   return (
-    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-3xl">
+    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl">
       <SaldoHeader saldo={saldo} />
 
       <div className="flex gap-3">

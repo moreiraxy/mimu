@@ -32,7 +32,7 @@ export default function MetasPage() {
 
   if (loading || !dados) {
     return (
-      <div className="lg:mx-auto lg:max-w-2xl">
+      <div className="lg:mx-auto lg:max-w-5xl">
         <PageHeader title="Metas" />
         <div className="flex flex-col gap-4">
           <Skeleton className="h-52 w-full rounded-[20px]" />
@@ -49,7 +49,7 @@ export default function MetasPage() {
 
   if (error) {
     return (
-      <div className="lg:mx-auto lg:max-w-2xl">
+      <div className="lg:mx-auto lg:max-w-5xl">
         <PageHeader title="Metas" />
         <p className="text-center text-sm text-neutro-muted">{error}</p>
       </div>
@@ -57,7 +57,7 @@ export default function MetasPage() {
   }
 
   return (
-    <FadeIn className="lg:mx-auto lg:max-w-2xl">
+    <FadeIn className="lg:mx-auto lg:max-w-5xl">
       <PageHeader
         title="Metas"
         action={

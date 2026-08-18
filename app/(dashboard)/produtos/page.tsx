@@ -40,7 +40,7 @@ export default function ProdutosPage() {
 
   if (loading) {
     return (
-      <div className="lg:mx-auto lg:max-w-2xl">
+      <div className="lg:mx-auto lg:max-w-5xl">
         <PageHeader title="Produtos" />
         <div className="flex flex-col gap-2">
           <Skeleton className="h-16 w-full rounded-card" />
@@ -53,7 +53,7 @@ export default function ProdutosPage() {
 
   if (error) {
     return (
-      <div className="lg:mx-auto lg:max-w-2xl">
+      <div className="lg:mx-auto lg:max-w-5xl">
         <PageHeader title="Produtos" />
         <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-center">
           <p className="text-sm text-neutro-muted">{error}</p>
@@ -70,7 +70,7 @@ export default function ProdutosPage() {
   }
 
   return (
-    <FadeIn className="lg:mx-auto lg:max-w-2xl">
+    <FadeIn className="lg:mx-auto lg:max-w-5xl">
       <PageHeader title="Produtos" />
 
       <div className="flex items-center gap-2 rounded-button border border-neutro-border bg-superficie px-3.5 py-2.5">
@@ -102,7 +102,9 @@ export default function ProdutosPage() {
         ))}
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
+      {/* Duas colunas a partir de 1280: produto é linha curta (nome, preço,
+          estoque) e em coluna única sobra um vão enorme no meio de cada uma. */}
+      <div className="mt-4 flex flex-col gap-2 xl:grid xl:grid-cols-2 xl:gap-3">
         {filtrados.length === 0 ? (
           <p className="py-10 text-center text-sm text-neutro-muted">
             {produtos.length === 0

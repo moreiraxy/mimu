@@ -12,7 +12,7 @@ export default function AgendaPage() {
   );
 
   return (
-    <div className="flex flex-col gap-4 lg:mx-auto lg:max-w-3xl">
+    <div className="flex flex-col gap-4 lg:mx-auto lg:max-w-5xl">
       <div className="flex justify-center">
         <div className="flex gap-1 rounded-full bg-fundo p-0.5">
           {(["dia", "semana"] as const).map((opcao) => (
