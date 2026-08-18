@@ -19,9 +19,17 @@ import { enviarPushParaEmpresa } from "@/lib/push";
  * devolver erro pra ela seria trocar um aviso perdido por um cliente perdido.
  * Por isso tudo roda dentro de try/catch e o retorno é ignorado por quem chama.
  */
-export async function avisarAdminsNovoCadastro(
-  nomeNegocio: string,
-): Promise<void> {
+/**
+ * Manda um push para todos os admins do produto.
+ *
+ * Silenciosa por completo: um erro aqui NUNCA pode derrubar o que estava
+ * acontecendo. Por isso tudo roda dentro de try/catch.
+ */
+async function avisarAdmins(payload: {
+  title: string;
+  body: string;
+  url: string;
+}): Promise<void> {
   try {
     const service = createServiceClient();
 
@@ -55,15 +63,36 @@ export async function avisarAdminsNovoCadastro(
           // outra empresa que não a da sessão atual.
           service as unknown as Parameters<typeof enviarPushParaEmpresa>[0],
           e.id,
-          {
-            title: "Novo cadastro na Mimu 🎉",
-            body: `${nomeNegocio} acabou de criar uma conta.`,
-            url: "/admin",
-          },
+          payload,
         ),
       ),
     );
   } catch (erro) {
-    console.error("Falha ao avisar admins de novo cadastro:", erro);
+    console.error("Falha ao avisar os admins:", erro);
   }
+}
+
+/** Avisa que alguém acabou de se cadastrar. */
+export async function avisarAdminsNovoCadastro(
+  nomeNegocio: string,
+): Promise<void> {
+  await avisarAdmins({
+    title: "Novo cadastro na Mimu",
+    body: `${nomeNegocio} acabou de criar uma conta.`,
+    url: "/admin",
+  });
+}
+
+/**
+ * Avisa que a Mimu parou de responder.
+ *
+ * É o aviso que não existia quando a Groq aposentou o modelo: a Mimu ficou
+ * muda por horas e a descoberta veio de reclamação de cliente.
+ */
+export async function avisarAdminsMimuFora(motivo: string): Promise<void> {
+  await avisarAdmins({
+    title: "A Mimu parou de responder",
+    body: motivo.slice(0, 140),
+    url: "/admin",
+  });
 }

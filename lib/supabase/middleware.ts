@@ -26,6 +26,7 @@ const ROTAS_PUBLICAS_DA_LANDING = ["/historias", "/legal"];
 const ROTAS_PUBLICAS_SEM_AUTH = [
   "/api/pagamento/webhook",
   "/api/cron/alertas-diarios",
+  "/api/cron/saude",
 ];
 
 // Exige login, mas nunca entra no gate de assinatura abaixo — senão

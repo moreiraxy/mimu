@@ -37,8 +37,26 @@ export const DEFAULT_MODEL = "openai/gpt-oss-120b";
  */
 export const MODELOS_RESERVA = ["openai/gpt-oss-20b"] as const;
 
-/** true quando o erro da Groq é "esse modelo não existe mais". */
-export function modeloSumiu(erro: unknown): boolean {
+/**
+ * true quando vale a pena tentar outro modelo em vez de desistir.
+ *
+ * Dois casos, e o segundo não é óbvio.
+ *
+ * O modelo sumiu (404): foi o que derrubou a Mimu quando a Groq aposentou o
+ * llama.
+ *
+ * Estourou o limite (429): a Groq conta o limite POR MODELO, não por chave.
+ * Medido nos cabeçalhos, cada modelo tem o próprio saldo. Então cair no
+ * reserva num pico de uso realmente entrega a resposta, em vez de repetir o
+ * mesmo erro num modelo já saturado.
+ */
+export function deveTentarOutroModelo(erro: unknown): boolean {
   const e = erro as { status?: number; code?: string; error?: { code?: string } };
-  return e?.status === 404 || e?.code === "model_not_found" || e?.error?.code === "model_not_found";
+  const codigo = e?.code ?? e?.error?.code;
+  return (
+    e?.status === 404 ||
+    e?.status === 429 ||
+    codigo === "model_not_found" ||
+    codigo === "rate_limit_exceeded"
+  );
 }

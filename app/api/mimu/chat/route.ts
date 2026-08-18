@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getGroq, DEFAULT_MODEL, MODELOS_RESERVA, modeloSumiu } from "@/lib/groq";
+import { getGroq, DEFAULT_MODEL, MODELOS_RESERVA, deveTentarOutroModelo } from "@/lib/groq";
 import { registrarEvento } from "@/lib/eventos";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import {
@@ -429,7 +429,7 @@ async function responderConversa(supabase: Supabase, empresa: Empresa) {
         break;
       } catch (err) {
         ultimoErro = err;
-        if (!modeloSumiu(err)) throw err;
+        if (!deveTentarOutroModelo(err)) throw err;
       }
     }
 
