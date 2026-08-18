@@ -13,6 +13,17 @@ const LIMITES = {
    * assim corta o abuso automatizado.
    */
   chat_ia: { max: 60, janelaMs: 60 * 60 * 1000 },
+  /**
+   * Recuperação de senha, por e-mail pedido.
+   *
+   * Não tinha teto nenhum, e cada pedido manda uma mensagem. Além do incômodo
+   * para quem recebe, o SMTP é um Gmail com cerca de 500 envios por dia:
+   * esgotar a cota derruba junto a confirmação de cadastro de todo mundo.
+   *
+   * Três por hora cobre quem não achou o e-mail e pediu de novo, e não cobre
+   * quem está rodando um script.
+   */
+  recuperar_senha: { max: 3, janelaMs: 60 * 60 * 1000 },
 } as const;
 
 export type TipoRateLimit = keyof typeof LIMITES;
@@ -49,9 +60,16 @@ export async function registrarTentativa(
   const supabase = createServiceClient();
   const identificadorNormalizado = identificador.toLowerCase();
 
-  await supabase
+  const { error } = await supabase
     .from("auth_rate_limit")
     .insert({ tipo, identificador: identificadorNormalizado });
+
+  // Se a gravação falha, o limite deixa de contar e o teto some sem ninguém
+  // notar. Era um erro engolido: a coluna `tipo` tem check no banco, e um tipo
+  // novo esquecido ali desligaria a proteção em silêncio.
+  if (error) {
+    console.error("Falha ao registrar tentativa de rate limit.", tipo, error.message);
+  }
 
   const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   await supabase.from("auth_rate_limit").delete().lt("created_at", umDiaAtras);

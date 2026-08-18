@@ -43,6 +43,20 @@ const securityHeaders = [
       // aprovação de cartão.
       "frame-src 'self' https://*.mercadopago.com https://*.mercadopago.com.br https://*.mercadolibre.com",
       "frame-ancestors 'none'",
+      // Fecha três classes de ataque que nada aqui usa, e por isso custam
+      // zero em quebra:
+      //
+      // base-uri impede que um <base> injetado reescreva o destino de todo
+      // caminho relativo da página, mandando os scripts para outro servidor.
+      //
+      // form-action impede que um formulário injetado poste as credenciais
+      // digitadas em domínio de terceiro.
+      //
+      // object-src corta <object>, <embed> e <applet>, que são caminhos
+      // antigos de execução e não existem no produto.
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
     ].join("; "),
   },
 ];

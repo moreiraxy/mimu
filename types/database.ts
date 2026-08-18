@@ -529,13 +529,13 @@ export interface Database {
       auth_rate_limit: {
         Row: {
           id: string;
-          tipo: "login" | "cadastro" | "chat_ia";
+          tipo: "login" | "cadastro" | "chat_ia" | "recuperar_senha";
           identificador: string;
           created_at: string;
         };
         Insert: {
           id?: string;
-          tipo: "login" | "cadastro" | "chat_ia";
+          tipo: "login" | "cadastro" | "chat_ia" | "recuperar_senha";
           identificador: string;
           created_at?: string;
         };

@@ -45,6 +45,22 @@ function horarioPadrao(): HorarioFuncionamento {
   return padrao;
 }
 
+/**
+ * Tipos de imagem aceitos, e a extensão de cada um.
+ *
+ * Precisa bater com `allowed_mime_types` do bucket `logos`: se divergir, a
+ * tela deixa passar algo que o Storage recusa, e a pessoa recebe um erro
+ * genérico sem entender o motivo.
+ */
+const EXTENSAO_POR_TIPO: Record<string, string | undefined> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+};
+
+/** 2 MB, o mesmo teto configurado no bucket. */
+const TAMANHO_MAXIMO_LOGO = 2 * 1024 * 1024;
+
 export function DadosNegocioSection({
   empresa,
   onAtualizado,
@@ -80,8 +96,30 @@ export function DadosNegocioSection({
     const arquivo = event.target.files?.[0];
     if (!arquivo) return;
 
+    /*
+     * A extensão vem do TIPO do arquivo, nunca do nome que veio da máquina de
+     * quem enviou. O nome é texto escolhido por ela: "foto.png" podia ser
+     * qualquer coisa, e antes era ele que decidia como o arquivo seria
+     * guardado e servido.
+     *
+     * SVG fica de fora de propósito: é o único formato de imagem que executa
+     * script, e o bucket é público.
+     *
+     * Estas duas checagens existem para dar mensagem boa; a barreira de
+     * verdade está no bucket, que recusa tipo e tamanho fora do permitido.
+     * Quem quer burlar não usa esta tela.
+     */
+    const extensao = EXTENSAO_POR_TIPO[arquivo.type];
+    if (!extensao) {
+      showToast("Envie uma imagem PNG, JPG ou WEBP.");
+      return;
+    }
+    if (arquivo.size > TAMANHO_MAXIMO_LOGO) {
+      showToast("A imagem precisa ter até 2 MB.");
+      return;
+    }
+
     setEnviandoLogo(true);
-    const extensao = arquivo.name.split(".").pop() ?? "png";
     const caminho = `${empresa.id}/logo-${Date.now()}.${extensao}`;
 
     const { error: uploadError } = await supabase.storage

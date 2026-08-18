@@ -222,6 +222,19 @@ export async function requestPasswordReset(
 
   const { email } = validacao.data;
 
+  /*
+   * Teto por e-mail pedido. Não existia, e cada pedido dispara uma mensagem.
+   *
+   * A resposta é a MESMA de quando dá certo, de propósito: dizer "muitos
+   * pedidos para este e-mail" confirmaria que a conta existe, e transformaria
+   * esta tela num verificador de cadastro. Quem estourou o limite
+   * simplesmente não recebe o e-mail.
+   */
+  if (await excedeuLimite("recuperar_senha", email)) {
+    return { success: true };
+  }
+  await registrarTentativa("recuperar_senha", email);
+
   const origin = headers().get("origin");
   const supabase = createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
