@@ -17,6 +17,20 @@ export interface AuthContextValue {
   loading: boolean;
   error: string | null;
   signOut: () => Promise<void>;
+  /**
+   * Troca a empresa em memória depois de uma alteração salva.
+   *
+   * Existe porque a tela de Minha Empresa guardava o resultado num estado
+   * dela mesma. O banco era atualizado, a tela mostrava o novo valor, e o
+   * resto do app seguia com a lista velha: quem ligava o módulo da Mimu
+   * depois de entrar não via o item aparecer no menu, e ficava sem caminho
+   * para o chat até recarregar a página inteira.
+   *
+   * Recebe a empresa já pronta em vez de buscar de novo: quem salvou acabou
+   * de escrever esses dados e não precisa perguntar ao banco o que ela mesma
+   * mandou gravar.
+   */
+  atualizarEmpresa: (empresa: Empresa) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
@@ -79,7 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   return (
-    <AuthContext.Provider value={{ user, empresa, loading, error, signOut }}>
+    <AuthContext.Provider
+      value={{ user, empresa, loading, error, signOut, atualizarEmpresa: setEmpresa }}
+    >
       {children}
     </AuthContext.Provider>
   );

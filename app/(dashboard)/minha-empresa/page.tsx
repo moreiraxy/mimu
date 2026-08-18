@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -10,13 +9,19 @@ import { MetaSection } from "./MetaSection";
 import { ModulosSection } from "./ModulosSection";
 import { PreferenciasSection } from "./PreferenciasSection";
 import { ContaSection } from "./ContaSection";
-import type { Empresa } from "@/types";
 
+/**
+ * Não há mais cópia local da empresa aqui.
+ *
+ * Havia, e o resultado de salvar ficava só nesta tela: o menu, a barra de
+ * baixo e o painel continuavam com o valor antigo. Quem ligava um módulo
+ * depois de já estar dentro não via o destino aparecer, e no caso da Mimu
+ * ficava sem caminho nenhum para o chat.
+ *
+ * Agora quem guarda é o AuthProvider, que é quem o app inteiro lê.
+ */
 export default function MinhaEmpresaPage() {
-  const { empresa: empresaAuth, loading } = useAuth();
-  const [empresaLocal, setEmpresaLocal] = useState<Empresa | null>(null);
-
-  const empresa = empresaLocal ?? empresaAuth;
+  const { empresa, loading, atualizarEmpresa } = useAuth();
 
   if (loading || !empresa) {
     return (
@@ -35,11 +40,11 @@ export default function MinhaEmpresaPage() {
     <div className="lg:mx-auto lg:max-w-2xl">
       <PageHeader title="Minha empresa" />
       <div className="flex flex-col gap-4">
-        <DadosNegocioSection empresa={empresa} onAtualizado={setEmpresaLocal} />
+        <DadosNegocioSection empresa={empresa} onAtualizado={atualizarEmpresa} />
         <CategoriasSection />
-        <MetaSection empresa={empresa} onAtualizado={setEmpresaLocal} />
-        <ModulosSection empresa={empresa} onAtualizado={setEmpresaLocal} />
-        <PreferenciasSection empresa={empresa} onAtualizado={setEmpresaLocal} />
+        <MetaSection empresa={empresa} onAtualizado={atualizarEmpresa} />
+        <ModulosSection empresa={empresa} onAtualizado={atualizarEmpresa} />
+        <PreferenciasSection empresa={empresa} onAtualizado={atualizarEmpresa} />
         <ContaSection empresa={empresa} />
       </div>
     </div>

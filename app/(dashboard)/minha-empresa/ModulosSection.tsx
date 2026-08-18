@@ -5,7 +5,7 @@ import { LayoutGrid } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { Toggle } from "@/components/ui/Toggle";
-import { MODULOS, cartaoIdsParaChaves, chavesParaCartaoIds } from "@/lib/modulos";
+import { MODULOS, chavesParaCartaoIds } from "@/lib/modulos";
 import { SectionCard } from "./SectionCard";
 import type { Empresa } from "@/types";
 
@@ -24,9 +24,10 @@ export function ModulosSection({
   const [salvandoId, setSalvandoId] = useState<string | null>(null);
 
   async function alternar(id: string) {
-    const novoAtivos = ativos.includes(id)
-      ? ativos.filter((x) => x !== id)
-      : [...ativos, id];
+    const ligando = !ativos.includes(id);
+    const novoAtivos = ligando
+      ? [...ativos, id]
+      : ativos.filter((x) => x !== id);
 
     if (novoAtivos.length === 0) {
       showToast("Deixe pelo menos um módulo ativo.");
@@ -34,7 +35,23 @@ export function ModulosSection({
     }
 
     setSalvandoId(id);
-    const chaves = cartaoIdsParaChaves(novoAtivos);
+
+    /*
+     * Mexe SÓ nas chaves do cartão tocado, partindo do que a conta já tem.
+     *
+     * Antes a lista era remontada do zero a partir dos cartões acesos, e
+     * qualquer chave que não formasse um cartão inteiro desaparecia junto.
+     * Uma conta com "agenda" sem "clientes" perdia a agenda ao ligar a Mimu,
+     * sem nada avisar. Partindo do estado real e alterando só o que foi
+     * clicado, o que a pessoa não tocou continua onde estava.
+     */
+    const modulo = MODULOS.find((m) => m.id === id);
+    const chavesAtuais = new Set(empresa.modulos_ativos);
+    for (const chave of modulo?.chaves ?? []) {
+      if (ligando) chavesAtuais.add(chave);
+      else chavesAtuais.delete(chave);
+    }
+    const chaves = Array.from(chavesAtuais);
 
     const { error } = await supabase
       .from("empresas")

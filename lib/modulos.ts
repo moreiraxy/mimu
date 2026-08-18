@@ -64,8 +64,20 @@ export function cartaoIdsParaChaves(ids: string[]): string[] {
   );
 }
 
+/**
+ * Quais cartões aparecem ligados, dado o que a conta tem de fato.
+ *
+ * `some` e não `every`: o cartão acende se QUALQUER chave dele estiver ativa.
+ *
+ * Com `every`, uma conta que tinha "agenda" mas não "clientes" via o cartão
+ * "Agenda e Clientes" apagado, embora a agenda funcionasse no menu. A tela
+ * mentia sobre o que a pessoa tinha. E como o salvamento montava a lista a
+ * partir dos cartões acesos, mexer em qualquer outro módulo apagava a agenda
+ * junto, sem aviso. Combinações parciais assim nascem do painel admin, que
+ * liga chaves uma a uma.
+ */
 export function chavesParaCartaoIds(chaves: string[]): string[] {
   return MODULOS.filter((modulo) =>
-    modulo.chaves.every((chave) => chaves.includes(chave)),
+    modulo.chaves.some((chave) => chaves.includes(chave)),
   ).map((modulo) => modulo.id);
 }
