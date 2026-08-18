@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { LayoutGrid } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { Toggle } from "@/components/ui/Toggle";
 import { MODULOS, chavesParaCartaoIds } from "@/lib/modulos";
@@ -17,7 +16,6 @@ export function ModulosSection({
   onAtualizado: (empresa: Empresa) => void;
 }) {
   const { showToast } = useToast();
-  const [supabase] = useState(() => createClient());
   const [ativos, setAtivos] = useState<string[]>(() =>
     chavesParaCartaoIds(empresa.modulos_ativos),
   );
@@ -53,15 +51,19 @@ export function ModulosSection({
     }
     const chaves = Array.from(chavesAtuais);
 
-    const { error } = await supabase
-      .from("empresas")
-      .update({ modulos_ativos: chaves })
-      .eq("id", empresa.id);
+    // Passa pelo servidor: `modulos_ativos` é o que separa os planos, e o
+    // banco não deixa mais o navegador escrever nessa coluna.
+    const resposta = await fetch("/api/empresa/modulos", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ modulos: chaves }),
+    });
 
     setSalvandoId(null);
 
-    if (error) {
-      showToast("Não consegui salvar.");
+    if (!resposta.ok) {
+      const { error } = await resposta.json().catch(() => ({ error: null }));
+      showToast(error ?? "Não consegui salvar.");
       return;
     }
 

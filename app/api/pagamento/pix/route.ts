@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura } from "@/lib/assinatura";
 import { mpPayment } from "@/lib/mercadopago";
 import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
@@ -78,15 +79,33 @@ export async function POST() {
       );
     }
 
-    const { error: insertError } = await supabase.from("pagamentos").insert({
-      empresa_id: empresa.id,
-      assinatura_id: assinatura.id,
-      valor: valorMensal,
-      status: "pendente",
-      forma_pagamento: "pix",
-      mp_payment_id: String(pagamentoMP.id),
-      mp_status: pagamentoMP.status ?? null,
-    });
+
+/*
+ * Gravar em `pagamentos` e `assinaturas` usa a service role, não a sessão de
+ * quem está comprando.
+ *
+ * A sessão continua sendo quem prova a identidade logo acima, e a empresa e a
+ * assinatura já vêm resolvidas a partir dela. Mas o registro comercial é do
+ * negócio, não da cliente: deixar a escrita passar pela sessão dela obriga a
+ * política do banco a permitir que qualquer pessoa autenticada escreva ali, e
+ * foi exatamente por isso que dava para inserir um pagamento "aprovado" falso
+ * pelo console do navegador.
+ *
+ * Com a escrita aqui, o banco pode negar escrita à cliente sem quebrar o
+ * checkout. As consultas seguem escopadas por `empresa.id`, que veio da
+ * sessão verificada, então a service role não amplia o alcance de nada.
+ */
+    const { error: insertError } = await createServiceClient()
+      .from("pagamentos")
+      .insert({
+        empresa_id: empresa.id,
+        assinatura_id: assinatura.id,
+        valor: valorMensal,
+        status: "pendente",
+        forma_pagamento: "pix",
+        mp_payment_id: String(pagamentoMP.id),
+        mp_status: pagamentoMP.status ?? null,
+      });
 
     if (insertError) {
       return NextResponse.json(

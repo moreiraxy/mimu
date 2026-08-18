@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura, ativarAssinatura } from "@/lib/assinatura";
 import { mpPayment } from "@/lib/mercadopago";
 import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
@@ -114,7 +115,20 @@ export async function POST(request: Request) {
         ? "recusado"
         : "pendente";
 
-    await supabase.from("pagamentos").insert({
+  /*
+   * Gravar em `pagamentos` e `assinaturas` usa a service role, não a sessão de
+   * quem está comprando.
+   *
+   * A sessão continua provando a identidade logo acima, e a empresa e a
+   * assinatura já vieram resolvidas a partir dela. Mas o registro comercial é
+   * do negócio, não da cliente: deixar a escrita passar pela sessão obriga a
+   * política do banco a permitir que qualquer pessoa autenticada escreva ali,
+   * e foi por isso que dava para inserir um pagamento "aprovado" falso pelo
+   * console do navegador. As consultas seguem escopadas pelo id que veio da
+   * sessão verificada, então a service role não amplia o alcance de nada.
+   */
+    const servidor = createServiceClient();
+    await servidor.from("pagamentos").insert({
       empresa_id: empresa.id,
       assinatura_id: assinatura.id,
       valor: valorMensal,
@@ -125,7 +139,7 @@ export async function POST(request: Request) {
     });
 
     if (aprovado) {
-      await ativarAssinatura(supabase, assinatura.id);
+      await ativarAssinatura(servidor, assinatura.id);
       return NextResponse.json({ status: "aprovado" });
     }
 

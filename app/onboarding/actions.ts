@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calcularMetaDiaria } from "@/lib/formatters";
 import { criarAssinaturaPendente, criarAssinaturaTrial } from "@/lib/assinatura";
+import { createServiceClient } from "@/lib/supabase/service";
+import { MODULOS } from "@/lib/modulos";
 import { planoValido } from "@/lib/planos";
 
 type ActionState = { error?: string } | undefined;
@@ -52,15 +54,35 @@ export async function salvarNegocio(
   redirect("/onboarding/modulos");
 }
 
+/** Todas as chaves de módulo que existem no produto. */
+const CHAVES_DE_MODULO = new Set(MODULOS.flatMap((m) => m.chaves));
+
 export async function salvarModulos(modulos: string[]): Promise<ActionState> {
   if (modulos.length === 0) {
     return { error: "Escolha ao menos um módulo para continuar." };
   }
 
-  const { supabase, user } = await getUsuarioAutenticado();
-  const { error } = await supabase
+  const { user } = await getUsuarioAutenticado();
+
+  // Lista branca: módulo é o que separa os planos, e o que chega aqui vem de
+  // um formulário, ou seja, do navegador.
+  const validos = [...new Set(modulos)].filter((m) =>
+    CHAVES_DE_MODULO.has(m as never),
+  );
+
+  if (validos.length === 0) {
+    return { error: "Escolha ao menos um módulo para continuar." };
+  }
+
+  /*
+   * Grava com a service role porque `modulos_ativos` saiu do alcance do
+   * navegador na auditoria de segurança: dava para ligar todos os módulos,
+   * inclusive a Mimu, com um update pelo console. O escopo não muda, a
+   * atualização continua presa ao user_id da sessão verificada.
+   */
+  const { error } = await createServiceClient()
     .from("empresas")
-    .update({ modulos_ativos: modulos })
+    .update({ modulos_ativos: validos })
     .eq("user_id", user.id);
 
   if (error) {
@@ -118,13 +140,25 @@ export async function concluirOnboarding(input: {
     (await supabase.auth.getUser()).data.user?.user_metadata?.plano_escolhido,
   );
 
+  /*
+   * A assinatura é criada com a service role, não com a sessão de quem está
+   * concluindo o cadastro.
+   *
+   * `empresa.id` acabou de sair de uma consulta escopada pela sessão, então o
+   * alcance não muda. O que muda é o banco poder negar escrita em
+   * `assinaturas` a qualquer pessoa autenticada: enquanto o onboarding
+   * gravava pela sessão, essa permissão precisava existir, e com ela dava
+   * para virar Premium de graça por um update no console do navegador.
+   */
+  const servidor = createServiceClient();
+
   if (planoEscolhido) {
     // O erro é checado de propósito: sem isso a falha do insert passava calada
     // e a pessoa chegava ao checkout sem assinatura nenhuma para pagar. Foi
     // exatamente o que aconteceu quando 'premium' não cabia no check da
     // coluna `plano`.
     const { error } = await criarAssinaturaPendente(
-      supabase,
+      servidor,
       empresa.id,
       planoEscolhido,
     );
@@ -137,7 +171,7 @@ export async function concluirOnboarding(input: {
     redirect("/assinar");
   }
 
-  await criarAssinaturaTrial(supabase, empresa.id);
+  await criarAssinaturaTrial(servidor, empresa.id);
 
   redirect("/bem-vindo");
 }
