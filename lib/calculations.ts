@@ -1,4 +1,5 @@
 import { paraISOLocal } from "@/lib/utils";
+import { janelaDosUltimosDias } from "@/lib/datas";
 import type { Agendamento, Cliente, Produto, Transacao } from "@/types";
 
 function inicioDoPeriodo(periodo: "dia" | "semana" | "mes"): Date {
@@ -136,19 +137,26 @@ export function calcularTotalAPagar(transacoes: Transacao[]): number {
     .reduce((total, t) => total + Number(t.valor), 0);
 }
 
-function inicioDaSemana(semanasAtras: number): Date {
-  const inicio = new Date();
-  inicio.setDate(inicio.getDate() - inicio.getDay() - semanasAtras * 7);
-  inicio.setHours(0, 0, 0, 0);
-  return inicio;
-}
-
-/** Faturamento (entradas) da semana atual ou da semana anterior. */
+/**
+ * Faturamento (entradas) dos últimos 7 dias, ou dos 7 anteriores a esses.
+ *
+ * Era semana de CALENDÁRIO, começando no domingo, enquanto o gráfico ao lado
+ * mostra os últimos 7 dias corridos. Os dois nunca batiam, e no domingo ficava
+ * escancarado: as barras mostravam a semana cheia e o total mostrava só o dia,
+ * com um "-89% vs semana passada" que não queria dizer nada.
+ *
+ * O total agora mede exatamente o período das barras. Quem lê um número ao pé
+ * de um gráfico espera que ele seja a soma do gráfico, e essa expectativa é
+ * mais forte do que qualquer definição de semana.
+ */
 export function calcularFaturamentoSemanal(
   transacoes: Transacao[],
   semana: "atual" | "passada",
 ): number {
-  const inicio = inicioDaSemana(semana === "atual" ? 0 : 1);
+  const { inicio: inicioRecente } = janelaDosUltimosDias(7);
+  const inicio = new Date(inicioRecente);
+  if (semana === "passada") inicio.setDate(inicio.getDate() - 7);
+
   const fim = new Date(inicio);
   fim.setDate(fim.getDate() + 7);
 

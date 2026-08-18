@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { janelaDeHoje } from "@/lib/datas";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import {
   calcularFaturamentoPrevisto,
@@ -79,8 +80,8 @@ export function useDashboard() {
           .from("agendamentos")
           .select("*, cliente:clientes(*)")
           .eq("empresa_id", empresa.id)
-          .gte("data_hora", `${hoje}T00:00:00`)
-          .lte("data_hora", `${hoje}T23:59:59`)
+          .gte("data_hora", janelaDeHoje().inicio)
+          .lt("data_hora", janelaDeHoje().fim)
           .order("data_hora", { ascending: true }),
         supabase
           .from("metas")

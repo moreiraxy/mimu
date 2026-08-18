@@ -66,7 +66,11 @@ export function ResumoSemanalCard({
 
           <div className="mt-3 flex items-center justify-between border-t border-neutro-border pt-3">
             <div>
-              <p className="text-[11px] text-neutro-muted">Esta semana</p>
+              {/* "Últimos 7 dias" e não "Esta semana": é o período que as
+                  barras acima mostram, e agora o total soma exatamente elas.
+                  Dizer "semana" faria a pessoa procurar a semana do calendário
+                  e achar que a conta está errada. */}
+              <p className="text-[11px] text-neutro-muted">Últimos 7 dias</p>
               <p className="text-sm font-semibold text-escuro">
                 {formatCurrency(semanaAtual)}
               </p>
@@ -96,7 +100,7 @@ function VariacaoSemanal({
       className={`text-xs font-semibold ${positiva ? "text-verde-texto" : "text-erro-texto"}`}
     >
       {positiva ? "+" : ""}
-      {variacao}% vs semana passada
+      {variacao}% vs os 7 anteriores
     </p>
   );
 }

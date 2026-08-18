@@ -27,7 +27,8 @@ export type TipoEvento =
   | "email_confirmado"
   | "mimu_respondeu"
   | "mimu_falhou"
-  | "push_falhou";
+  | "push_falhou"
+  | "alertas_falharam";
 
 export interface DadosEvento {
   empresaId?: string | null;

@@ -5,6 +5,8 @@ import {
   type AlertaMetadata,
 } from "@/lib/mimu-prompts";
 import { enviarPushParaEmpresa } from "@/lib/push";
+import { janelaDeHoje } from "@/lib/datas";
+import { registrarEvento } from "@/lib/eventos";
 import {
   calcularContasVencidas,
   calcularDiasDesde,
@@ -68,8 +70,8 @@ async function checkAlertas(
       .from("agendamentos")
       .select("id, status")
       .eq("empresa_id", empresa.id)
-      .gte("data_hora", `${hojeISO}T00:00:00`)
-      .lte("data_hora", `${hojeISO}T23:59:59`),
+      .gte("data_hora", janelaDeHoje().inicio)
+      .lt("data_hora", janelaDeHoje().fim),
     supabase
       .from("clientes")
       .select("id, nome, cliente_fiel, ultimo_atendimento, frequencia_media_dias")
@@ -89,13 +91,34 @@ async function checkAlertas(
       : Promise.resolve({ data: [], error: null }),
   ]);
 
-  if (
-    transacoesResult.error ||
-    agendamentosHojeResult.error ||
-    clientesFieisResult.error ||
-    alertasHojeResult.error ||
-    produtosResult.error
-  ) {
+  /*
+   * Falhou alguma consulta: não há como decidir alerta com dado incompleto,
+   * então a varredura desta conta para aqui.
+   *
+   * Mas para COM RASTRO. Antes era um `return []` mudo: se uma das cinco
+   * passasse a falhar, a conta simplesmente deixava de receber aviso e nada
+   * indicava o motivo. O nome da consulta vai no registro porque "falhou uma
+   * das cinco" não ajuda ninguém a consertar.
+   */
+  const falhas = Object.entries({
+    transacoes: transacoesResult.error,
+    agendamentos: agendamentosHojeResult.error,
+    clientes: clientesFieisResult.error,
+    alertas: alertasHojeResult.error,
+    produtos: produtosResult.error,
+  }).filter(([, erro]) => erro);
+
+  if (falhas.length > 0) {
+    console.error("Alertas: consulta falhou, conta pulada.", {
+      empresaId: empresa.id,
+      falhas: falhas.map(([nome, erro]) => `${nome}: ${erro?.message}`),
+    });
+    await registrarEvento("alertas_falharam", {
+      empresaId: empresa.id,
+      detalhe: {
+        motivo: falhas.map(([nome, erro]) => `${nome}: ${erro?.message}`).join(" | "),
+      },
+    });
     return [];
   }
 

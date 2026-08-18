@@ -30,6 +30,7 @@ const ROTULO: Record<string, string> = {
   mimu_respondeu: "Respostas da Mimu",
   mimu_falhou: "Mimu falhou",
   push_falhou: "Notificações que não saíram",
+  alertas_falharam: "Alertas que falharam",
 };
 
 /** Os que significam problema. São os únicos que ganham destaque. */
@@ -37,6 +38,7 @@ const FALHAS = new Set([
   "cadastro_falhou",
   "mimu_falhou",
   "push_falhou",
+  "alertas_falharam",
 ]);
 
 /**
