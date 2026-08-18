@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { destinoAposLogin } from "@/lib/destino-pos-login";
+import { urlAbsoluta } from "@/lib/site";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**
@@ -39,22 +40,21 @@ export async function GET(request: NextRequest) {
   const tipo = searchParams.get("type") as EmailOtpType | null;
 
   /**
-   * O destino é montado a partir da URL da própria requisição, e NÃO com
-   * `origin` colado à mão.
+   * O destino sai do endereço público configurado, não da requisição.
    *
-   * Atrás do proxy do Railway, `request.nextUrl.origin` é o endereço interno
-   * do contêiner: quem confirmava o e-mail era mandado para
+   * Atrás do proxy do Railway, `request.nextUrl` traz o endereço interno do
+   * contêiner: quem confirmava o e-mail era mandado para
    * https://localhost:8080/login e batia numa página que não existe na
-   * máquina dela. Clonando a URL e trocando só o caminho, o Next percebe que
-   * o destino é o mesmo host e devolve um endereço relativo, que funciona em
-   * qualquer ambiente. É o que o middleware já fazia.
+   * máquina dela. Medido na produção, era esse o cabeçalho Location.
+   *
+   * Clonar a URL da requisição não resolve, porque o clone carrega o mesmo
+   * origin errado. O middleware escapa disso porque respostas de middleware
+   * são reescritas pelo Next em relação à requisição original, o que não vale
+   * para uma rota como esta. Então aqui o endereço é o de lib/site.ts, que já
+   * é a fonte única do endereço público do produto.
    */
-  const paraRota = (caminho: string, erro?: string) => {
-    const url = request.nextUrl.clone();
-    url.pathname = caminho;
-    url.search = erro ? `?erro=${erro}` : "";
-    return NextResponse.redirect(url);
-  };
+  const paraRota = (caminho: string, erro?: string) =>
+    NextResponse.redirect(urlAbsoluta(erro ? `${caminho}?erro=${erro}` : caminho));
 
   const paraLogin = (motivo: string) => paraRota("/login", motivo);
 
