@@ -35,8 +35,13 @@ export default function RecuperarSenhaPage() {
           </svg>
         </div>
         <h1 className="text-lg font-semibold text-escuro">Link enviado!</h1>
+        {/* O spam é citado porque o remetente ainda é um Gmail comum, sem
+            domínio próprio, e a primeira mensagem costuma cair lá. Sem esse
+            aviso a pessoa conclui que não chegou e pede de novo, e aí esbarra
+            no limite de um e-mail por minuto. */}
         <p className="text-sm text-neutro-muted">
-          Confira seu e-mail para criar uma nova senha.
+          Confira seu e-mail para criar uma nova senha. Pode levar um minuto, e
+          vale olhar na caixa de spam.
         </p>
         <Link
           href="/login"

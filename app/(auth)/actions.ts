@@ -223,15 +223,23 @@ export async function requestPasswordReset(
   const { email } = validacao.data;
 
   /*
-   * Teto por e-mail pedido. Não existia, e cada pedido dispara uma mensagem.
+   * Teto por e-mail pedido, porque cada pedido dispara uma mensagem.
    *
-   * A resposta é a MESMA de quando dá certo, de propósito: dizer "muitos
-   * pedidos para este e-mail" confirmaria que a conta existe, e transformaria
-   * esta tela num verificador de cadastro. Quem estourou o limite
-   * simplesmente não recebe o e-mail.
+   * A resposta AVISA que o limite estourou, e isso não vaza nada: o contador
+   * conta tentativas com aquele texto digitado, exista conta ou não. Alguém
+   * sondando endereços recebe a mesma mensagem para todos.
+   *
+   * Antes respondia "enviado" e sumia com o e-mail em silêncio. Quem pedia de
+   * novo por não ter recebido entrava num buraco: a tela dizia sucesso, nada
+   * chegava, e a conclusão óbvia era que a recuperação de senha estava
+   * quebrada. O Supabase ainda tem um limite próprio de um e-mail por minuto
+   * por endereço, que sozinho já produzia esse efeito.
    */
   if (await excedeuLimite("recuperar_senha", email)) {
-    return { success: true };
+    return {
+      error:
+        "Você já pediu o link algumas vezes agora há pouco. Espere uns minutos e confira sua caixa de entrada e o spam.",
+    };
   }
   await registrarTentativa("recuperar_senha", email);
 
