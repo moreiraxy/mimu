@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { SaudeSection } from "./SaudeSection";
 import {
-  Search, Users, CreditCard, Clock, AlertTriangle, ChevronDown, Check,
+  ArrowLeft,
+  Search,
+  Users,
+  CreditCard,
+  Clock,
+  AlertTriangle,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { MODULOS } from "@/lib/modulos";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -35,7 +43,10 @@ const STATUS: Record<string, { texto: string; classe: string }> = {
   ativa: { texto: "Pagante", classe: "bg-verde-light text-verde-texto" },
   trial: { texto: "Em teste", classe: "bg-ambar-light text-ambar-texto" },
   vencida: { texto: "Vencida", classe: "bg-primary-light text-primary-forte" },
-  cancelada: { texto: "Cancelada", classe: "bg-neutro-border text-neutro-muted-strong" },
+  cancelada: {
+    texto: "Cancelada",
+    classe: "bg-neutro-border text-neutro-muted-strong",
+  },
   sem_assinatura: {
     texto: "Sem assinatura",
     classe: "bg-neutro-border text-neutro-muted-strong",
@@ -53,7 +64,9 @@ export default function PainelAdmin() {
   useEffect(() => {
     let ativo = true;
     fetch("/api/admin/contas")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((r) =>
+        r.ok ? r.json() : Promise.reject(new Error(String(r.status))),
+      )
       .then((d) => {
         if (!ativo) return;
         setContas(d.contas);
@@ -81,10 +94,14 @@ export default function PainelAdmin() {
             ...r,
             total: r.total - 1,
             pagantes:
-              saindo.status_assinatura === "ativa" ? r.pagantes - 1 : r.pagantes,
+              saindo.status_assinatura === "ativa"
+                ? r.pagantes - 1
+                : r.pagantes,
             emTrial:
               saindo.status_assinatura === "trial" ? r.emTrial - 1 : r.emTrial,
-            vencidas: ["vencida", "cancelada"].includes(saindo.status_assinatura)
+            vencidas: ["vencida", "cancelada"].includes(
+              saindo.status_assinatura,
+            )
               ? r.vencidas - 1
               : r.vencidas,
             receitaMensal:
@@ -116,13 +133,26 @@ export default function PainelAdmin() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-5 py-10 sm:px-8">
-      <header className="mb-8">
-        <h1 className="font-display text-2xl font-bold text-escuro sm:text-3xl">
-          Painel
-        </h1>
-        <p className="mt-1 text-sm text-neutro-muted">
-          Contas da Mimu, assinaturas e módulos.
-        </p>
+      {/* O /admin fica fora do grupo do painel, então não herda a barra
+          lateral nem a navegação de baixo: sem este link a tela é um beco sem
+          saída, e a única forma de voltar era digitar a URL na mão. */}
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-escuro sm:text-3xl">
+            Painel
+          </h1>
+          <p className="mt-1 text-sm text-neutro-muted">
+            Contas da Mimu, assinaturas e módulos.
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard"
+          className="flex flex-shrink-0 items-center gap-1.5 rounded-button border border-neutro-border bg-superficie px-3.5 py-2 text-sm font-semibold text-escuro transition-colors hover:bg-fundo"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.25} />
+          Voltar para o app
+        </Link>
       </header>
 
       <SaudeSection />
@@ -206,11 +236,7 @@ export default function PainelAdmin() {
 
       <div className="mt-3 flex flex-col gap-2">
         {visiveis.map((c) => (
-          <LinhaConta
-            key={c.empresa_id}
-            conta={c}
-            onExcluida={removerConta}
-          />
+          <LinhaConta key={c.empresa_id} conta={c} onExcluida={removerConta} />
         ))}
         {!carregando && visiveis.length === 0 && (
           <p className="rounded-xl bg-superficie px-4 py-8 text-center text-sm text-neutro-muted">
@@ -237,10 +263,16 @@ function Indicador({
     <div className="rounded-2xl bg-superficie p-5">
       <div className="flex items-center gap-2 text-neutro-muted">
         <Icone className="h-4 w-4" />
-        <span className="text-xs font-bold uppercase tracking-wide">{rotulo}</span>
+        <span className="text-xs font-bold uppercase tracking-wide">
+          {rotulo}
+        </span>
       </div>
-      <p className="mt-2 font-display text-2xl font-bold text-escuro">{valor}</p>
-      {selo && <p className="mt-0.5 text-xs font-bold text-primary-forte">{selo}</p>}
+      <p className="mt-2 font-display text-2xl font-bold text-escuro">
+        {valor}
+      </p>
+      {selo && (
+        <p className="mt-0.5 text-xs font-bold text-primary-forte">{selo}</p>
+      )}
     </div>
   );
 }
@@ -259,13 +291,15 @@ function LinhaConta({
   // clique piscaria a tela inteira. O servidor continua sendo a verdade —
   // se o PATCH falhar, isto volta ao que era.
   const [modulos, setModulos] = useState<string[]>(conta.modulos_ativos ?? []);
-  const [suspensaEm, setSuspensaEm] = useState<string | null>(conta.suspensa_em);
+  const [suspensaEm, setSuspensaEm] = useState<string | null>(
+    conta.suspensa_em,
+  );
   const [salvando, setSalvando] = useState(false);
   const [salvo, setSalvo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [confirmando, setConfirmando] = useState<"suspender" | "excluir" | null>(
-    null,
-  );
+  const [confirmando, setConfirmando] = useState<
+    "suspender" | "excluir" | null
+  >(null);
 
   const suspensa = suspensaEm !== null;
 
@@ -380,18 +414,26 @@ function LinhaConta({
               Suspensa
             </span>
           )}
-          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${status.classe}`}>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${status.classe}`}
+          >
             {status.texto}
           </span>
 
           {dias !== null && (
-            <span className={`text-xs font-bold ${dias <= 3 ? "text-primary-forte" : "text-neutro-muted-strong"}`}>
+            <span
+              className={`text-xs font-bold ${dias <= 3 ? "text-primary-forte" : "text-neutro-muted-strong"}`}
+            >
               {dias > 0 ? `${dias}d restantes` : "trial vencido"}
             </span>
           )}
 
-          <span className="text-xs text-neutro-muted">{modulos.length} módulos</span>
-          <span className="text-xs text-neutro-muted">entrou {formatDate(conta.entrou_em)}</span>
+          <span className="text-xs text-neutro-muted">
+            {modulos.length} módulos
+          </span>
+          <span className="text-xs text-neutro-muted">
+            entrou {formatDate(conta.entrou_em)}
+          </span>
 
           <ChevronDown
             className={`h-4 w-4 text-neutro-muted transition-transform ${aberta ? "rotate-180" : ""}`}
@@ -405,14 +447,18 @@ function LinhaConta({
             <p className="text-xs font-bold uppercase tracking-wide text-neutro-muted">
               Módulos
             </p>
-            {salvando && <span className="text-xs text-neutro-muted">salvando…</span>}
+            {salvando && (
+              <span className="text-xs text-neutro-muted">salvando…</span>
+            )}
             {!salvando && salvo && !erro && (
               <span className="flex items-center gap-1 text-xs font-bold text-verde-texto">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} />
                 salvo
               </span>
             )}
-            {erro && <span className="text-xs font-bold text-erro-texto">{erro}</span>}
+            {erro && (
+              <span className="text-xs font-bold text-erro-texto">{erro}</span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -432,10 +478,17 @@ function LinhaConta({
                 >
                   <span
                     className={`flex h-4 w-4 items-center justify-center rounded-md border ${
-                      ligado ? "border-primary-forte bg-primary" : "border-neutro-border"
+                      ligado
+                        ? "border-primary-forte bg-primary"
+                        : "border-neutro-border"
                     }`}
                   >
-                    {ligado && <Check className="h-3 w-3 text-primary-text" strokeWidth={3} />}
+                    {ligado && (
+                      <Check
+                        className="h-3 w-3 text-primary-text"
+                        strokeWidth={3}
+                      />
+                    )}
                   </span>
                   {m.label}
                 </button>
