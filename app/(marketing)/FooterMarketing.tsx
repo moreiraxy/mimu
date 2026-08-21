@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { linkWhatsApp } from "@/lib/contato";
 import { LogoMark } from "@/components/Logo";
 
 const COLUNAS = [
@@ -7,8 +8,10 @@ const COLUNAS = [
     { label: "Preço", href: "#preco" },
   ],
   [
-    { label: "Ajuda", href: "mailto:oi@mimu.app" },
-    { label: "Contato", href: "mailto:oi@mimu.app" },
+    // WhatsApp e não e-mail: `@mimu.app` é domínio de outra empresa, então
+    // toda mensagem enviada por ali se perdia.
+    { label: "Ajuda", href: linkWhatsApp("Oi! Preciso de ajuda com a Mimu.") },
+    { label: "Contato", href: linkWhatsApp("Oi! Queria falar sobre a Mimu.") },
   ],
   [
     { label: "Privacidade", href: "#" },

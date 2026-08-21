@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServiceClient } from "@/lib/supabase/service";
 import { NextResponse, type NextRequest } from "next/server";
 
 const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
@@ -102,7 +103,22 @@ export async function updateSession(request: NextRequest) {
     // morava na page.tsx da raiz, mas "/" agora é reescrito para o HTML da
     // landing page (next.config.mjs) e aquela página deixou de ser servida —
     // se ficasse lá, a regra simplesmente sumiria sem ninguém perceber.
-    if (user && pathname === "/") {
+    /*
+     * ...MENOS quem pediu explicitamente para ver o site.
+     *
+     * Quem está com o teste vencido ou a conta suspensa era mandada daqui para
+     * o painel, o painel devolvia para a tela de cobrança, e o link "voltar ao
+     * site" daquela tela caía aqui de novo. Círculo fechado: a pessoa não
+     * conseguia rever preços, ler os termos nem achar o contato do suporte.
+     *
+     * O `?sair=1` é posto pelas telas de bloqueio, então ele só existe quando a
+     * própria pessoa clicou para sair. Quem chega em "/" por fora continua indo
+     * para o painel, que é o certo: cliente ativa não precisa da página de
+     * vendas.
+     */
+    const querendoVerOSite = request.nextUrl.searchParams.has("sair");
+
+    if (user && pathname === "/" && !querendoVerOSite) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
@@ -201,10 +217,27 @@ export async function updateSession(request: NextRequest) {
         new Date(assinatura.trial_fim) < new Date();
 
       if (trialVencidoAgora) {
-        await supabase
+        /*
+         * Marca com a service role, não com a sessão.
+         *
+         * A auditoria revogou escrita em `assinaturas` para quem está logado,
+         * porque dava para virar Premium de graça pelo console. Esta gravação
+         * é do sistema, mas passava pela sessão de quem estava navegando:
+         * depois da revogação ela falhava calada.
+         *
+         * O bloqueio continuava funcionando, porque o redirect abaixo não
+         * depende dela. O que quebrava era o registro: a conta ficava marcada
+         * como "trial" para sempre, e o painel admin contava como conta em
+         * teste uma pessoa cujo teste tinha acabado.
+         */
+        const { error: erroAoVencer } = await createServiceClient()
           .from("assinaturas")
           .update({ status: "vencida" })
           .eq("id", assinatura.id);
+
+        if (erroAoVencer) {
+          console.error("Não consegui marcar a assinatura como vencida.", erroAoVencer);
+        }
 
         const url = request.nextUrl.clone();
         url.pathname = "/trial-vencido";

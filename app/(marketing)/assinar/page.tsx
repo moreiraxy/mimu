@@ -12,8 +12,9 @@ import {
   WifiOff,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
+import { PLANOS, PLANO_PADRAO, planoValido, type PlanoPago } from "@/lib/planos";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura } from "@/lib/assinatura";
 
 const ITENS_INCLUIDOS = [
@@ -55,23 +56,95 @@ export default async function AssinarPage({
   const pedido = planoValido(searchParams.plano);
 
   if (pedido && assinatura && assinatura.status !== "ativa" && assinatura.plano !== pedido) {
-    await supabase
+    /*
+     * Grava com a service role, não com a sessão.
+     *
+     * A auditoria de segurança revogou escrita em `assinaturas` para quem está
+     * logado, porque dava para virar Premium de graça por um update no
+     * console. Esta gravação aqui é legítima, mas passava pela sessão: depois
+     * da revogação ela falhava calada e a troca de plano não acontecia.
+     *
+     * O alcance não muda, a linha é a mesma que já veio resolvida pela sessão.
+     * O preço continua saindo da tabela do servidor: a URL escolhe o plano,
+     * nunca o valor.
+     */
+    const { error } = await createServiceClient()
       .from("assinaturas")
       .update({ plano: pedido, valor_mensal: PLANOS[pedido].valorMensal })
       .eq("id", assinatura.id);
-    assinatura.plano = pedido;
+
+    if (error) {
+      console.error("Não consegui trocar o plano da assinatura.", error);
+    } else {
+      assinatura.plano = pedido;
+    }
   }
 
   const plano = planoValido(assinatura?.plano) ?? pedido ?? PLANO_PADRAO;
   const { nome: nomePlano, valorMensal } = PLANOS[plano];
 
-  return conteudo(nomePlano, valorMensal, assinatura?.status === "pendente");
+  return conteudo(
+    plano,
+    nomePlano,
+    valorMensal,
+    assinatura?.status === "pendente",
+    // Trocar de plano só faz sentido enquanto ninguém está pagando. Para quem
+    // já paga, seria troca de verdade, com cobrança proporcional, e isso ainda
+    // não existe.
+    assinatura?.status !== "ativa",
+  );
+}
+
+/**
+ * Deixa escolher entre os planos, ali mesmo.
+ *
+ * A tela mostrava UM plano, o que estivesse gravado na assinatura, sem nenhuma
+ * forma de mudar. Quem clicou em Premium na landing meses atrás e deixou o
+ * teste vencer voltava e dava de cara com R$ 199, sem saber que existia um de
+ * R$ 39. Parecia preço da Mimu, não uma escolha dela.
+ *
+ * Cada opção é um link para a própria página com ?plano=, que o código acima já
+ * sabia tratar: ele grava a escolha e o preço continua vindo da tabela do
+ * servidor. A URL escolhe o plano, nunca o valor.
+ */
+function seletorDePlanos(planoAtual: PlanoPago) {
+  return (
+    <div className="mb-5 grid grid-cols-2 gap-2.5">
+      {(Object.keys(PLANOS) as PlanoPago[]).map((chave) => {
+        const { nome, valorMensal } = PLANOS[chave];
+        const ativo = chave === planoAtual;
+        return (
+          <Link
+            key={chave}
+            href={`/assinar?plano=${chave}`}
+            aria-current={ativo ? "true" : undefined}
+            className={[
+              "flex flex-col items-center rounded-card border px-3 py-3.5 text-center transition-colors",
+              ativo
+                ? "border-primary bg-primary-light"
+                : "border-neutro-border bg-superficie hover:border-primary/40",
+            ].join(" ")}
+          >
+            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-neutro-muted">
+              {nome}
+            </span>
+            <span className="mt-1 font-display text-xl font-bold leading-none text-escuro">
+              R$ {valorMensal}
+            </span>
+            <span className="mt-0.5 text-[11px] text-neutro-muted">por mês</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
 }
 
 function conteudo(
+  plano: PlanoPago,
   nomePlano: string,
   valorMensal: number,
   jaEscolheuPago: boolean,
+  podeTrocar: boolean,
 ) {
   return (
     // `dark` pelo mesmo motivo do cadastro e do onboarding: esta tela é a
@@ -92,7 +165,9 @@ function conteudo(
             : "Cancele quando quiser, sem multa e sem fidelidade."}
         </p>
 
-        <div className="mt-7 overflow-hidden rounded-card border border-neutro-border bg-superficie">
+        <div className="mt-7">{podeTrocar && seletorDePlanos(plano)}</div>
+
+        <div className="overflow-hidden rounded-card border border-neutro-border bg-superficie">
           <div className="flex flex-col items-center border-b border-neutro-border px-6 py-7 text-center">
             {!jaEscolheuPago && (
               <span className="rounded-full bg-primary-light px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wide text-primary-forte">

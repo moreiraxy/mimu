@@ -1,5 +1,6 @@
 import { ShieldAlert, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { linkWhatsApp } from "@/lib/contato";
 
 // Onde cai quem teve a conta suspensa pelo painel admin.
 //
@@ -28,7 +29,11 @@ export default function ContaSuspensaPage() {
       </p>
 
       <a
-        href="mailto:suporte@mimu.app"
+        href={linkWhatsApp(
+          "Oi! Minha conta na Mimu foi suspensa e eu queria entender o motivo.",
+        )}
+        target="_blank"
+        rel="noopener noreferrer"
         className="mt-8 flex w-full max-w-xs items-center justify-center gap-1.5 rounded-button bg-primary py-3.5 text-sm font-bold text-primary-text transition-colors hover:bg-primary-hover"
       >
         <MessageCircle className="h-4 w-4" strokeWidth={2.25} />
