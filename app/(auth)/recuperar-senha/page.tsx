@@ -34,14 +34,25 @@ export default function RecuperarSenhaPage() {
             />
           </svg>
         </div>
-        <h1 className="text-lg font-semibold text-escuro">Link enviado!</h1>
-        {/* O spam é citado porque o remetente ainda é um Gmail comum, sem
-            domínio próprio, e a primeira mensagem costuma cair lá. Sem esse
-            aviso a pessoa conclui que não chegou e pede de novo, e aí esbarra
-            no limite de um e-mail por minuto. */}
+        <h1 className="text-lg font-semibold text-escuro">Pedido recebido</h1>
+        {/*
+          "Se existir uma conta" e não "Link enviado".
+          
+          A tela não pode confirmar quem tem cadastro, senão vira um
+          verificador de e-mails. Mas dizer "enviado" quando a conta não existe
+          faz a pessoa esperar por um e-mail que nunca foi mandado, e concluir
+          que a recuperação de senha está quebrada. Foi o que aconteceu: o
+          endereço digitado não tinha conta, e o sucesso na tela escondeu isso.
+
+          O spam é citado porque o remetente é um Gmail comum, sem domínio
+          próprio, e a primeira mensagem costuma cair lá.
+        */}
         <p className="text-sm text-neutro-muted">
-          Confira seu e-mail para criar uma nova senha. Pode levar um minuto, e
-          vale olhar na caixa de spam.
+          Se existir uma conta com esse e-mail, o link já está a caminho. Pode
+          levar um minuto, e vale olhar na caixa de spam.
+        </p>
+        <p className="text-xs text-neutro-muted">
+          Não chegou? Talvez você tenha se cadastrado com outro endereço.
         </p>
         <Link
           href="/login"
