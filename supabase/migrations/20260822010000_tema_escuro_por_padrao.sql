@@ -1,0 +1,12 @@
+-- Conta nova nasce no tema escuro.
+--
+-- O site inteiro é escuro: a landing, o cadastro, o onboarding e o checkout.
+-- Só o app abria no claro, então a pessoa atravessava quatro telas pretas e
+-- caía numa branca. Quem testou descreveu assim: "como todo site está escuro,
+-- eu imaginava que a plataforma também".
+--
+-- Muda só o padrão da coluna, então vale para quem se cadastrar daqui em
+-- diante. Quem já tem conta continua com o que está lá: entre as contas atuais
+-- pode haver quem tenha escolhido claro de propósito, e trocar o tema de
+-- alguém sem pedir é mexer na casa dos outros.
+alter table public.empresas alter column tema set default 'escuro';

@@ -61,9 +61,23 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const carregar = useCallback(async () => {
+  /*
+   * `silencioso` separa a primeira carga da revalidação.
+   *
+   * Antes toda chamada fazia `setLoading(true)`, e a página troca o conteúdo
+   * inteiro pelo esqueleto sempre que `loading` é verdadeiro. Como isso rodava
+   * de novo a cada meio minuto, a tela virava esqueleto e voltava sozinha o
+   * tempo todo. Quem estava usando descrevia como "a página recarrega": não
+   * era recarga, mas para quem olha é a mesma coisa, e pior, acontece no meio
+   * de uma leitura.
+   *
+   * Na revalidação os dados só são trocados quando chegam. Se falhar, o que
+   * está na tela continua ali, que é melhor do que esvaziar a tela por causa
+   * de uma atualização de fundo que ninguém pediu.
+   */
+  const carregar = useCallback(async (silencioso = false) => {
     if (!empresa) return;
-    setLoading(true);
+    if (!silencioso) setLoading(true);
     setError(null);
 
     const agora = new Date();
@@ -172,7 +186,7 @@ export function useDashboard() {
     if (!empresa) return;
 
     function revalidar() {
-      carregar();
+      carregar(true);
     }
 
     function aoMudarVisibilidade() {

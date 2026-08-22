@@ -54,7 +54,7 @@ export default function FaturamentoPage() {
           <p className="text-sm text-neutro-muted">{error}</p>
           <button
             type="button"
-            onClick={refetch}
+            onClick={() => refetch()}
             className="text-sm font-semibold text-primary-forte"
           >
             Tentar de novo

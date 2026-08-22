@@ -22,7 +22,7 @@ export const ThemeContext = createContext<ThemeContextValue | undefined>(
 
 /**
  * Aplica/persiste o tema claro/escuro. Precisa estar dentro de <AuthProvider>
- * — usa empresa.tema como fonte de verdade e cai pra "claro" antes disso
+ * — usa empresa.tema como fonte de verdade e cai pra "escuro" antes disso
  * carregar (aceita um flash claro→escuro em vez de bloquear a renderização
  * ou depender de cookie/script inline no <head>, que é mais complexidade do
  * que esse app precisa hoje).
@@ -30,7 +30,17 @@ export const ThemeContext = createContext<ThemeContextValue | undefined>(
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { empresa } = useAuth();
   const [supabase] = useState(() => createClient());
-  const [tema, setTema] = useState<Tema>("claro");
+  /*
+   * Escuro é o padrão porque o site inteiro é escuro: landing, cadastro,
+   * onboarding e checkout. Começar no claro fazia a pessoa atravessar quatro
+   * telas pretas e cair numa branca.
+   *
+   * Este valor também decide a cor do primeiro instante, antes de a empresa
+   * carregar. Antes o piscar era claro para escuro, que é o mais incômodo dos
+   * dois; agora quem escolheu claro vê escuro por um átimo, o que é menos
+   * agressivo do que o contrário.
+   */
+  const [tema, setTema] = useState<Tema>("escuro");
 
   useEffect(() => {
     if (empresa?.tema) setTema(empresa.tema);
