@@ -24,6 +24,21 @@
     <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
     <!-- Verde neon Mimu: pinta a barra do navegador no Android e a status bar da PWA. -->
     <meta name="theme-color" content="#0A0A0A" />
+    <!--
+      Canonical: diz ao Google qual é o endereço oficial desta página.
+      Sem ele, "/" e "//" e qualquer variação com parâmetro (?sair=1, utm_...)
+      são tratados como páginas diferentes com o mesmo conteúdo, e o Google
+      escolhe sozinho qual mostrar.
+    -->
+    <link rel="canonical" href="https://mimu.up.railway.app/" />
+
+    <!--
+      Verificação do Search Console. O Google busca esta tag no HTML CRU, sem
+      executar JavaScript, então ela precisa estar aqui no index.html e não
+      num componente React.
+    -->
+    <meta name="google-site-verification" content="dO_6eMhvDr5-rfexSs8GxNEMYJNPcI-AmWgoqY0jNtY" />
+
     <title>Mimu · seu negócio, organizado</title>
     <meta
       name="description"
