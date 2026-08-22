@@ -39,6 +39,64 @@
     -->
     <meta name="google-site-verification" content="dO_6eMhvDr5-rfexSs8GxNEMYJNPcI-AmWgoqY0jNtY" />
 
+    <!--
+      Dados estruturados: o que a Mimu e, quem publica e quanto custa, em
+      formato que o buscador le sem executar JavaScript. E por enquanto a
+      unica informacao de verdade que ele consegue extrair desta pagina,
+      porque o corpo do HTML vem vazio e so ganha conteudo depois do React
+      montar.
+
+      Sem nota e sem numero de avaliacoes de proposito: inventar isso e
+      violacao das diretrizes do Google, alem de mentira.
+    -->
+    <script type="application/ld+json">
+{
+            "@context": "https://schema.org",
+            "@graph": [
+                  {
+                        "@type": "Organization",
+                        "@id": "https://mimu.up.railway.app/#organizacao",
+                        "name": "Mimu",
+                        "url": "https://mimu.up.railway.app/",
+                        "logo": "https://mimu.up.railway.app/icons/icon-512.png",
+                        "description": "Plataforma de gestão para comércios de bairro: agenda, financeiro, clientes e estoque, com uma assistente que responde perguntas sobre o negócio.",
+                        "sameAs": [
+                              "https://www.instagram.com/mimu.ia/"
+                        ]
+                  },
+                  {
+                        "@type": "WebSite",
+                        "@id": "https://mimu.up.railway.app/#site",
+                        "url": "https://mimu.up.railway.app/",
+                        "name": "Mimu",
+                        "inLanguage": "pt-BR",
+                        "publisher": {
+                              "@id": "https://mimu.up.railway.app/#organizacao"
+                        }
+                  },
+                  {
+                        "@type": "SoftwareApplication",
+                        "name": "Mimu",
+                        "applicationCategory": "BusinessApplication",
+                        "operatingSystem": "Web, Android, iOS",
+                        "inLanguage": "pt-BR",
+                        "description": "Assistente de gestão para microempreendedores de bairro: vendas, faturamento, agenda, clientes e estoque em um só lugar.",
+                        "publisher": {
+                              "@id": "https://mimu.up.railway.app/#organizacao"
+                        },
+                        "offers": {
+                              "@type": "AggregateOffer",
+                              "priceCurrency": "BRL",
+                              "lowPrice": "39",
+                              "highPrice": "199",
+                              "offerCount": "2",
+                              "availability": "https://schema.org/InStock"
+                        }
+                  }
+            ]
+      }
+    </script>
+
     <title>Mimu · seu negócio, organizado</title>
     <meta
       name="description"
