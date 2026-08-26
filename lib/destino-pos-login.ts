@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import { trialVencido } from "@/lib/assinatura";
+import { assinaturaVencida, trialVencido } from "@/lib/assinatura";
 
 type Supabase = SupabaseClient<Database>;
 
@@ -32,7 +32,7 @@ export async function destinoAposLogin(
 
   const { data: assinatura } = await supabase
     .from("assinaturas")
-    .select("status, trial_fim")
+    .select("status, trial_fim, proxima_cobranca")
     .eq("empresa_id", empresa.id)
     .maybeSingle();
 
@@ -41,7 +41,9 @@ export async function destinoAposLogin(
   if (
     assinatura.status === "vencida" ||
     assinatura.status === "cancelada" ||
-    trialVencido(assinatura)
+    trialVencido(assinatura) ||
+    // Paga, mas o prazo comprado já passou.
+    assinaturaVencida(assinatura)
   ) {
     return "/trial-vencido";
   }

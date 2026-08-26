@@ -27,6 +27,7 @@ export type Pagamento = Database["public"]["Tables"]["pagamentos"]["Row"];
 export type {
   FormaPagamento,
   FormaPagamentoMP,
+  OrigemPagamento,
   PlanoAssinatura,
   RoleConversa,
   StatusAgendamento,

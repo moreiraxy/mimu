@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calcularMetaDiaria } from "@/lib/formatters";
-import { criarAssinaturaPendente, criarAssinaturaTrial } from "@/lib/assinatura";
+import {
+  buscarAssinatura,
+  criarAssinaturaPendente,
+  criarAssinaturaTrial,
+} from "@/lib/assinatura";
 import { createServiceClient } from "@/lib/supabase/service";
 import { MODULOS } from "@/lib/modulos";
 import { planoValido } from "@/lib/planos";
@@ -151,6 +155,22 @@ export async function concluirOnboarding(input: {
    * para virar Premium de graça por um update no console do navegador.
    */
   const servidor = createServiceClient();
+
+  /*
+   * Quem comprou por um checkout externo chega aqui com a assinatura JÁ ativa:
+   * o webhook criou a conta e liberou o acesso antes de a pessoa pisar no
+   * onboarding. Sem esta saída, o código abaixo tentaria criar uma segunda
+   * assinatura numa tabela onde `empresa_id` é único — o trial falharia calado
+   * e o plano pendente devolveria erro na cara de quem acabou de pagar.
+   *
+   * Também cobre quem refaz o onboarding: a assinatura que já existe manda,
+   * seja ela trial, pendente ou ativa.
+   */
+  const assinaturaExistente = await buscarAssinatura(servidor, empresa.id);
+
+  if (assinaturaExistente) {
+    redirect("/bem-vindo");
+  }
 
   if (planoEscolhido) {
     // O erro é checado de propósito: sem isso a falha do insert passava calada

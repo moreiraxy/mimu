@@ -52,7 +52,13 @@ export type StatusPagamentoMP =
   | "aprovado"
   | "recusado"
   | "reembolsado";
-export type FormaPagamentoMP = "pix" | "cartao";
+// O nome carrega "MP" por herança: hoje as duas origens gravam aqui, e o
+// boleto só existe porque a Cakto vende assim. O checkout próprio continua
+// oferecendo apenas Pix e cartão.
+export type FormaPagamentoMP = "pix" | "cartao" | "boleto";
+// Quem processou a cobrança. O checkout próprio (Mercado Pago) e o da Cakto
+// convivem, então toda linha de pagamento precisa dizer de onde veio.
+export type OrigemPagamento = "mercadopago" | "cakto";
 
 export interface Database {
   public: {
@@ -578,8 +584,10 @@ export interface Database {
           proxima_cobranca: string | null;
           mp_subscription_id: string | null;
           mp_customer_id: string | null;
+          origem: OrigemPagamento | null;
           created_at: string;
           updated_at: string;
+          periodicidade: string;
         };
         Insert: {
           id?: string;
@@ -592,8 +600,10 @@ export interface Database {
           proxima_cobranca?: string | null;
           mp_subscription_id?: string | null;
           mp_customer_id?: string | null;
+          origem?: OrigemPagamento | null;
           created_at?: string;
           updated_at?: string;
+          periodicidade?: string;
         };
         Update: Partial<
           Database["public"]["Tables"]["assinaturas"]["Insert"]
@@ -610,6 +620,9 @@ export interface Database {
           forma_pagamento: FormaPagamentoMP;
           mp_payment_id: string | null;
           mp_status: string | null;
+          origem: OrigemPagamento;
+          cakto_payment_id: string | null;
+          cakto_status: string | null;
           created_at: string;
         };
         Insert: {
@@ -621,6 +634,9 @@ export interface Database {
           forma_pagamento: FormaPagamentoMP;
           mp_payment_id?: string | null;
           mp_status?: string | null;
+          origem?: OrigemPagamento;
+          cakto_payment_id?: string | null;
+          cakto_status?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["pagamentos"]["Insert"]>;

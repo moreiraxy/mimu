@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createServiceClient } from "@/lib/supabase/service";
+import { assinaturaVencida, trialVencido } from "@/lib/assinatura";
 import { NextResponse, type NextRequest } from "next/server";
 
 const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
@@ -12,7 +13,16 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 // /auth/confirmar é onde os links dos e-mails aterrissam. Quem chega ali
 // ainda NÃO tem sessão: é justamente a rota que a cria. Exigir login aqui
 // mandaria a pessoa para o login com o link na mão, que era o sintoma.
-const ALWAYS_PUBLIC_ROUTES = ["/redefinir-senha", "/auth/confirmar", "/"];
+// /obrigado é onde a Cakto larga quem acabou de pagar. Quem compra por um
+// link compartilhado não tem conta nem sessão — é justamente a tela que
+// explica como criar a senha. Exigir login aqui mandaria para /login quem
+// acabou de pagar e ainda não tem senha nenhuma, que é o beco sem saída.
+const ALWAYS_PUBLIC_ROUTES = [
+  "/redefinir-senha",
+  "/auth/confirmar",
+  "/obrigado",
+  "/",
+];
 
 // Páginas internas da landing page (histórias de clientes e textos legais).
 // Precisam ser públicas pelo motivo óbvio: quem lê a política de privacidade
@@ -211,12 +221,19 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
-      const trialVencidoAgora =
-        assinatura.status === "trial" &&
-        assinatura.trial_fim !== null &&
-        new Date(assinatura.trial_fim) < new Date();
+      /*
+       * Duas formas de vencer, tratadas do mesmo jeito.
+       *
+       * O trial vence quando passa de `trial_fim`. A assinatura paga vence
+       * quando passa de `proxima_cobranca` — e isso NÃO era checado: a data era
+       * gravada na ativação e nunca mais lida, então uma conta `ativa` ficava
+       * liberada para sempre até alguém marcar `vencida` na mão. Numa venda
+       * anual, isso é um ano inteiro de acesso de graça passando batido.
+       */
+      const trialVencidoAgora = trialVencido(assinatura);
+      const pagaVencidaAgora = assinaturaVencida(assinatura);
 
-      if (trialVencidoAgora) {
+      if (trialVencidoAgora || pagaVencidaAgora) {
         /*
          * Marca com a service role, não com a sessão.
          *
@@ -240,7 +257,9 @@ export async function updateSession(request: NextRequest) {
         }
 
         const url = request.nextUrl.clone();
-        url.pathname = "/trial-vencido";
+        // Quem pagou não teve "período gratuito acabando": vai para o checkout
+        // escolher o plano de novo, e não para a tela que fala de teste.
+        url.pathname = pagaVencidaAgora ? "/assinar" : "/trial-vencido";
         return NextResponse.redirect(url);
       }
 
