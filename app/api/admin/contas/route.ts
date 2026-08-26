@@ -57,9 +57,21 @@ export async function GET() {
     ).length,
     novosHoje: contas.filter((c) => new Date(c.entrou_em) >= inicioDeHoje)
       .length,
+    /*
+     * Receita mensal recorrente, com a anual diluída em doze.
+     *
+     * `valor_mensal` guarda o valor COBRADO, que numa assinatura anual é o do
+     * ano inteiro. Somar direto fazia uma venda de R$ 399 por ano aparecer
+     * como R$ 399 por mês, e o painel mostrava dez vezes mais receita do que
+     * existe. Somar mês com ano só faz sentido depois de trazer os dois para a
+     * mesma unidade.
+     */
     receitaMensal: contas
       .filter((c) => c.status_assinatura === "ativa")
-      .reduce((soma, c) => soma + Number(c.valor_mensal ?? 0), 0),
+      .reduce((soma, c) => {
+        const valor = Number(c.valor_mensal ?? 0);
+        return soma + (c.periodicidade === "anual" ? valor / 12 : valor);
+      }, 0),
   };
 
   return NextResponse.json({ contas, resumo });

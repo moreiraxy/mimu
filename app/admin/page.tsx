@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { SaudeSection } from "./SaudeSection";
+import { VendaManualSection } from "./VendaManualSection";
 import {
   ArrowLeft,
   Search,
@@ -156,6 +157,10 @@ export default function PainelAdmin() {
       </header>
 
       <SaudeSection />
+
+      {/* Recarrega a lista depois de registrar: a conta nova precisa aparecer
+          na hora, senão parece que não funcionou. */}
+      <VendaManualSection onRegistrada={() => window.location.reload()} />
 
       {erro && (
         <p className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary-forte">

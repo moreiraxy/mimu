@@ -55,6 +55,7 @@ export type ContaAdmin = {
   status_assinatura: string;
   plano: string | null;
   valor_mensal: number | null;
+  periodicidade: string | null;
   trial_fim: string | null;
   proxima_cobranca: string | null;
   dias_restantes_trial: number | null;

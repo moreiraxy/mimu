@@ -58,7 +58,7 @@ export type StatusPagamentoMP =
 export type FormaPagamentoMP = "pix" | "cartao" | "boleto";
 // Quem processou a cobrança. O checkout próprio (Mercado Pago) e o da Cakto
 // convivem, então toda linha de pagamento precisa dizer de onde veio.
-export type OrigemPagamento = "mercadopago" | "cakto";
+export type OrigemPagamento = "mercadopago" | "cakto" | "manual";
 
 export interface Database {
   public: {
@@ -624,6 +624,7 @@ export interface Database {
           cakto_payment_id: string | null;
           cakto_status: string | null;
           created_at: string;
+          manual_referencia: string | null;
         };
         Insert: {
           id?: string;
@@ -638,6 +639,7 @@ export interface Database {
           cakto_payment_id?: string | null;
           cakto_status?: string | null;
           created_at?: string;
+          manual_referencia?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["pagamentos"]["Insert"]>;
         Relationships: [];
@@ -667,6 +669,7 @@ export interface Database {
           trial_fim: string | null;
           proxima_cobranca: string | null;
           dias_restantes_trial: number | null;
+          periodicidade: string | null;
         };
         Relationships: [];
       };

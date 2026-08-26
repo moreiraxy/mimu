@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import type { FormaPagamentoMP, OrigemPagamento } from "@/types";
+import { MODULOS } from "@/lib/modulos";
 import {
   proximaCobrancaDe,
   type Periodicidade,
@@ -60,6 +61,10 @@ export type ResultadoCompra =
 const COLUNA_ID = {
   mercadopago: "mp_payment_id",
   cakto: "cakto_payment_id",
+  // Venda manual não tem transação de provedor. A referência é escrita por
+  // quem registra (o id do Pix, por exemplo) e serve de chave de idempotência
+  // do mesmo jeito: registrar a mesma venda duas vezes não cria duas linhas.
+  manual: "manual_referencia",
 } as const satisfies Record<OrigemPagamento, string>;
 
 /**
@@ -68,6 +73,9 @@ const COLUNA_ID = {
  * assinatura de índice, e o insert tipado do Supabase recusa isso.
  */
 function colunasDoProvedor(compra: CompraExterna) {
+  if (compra.origem === "manual") {
+    return { manual_referencia: compra.pagamentoId };
+  }
   return compra.origem === "cakto"
     ? {
         cakto_payment_id: compra.pagamentoId,
@@ -171,7 +179,7 @@ export async function liberarCompraExterna(
   // no insert do usuário. Contas antigas também já têm a delas.
   const { data: empresa } = await service
     .from("empresas")
-    .select("id")
+    .select("id, modulos_ativos")
     .eq("user_id", usuario.userId)
     .maybeSingle();
 
@@ -215,6 +223,43 @@ export async function liberarCompraExterna(
   if (erroAssinatura || !assinatura) {
     console.error("Erro ao ativar assinatura de compra externa:", erroAssinatura);
     return { ok: false, motivo: "assinatura_nao_ativada" };
+  }
+
+  /*
+   * Liga os módulos, porque os dois planos dão todos.
+   *
+   * Sem isto a pessoa pagava e entrava numa conta com zero módulo: o menu vinha
+   * vazio e não havia nada para usar. Quem compra pelo checkout próprio passa
+   * pelo onboarding e escolhe ali; quem compra por fora cai direto no app, e a
+   * escolha nunca acontece.
+   *
+   * Só liga o que falta. Uma conta que já usava a Mimu no teste e comprou
+   * depois pode ter desligado um módulo de propósito, e religar na hora do
+   * pagamento seria desfazer uma decisão dela.
+   */
+  const TODOS = MODULOS.flatMap((m) => m.chaves);
+  const jaAtivos = empresa.modulos_ativos ?? [];
+  const faltando = TODOS.filter((m) => !jaAtivos.includes(m));
+
+  if (jaAtivos.length === 0) {
+    const { error: erroModulos } = await service
+      .from("empresas")
+      .update({ modulos_ativos: TODOS })
+      .eq("id", empresa.id);
+
+    if (erroModulos) {
+      // Não derruba a compra: o pagamento já foi feito e a assinatura já está
+      // ativa. Mas registra alto, porque a pessoa vai abrir um app vazio.
+      console.error("Compra liberada, mas os módulos não ligaram.", {
+        empresaId: empresa.id,
+        erro: erroModulos.message,
+      });
+    }
+  } else if (faltando.length > 0) {
+    console.info("Compra externa: conta já tinha módulos escolhidos, mantidos como estavam.", {
+      empresaId: empresa.id,
+      faltando,
+    });
   }
 
   const { error: erroPagamento } = await service.from("pagamentos").insert({
