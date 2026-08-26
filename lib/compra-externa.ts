@@ -4,6 +4,7 @@ import type { FormaPagamentoMP, OrigemPagamento } from "@/types";
 import { MODULOS } from "@/lib/modulos";
 import {
   proximaCobrancaDe,
+  valorDoPlano,
   type Periodicidade,
   type PlanoPago,
 } from "@/lib/planos";
@@ -141,6 +142,29 @@ export async function liberarCompraExterna(
   service: Supabase,
   compra: CompraExterna,
 ): Promise<ResultadoCompra> {
+  /*
+   * Recusa a combinação que a Mimu não vende, antes de gravar qualquer coisa.
+   *
+   * A checagem mora AQUI e não em quem chama porque o webhook do provedor
+   * externo entra por esta porta direto, sem passar pela rota do painel: uma
+   * validação feita lá fora protege só um dos dois caminhos.
+   *
+   * O que se valida é a EXISTÊNCIA da combinação, não o valor. O valor cobrado
+   * continua vindo do payload e é ele que fica gravado, porque com cupom o
+   * cobrado difere legitimamente da tabela. Mas plano sem preço naquela
+   * periodicidade é um plano que não está à venda, e aceitar assim mesmo criaria
+   * uma assinatura com renovação marcada para um prazo que ninguém definiu.
+   */
+  if (valorDoPlano(compra.plano, compra.periodicidade) === null) {
+    console.error("Compra externa recusada: combinação não vendida.", {
+      origem: compra.origem,
+      plano: compra.plano,
+      periodicidade: compra.periodicidade,
+      pagamentoId: compra.pagamentoId,
+    });
+    return { ok: false, motivo: "combinacao_nao_vendida" };
+  }
+
   const colunaId = COLUNA_ID[compra.origem];
 
   /*
