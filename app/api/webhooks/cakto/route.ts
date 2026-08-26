@@ -25,7 +25,9 @@ import { PLANOS } from "@/lib/planos";
  * repetir porque contrariam o hábito de quem já mexeu com Mercado Pago:
  *
  * 1. Não há assinatura HMAC. A autenticidade é um campo `secret` no corpo,
- *    conferido contra o segredo configurado no painel da Cakto.
+ *    conferido contra CAKTO_WEBHOOK_SECRET. O valor é gerado pela Cakto, não
+ *    por nós: foi descoberto disparando um evento de teste e lendo o payload
+ *    que chegou, porque a API deles não expõe esse campo em canto nenhum.
  *
  * 2. A Cakto NÃO reenvia. Qualquer resposta é tratada como entrega bem
  *    sucedida, então devolver 500 não faz a notificação voltar — só apaga a

@@ -12,8 +12,10 @@ import type { Periodicidade, PlanoPago } from "@/lib/planos";
  * Duas coisas do contrato da Cakto mandam no desenho e merecem estar escritas:
  *
  * 1. Não existe assinatura HMAC nem cabeçalho de autenticação. A validação é
- *    um campo `secret` DENTRO do corpo, comparado com o segredo configurado no
- *    painel deles. É mais fraco que o do Mercado Pago, e é o que há.
+ *    um campo `secret` DENTRO do corpo. Quem gera esse segredo é a própria
+ *    Cakto, junto com o webhook — não somos nós que escolhemos, e ele não
+ *    aparece em lugar nenhum da API deles. É mais fraco que o do Mercado
+ *    Pago, e é o que há.
  *
  * 2. "A Cakto interpreta qualquer resposta do seu sistema como entregue com
  *    sucesso." Ou seja: ela NÃO reenvia. Devolver 500 não faz a notificação
