@@ -73,10 +73,11 @@ export const OFERTAS_CAKTO: Record<
   tm8tk2y: { plano: "premium", periodicidade: "mensal", descricao: "Assinatura Premium — R$ 199" },
   "55pfecd": { plano: "pro", periodicidade: "anual", descricao: "Assinatura Anual Pro — R$ 399" },
   tjt4jns: { plano: "premium", periodicidade: "anual", descricao: "Assinatura Anual Premium — R$ 1.990" },
-  // Produto "Mimu" duplicado (a215f8c7-7f4e-4cf9-b219-c0ccd8ef4e97), criado no
-  // mesmo dia. Fica mapeado porque o link dele pode já ter sido compartilhado:
-  // uma venda por um link antigo não pode cair no vazio.
-  wqwuycp: { plano: "pro", periodicidade: "mensal", descricao: "Mimu (produto duplicado) — R$ 39,90" },
+  // Houve um segundo produto "Mimu" duplicado (a215f8c7), com a oferta wqwuycp.
+  // Removido da Cakto em 26/08/2026 sem nunca ter tido pedido nem visita no
+  // checkout, e por isso a oferta dele não aparece aqui: ela não pode mais
+  // gerar venda. Se por algum motivo aparecer, cai em "oferta desconhecida",
+  // que avisa em vez de adivinhar.
 };
 
 /**
