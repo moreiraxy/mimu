@@ -84,13 +84,25 @@ const nextConfig = {
    * sendo do Next — é para lá que os botões da landing apontam.
    */
   async rewrites() {
-    const paginaDaLanding = "/lp.html";
+    /*
+     * Cada rota da landing tem o SEU arquivo, e não mais um lp.html para
+     * todas.
+     *
+     * Antes as quatro apontavam para o mesmo arquivo, e podiam: o HTML era
+     * vazio em qualquer uma delas, e quem montava a página certa era o React
+     * depois de carregar. O preço era o buscador ler quatro páginas idênticas
+     * e sem texto.
+     *
+     * Agora o build gera um HTML por rota, com o texto, o título e o canonical
+     * daquela página. Mandar todas para o mesmo arquivo de novo faria a
+     * história do Salão da Andréia ser indexada com o conteúdo da home.
+     */
     return {
       beforeFiles: [
-        { source: "/", destination: paginaDaLanding },
-        { source: "/historias", destination: paginaDaLanding },
-        { source: "/historias/:slug", destination: paginaDaLanding },
-        { source: "/legal/:slug", destination: paginaDaLanding },
+        { source: "/", destination: "/lp.html" },
+        { source: "/historias", destination: "/lp/historias.html" },
+        { source: "/historias/:slug", destination: "/lp/historias/:slug.html" },
+        { source: "/legal/:slug", destination: "/lp/legal/:slug.html" },
       ],
     };
   },

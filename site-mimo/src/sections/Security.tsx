@@ -77,7 +77,7 @@ export function Security() {
             {CARDS.map((card, i) => (
               // Todos no mesmo sentido (padrão 1); a sensação de camadas vem
               // só da diferença de força entre os cards.
-              <div className="h-full">
+              <div key={card.title ?? i} className="h-full">
                 <Card {...card} />
               </div>
             ))}

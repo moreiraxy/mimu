@@ -53,6 +53,41 @@ if (existsSync(fontesDaMarca)) {
 
 await cp(path.join(DIST, "index.html"), path.join(PUBLIC, "lp.html"));
 
+/*
+ * As demais rotas, uma por arquivo, em public/lp/.
+ *
+ * Antes as quatro rotas da landing eram servidas pelo MESMO lp.html, porque
+ * qualquer uma delas dava no mesmo HTML vazio e quem montava a página certa
+ * era o React no navegador. Agora cada rota tem o próprio HTML, com o próprio
+ * texto, título e canonical — e servir todas pelo mesmo arquivo desfaria
+ * exatamente o que o prerender foi feito para resolver.
+ *
+ * A pasta vai para public/lp/ e não para a raiz porque aqui são só documentos:
+ * eles referenciam imagem e script por caminho absoluto (/img, /assets), que
+ * continua resolvendo de qualquer profundidade. O motivo de a LP inteira morar
+ * na raiz (103 caminhos absolutos de imagem) não se aplica a estes.
+ */
+const PASTA_ROTAS = path.join(PUBLIC, "lp");
+await rm(PASTA_ROTAS, { recursive: true, force: true });
+
+let paginas = 0;
+for (const rota of ["historias.html", "historias", "legal"]) {
+  const origem = path.join(DIST, rota);
+  if (!existsSync(origem)) continue;
+  const destino = path.join(PASTA_ROTAS, rota);
+  await mkdir(path.dirname(destino), { recursive: true });
+  await cp(origem, destino, { recursive: true });
+  paginas += 1;
+}
+
+if (paginas === 0) {
+  console.error(
+    "copiar-lp: nenhuma página de rota encontrada em dist/. O prerender não " +
+      "rodou, e as rotas da landing iriam ao ar sem texto para o buscador.",
+  );
+  process.exit(1);
+}
+
 // De propósito NÃO copia o icon.svg da LP: o Next já serve /icon.svg a partir
 // de app/icon.svg, e ter os dois faz o Next reclamar de rota duplicada.
 

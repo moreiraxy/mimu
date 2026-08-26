@@ -139,7 +139,7 @@ export function PricingV2() {
 
         <div ref={gridRef} className="mt-10 grid w-full grid-cols-1 items-start gap-5 md:grid-cols-3">
           {PLANOS.map((plano, i) => (
-            <div className="h-full">
+            <div key={plano.nome ?? i} className="h-full">
             <Revelar atraso={i * 120} className="h-full">
             <div
               className={`flex h-full flex-col rounded-[24px] border p-8 ${
