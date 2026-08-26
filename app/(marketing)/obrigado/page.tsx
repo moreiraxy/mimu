@@ -25,16 +25,16 @@ export const metadata: Metadata = {
  *
  * O TEXTO AQUI PROMETE SÓ O QUE ACONTECE DE VERDADE.
  *
- * A versão anterior dizia "enviamos um e-mail" e "seu acesso já está
- * liberado". Nenhuma das duas era verdade: o webhook da Cakto ainda não
- * existe, então hoje a liberação é feita à mão pelo painel, e o e-mail sai
- * nesse momento — não no instante em que a pessoa vê esta tela. Prometer
- * automático numa tela de pós-pagamento é o pior lugar possível para
- * prometer errado: a pessoa já pagou e fica esperando.
+ * Uma versão dizia "enviamos um e-mail" e "seu acesso já está liberado" quando
+ * o webhook da Cakto ainda não existia e a liberação era feita à mão. Prometer
+ * automático numa tela de pós-pagamento é o pior lugar possível para prometer
+ * errado: a pessoa já pagou e fica esperando.
  *
- * Por isso o tempo verbal é futuro ("vai receber"), não há promessa de prazo,
- * e o WhatsApp deixou de ser um link discreto no rodapé para virar a saída
- * principal — é o caminho que funciona na hora, em qualquer cenário.
+ * O webhook existe desde 26/08/2026 e a liberação é automática, então o texto
+ * pode falar em minutos. O que continua sem promessa é o e-mail EM SI: ele sai
+ * na hora, mas cai em spam, atrasa no provedor, e a compra de uma oferta que o
+ * webhook não reconhece ainda espera registro manual. Por isso o WhatsApp
+ * segue sendo saída principal, e não link discreto no rodapé.
  */
 export default function ObrigadoPage() {
   return (
@@ -49,8 +49,8 @@ export default function ObrigadoPage() {
         Pagamento confirmado.
       </h1>
       <p className="mt-2 max-w-sm text-sm text-neutro-muted">
-        Agora é com a gente. Você vai receber um e-mail com o caminho para
-        entrar.
+        Seu acesso já está sendo liberado. Em alguns minutos chega um e-mail
+        com o caminho para entrar.
       </p>
 
       <div className="mt-8 flex w-full max-w-sm flex-col gap-3 text-left">
@@ -60,9 +60,9 @@ export default function ObrigadoPage() {
             É sua primeira vez na Mimu
           </span>
           <p className="mt-2 text-sm leading-relaxed text-neutro-muted">
-            Assim que confirmarmos sua compra, chega um e-mail no endereço que
-            você usou no pagamento, com o link para criar sua senha. Se não
-            achar, confira o spam e a lixeira.
+            Chega um e-mail no endereço que você usou no pagamento, com o link
+            para criar sua senha. Se não achar em alguns minutos, confira o spam
+            e a lixeira.
           </p>
         </div>
 
@@ -85,9 +85,9 @@ export default function ObrigadoPage() {
       </div>
 
       {/*
-        Saída principal, e não um link de rodapé: enquanto a liberação depende
-        de alguém olhar o painel, o WhatsApp é o único caminho que resolve na
-        hora. Quem acabou de pagar e não consegue entrar não pode ter que
+        Saída principal, e não um link de rodapé. A liberação virou automática,
+        mas o e-mail ainda pode cair em spam e uma oferta nova pode não estar
+        mapeada — e quem acabou de pagar e não consegue entrar não pode ter que
         procurar como falar com a gente.
       */}
       <a
