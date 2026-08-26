@@ -277,7 +277,20 @@ export async function updateSession(request: NextRequest) {
         assinatura.status === "cancelada"
       ) {
         const url = request.nextUrl.clone();
-        url.pathname = "/trial-vencido";
+        /*
+         * Cancelada vai para o checkout, não para a tela de teste vencido.
+         *
+         * Quem teve o pagamento revertido, ou cancelou a assinatura, nunca
+         * esteve num "período gratuito acabando". Mandar essa pessoa para uma
+         * tela que fala de teste grátis é dizer a coisa errada no momento em
+         * que ela mais precisa entender o que aconteceu.
+         *
+         * Vencida também só é a tela de teste quando o teste é o que venceu:
+         * quem pagou e chegou ao fim do prazo já é mandada para /assinar mais
+         * acima, no mesmo trecho que marca o vencimento.
+         */
+        url.pathname =
+          assinatura.status === "cancelada" ? "/assinar" : "/trial-vencido";
         return NextResponse.redirect(url);
       }
     }

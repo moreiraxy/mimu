@@ -338,3 +338,128 @@ export async function enviarLinkParaDefinirSenha(
 
   return { error };
 }
+
+/**
+ * O que aconteceu com um pagamento que foi desfeito.
+ *
+ * Reembolso e chargeback chegam pelo mesmo webhook, com status diferente, e
+ * têm o mesmo efeito no acesso: quem pediu o dinheiro de volta não continua
+ * usando. A distinção é guardada para conferência, não para mudar o
+ * comportamento.
+ */
+export type TipoReversao = "reembolso" | "chargeback";
+
+export type ResultadoReversao =
+  | { ok: true; empresaId: string; jaRevertido: boolean }
+  | { ok: false; motivo: string };
+
+/**
+ * Revoga o acesso de uma compra que foi desfeita.
+ *
+ * Sem isto, quem pedia reembolso ou abria chargeback continuava com o app
+ * liberado indefinidamente: o pagamento voltava para a pessoa e a assinatura
+ * seguia ativa, porque nada no sistema ligava uma coisa à outra.
+ *
+ * Encontra o pagamento pelo id do provedor, que é a única coisa que o webhook
+ * de reversão traz com certeza. Se não achar, não inventa: devolve
+ * `pagamento_nao_encontrado` em vez de cancelar a assinatura por adivinhação.
+ */
+export async function reverterCompraExterna(
+  service: Supabase,
+  reversao: {
+    origem: OrigemPagamento;
+    /** Id da transação no provedor, o mesmo usado na compra. */
+    pagamentoId: string;
+    tipo: TipoReversao;
+    /** Status cru do provedor, guardado sem tradução. */
+    statusProvedor: string | null;
+  },
+): Promise<ResultadoReversao> {
+  const colunaId = COLUNA_ID[reversao.origem];
+
+  const { data: pagamento, error: erroBusca } = await service
+    .from("pagamentos")
+    .select("id, empresa_id, status")
+    .eq("origem", reversao.origem)
+    .eq(colunaId, reversao.pagamentoId)
+    .maybeSingle();
+
+  if (erroBusca) {
+    console.error("Erro ao buscar pagamento para reverter:", erroBusca);
+    return { ok: false, motivo: "erro_ao_buscar_pagamento" };
+  }
+
+  if (!pagamento) {
+    // Acontece de verdade: chargeback de uma compra feita antes de a
+    // integração existir, ou notificação de um provedor que não é o nosso.
+    console.error("Reversão recebida para pagamento desconhecido.", {
+      origem: reversao.origem,
+      pagamentoId: reversao.pagamentoId,
+    });
+    return { ok: false, motivo: "pagamento_nao_encontrado" };
+  }
+
+  /*
+   * Idempotência. Provedor reenvia notificação até receber 200, e um
+   * chargeback costuma vir acompanhado de um reembolso logo em seguida. Sem
+   * isto, a segunda chamada cancelaria de novo uma assinatura já cancelada e
+   * registraria um segundo evento como se fosse outro caso.
+   */
+  if (pagamento.status === "reembolsado") {
+    return { ok: true, empresaId: pagamento.empresa_id, jaRevertido: true };
+  }
+
+  const { error: erroPagamento } = await service
+    .from("pagamentos")
+    .update({ status: "reembolsado", ...colunasDeStatus(reversao) })
+    .eq("id", pagamento.id);
+
+  if (erroPagamento) {
+    console.error("Erro ao marcar pagamento como revertido:", erroPagamento);
+    return { ok: false, motivo: "pagamento_nao_atualizado" };
+  }
+
+  /*
+   * A assinatura vira "cancelada", e não "vencida".
+   *
+   * Vencida é o prazo que acabou naturalmente; cancelada é o acordo desfeito.
+   * A diferença aparece na tela: quem venceu é convidada a renovar, quem teve
+   * o pagamento revertido precisa falar com a gente antes.
+   *
+   * A data de próxima cobrança é limpa junto. Deixá-la no futuro faria a conta
+   * parecer paga em qualquer relatório que olhe só a data.
+   */
+  const { error: erroAssinatura } = await service
+    .from("assinaturas")
+    .update({ status: "cancelada", proxima_cobranca: null })
+    .eq("empresa_id", pagamento.empresa_id);
+
+  if (erroAssinatura) {
+    console.error("Pagamento revertido, mas a assinatura não foi cancelada.", {
+      empresaId: pagamento.empresa_id,
+      erro: erroAssinatura.message,
+    });
+    return { ok: false, motivo: "assinatura_nao_cancelada" };
+  }
+
+  return { ok: true, empresaId: pagamento.empresa_id, jaRevertido: false };
+}
+
+/**
+ * Guarda o status cru do provedor na coluna dele.
+ *
+ * Venda manual não tem coluna de status: a reversão de uma venda feita na mão
+ * é registrada só pela mudança para "reembolsado".
+ */
+function colunasDeStatus(reversao: {
+  origem: OrigemPagamento;
+  statusProvedor: string | null;
+}) {
+  if (reversao.origem === "cakto") {
+    return { cakto_status: reversao.statusProvedor };
+  }
+  if (reversao.origem === "mercadopago") {
+    return { mp_status: reversao.statusProvedor };
+  }
+  return {};
+}

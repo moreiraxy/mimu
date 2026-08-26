@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { ehAdmin } from "@/lib/admin";
-import { liberarCompraExterna } from "@/lib/compra-externa";
+import {
+  liberarCompraExterna,
+  enviarLinkParaDefinirSenha,
+} from "@/lib/compra-externa";
 import { registrarEvento } from "@/lib/eventos";
+import { URL_SITE } from "@/lib/site";
 import {
   planoValido,
   periodicidadeValida,
@@ -111,6 +115,24 @@ export async function POST(request: Request) {
     );
   }
 
+  /*
+   * O e-mail de "defina sua senha" sai AQUI, e não dentro de
+   * `liberarCompraExterna`.
+   *
+   * Quem chega por uma venda registrada na mão nunca escolheu senha: a conta
+   * nasceu do e-mail que a admin digitou. Sem este envio a pessoa paga, a conta
+   * é criada, e ela fica esperando um e-mail que nunca sai — que era exatamente
+   * o que acontecia, com o painel afirmando que tinha saído.
+   *
+   * Só para conta nova: quem já tinha conta entra com a senha de sempre, e um
+   * "redefina sua senha" do nada só assusta.
+   */
+  const { error: erroEmail } = resultado.contaNova
+    ? await enviarLinkParaDefinirSenha(createServiceClient(), email, URL_SITE)
+    : { error: null };
+
+  const emailEnviado = resultado.contaNova && !erroEmail;
+
   await registrarEvento("venda_manual", {
     empresaId: resultado.empresaId,
     detalhe: {
@@ -120,6 +142,7 @@ export async function POST(request: Request) {
       valor,
       contaNova: resultado.contaNova,
       jaProcessado: resultado.jaProcessado,
+      emailEnviado,
       registradaPor: user?.email ?? null,
     },
   });
@@ -129,6 +152,10 @@ export async function POST(request: Request) {
     empresaId: resultado.empresaId,
     contaNova: resultado.contaNova,
     jaProcessado: resultado.jaProcessado,
+    // Devolvido de propósito, em vez de a tela assumir que saiu: o envio pode
+    // falhar (SMTP fora, limite do Supabase), e afirmar que a pessoa vai
+    // receber o e-mail é o tipo de erro que ninguém descobre até ela reclamar.
+    emailEnviado,
     valor,
   });
 }

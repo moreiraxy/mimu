@@ -58,8 +58,13 @@ export function VendaManualSection({ onRegistrada }: { onRegistrada: () => void 
       dados.jaProcessado
         ? "Essa venda já estava registrada. Nada foi duplicado."
         : dados.contaNova
-          ? `Conta criada e liberada. ${email} vai receber um e-mail para definir a senha.`
-          : "Conta já existia e foi liberada.",
+          ? dados.emailEnviado
+            ? `Conta criada e liberada. ${email} recebeu o e-mail para definir a senha.`
+            : // O envio falhou, e dizer que saiu deixaria a pessoa esperando um
+              // e-mail que não existe. A saída manual é dita aqui porque é a que
+              // funciona sem depender de mais nada.
+              `Conta criada e liberada, mas o e-mail não saiu. Avise ${email} para entrar com "esqueci minha senha".`
+          : "Conta já existia e foi liberada. A senha continua a mesma.",
     );
     setEmail("");
     setNomeNegocio("");
