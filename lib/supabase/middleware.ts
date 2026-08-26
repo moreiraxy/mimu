@@ -21,6 +21,7 @@ const ALWAYS_PUBLIC_ROUTES = [
   "/redefinir-senha",
   "/auth/confirmar",
   "/obrigado",
+  "/afiliados",
   "/",
 ];
 
