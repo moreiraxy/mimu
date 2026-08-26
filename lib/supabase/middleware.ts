@@ -33,10 +33,12 @@ const ROTAS_PUBLICAS_DA_LANDING = ["/historias", "/legal"];
 
 // Chamadas de servidor para servidor: nunca têm sessão de usuário, então
 // ficam de fora até da exigência de login. Cada uma se protege por conta
-// própria — o webhook confere a assinatura do Mercado Pago, e a tarefa
+// própria — o webhook do Mercado Pago confere a assinatura HMAC, o da Cakto
+// confere o segredo que vem no corpo (é o que eles oferecem), e a tarefa
 // diária exige um segredo no cabeçalho.
 const ROTAS_PUBLICAS_SEM_AUTH = [
   "/api/pagamento/webhook",
+  "/api/webhooks/cakto",
   "/api/cron/alertas-diarios",
   "/api/cron/saude",
 ];

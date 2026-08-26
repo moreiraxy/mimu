@@ -39,6 +39,18 @@ export interface CompraExterna {
   pagamentoId: string;
   /** Status cru do provedor, guardado sem tradução, para depuração. */
   statusProvedor: string | null;
+  /**
+   * Quando a próxima cobrança cai, se o provedor disser.
+   *
+   * Sem isto, a data era sempre calculada aqui: hoje + 1 mês, ou hoje + 12
+   * meses. Acerta na maioria das vezes e erra justamente onde dói — quem
+   * cobra é que manda no calendário da assinatura, e dia de vencimento, dias
+   * de teste e recobrança deslocam a data. Quando o provedor informa, o
+   * acesso passa a acabar no dia em que a cobrança de fato acaba.
+   *
+   * Ausente na venda manual, que não tem provedor: ali o cálculo continua.
+   */
+  proximaCobranca?: Date | null;
 }
 
 export type ResultadoCompra =
@@ -213,8 +225,10 @@ export async function liberarCompraExterna(
 
   // A periodicidade da compra decide quando a renovação cai. Era um mês fixo,
   // e quem pagava o ano adiantado ficava com a próxima cobrança marcada para
-  // daqui a trinta dias.
-  const proximaCobranca = proximaCobrancaDe(compra.periodicidade);
+  // daqui a trinta dias. Quando o provedor manda a data dele, ela ganha: é o
+  // calendário real da cobrança, não uma estimativa nossa.
+  const proximaCobranca =
+    compra.proximaCobranca ?? proximaCobrancaDe(compra.periodicidade);
 
   /*
    * Upsert por `empresa_id`, que é único em `assinaturas`.

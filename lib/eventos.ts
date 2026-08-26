@@ -29,7 +29,16 @@ export type TipoEvento =
   | "mimu_falhou"
   | "push_falhou"
   | "alertas_falharam"
-  | "venda_manual";
+  | "venda_manual"
+  // A Cakto não reenvia notificação: qualquer resposta nossa é lida como
+  // entrega bem sucedida. Sem esta trilha, uma venda que não liberou não
+  // deixaria rastro nenhum de que chegou a existir.
+  | "cakto_webhook"
+  | "cakto_venda"
+  | "cakto_venda_falhou"
+  | "cakto_reversao"
+  | "cakto_reversao_falhou"
+  | "cakto_atencao";
 
 export interface DadosEvento {
   empresaId?: string | null;

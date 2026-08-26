@@ -96,3 +96,40 @@ export async function avisarAdminsMimuFora(motivo: string): Promise<void> {
     url: "/admin",
   });
 }
+
+/** Avisa que entrou uma venda. */
+export async function avisarAdminsVenda(dados: {
+  plano: string;
+  periodicidade: string;
+  valor: number;
+  email: string;
+  renovacao: boolean;
+}): Promise<void> {
+  const valor = dados.valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  await avisarAdmins({
+    title: dados.renovacao ? "Renovação na Mimu" : "Venda nova na Mimu 🎉",
+    body: `${dados.plano} ${dados.periodicidade} — ${valor} · ${dados.email}`,
+    url: "/admin",
+  });
+}
+
+/**
+ * Avisa que chegou dinheiro e o acesso NÃO foi liberado.
+ *
+ * É o aviso mais importante do arquivo. A Cakto não reenvia notificação: se
+ * uma venda não for liberada na primeira tentativa, ela não volta sozinha
+ * nunca mais. Sem este push, a descoberta viria pela cliente reclamando que
+ * pagou e não entrou.
+ */
+export async function avisarAdminsVendaNaoLiberada(
+  motivo: string,
+): Promise<void> {
+  await avisarAdmins({
+    title: "Venda paga que não liberou acesso",
+    body: `${motivo} — registre no painel para a cliente entrar.`.slice(0, 140),
+    url: "/admin",
+  });
+}
