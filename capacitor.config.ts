@@ -22,7 +22,7 @@ import { MARCA_APP_IOS } from "./lib/plataforma";
  * poderem apontar para outro lugar. O padrão é a produção, de propósito: um
  * envio para a loja feito com a variável esquecida aponta para o lugar certo.
  */
-const DOMINIO = process.env.CAPACITOR_DOMINIO ?? "mimu.up.railway.app";
+const DOMINIO = process.env.CAPACITOR_DOMINIO ?? "mimu.pro";
 
 const config: CapacitorConfig = {
   /*
