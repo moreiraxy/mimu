@@ -2,6 +2,12 @@ import { join } from "node:path";
 import qrcode from "qrcode-terminal";
 import { conectar, type EstadoConexao } from "./conexao";
 import { servirSaude, type Situacao } from "./saude";
+import {
+  tentarAssumir,
+  donoAtual,
+  ESPERA_ENTRE_TENTATIVAS_MS,
+  type Trava,
+} from "./exclusividade";
 import { atender } from "@/lib/canais/atendimento";
 import { registrarEvento } from "@/lib/eventos";
 import { avisarAdmins } from "@/lib/avisos-internos";
@@ -175,7 +181,37 @@ async function main() {
    * responder, e o pareamento pode demorar minutos — se a porta esperasse por
    * ele, a plataforma mataria o worker antes de alguém conseguir ler o QR.
    */
-  const servidorDeSaude = servirSaude(situacao);
+  const servidorDeSaude = servirSaude(situacao, PASTA_DA_SESSAO);
+
+  /*
+   * Só uma cópia fala com o WhatsApp.
+   *
+   * A plataforma roda o app em mais de um processo, e para HTTP isso é bom.
+   * Para o WhatsApp é fatal: a sessão pertence a uma conexão, e a segunda a
+   * usar as mesmas credenciais derruba a primeira (440). A primeira reconecta e
+   * derruba a segunda, indefinidamente — foi o que aconteceu em produção,
+   * conectando e caindo a cada três segundos, sem entregar nenhuma mensagem.
+   *
+   * Quem não conseguir a vez continua de pé e continua respondendo HTTP: a
+   * plataforma precisa disso para considerar o processo saudável, e derrubá-lo
+   * só faria ela subir outro no lugar. Ele fica esperando, e assume se o dono
+   * parar de dar sinal.
+   */
+  let trava = tentarAssumir(PASTA_DA_SESSAO);
+
+  while (!trava) {
+    const dono = donoAtual(PASTA_DA_SESSAO);
+    situacao.estado = "em_espera";
+    situacao.detalhe = dono
+      ? `outra cópia (pid ${dono.pid}) está conectada desde ${dono.desde}`
+      : "esperando a vez";
+    console.log(`[whatsapp] ${situacao.detalhe}. Tentando de novo em 15s.`);
+
+    await new Promise((r) => setTimeout(r, ESPERA_ENTRE_TENTATIVAS_MS));
+    trava = tentarAssumir(PASTA_DA_SESSAO);
+  }
+
+  console.log("[whatsapp] esta cópia é a responsável pela conexão.");
 
   const conexao = await conectar({
     pastaDaSessao: PASTA_DA_SESSAO,
@@ -197,6 +233,7 @@ async function main() {
       conexao
         .parar()
         .then(() => {
+          trava?.soltar();
           servidorDeSaude.close();
           process.exit(0);
         })

@@ -25,7 +25,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // worker/whatsapp/index.ts
-var import_node_path = require("node:path");
+var import_node_path2 = require("node:path");
 var import_qrcode_terminal2 = __toESM(require("qrcode-terminal"));
 
 // worker/whatsapp/conexao.ts
@@ -184,6 +184,77 @@ async function conectar(opcoes) {
 // worker/whatsapp/saude.ts
 var import_node_http = require("node:http");
 var import_qrcode_terminal = __toESM(require("qrcode-terminal"));
+
+// worker/whatsapp/exclusividade.ts
+var import_node_fs = require("node:fs");
+var import_node_path = require("node:path");
+var NOME = "worker.lock";
+var INTERVALO_MS = 1e4;
+var ABANDONO_MS = 35e3;
+function caminho(pastaDaSessao) {
+  return (0, import_node_path.join)(pastaDaSessao, NOME);
+}
+function ler(arquivo) {
+  try {
+    return JSON.parse((0, import_node_fs.readFileSync)(arquivo, "utf8"));
+  } catch {
+    return null;
+  }
+}
+function escrever(arquivo, dados) {
+  (0, import_node_fs.writeFileSync)(arquivo, JSON.stringify(dados), "utf8");
+}
+function tentarAssumir(pastaDaSessao) {
+  (0, import_node_fs.mkdirSync)(pastaDaSessao, { recursive: true });
+  const arquivo = caminho(pastaDaSessao);
+  const dono = ler(arquivo);
+  const agora = Date.now();
+  if (dono && agora - dono.batida < ABANDONO_MS && dono.pid !== process.pid) {
+    return null;
+  }
+  try {
+    (0, import_node_fs.closeSync)((0, import_node_fs.openSync)(arquivo, "wx"));
+  } catch {
+    const agoraDono = ler(arquivo);
+    if (agoraDono && Date.now() - agoraDono.batida < ABANDONO_MS && agoraDono.pid !== process.pid) {
+      return null;
+    }
+  }
+  escrever(arquivo, { pid: process.pid, desde: (/* @__PURE__ */ new Date()).toISOString(), batida: agora });
+  return new Trava(arquivo);
+}
+var Trava = class {
+  constructor(arquivo) {
+    this.arquivo = arquivo;
+    this.batendo = setInterval(() => {
+      try {
+        escrever(this.arquivo, {
+          pid: process.pid,
+          desde: (/* @__PURE__ */ new Date()).toISOString(),
+          batida: Date.now()
+        });
+      } catch {
+      }
+    }, INTERVALO_MS);
+    this.batendo.unref?.();
+  }
+  soltar() {
+    clearInterval(this.batendo);
+    try {
+      (0, import_node_fs.unlinkSync)(this.arquivo);
+    } catch {
+    }
+  }
+};
+function donoAtual(pastaDaSessao) {
+  const dono = ler(caminho(pastaDaSessao));
+  if (!dono) return null;
+  if (Date.now() - dono.batida >= ABANDONO_MS) return null;
+  return { pid: dono.pid, desde: dono.desde };
+}
+var ESPERA_ENTRE_TENTATIVAS_MS = 15e3;
+
+// worker/whatsapp/saude.ts
 var TOKEN = process.env.WHATSAPP_QR_TOKEN ?? null;
 function paginaDoQr(situacao2) {
   return new Promise((resolve) => {
@@ -229,12 +300,12 @@ function pagina(titulo, corpo) {
 </style>
 </head><body><h1>${titulo}</h1>${corpo}</body></html>`;
 }
-function servirSaude(situacao2) {
+function servirSaude(situacao2, pastaDaSessao) {
   const porta = Number(process.env.PORT ?? 8080);
   const servidor = (0, import_node_http.createServer)(async (req, res) => {
-    const caminho = (req.url ?? "/").split("?")[0];
+    const caminho2 = (req.url ?? "/").split("?")[0];
     const parametros = new URL(req.url ?? "/", "http://localhost").searchParams;
-    if (caminho === "/parear") {
+    if (caminho2 === "/parear") {
       if (!TOKEN || parametros.get("token") !== TOKEN) {
         res.writeHead(404).end("n\xE3o encontrado");
         return;
@@ -243,14 +314,27 @@ function servirSaude(situacao2) {
       res.end(await paginaDoQr(situacao2));
       return;
     }
+    const dono = situacao2.estado === "em_espera" ? donoAtual(pastaDaSessao) : null;
+    const canalDePe = situacao2.estado === "conectado" || dono !== null;
     const corpo = JSON.stringify({
       servico: "whatsapp",
       estado: situacao2.estado,
-      desde: situacao2.desde
+      desde: situacao2.desde,
+      ...situacao2.detalhe ? { detalhe: situacao2.detalhe } : {},
+      ...dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {}
     });
-    const status = caminho === "/saude" && situacao2.estado !== "conectado" ? 503 : 200;
+    const status = caminho2 === "/saude" && !canalDePe ? 503 : 200;
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
     res.end(corpo);
+  });
+  servidor.on("error", (erro) => {
+    if (erro.code === "EADDRINUSE") {
+      console.log(
+        `[whatsapp] porta ${porta} j\xE1 est\xE1 com outra c\xF3pia. Sigo sem atender HTTP \u2014 quem responde \xE9 ela.`
+      );
+      return;
+    }
+    console.error("[whatsapp] erro na porta:", erro);
   });
   servidor.listen(porta, () => {
     console.log(`[whatsapp] porta ${porta} \u2014 / e /saude respondendo`);
@@ -1513,7 +1597,7 @@ Apaguei das suas contas. \u{1F49A}`;
 }
 
 // worker/whatsapp/index.ts
-var PASTA_DA_SESSAO = process.env.WHATSAPP_SESSAO_DIR ?? (0, import_node_path.join)(process.cwd(), ".whatsapp-sessao");
+var PASTA_DA_SESSAO = process.env.WHATSAPP_SESSAO_DIR ?? (0, import_node_path2.join)(process.cwd(), ".whatsapp-sessao");
 var mimu = (mensagem) => atender(mensagem, responderPelaMimu);
 var situacao = {
   estado: "subindo",
@@ -1580,7 +1664,17 @@ function conferirAmbiente() {
 async function main() {
   conferirAmbiente();
   console.log(`[whatsapp] sess\xE3o em ${PASTA_DA_SESSAO}`);
-  const servidorDeSaude = servirSaude(situacao);
+  const servidorDeSaude = servirSaude(situacao, PASTA_DA_SESSAO);
+  let trava = tentarAssumir(PASTA_DA_SESSAO);
+  while (!trava) {
+    const dono = donoAtual(PASTA_DA_SESSAO);
+    situacao.estado = "em_espera";
+    situacao.detalhe = dono ? `outra c\xF3pia (pid ${dono.pid}) est\xE1 conectada desde ${dono.desde}` : "esperando a vez";
+    console.log(`[whatsapp] ${situacao.detalhe}. Tentando de novo em 15s.`);
+    await new Promise((r) => setTimeout(r, ESPERA_ENTRE_TENTATIVAS_MS));
+    trava = tentarAssumir(PASTA_DA_SESSAO);
+  }
+  console.log("[whatsapp] esta c\xF3pia \xE9 a respons\xE1vel pela conex\xE3o.");
   const conexao = await conectar({
     pastaDaSessao: PASTA_DA_SESSAO,
     atender: mimu,
@@ -1591,6 +1685,7 @@ async function main() {
       console.log(`
 [whatsapp] ${sinal} recebido. Terminando o que est\xE1 na fila...`);
       conexao.parar().then(() => {
+        trava?.soltar();
         servidorDeSaude.close();
         process.exit(0);
       }).catch(() => process.exit(1));

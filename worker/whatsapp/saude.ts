@@ -1,6 +1,7 @@
 import { createServer, type Server } from "node:http";
 import qrcode from "qrcode-terminal";
 import type { EstadoConexao } from "./conexao";
+import { donoAtual } from "./exclusividade";
 
 /*
  * Uma porta HTTP no worker do WhatsApp.
@@ -23,8 +24,10 @@ import type { EstadoConexao } from "./conexao";
 
 /** O que o worker informa sobre si. Preenchido pelo index conforme o estado muda. */
 export interface Situacao {
-  estado: EstadoConexao | "subindo";
+  estado: EstadoConexao | "subindo" | "em_espera";
   desde: string;
+  /** Texto curto explicando o estado. Hoje só a espera usa. */
+  detalhe?: string | null;
   /*
    * O QR só existe enquanto ninguém pareou. Guardado para a página poder
    * mostrá-lo, e apagado assim que a conexão sobe — não é para ficar
@@ -103,7 +106,7 @@ function pagina(titulo: string, corpo: string): string {
  * `situacao` é lido a cada requisição, não copiado: quem chama continua
  * atualizando o mesmo objeto conforme o estado muda.
  */
-export function servirSaude(situacao: Situacao): Server {
+export function servirSaude(situacao: Situacao, pastaDaSessao: string): Server {
   /*
    * A porta vem da plataforma quando existe.
    *
@@ -127,10 +130,26 @@ export function servirSaude(situacao: Situacao): Server {
       return;
     }
 
+    /*
+     * A saúde é do CANAL, não deste processo.
+     *
+     * Com mais de uma cópia rodando, quem responde HTTP pode ser justamente a
+     * que está esperando a vez. Olhar só para o próprio estado faria o monitor
+     * gritar "fora do ar" com a Mimu atendendo normalmente pela cópia ao lado —
+     * e alarme falso repetido é como um alarme deixa de ser levado a sério.
+     *
+     * Por isso, quando esta cópia não é a responsável, a resposta consulta
+     * quem é.
+     */
+    const dono = situacao.estado === "em_espera" ? donoAtual(pastaDaSessao) : null;
+    const canalDePe = situacao.estado === "conectado" || dono !== null;
+
     const corpo = JSON.stringify({
       servico: "whatsapp",
       estado: situacao.estado,
       desde: situacao.desde,
+      ...(situacao.detalhe ? { detalhe: situacao.detalhe } : {}),
+      ...(dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {}),
     });
 
     /*
@@ -144,10 +163,32 @@ export function servirSaude(situacao: Situacao): Server {
      * `/saude` devolve 503 quando a Mimu não está conectada. É o endereço para
      * apontar um monitor: aí sim, "não conectado" precisa acordar alguém.
      */
-    const status = caminho === "/saude" && situacao.estado !== "conectado" ? 503 : 200;
+    const status = caminho === "/saude" && !canalDePe ? 503 : 200;
 
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
     res.end(corpo);
+  });
+
+  /*
+   * Porta ocupada não pode derrubar o worker.
+   *
+   * Com mais de uma cópia rodando, só a primeira consegue escutar; as outras
+   * recebem EADDRINUSE. Sem este tratamento, o erro fica sem dono, o processo
+   * morre, a plataforma sobe outro no lugar e a roda não para — e o pior é que
+   * cada cópia nova ainda tenta falar com o WhatsApp antes de morrer.
+   *
+   * Quem não conseguiu a porta continua útil: pode ser a responsável pela
+   * conexão, ou estar esperando a vez. Só não atende HTTP.
+   */
+  servidor.on("error", (erro: NodeJS.ErrnoException) => {
+    if (erro.code === "EADDRINUSE") {
+      console.log(
+        `[whatsapp] porta ${porta} já está com outra cópia. ` +
+          "Sigo sem atender HTTP — quem responde é ela.",
+      );
+      return;
+    }
+    console.error("[whatsapp] erro na porta:", erro);
   });
 
   servidor.listen(porta, () => {
