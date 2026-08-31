@@ -2,6 +2,7 @@ import { createServer, type Server } from "node:http";
 import qrcode from "qrcode-terminal";
 import type { EstadoConexao } from "./conexao";
 import { donoAtual } from "./exclusividade";
+import type { Contadores } from "./conexao";
 
 /*
  * Uma porta HTTP no worker do WhatsApp.
@@ -28,6 +29,8 @@ export interface Situacao {
   desde: string;
   /** Texto curto explicando o estado. Hoje só a espera usa. */
   detalhe?: string | null;
+  /** O que o WhatsApp entregou. Ver o comentário em Contadores. */
+  contadores?: Contadores;
   /*
    * O QR só existe enquanto ninguém pareou. Guardado para a página poder
    * mostrá-lo, e apagado assim que a conexão sobe — não é para ficar
@@ -150,6 +153,7 @@ export function servirSaude(situacao: Situacao, pastaDaSessao: string): Server {
       desde: situacao.desde,
       ...(situacao.detalhe ? { detalhe: situacao.detalhe } : {}),
       ...(dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {}),
+      ...(situacao.contadores ? { recebido: situacao.contadores } : {}),
     });
 
     /*

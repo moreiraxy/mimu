@@ -138,16 +138,39 @@ async function conectar(opcoes) {
       }
     });
     socket.ev.on("messages.upsert", ({ messages, type }) => {
-      if (type !== "notify") return;
+      const c = opcoes.contadores;
+      if (c) {
+        c.lotes += 1;
+        c.brutas += messages.length;
+      }
+      const descartar = (motivo) => {
+        if (c) c.descartes[motivo] = (c.descartes[motivo] ?? 0) + 1;
+      };
+      if (type !== "notify") {
+        descartar(`tipo:${type}`);
+        return;
+      }
       for (const bruta of messages) {
         const remoteJid = bruta.key.remoteJid;
-        if (!remoteJid) continue;
-        if (bruta.key.fromMe) continue;
-        if (!remoteJid.endsWith("@s.whatsapp.net")) continue;
+        if (!remoteJid) {
+          descartar("sem_remetente");
+          continue;
+        }
+        if (bruta.key.fromMe) {
+          descartar("de_mim_mesma");
+          continue;
+        }
+        if (!remoteJid.endsWith("@s.whatsapp.net")) {
+          descartar("nao_e_conversa_direta");
+          continue;
+        }
         const conteudo = bruta.message ?? {};
         const texto = extrairTexto(conteudo);
         const audio = !texto && ehAudio(conteudo);
-        if (!texto && !audio) continue;
+        if (!texto && !audio) {
+          descartar("nem_texto_nem_audio");
+          continue;
+        }
         const mensagem = {
           canal: "whatsapp",
           idNoCanal: bruta.key.id,
@@ -158,6 +181,7 @@ async function conectar(opcoes) {
           obterAudio: audio ? baixadorDeAudio(bruta) : void 0,
           recebidaEm: bruta.messageTimestamp ? new Date(Number(bruta.messageTimestamp) * 1e3) : /* @__PURE__ */ new Date()
         };
+        if (c) c.aceitas += 1;
         enfileirar(async () => {
           const resposta = await opcoes.atender(mensagem);
           if (!resposta) return;
@@ -321,7 +345,8 @@ function servirSaude(situacao2, pastaDaSessao) {
       estado: situacao2.estado,
       desde: situacao2.desde,
       ...situacao2.detalhe ? { detalhe: situacao2.detalhe } : {},
-      ...dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {}
+      ...dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {},
+      ...situacao2.contadores ? { recebido: situacao2.contadores } : {}
     });
     const status = caminho2 === "/saude" && !canalDePe ? 503 : 200;
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -1599,10 +1624,12 @@ Apaguei das suas contas. \u{1F49A}`;
 // worker/whatsapp/index.ts
 var PASTA_DA_SESSAO = process.env.WHATSAPP_SESSAO_DIR ?? (0, import_node_path2.join)(process.cwd(), ".whatsapp-sessao");
 var mimu = (mensagem) => atender(mensagem, responderPelaMimu);
+var contadores = { lotes: 0, brutas: 0, aceitas: 0, descartes: {} };
 var situacao = {
   estado: "subindo",
   desde: (/* @__PURE__ */ new Date()).toISOString(),
-  qr: null
+  qr: null,
+  contadores
 };
 function aoMudarEstado(estado, detalhe) {
   situacao.estado = estado;
@@ -1678,7 +1705,8 @@ async function main() {
   const conexao = await conectar({
     pastaDaSessao: PASTA_DA_SESSAO,
     atender: mimu,
-    aoMudarEstado
+    aoMudarEstado,
+    contadores
   });
   for (const sinal of ["SIGINT", "SIGTERM"]) {
     process.on(sinal, () => {

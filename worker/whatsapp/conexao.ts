@@ -32,6 +32,25 @@ export interface OpcoesConexao {
   atender: Atendente;
   /** Chamado quando o estado muda, para o operador saber que caiu. */
   aoMudarEstado?: (estado: EstadoConexao, detalhe?: string) => void;
+  /**
+   * Contadores do que o WhatsApp entregou, para a página de estado mostrar.
+   *
+   * Existe porque "conectado e mudo" é indistinguível de "conectado e ninguém
+   * escreveu" — e a diferença entre as duas é o que decide onde procurar o
+   * defeito. Sem isto, a investigação começa por adivinhação.
+   */
+  contadores?: Contadores;
+}
+
+export interface Contadores {
+  /** Lotes que o WhatsApp entregou, de qualquer tipo. */
+  lotes: number;
+  /** Mensagens dentro desses lotes, antes de qualquer filtro. */
+  brutas: number;
+  /** As que passaram pelos filtros e foram para o atendimento. */
+  aceitas: number;
+  /** Por que as outras foram descartadas. */
+  descartes: Record<string, number>;
 }
 
 export type EstadoConexao =
@@ -249,18 +268,37 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
     });
 
     socket.ev.on("messages.upsert", ({ messages, type }) => {
+      const c = opcoes.contadores;
+      if (c) {
+        c.lotes += 1;
+        c.brutas += messages.length;
+      }
+
+      const descartar = (motivo: string) => {
+        if (c) c.descartes[motivo] = (c.descartes[motivo] ?? 0) + 1;
+      };
+
       // "notify" é mensagem nova de verdade. "append" é histórico sendo
       // sincronizado depois de reconectar — responder a isso faria a Mimu
       // reagir a conversas de dias atrás toda vez que a conexão caísse.
-      if (type !== "notify") return;
+      if (type !== "notify") {
+        descartar(`tipo:${type}`);
+        return;
+      }
 
       for (const bruta of messages) {
         const remoteJid = bruta.key.remoteJid;
-        if (!remoteJid) continue;
+        if (!remoteJid) {
+          descartar("sem_remetente");
+          continue;
+        }
 
         // Nunca responder a si mesma: geraria laço infinito com o próprio
         // número.
-        if (bruta.key.fromMe) continue;
+        if (bruta.key.fromMe) {
+          descartar("de_mim_mesma");
+          continue;
+        }
 
         /*
          * Só conversa de um para um.
@@ -270,7 +308,10 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
          * outras — e é também o lugar de onde vem denúncia, que é o que leva
          * um número a ser banido.
          */
-        if (!remoteJid.endsWith("@s.whatsapp.net")) continue;
+        if (!remoteJid.endsWith("@s.whatsapp.net")) {
+          descartar("nao_e_conversa_direta");
+          continue;
+        }
 
         const conteudo = bruta.message ?? {};
         const texto = extrairTexto(conteudo);
@@ -283,7 +324,10 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
          * ainda, e responder "não entendi" a cada figurinha enviada por
          * engano seria barulho.
          */
-        if (!texto && !audio) continue;
+        if (!texto && !audio) {
+          descartar("nem_texto_nem_audio");
+          continue;
+        }
 
         const mensagem: MensagemRecebida = {
           canal: "whatsapp",
@@ -297,6 +341,8 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
             ? new Date(Number(bruta.messageTimestamp) * 1000)
             : new Date(),
         };
+
+        if (c) c.aceitas += 1;
 
         enfileirar(async () => {
           const resposta = await opcoes.atender(mensagem);
