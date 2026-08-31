@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { destinoAposLogin } from "@/lib/destino-pos-login";
+import { ehAppIOS } from "@/lib/plataforma";
 import { urlAbsoluta } from "@/lib/site";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
@@ -82,6 +83,11 @@ export async function GET(request: NextRequest) {
     return paraRota("/redefinir-senha");
   }
 
-  const destino = await destinoAposLogin(supabase, data.user.id);
+  const destino = await destinoAposLogin(
+    supabase,
+    data.user.id,
+    // Dentro do app iOS o destino nunca pode ser o checkout próprio.
+    ehAppIOS(request.headers.get("user-agent")),
+  );
   return paraRota(destino);
 }

@@ -1,10 +1,10 @@
 import {
+  Clock,
   Cog,
   Pencil,
   Scissors,
   ShoppingCart,
   UtensilsCrossed,
-  Wrench,
   type LucideIcon,
 } from "lucide-react";
 
@@ -23,7 +23,13 @@ export const OPCOES_TIPO_NEGOCIO: OpcaoTipoNegocio[] = [
     icone: UtensilsCrossed,
     label: "Restaurante / Lanchonete",
   },
-  { id: "servico", icone: Wrench, label: "Prestador de serviço" },
+  // Quem é o próprio negócio: manicure que atende em casa, professora
+  // particular, terapeuta, cartomante, personal. O rótulo antigo era
+  // "Prestador de serviço", que ninguém usa pra se descrever e soa como
+  // categoria de nota fiscal. Aqui a pessoa se reconhece pelo que ela faz:
+  // tem hora marcada, não tem balcão. O `id` não muda, pra não invalidar o
+  // que já está gravado em `empresas.tipo_negocio`.
+  { id: "servico", icone: Clock, label: "Atendo por hora marcada" },
   { id: "oficina", icone: Cog, label: "Oficina" },
   { id: "outro", icone: Pencil, label: "Outro" },
 ];

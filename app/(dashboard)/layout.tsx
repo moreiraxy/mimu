@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getEmpresaAtual } from "@/lib/supabase";
+import { modulosLiberados } from "@/lib/planos";
+import type { ModuloAtivo } from "@/types";
 import { ehAdmin } from "@/lib/admin";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 import { Fab } from "@/components/dashboard/Fab";
@@ -21,7 +23,7 @@ export default async function DashboardGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, empresa } = await getEmpresaAtual();
+  const { user, empresa, plano } = await getEmpresaAtual();
 
   if (!user) {
     redirect("/login");
@@ -46,7 +48,16 @@ export default async function DashboardGroupLayout({
   // segunda vez".
   //
   // Aqui o servidor já tem a empresa em mãos: é só entregar.
-  const modulos = empresa.modulos_ativos ?? [];
+  //
+  // Passa pelo teto do plano antes de sair: `modulos_ativos` é o que a pessoa
+  // ESCOLHEU, e o plano é o que ela pode usar. Entregar a lista crua faria a
+  // navegação de uma conta gratuita nascer com agenda, estoque e a Mimu, que
+  // some depois — e some justamente porque o AuthProvider aplica o teto na
+  // hidratação. Os dois lados precisam calcular a mesma coisa.
+  const modulos = modulosLiberados(
+    plano,
+    (empresa.modulos_ativos ?? []) as ModuloAtivo[],
+  );
 
   return (
     <div className="min-h-screen bg-fundo">

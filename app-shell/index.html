@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mimu</title>
+    <!--
+      A tela de quando não há internet.
+
+      Só aparece quando a WebView não consegue alcançar a Mimu hospedada. Sem
+      ela o iOS mostra a página de erro do Safari, que parece o app quebrado —
+      e quem está num salão com sinal ruim conclui que a Mimu parou.
+
+      É deliberadamente um arquivo só, sem CSS externo nem fonte da web: tudo
+      que ela precisa tem que estar dentro do app, porque ela existe
+      justamente para o momento em que nada carrega de fora.
+    -->
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 2rem 1.5rem;
+        background: #0a0a0a;
+        color: #f7f6f3;
+        font-family: -apple-system, BlinkMacSystemFont, "Nunito", system-ui, sans-serif;
+        text-align: center;
+      }
+      .marca {
+        width: 72px; height: 72px;
+        display: flex; align-items: center; justify-content: center;
+        background: #ccff00; border-radius: 18px;
+      }
+      h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+      p { margin: 0; max-width: 20rem; font-size: 0.9375rem; line-height: 1.6; color: #a1a1aa; }
+      button {
+        margin-top: 0.5rem;
+        padding: 0.875rem 2rem;
+        border: 0; border-radius: 12px;
+        background: #ccff00; color: #0a0a0a;
+        font: inherit; font-weight: 700; font-size: 0.9375rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="marca">
+      <svg width="40" height="30" viewBox="0 0 48 36" fill="none" aria-hidden="true">
+        <path
+          d="M2 34 L2 8 Q2 2 8 2 Q14 2 16 8 L24 24 L32 8 Q34 2 40 2 Q46 2 46 8 L46 34"
+          stroke="#0A0A0A" stroke-width="5"
+          stroke-linecap="round" stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+    <h1>Sem internet agora</h1>
+    <p>
+      A Mimu precisa de conexão para abrir. Suas vendas registradas continuam
+      guardadas no aparelho e sobem sozinhas assim que o sinal voltar.
+    </p>
+    <button onclick="location.reload()">Tentar de novo</button>
+  </body>
+</html>

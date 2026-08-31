@@ -78,6 +78,10 @@ const COLUNA_ID = {
   // quem registra (o id do Pix, por exemplo) e serve de chave de idempotência
   // do mesmo jeito: registrar a mesma venda duas vezes não cria duas linhas.
   manual: "manual_referencia",
+  // In-App Purchase do iOS. O `transactionId` do StoreKit é único por cobrança
+  // e serve de chave de idempotência igual aos outros — as App Store Server
+  // Notifications também reenviam quando não recebem 200 a tempo.
+  apple: "apple_transaction_id",
 } as const satisfies Record<OrigemPagamento, string>;
 
 /**
@@ -88,6 +92,11 @@ const COLUNA_ID = {
 function colunasDoProvedor(compra: CompraExterna) {
   if (compra.origem === "manual") {
     return { manual_referencia: compra.pagamentoId };
+  }
+  // A Apple não tem coluna de status cru: o estado da assinatura vive nas
+  // App Store Server Notifications, e não num campo devolvido na compra.
+  if (compra.origem === "apple") {
+    return { apple_transaction_id: compra.pagamentoId };
   }
   return compra.origem === "cakto"
     ? {

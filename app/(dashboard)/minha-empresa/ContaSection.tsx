@@ -8,11 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { MODULOS } from "@/lib/modulos";
 import { SectionCard } from "./SectionCard";
-import type { Empresa } from "@/types";
 
-export function ContaSection({ empresa }: { empresa: Empresa }) {
+export function ContaSection() {
   const { user, signOut } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
@@ -22,10 +20,6 @@ export function ContaSection({ empresa }: { empresa: Empresa }) {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erroSenha, setErroSenha] = useState<string | null>(null);
   const [enviandoSenha, setEnviandoSenha] = useState(false);
-
-  const modulosLabels = MODULOS.filter((m) =>
-    m.chaves.some((chave) => empresa.modulos_ativos.includes(chave)),
-  ).map((m) => m.label);
 
   async function handleAlterarSenha() {
     setErroSenha(null);
@@ -116,15 +110,6 @@ export function ContaSection({ empresa }: { empresa: Empresa }) {
             </div>
           </div>
         )}
-
-        <div className="rounded-button border border-neutro-border p-3.5">
-          <p className="text-xs text-neutro-muted">Plano atual</p>
-          <p className="text-sm font-semibold text-escuro">Gratuito</p>
-          <p className="mt-2 text-xs text-neutro-muted">Módulos ativos</p>
-          <p className="text-sm text-escuro">
-            {modulosLabels.length > 0 ? modulosLabels.join(", ") : "Nenhum"}
-          </p>
-        </div>
 
         <button
           type="button"

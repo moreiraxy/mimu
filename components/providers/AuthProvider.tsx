@@ -3,6 +3,7 @@
 import {
   createContext,
   useCallback,
+  useMemo,
   useRef,
   useEffect,
   useState,
@@ -10,11 +11,62 @@ import {
 } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import type { Empresa } from "@/types";
+import { modulosLiberados } from "@/lib/planos";
+import { planoEfetivo } from "@/lib/assinatura";
+import type { Empresa, ModuloAtivo } from "@/types";
+import type {
+  OrigemPagamento,
+  PlanoAssinatura,
+  StatusAssinatura,
+} from "@/types/database";
+
+/** O que a tela de plano precisa saber da assinatura. */
+export interface AssinaturaResumo {
+  status: StatusAssinatura;
+  plano: PlanoAssinatura;
+  trial_fim: string | null;
+  proxima_cobranca: string | null;
+  /**
+   * Por onde a assinatura foi comprada.
+   *
+   * Decide para onde vai o cancelamento: quem assinou pela Apple só cancela
+   * na Apple, em Ajustes → Assinaturas, e oferecer aqui um botão que não
+   * funcionaria seria pior do que não oferecer nada.
+   */
+  origem: OrigemPagamento | null;
+}
 
 export interface AuthContextValue {
   user: User | null;
   empresa: Empresa | null;
+  /**
+   * O plano da conta ("free", "pro", "premium"...), ou null enquanto carrega.
+   *
+   * Serve para as telas falarem do plano. Para decidir o que mostrar, use
+   * `modulos` — ver o porquê logo abaixo.
+   */
+  plano: string | null;
+  /**
+   * O estado da assinatura, para a tela de plano falar dele.
+   *
+   * Só os campos que a tela usa, e não a linha inteira: `valor_mensal` e os
+   * ids de provedor não têm o que fazer no navegador.
+   */
+  assinatura: AssinaturaResumo | null;
+  /**
+   * Os módulos que a conta pode usar DE VERDADE: o que ela escolheu no
+   * onboarding, limitado ao teto do plano dela.
+   *
+   * É esta lista que a navegação e as telas devem ler, e nunca
+   * `empresa.modulos_ativos` cru. A diferença entre as duas é justamente o
+   * que o plano gratuito não inclui: ler a lista crua mostra agenda, estoque
+   * e a Mimu para quem não paga por eles.
+   *
+   * Vem pronta de propósito, e não como `plano` + uma função para cada tela
+   * chamar. Teto que depende de cada consumidor lembrar de aplicar é teto que
+   * uma tela nova vai furar sem ninguém perceber.
+   */
+  modulos: ModuloAtivo[];
   loading: boolean;
   error: string | null;
   signOut: () => Promise<void>;
@@ -54,6 +106,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const donoCarregado = useRef<string | null>(null);
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
+  const [plano, setPlano] = useState<string | null>(null);
+  const [assinatura, setAssinatura] = useState<AssinaturaResumo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,9 +116,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (donoCarregado.current === userId) return;
       donoCarregado.current = userId;
 
+      /*
+       * A assinatura vem junto, num join, e não numa segunda consulta.
+       *
+       * O plano decide o que a navegação mostra: buscá-lo depois faria o menu
+       * nascer com o teto errado e se corrigir sozinho um instante depois —
+       * exatamente o piscar que o comentário do layout do dashboard conta
+       * ter acontecido com os módulos.
+       *
+       * A RLS deixa: a política "Usuárias leem a própria assinatura" permite
+       * a leitura, e só a escrita foi revogada.
+       */
       const { data, error: fetchError } = await supabase
         .from("empresas")
-        .select("*")
+        .select(
+          "*, assinaturas(status, plano, trial_fim, proxima_cobranca, origem)",
+        )
         .eq("user_id", userId)
         .single();
 
@@ -73,11 +140,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // precisa realmente tentar de novo em vez de achar que já tem.
         donoCarregado.current = null;
         setEmpresa(null);
+        setPlano(null);
+        setAssinatura(null);
         setError("Não foi possível carregar os dados da empresa.");
         return;
       }
 
-      setEmpresa(data);
+      // O join é separado da empresa para o tipo `Empresa` continuar sendo o
+      // da tabela. Quem consome `empresa` não deve nem saber que houve join.
+      const { assinaturas, ...dadosDaEmpresa } = data;
+      const assinatura = Array.isArray(assinaturas)
+        ? (assinaturas[0] ?? null)
+        : (assinaturas ?? null);
+
+      setEmpresa(dadosDaEmpresa as Empresa);
+      setPlano(assinatura?.plano ?? null);
+      setAssinatura((assinatura as AssinaturaResumo | null) ?? null);
       setError(null);
     },
     [supabase],
@@ -101,6 +179,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         donoCarregado.current = null;
         setEmpresa(null);
+        setPlano(null);
+        setAssinatura(null);
         setError(null);
       }
     });
@@ -108,13 +188,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase, loadEmpresa]);
 
+  /*
+   * Sem empresa carregada a lista é vazia, e não "tudo".
+   *
+   * Enquanto carrega, mostrar de menos e completar depois é um menu que
+   * cresce; mostrar de mais e cortar depois é um item que some debaixo do
+   * dedo de quem já ia tocar nele.
+   */
+  const modulos = useMemo(
+    () =>
+      modulosLiberados(
+        // O efetivo, igual ao servidor: 'pendente' e 'cancelada' guardam um
+        // plano pago que nunca valeu, e o menu não pode acreditar nele.
+        planoEfetivo(assinatura),
+        (empresa?.modulos_ativos ?? []) as ModuloAtivo[],
+      ),
+    [assinatura, empresa?.modulos_ativos],
+  );
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, [supabase]);
 
   return (
     <AuthContext.Provider
-      value={{ user, empresa, loading, error, signOut, atualizarEmpresa: setEmpresa }}
+      value={{
+        user,
+        empresa,
+        plano,
+        assinatura,
+        modulos,
+        loading,
+        error,
+        signOut,
+        atualizarEmpresa: setEmpresa,
+      }}
     >
       {children}
     </AuthContext.Provider>

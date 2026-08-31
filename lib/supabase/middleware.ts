@@ -1,6 +1,10 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createServiceClient } from "@/lib/supabase/service";
-import { assinaturaVencida, trialVencido } from "@/lib/assinatura";
+import { assinaturaVencida, trialVencido, planoEfetivo } from "@/lib/assinatura";
+import { PLANO_GRATUITO, modulosLiberados } from "@/lib/planos";
+import { moduloExigidoPor } from "@/lib/rotas-modulos";
+import type { ModuloAtivo } from "@/types";
+import { ehAppIOS } from "@/lib/plataforma";
 import { NextResponse, type NextRequest } from "next/server";
 
 const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
@@ -17,11 +21,16 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 // link compartilhado não tem conta nem sessão — é justamente a tela que
 // explica como criar a senha. Exigir login aqui mandaria para /login quem
 // acabou de pagar e ainda não tem senha nenhuma, que é o beco sem saída.
+// /conta-excluida é onde cai quem acabou de apagar a própria conta. O usuário
+// do auth já não existe nesse ponto: exigir sessão aqui mandaria pro login
+// exatamente quem não tem mais como fazer login, e a despedida viraria um
+// erro. Ver app/api/conta/route.ts.
 const ALWAYS_PUBLIC_ROUTES = [
   "/redefinir-senha",
   "/auth/confirmar",
   "/obrigado",
   "/afiliados",
+  "/conta-excluida",
   "/",
 ];
 
@@ -61,6 +70,20 @@ const ROTAS_SEM_GATE_DE_ASSINATURA = [
 // Onde para quem teve a conta suspensa pelo painel admin. Fica fora do gate
 // para não virar um redirect infinito pra si mesma.
 const ROTA_CONTA_SUSPENSA = "/conta-suspensa";
+
+/*
+ * Tudo que cobra pelo checkout próprio (Mercado Pago).
+ *
+ * Existe para uma coisa só: sumir inteiro de dentro do app iOS, onde quem
+ * cobra é a Apple. Rota nova de pagamento entra AQUI no mesmo commit em que
+ * nasce — uma que fique de fora vira um caminho de compra vivo dentro do app,
+ * e é exatamente o que a revisão da Apple procura.
+ */
+const ROTAS_DE_PAGAMENTO_PROPRIO = [
+  "/assinar",
+  "/trial-vencido",
+  "/api/pagamento",
+];
 
 function comecaCom(pathname: string, rotas: string[]): boolean {
   return rotas.some(
@@ -139,6 +162,40 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
+  /*
+   * Dentro do app iOS, o checkout do Mercado Pago não existe.
+   *
+   * A diretriz 3.1.1 da Apple exige que assinatura digital consumida dentro de
+   * um app iOS passe pelo In-App Purchase. Mostrar ali o nosso checkout —
+   * ou levar a pessoa até ele por um redirect — é reprovação na revisão, e o
+   * redirect é o jeito fácil de fazer isso sem perceber: ninguém lê
+   * `url.pathname = "/assinar"` como um botão de compra, mas é o que a Apple
+   * vê. Por isso o bloqueio é por rota e vem ANTES de qualquer outro gate.
+   *
+   * O destino é o painel e não uma tela de erro: quem tocou num link antigo
+   * não fez nada errado, e no iOS o caminho de assinar é o IAP, que mora
+   * dentro do app. Na web nada disso muda — /assinar segue sendo por onde se
+   * vende.
+   *
+   * As rotas de API entram na lista porque o bloqueio de tela não basta: um
+   * POST direto em /api/pagamento/cartao pagaria por fora do IAP do mesmo
+   * jeito.
+   */
+  if (ehAppIOS(request.headers.get("user-agent"))) {
+    if (comecaCom(pathname, ROTAS_DE_PAGAMENTO_PROPRIO)) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json(
+          { error: "Assinatura pelo app é feita pela App Store." },
+          { status: 403 },
+        );
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
+
   const isGuestOnlyRoute = GUEST_ONLY_ROUTES.includes(pathname);
 
   if (!user && !isGuestOnlyRoute) {
@@ -190,7 +247,7 @@ export async function updateSession(request: NextRequest) {
      */
     const { data: empresa } = await supabase
       .from("empresas")
-      .select("id, onboarding_concluido, suspensa_em, assinaturas(*)")
+      .select("id, onboarding_concluido, suspensa_em, modulos_ativos, assinaturas(*)")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -238,32 +295,111 @@ export async function updateSession(request: NextRequest) {
 
       if (trialVencidoAgora || pagaVencidaAgora) {
         /*
-         * Marca com a service role, não com a sessão.
+         * A conta CAI PARA O GRATUITO. Antes era uma parede.
          *
-         * A auditoria revogou escrita em `assinaturas` para quem está logado,
-         * porque dava para virar Premium de graça pelo console. Esta gravação
-         * é do sistema, mas passava pela sessão de quem estava navegando:
-         * depois da revogação ela falhava calada.
+         * O que existia aqui marcava 'vencida' e redirecionava para /assinar
+         * ou /trial-vencido: quem não pagasse perdia o acesso a tudo, com o
+         * histórico do próprio negócio do outro lado do bloqueio. Isso
+         * transformava um mês apertado em ex-cliente.
          *
-         * O bloqueio continuava funcionando, porque o redirect abaixo não
-         * depende dela. O que quebrava era o registro: a conta ficava marcada
-         * como "trial" para sempre, e o painel admin contava como conta em
-         * teste uma pessoa cujo teste tinha acabado.
+         * Agora o acesso continua, reduzido ao que o plano gratuito cobre
+         * (ver MODULOS_DO_PLANO em lib/planos.ts). Ninguém perde dado, ninguém
+         * bate em porta fechada, e a conversa sobre voltar a pagar acontece
+         * com a pessoa ainda dentro do produto.
+         *
+         * É escolha de produto, e não exigência da Apple: com o IAP no iOS um
+         * paywall duro seria aprovado normalmente. O que pesa é outra coisa —
+         * dentro do app não existe PIX, só o que estiver no Apple ID. Quem não
+         * tem cartão fica sem caminho nenhum, e o gratuito é o que a mantém
+         * usando a Mimu até conseguir assinar pela web.
+         *
+         * Marca com a service role, não com a sessão. A auditoria revogou
+         * escrita em `assinaturas` para quem está logado, porque dava para
+         * virar Premium de graça pelo console; esta gravação é do sistema, mas
+         * passava pela sessão de quem estava navegando e falhava calada.
          */
-        const { error: erroAoVencer } = await createServiceClient()
+        const { error: erroAoRebaixar } = await createServiceClient()
           .from("assinaturas")
-          .update({ status: "vencida" })
+          .update({
+            plano: PLANO_GRATUITO,
+            status: "ativa",
+            // Sem data de cobrança o acesso não vence de novo: é o que faz
+            // `assinaturaVencida()` devolver false e o gratuito ser permanente.
+            proxima_cobranca: null,
+            valor_mensal: 0,
+          })
           .eq("id", assinatura.id);
 
-        if (erroAoVencer) {
-          console.error("Não consegui marcar a assinatura como vencida.", erroAoVencer);
+        if (erroAoRebaixar) {
+          /*
+           * Falhou o rebaixamento: a pessoa SEGUE, não é bloqueada.
+           *
+           * O estado no banco continua o antigo e a próxima navegação tenta de
+           * novo. Barrar aqui seria punir alguém por uma falha nossa de
+           * escrita — e o pior caso de deixar passar é algumas telas a mais
+           * até a gravação funcionar.
+           */
+          console.error(
+            "Não consegui rebaixar a assinatura para o gratuito.",
+            erroAoRebaixar,
+          );
         }
 
+        return response;
+      }
+
+      /*
+       * O TETO DO PLANO, aplicado por rota.
+       *
+       * A navegação já esconde o que o plano não cobre, mas esconder item de
+       * menu não fecha porta: /agenda digitada na barra de endereço abria
+       * normalmente numa conta gratuita. Aqui é onde fecha de verdade, e vale
+       * igual para a tela e para a rota de API.
+       *
+       * O destino é o painel, sem mensagem de erro: quem chegou aqui
+       * provavelmente veio de um link salvo ou do histórico do navegador de
+       * quando ainda tinha o módulo, e não fez nada errado.
+       */
+      const moduloExigido = moduloExigidoPor(pathname);
+
+      if (
+        moduloExigido &&
+        !modulosLiberados(
+          // O plano EFETIVO, e não o gravado: uma linha 'pendente' pode dizer
+          // 'pro' sem nunca ter sido paga, e o teto não pode acreditar nela.
+          planoEfetivo(assinatura),
+          (empresa.modulos_ativos ?? []) as ModuloAtivo[],
+        ).includes(moduloExigido)
+      ) {
+        if (pathname.startsWith("/api/")) {
+          return NextResponse.json(
+            { error: "Esse recurso não está no seu plano." },
+            { status: 403 },
+          );
+        }
         const url = request.nextUrl.clone();
-        // Quem pagou não teve "período gratuito acabando": vai para o checkout
-        // escolher o plano de novo, e não para a tela que fala de teste.
-        url.pathname = pagaVencidaAgora ? "/assinar" : "/trial-vencido";
+        url.pathname = "/dashboard";
+        url.search = "";
         return NextResponse.redirect(url);
+      }
+
+      /*
+       * Daqui pra baixo, todo caminho leva ao checkout próprio — e dentro do
+       * app iOS o checkout próprio não existe.
+       *
+       * Sem esta saída o app entra em LAÇO: o gate manda para /assinar, o
+       * bloqueio de pagamento do iOS (mais acima) devolve para /dashboard, e
+       * o gate manda para /assinar de novo. A conta fica girando sem nunca
+       * pintar uma tela.
+       *
+       * A saída é a mesma promessa do plano gratuito: quem não tem assinatura
+       * válida usa a Mimu reduzida em vez de bater numa porta. O teto logo
+       * acima já garante que ela veja só o que o gratuito cobre, porque
+       * `planoEfetivo()` ignora o plano gravado de quem não pagou. Assinar,
+       * no iOS, é pelo IAP — dentro do app, não por aqui.
+       */
+      if (ehAppIOS(request.headers.get("user-agent"))) {
+        return response;
       }
 
       // Escolheu plano pago e ainda não pagou: o caminho dela é o checkout.

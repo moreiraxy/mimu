@@ -46,7 +46,10 @@ export type StatusAssinatura =
 // Os planos pagos vivem em lib/planos.ts, que é a fonte do preço. "completo"
 // é o nome antigo, mantido porque contas criadas antes desta mudança já
 // gravaram esse valor.
-export type PlanoAssinatura = "basico" | "completo" | "pro" | "premium";
+// "free" é o plano gratuito permanente, onde a conta pousa quando o teste
+// acaba ou a cobrança falha. Ver a migration 20260829120000_plano_gratuito.sql
+// e o teto de módulos em lib/planos.ts.
+export type PlanoAssinatura = "free" | "basico" | "completo" | "pro" | "premium";
 export type StatusPagamentoMP =
   | "pendente"
   | "aprovado"
@@ -58,7 +61,10 @@ export type StatusPagamentoMP =
 export type FormaPagamentoMP = "pix" | "cartao" | "boleto";
 // Quem processou a cobrança. O checkout próprio (Mercado Pago) e o da Cakto
 // convivem, então toda linha de pagamento precisa dizer de onde veio.
-export type OrigemPagamento = "mercadopago" | "cakto" | "manual";
+// "apple" é o In-App Purchase do app iOS. Importa para além da contabilidade:
+// quem assinou pela Apple SÓ cancela na Apple, em Ajustes → Assinaturas, e é
+// por esta coluna que a tela sabe disso. Ver 20260830100000_origem_apple.sql.
+export type OrigemPagamento = "mercadopago" | "cakto" | "manual" | "apple";
 
 export interface Database {
   public: {
@@ -164,6 +170,9 @@ export interface Database {
           transacao_id: string | null;
           created_at: string;
           updated_at: string;
+          // Quando foi desfeita. A policy de SELECT esconde as revertidas,
+          // então nenhuma consulta precisa filtrar. Ver 20260830170000.
+          revertida_em: string | null;
         };
         Insert: {
           id?: string;
@@ -179,6 +188,7 @@ export interface Database {
           transacao_id?: string | null;
           created_at?: string;
           updated_at?: string;
+          revertida_em?: string | null;
         };
         Update: Partial<
           Database["public"]["Tables"]["agendamentos"]["Insert"]
@@ -204,6 +214,9 @@ export interface Database {
           status_pagamento: StatusPagamento;
           created_at: string;
           updated_at: string;
+          // Quando foi desfeita. A policy de SELECT esconde as revertidas,
+          // então nenhuma consulta precisa filtrar. Ver 20260830170000.
+          revertida_em: string | null;
         };
         Insert: {
           id?: string;
@@ -223,6 +236,7 @@ export interface Database {
           status_pagamento?: StatusPagamento;
           created_at?: string;
           updated_at?: string;
+          revertida_em?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["transacoes"]["Insert"]>;
         Relationships: [];
@@ -535,13 +549,23 @@ export interface Database {
       auth_rate_limit: {
         Row: {
           id: string;
-          tipo: "login" | "cadastro" | "chat_ia" | "recuperar_senha";
+          tipo:
+            | "login"
+            | "cadastro"
+            | "chat_ia"
+            | "recuperar_senha"
+            | "whatsapp_vinculo";
           identificador: string;
           created_at: string;
         };
         Insert: {
           id?: string;
-          tipo: "login" | "cadastro" | "chat_ia" | "recuperar_senha";
+          tipo:
+            | "login"
+            | "cadastro"
+            | "chat_ia"
+            | "recuperar_senha"
+            | "whatsapp_vinculo";
           identificador: string;
           created_at?: string;
         };
@@ -584,6 +608,9 @@ export interface Database {
           proxima_cobranca: string | null;
           mp_subscription_id: string | null;
           mp_customer_id: string | null;
+          // originalTransactionId do StoreKit: estável entre renovações. É por
+          // ele que as App Store Server Notifications acham esta assinatura.
+          apple_original_transaction_id: string | null;
           origem: OrigemPagamento | null;
           created_at: string;
           updated_at: string;
@@ -599,6 +626,7 @@ export interface Database {
           trial_fim?: string | null;
           proxima_cobranca?: string | null;
           mp_subscription_id?: string | null;
+          apple_original_transaction_id?: string | null;
           mp_customer_id?: string | null;
           origem?: OrigemPagamento | null;
           created_at?: string;
@@ -608,6 +636,114 @@ export interface Database {
         Update: Partial<
           Database["public"]["Tables"]["assinaturas"]["Insert"]
         >;
+        Relationships: [];
+      };
+      /**
+       * Escritas feitas por canal de fora do app, com janela de reversão.
+       * É daqui que "desfazer" sabe o que desfazer. Ver 20260830170000.
+       */
+      operacoes_canal: {
+        Row: {
+          id: string;
+          canal: "whatsapp";
+          empresa_id: string;
+          mensagem_id: string;
+          tipo: "entrada" | "saida" | "agendamento";
+          tabela: "transacoes" | "agendamentos";
+          registro_id: string;
+          recibo: string;
+          desfazivel_ate: string;
+          desfeita_em: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          canal: "whatsapp";
+          empresa_id: string;
+          mensagem_id: string;
+          tipo: "entrada" | "saida" | "agendamento";
+          tabela: "transacoes" | "agendamentos";
+          registro_id: string;
+          recibo: string;
+          desfazivel_ate?: string;
+          desfeita_em?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{ desfeita_em: string | null }>;
+        Relationships: [];
+      };
+      /**
+       * Mensagens recebidas por canais de fora do app. Trava de idempotência
+       * e log operacional — telefone mascarado, conteúdo nunca gravado. Ver
+       * 20260830160000_canal_mensagens.sql.
+       */
+      canal_mensagens: {
+        Row: {
+          id: string;
+          canal: "whatsapp";
+          mensagem_id: string;
+          remetente_mascarado: string;
+          empresa_id: string | null;
+          recebida_em: string;
+          processada_em: string | null;
+          resultado: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          canal: "whatsapp";
+          mensagem_id: string;
+          remetente_mascarado: string;
+          empresa_id?: string | null;
+          recebida_em: string;
+          processada_em?: string | null;
+          resultado?: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+          created_at?: string;
+        };
+        Update: Partial<{
+          empresa_id: string | null;
+          processada_em: string | null;
+          resultado: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+        }>;
+        Relationships: [];
+      };
+      /**
+       * Vínculo entre número de WhatsApp e conta. Ver a migration
+       * 20260830140000_whatsapp_links.sql — `telefone` é nulo até a
+       * confirmação, porque no momento do pedido ninguém sabe qual número a
+       * pessoa vai usar.
+       */
+      whatsapp_links: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          user_id: string;
+          telefone: string | null;
+          codigo: string;
+          codigo_expira_em: string;
+          verificado_em: string | null;
+          revogado_em: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          user_id: string;
+          telefone?: string | null;
+          codigo: string;
+          codigo_expira_em: string;
+          verificado_em?: string | null;
+          revogado_em?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<{
+          telefone: string | null;
+          codigo: string;
+          codigo_expira_em: string;
+          verificado_em: string | null;
+          revogado_em: string | null;
+        }>;
         Relationships: [];
       };
       pagamentos: {
@@ -625,6 +761,9 @@ export interface Database {
           cakto_status: string | null;
           created_at: string;
           manual_referencia: string | null;
+          // transactionId do StoreKit. Chave de idempotência do IAP, mesmo
+          // papel de mp_payment_id e cakto_payment_id.
+          apple_transaction_id: string | null;
         };
         Insert: {
           id?: string;
@@ -640,6 +779,7 @@ export interface Database {
           cakto_status?: string | null;
           created_at?: string;
           manual_referencia?: string | null;
+          apple_transaction_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["pagamentos"]["Insert"]>;
         Relationships: [];
@@ -675,6 +815,16 @@ export interface Database {
       };
     };
     Functions: {
+      /**
+       * Desfaz uma operação escrita por canal externo, dentro da janela.
+       * SECURITY DEFINER: a policy de SELECT esconde linhas revertidas, o que
+       * impediria o próprio UPDATE. A checagem de dono é feita dentro da
+       * função. Ver 20260830170000_reversao_de_operacoes.sql.
+       */
+      desfazer_operacao_canal: {
+        Args: { p_operacao_id: string };
+        Returns: boolean;
+      };
       user_owns_empresa: {
         Args: { empresa_id: string };
         Returns: boolean;

@@ -19,9 +19,19 @@ export function Sidebar({
   modulosIniciais?: string[];
 }) {
   const pathname = usePathname();
-  const { user, empresa } = useAuth();
+  const { user, empresa, modulos } = useAuth();
   const { alertas } = useAlertasProativos();
-  const itens = navItemsVisiveis(empresa?.modulos_ativos ?? modulosIniciais ?? []);
+  /*
+   * `modulos` já vem com o teto do plano aplicado pelo AuthProvider — nunca
+   * ler `empresa.modulos_ativos` aqui, que é a escolha crua e ignora o plano.
+   *
+   * O fallback para `modulosIniciais` continua valendo enquanto o provider
+   * carrega: ele vem do servidor com o MESMO teto aplicado, então a troca de
+   * um pelo outro não muda o que está na tela.
+   */
+  const itens = navItemsVisiveis(
+    modulos.length > 0 ? modulos : (modulosIniciais ?? []),
+  );
 
   const nomeCompleto = user?.user_metadata?.nome_completo as
     | string

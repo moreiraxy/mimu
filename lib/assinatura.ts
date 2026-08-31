@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import type { Assinatura } from "@/types";
-import { VALOR_MENSAL_MIMU } from "@/lib/mercadopago";
 import {
+  VALOR_MENSAL_MIMU,
+  PLANO_GRATUITO,
   PLANOS,
   proximaCobrancaDe,
   type Periodicidade,
@@ -45,11 +46,20 @@ export async function criarAssinaturaPendente(
   supabase: Supabase,
   empresaId: string,
   plano: PlanoPago,
+  /*
+   * A periodicidade nasce aqui e não depois.
+   *
+   * Ficava sempre no padrão do banco, e a tela de pagamento não tinha como
+   * saber que a pessoa tinha escolhido o ano na landing — a venda anual virava
+   * mensal em silêncio, cobrando um doze avos e marcando a renovação errada.
+   */
+  periodicidade: Periodicidade = "mensal",
 ) {
   return supabase.from("assinaturas").insert({
     empresa_id: empresaId,
     status: "pendente",
     plano,
+    periodicidade,
     valor_mensal: PLANOS[plano].valorMensal,
   });
 }
@@ -123,6 +133,28 @@ export function acessoLiberado(
   // 'pendente' cai aqui: escolheu plano pago e ainda não pagou, então não
   // tem acesso — o gate do middleware manda pro checkout.
   return false;
+}
+
+/**
+ * O plano que VALE agora, que nem sempre é o que está gravado.
+ *
+ * Uma linha pode dizer `plano: 'pro'` e não dar acesso nenhum: é o caso de
+ * 'pendente' (escolheu o Pro e nunca pagou) e de 'cancelada'. Usar o plano
+ * gravado para calcular o teto de módulos entregaria a Mimu inteira, de
+ * graça, a quem só chegou até a tela de pagamento.
+ *
+ * Por isso o teto pergunta a ESTA função, e não a `assinatura.plano`. Sem
+ * acesso liberado, o que vale é o gratuito — que é exatamente o que a pessoa
+ * tem direito de usar sem pagar.
+ */
+export function planoEfetivo(
+  assinatura: Pick<
+    Assinatura,
+    "status" | "plano" | "trial_fim" | "proxima_cobranca"
+  > | null,
+): string {
+  if (!assinatura) return PLANO_GRATUITO;
+  return acessoLiberado(assinatura) ? assinatura.plano : PLANO_GRATUITO;
 }
 
 /**

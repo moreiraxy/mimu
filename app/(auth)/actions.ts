@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { excedeuLimite, registrarTentativa } from "@/lib/rate-limit";
 import { planoValido } from "@/lib/planos";
 import { destinoAposLogin } from "@/lib/destino-pos-login";
+import { ehAppIOS } from "@/lib/plataforma";
 import { avisarAdminsNovoCadastro } from "@/lib/admin-avisos";
 import { registrarEvento } from "@/lib/eventos";
 import {
@@ -204,7 +205,14 @@ export async function signIn(
   // pro /dashboard fazia quem tem pagamento pendente entrar no painel e só
   // ser barrada ao recarregar a página.
   redirect(
-    entrou.user ? await destinoAposLogin(supabase, entrou.user.id) : "/dashboard",
+    entrou.user
+      ? await destinoAposLogin(
+          supabase,
+          entrou.user.id,
+          // Dentro do app iOS o destino nunca pode ser o checkout próprio.
+          ehAppIOS(headers().get("user-agent")),
+        )
+      : "/dashboard",
   );
 }
 

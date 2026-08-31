@@ -12,7 +12,15 @@ import {
   WifiOff,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PLANOS, PLANO_PADRAO, planoValido, type PlanoPago } from "@/lib/planos";
+import {
+  PLANOS,
+  PLANO_PADRAO,
+  planoValido,
+  periodicidadeValida,
+  valorDoPlano,
+  type PlanoPago,
+  type Periodicidade,
+} from "@/lib/planos";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura } from "@/lib/assinatura";
@@ -37,7 +45,7 @@ const ITENS_INCLUIDOS = [
 export default async function AssinarPage({
   searchParams,
 }: {
-  searchParams: { plano?: string };
+  searchParams: { plano?: string; periodicidade?: string };
 }) {
   const supabase = createClient();
   const {
@@ -55,7 +63,26 @@ export default async function AssinarPage({
   // vindo da tabela do servidor — a URL escolhe o plano, nunca o valor.
   const pedido = planoValido(searchParams.plano);
 
-  if (pedido && assinatura && assinatura.status !== "ativa" && assinatura.plano !== pedido) {
+  /*
+   * A periodicidade segue a mesma regra do plano: a URL escolhe QUAL, e o
+   * valor sai da tabela do servidor. Mandar o valor pela URL deixaria qualquer
+   * pessoa assinar o ano por um centavo.
+   *
+   * `valorDoPlano` devolve null quando a combinação não é vendida — um plano
+   * sem preço anual cai de volta no mensal em vez de cobrar errado.
+   */
+  const periodicidadePedida = periodicidadeValida(searchParams.periodicidade);
+  const periodicidade: Periodicidade =
+    periodicidadePedida && valorDoPlano(pedido ?? PLANO_PADRAO, periodicidadePedida) !== null
+      ? periodicidadePedida
+      : "mensal";
+
+  const precisaAtualizar =
+    assinatura &&
+    assinatura.status !== "ativa" &&
+    (assinatura.plano !== pedido || assinatura.periodicidade !== periodicidade);
+
+  if (pedido && precisaAtualizar) {
     /*
      * Grava com a service role, não com a sessão.
      *
@@ -70,13 +97,18 @@ export default async function AssinarPage({
      */
     const { error } = await createServiceClient()
       .from("assinaturas")
-      .update({ plano: pedido, valor_mensal: PLANOS[pedido].valorMensal })
-      .eq("id", assinatura.id);
+      .update({
+        plano: pedido,
+        periodicidade,
+        valor_mensal: PLANOS[pedido].valorMensal,
+      })
+      .eq("id", assinatura!.id);
 
     if (error) {
       console.error("Não consegui trocar o plano da assinatura.", error);
     } else {
-      assinatura.plano = pedido;
+      assinatura!.plano = pedido;
+      assinatura!.periodicidade = periodicidade;
     }
   }
 
@@ -87,6 +119,7 @@ export default async function AssinarPage({
     plano,
     nomePlano,
     valorMensal,
+    periodicidade,
     assinatura?.status === "pendente",
     // Trocar de plano só faz sentido enquanto ninguém está pagando. Para quem
     // já paga, seria troca de verdade, com cobrança proporcional, e isso ainda
@@ -107,7 +140,65 @@ export default async function AssinarPage({
  * sabia tratar: ele grava a escolha e o preço continua vindo da tabela do
  * servidor. A URL escolhe o plano, nunca o valor.
  */
-function seletorDePlanos(planoAtual: PlanoPago) {
+/**
+ * Mensal ou anual.
+ *
+ * Dois links, e não um formulário: a escolha vira parâmetro na URL, o servidor
+ * grava na assinatura e o preço sai da tabela dele. É a mesma regra do seletor
+ * de planos — a URL escolhe QUAL, nunca QUANTO. Mandar valor pelo navegador
+ * deixaria qualquer pessoa assinar o ano por um centavo.
+ */
+function seletorDePeriodicidade(
+  plano: PlanoPago,
+  atual: Periodicidade,
+) {
+  const { valorMensal, valorAnual } = PLANOS[plano];
+  const desconto =
+    valorAnual !== null
+      ? Math.round((1 - valorAnual / (valorMensal * 12)) * 100)
+      : 0;
+
+  const opcoes: { chave: Periodicidade; label: string; nota: string | null }[] = [
+    { chave: "mensal", label: "Mensal", nota: null },
+    {
+      chave: "anual",
+      label: "Anual",
+      // O desconto é calculado, não escrito: mexer no preço da tabela não pode
+      // deixar a tela prometendo uma economia que não existe mais.
+      nota: desconto > 0 ? `-${desconto}%` : null,
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-2.5">
+      {opcoes.map(({ chave, label, nota }) => {
+        const ativo = chave === atual;
+        return (
+          <Link
+            key={chave}
+            href={`/assinar?plano=${plano}&periodicidade=${chave}`}
+            aria-current={ativo ? "true" : undefined}
+            className={[
+              "flex items-center justify-center gap-2 rounded-card border px-3 py-3 text-center text-sm font-semibold transition-colors",
+              ativo
+                ? "border-primary bg-primary-light text-primary-forte"
+                : "border-neutro-border text-neutro-muted hover:border-primary",
+            ].join(" ")}
+          >
+            {label}
+            {nota && (
+              <span className="rounded-full bg-verde-light px-2 py-0.5 font-mono text-[10px] font-bold text-verde-texto">
+                {nota}
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function seletorDePlanos(planoAtual: PlanoPago, periodicidade: Periodicidade) {
   return (
     <div className="mb-5 grid grid-cols-2 gap-2.5">
       {(Object.keys(PLANOS) as PlanoPago[]).map((chave) => {
@@ -116,7 +207,7 @@ function seletorDePlanos(planoAtual: PlanoPago) {
         return (
           <Link
             key={chave}
-            href={`/assinar?plano=${chave}`}
+            href={`/assinar?plano=${chave}&periodicidade=${periodicidade}`}
             aria-current={ativo ? "true" : undefined}
             className={[
               "flex flex-col items-center rounded-card border px-3 py-3.5 text-center transition-colors",
@@ -143,9 +234,22 @@ function conteudo(
   plano: PlanoPago,
   nomePlano: string,
   valorMensal: number,
+  periodicidade: Periodicidade,
   jaEscolheuPago: boolean,
   podeTrocar: boolean,
 ) {
+  const valorAnual = PLANOS[plano].valorAnual;
+  const noAnual = periodicidade === "anual" && valorAnual !== null;
+
+  /*
+   * No anual, o preço grande continua sendo o POR MÊS.
+   *
+   * Mostrar "R$ 399/ano" ao lado de "R$ 39/mês" faz o anual parecer dez vezes
+   * mais caro num relance. O que a pessoa compara é o mês; o total do ano vem
+   * embaixo, junto com quanto ela economiza — que é a razão de existir a opção.
+   */
+  const porMes = noAnual ? Math.round(valorAnual! / 12) : valorMensal;
+  const economia = noAnual ? valorMensal * 12 - valorAnual! : 0;
   return (
     // `dark` pelo mesmo motivo do cadastro e do onboarding: esta tela é a
     // continuação de uma landing preta, e quem chega aqui está no meio de uma
@@ -165,7 +269,11 @@ function conteudo(
             : "Cancele quando quiser, sem multa e sem fidelidade."}
         </p>
 
-        <div className="mt-7">{podeTrocar && seletorDePlanos(plano)}</div>
+        {podeTrocar && valorAnual !== null && (
+          <div className="mt-7">{seletorDePeriodicidade(plano, periodicidade)}</div>
+        )}
+
+        <div className="mt-4">{podeTrocar && seletorDePlanos(plano, periodicidade)}</div>
 
         <div className="overflow-hidden rounded-card border border-neutro-border bg-superficie">
           <div className="flex flex-col items-center border-b border-neutro-border px-6 py-7 text-center">
@@ -180,10 +288,24 @@ function conteudo(
             </p>
             <p className="mt-1.5 flex items-baseline gap-1.5">
               <span className="font-display text-[44px] font-bold leading-none text-escuro">
-                R$ {valorMensal}
+                R$ {porMes}
               </span>
               <span className="text-sm text-neutro-muted">/mês</span>
             </p>
+
+            {noAnual && (
+              <p className="mt-2 text-[13px] text-neutro-muted">
+                R$ {valorAnual} cobrados uma vez por ano
+                {economia > 0 && (
+                  <>
+                    {" — "}
+                    <span className="font-semibold text-verde-texto">
+                      você economiza R$ {economia}
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
           </div>
 
           <ul className="flex flex-col gap-3.5 px-6 py-6">

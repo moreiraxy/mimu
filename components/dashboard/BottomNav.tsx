@@ -25,15 +25,20 @@ export function BottomNav({
   modulosIniciais?: string[];
 }) {
   const pathname = usePathname();
-  const { empresa } = useAuth();
+  const { modulos } = useAuth();
   const { alertas } = useAlertasProativos();
   const [menuAberto, setMenuAberto] = useState(false);
 
   // O do cliente só entra quando existir: ele é a fonte para mudanças feitas
   // durante a sessão (ligar um módulo em Minha Empresa reflete na hora), mas
   // o do servidor é quem faz a primeira pintura já estar certa.
+  //
+  // `modulos` vem do AuthProvider JÁ limitado ao teto do plano, e é por isso
+  // que ele substituiu `empresa.modulos_ativos` aqui: a lista crua é a escolha
+  // da pessoa e não sabe o que ela paga. Numa conta gratuita, ler a crua
+  // colocaria agenda e estoque na barra de baixo.
   const { barra, menu, temMais } = dividirNavegacao(
-    empresa?.modulos_ativos ?? modulosIniciais ?? [],
+    modulos.length > 0 ? modulos : (modulosIniciais ?? []),
   );
 
   /**
