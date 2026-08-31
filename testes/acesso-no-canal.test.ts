@@ -114,6 +114,53 @@ describe("teto do plano vale no WhatsApp", () => {
     expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
   });
 
+  it("assinatura CANCELADA para de conversar", async () => {
+    const conta = await criarConta("Cancelada");
+    criadas.push(conta.userId);
+
+    /*
+     * O caso mais importante desta lista, e o que faltava.
+     *
+     * Cancelar acontece no app ou no Mercado Pago, e o WhatsApp não fica
+     * sabendo de nada — não há evento, não há aviso. Se o teto olhasse só o
+     * campo `plano`, que continua gravado como 'premium', a pessoa seguiria
+     * conversando com a Mimu de graça por tempo indeterminado. Ninguém veria:
+     * o app barra, o WhatsApp não.
+     *
+     * O que segura é `planoEfetivo`, que ignora o plano gravado quando o
+     * status não dá acesso.
+     */
+    await service
+      .from("assinaturas")
+      .update({ plano: "premium", status: "cancelada" })
+      .eq("empresa_id", conta.empresaId);
+
+    const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+  });
+
+  it("assinatura paga que VENCEU para de conversar", async () => {
+    const conta = await criarConta("Vencida");
+    criadas.push(conta.userId);
+
+    /*
+     * Vencer é diferente de cancelar: ninguém decidiu nada, a data passou.
+     * O status continua 'ativa' — é a data da próxima cobrança que denuncia.
+     *
+     * É o caso do cartão que falhou e ninguém percebeu. Sem esta checagem, uma
+     * venda anual daria um ano inteiro de Mimu de graça pelo WhatsApp depois
+     * de vencida, sem nada aparecer em lugar nenhum.
+     */
+    const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    await service
+      .from("assinaturas")
+      .update({ plano: "premium", status: "ativa", proxima_cobranca: ontem })
+      .eq("empresa_id", conta.empresaId);
+
+    const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+  });
+
   it("conta em trial é atendida — o teste dá acesso a tudo", async () => {
     const conta = await criarConta("EmTrial");
     criadas.push(conta.userId);
