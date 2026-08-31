@@ -83,21 +83,41 @@ o tempo todo, e o processo web reinicia a cada deploy e pode hibernar ocioso.
 No Railway, dentro do mesmo projeto:
 
 1. **New → GitHub Repo**, apontando para este mesmo repositório
-2. Settings → **Config-as-code**, e apontar para `railway.worker.json`
+2. Em Settings, preencher três campos:
+
+| Campo | Valor |
+| --- | --- |
+| Custom Start Command | `npm run whatsapp` |
+| Custom Build Command | `echo "worker roda por tsx, sem build"` |
+| Watch Paths | `worker/**`, `lib/**`, `types/**`, `package*.json` |
+
 3. Copiar todas as variáveis do serviço `web` para ele
 
-**Não adianta digitar o start command no painel.** No Railway, configuração em
-arquivo vence a do painel, e o `railway.json` da raiz manda `npm run start` —
-o serviço subiria uma segunda cópia do app web, verdinha e silenciosa, com o
-WhatsApp sem responder. Por isso o worker tem o `railway.worker.json` só dele,
-que além do start command certo:
+O build command existe para pular o `next build`: o worker roda por `tsx` e não
+precisa dele, e o build da landing page (`build:lp`) leva minutos à toa.
 
-- pula o `next build` (o worker roda por `tsx`, não precisa dele)
-- só redeploya quando `worker/`, `lib/` ou `types/` mudam, para um deploy da
-  landing page não derrubar uma conversa em andamento
+Os watch paths existem para um deploy da landing page não derrubar uma conversa
+em andamento no WhatsApp.
+
+**Por que no painel, e não em arquivo.** A Railway aposentou o Config as Code
+em 28/08/2026: serviço criado depois dessa data não consegue mais apontar para
+um `railway.json` próprio. O `railway.json` da raiz continua valendo para o
+serviço `web`, que já o usava, até 01/12/2026 — depois disso ele para de ser
+lido, e a migração para `.railway/railway.ts` (Infrastructure as Code) vira
+obrigatória. Isso é dívida com prazo, anotada aqui para não ser esquecida.
 
 O `Procfile` declara os dois processos (`web` e `worker`), o que serve de
 documentação e funciona em plataformas que leem process types.
+
+### Como saber que o serviço subiu como worker, e não como um segundo site
+
+A primeira linha do log tem que ser:
+
+```
+[whatsapp] sessão em /dados/whatsapp-sessao
+```
+
+Se aparecer log do Next.js, o start command não pegou.
 
 ### O volume — não pule
 
