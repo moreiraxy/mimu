@@ -50,7 +50,11 @@ const destinoDoAlias = join(RAIZ, paths[0].replace(/\/\*$/, ""));
 
 await build({
   entryPoints: [join(RAIZ, "worker/whatsapp/index.ts")],
-  outfile: join(RAIZ, "dist-worker/whatsapp.js"),
+  /*
+   * O destino é configurável só para o teste poder construir numa pasta
+   * temporária e comparar com o que está versionado. Em uso normal, o padrão.
+   */
+  outfile: process.env.SAIDA_WORKER ?? join(RAIZ, "dist-worker/whatsapp.js"),
   bundle: true,
   platform: "node",
   /*

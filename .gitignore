@@ -67,8 +67,3 @@ next-env.d.ts
 # fosse a gente. Commitar isso é o mesmo que commitar uma senha, com o agravante
 # de que revogar exige acesso físico ao celular do número.
 .whatsapp-sessao/
-
-# O worker empacotado. Gerado por `npm run build:worker` a cada deploy, como
-# qualquer saída de build — versionar produziria conflito a cada mudança e
-# permitiria subir um pacote velho sem ninguém notar.
-/dist-worker/
