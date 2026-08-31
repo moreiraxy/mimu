@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura, ativarAssinatura } from "@/lib/assinatura";
-import { mpPayment } from "@/lib/mercadopago";
-import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
+import { criarAssinaturaRecorrente } from "@/lib/assinatura-recorrente";
+import { PLANOS, PLANO_PADRAO, planoValido ,
+  periodicidadeValida,
+  valorDoPlano,
+  type Periodicidade,
+} from "@/lib/planos";
 
 interface CartaoPayload {
   token?: string;
@@ -57,7 +61,37 @@ export async function POST(request: Request) {
   // um número do navegador deixaria qualquer pessoa assinar o Premium por
   // um centavo trocando o payload.
   const plano = planoValido(assinatura.plano) ?? PLANO_PADRAO;
-  const { nome: nomePlano, valorMensal } = PLANOS[plano];
+  const { nome: nomePlano } = PLANOS[plano];
+
+  /*
+   * A periodicidade vem da ASSINATURA, nunca do corpo da requisição.
+   *
+   * Ela foi gravada em /assinar a partir da URL, e o valor sai da tabela do
+   * servidor — mesma regra do plano. Aceitar do corpo deixaria qualquer pessoa
+   * pedir "anual" pagando o preço do mês.
+   */
+  const periodicidade: Periodicidade =
+    periodicidadeValida(assinatura.periodicidade) ?? "mensal";
+
+  /*
+   * O valor do PERÍODO INTEIRO, não o mensal.
+   *
+   * É o par que não pode se separar: `frequency` de 12 meses tem que vir com o
+   * preço do ano. Cobrar o valor mensal com frequência anual daria à pessoa um
+   * ano pelo preço de trinta dias; o contrário cobraria o ano inteiro todo mês.
+   *
+   * `valorDoPlano` devolve null quando a combinação não é vendida, e aí a
+   * venda para aqui em vez de cair no mensal em silêncio — venda anual que
+   * vira mensal cobra errado e marca a renovação errada.
+   */
+  const valorDoPeriodo = valorDoPlano(plano, periodicidade);
+
+  if (valorDoPeriodo === null) {
+    return NextResponse.json(
+      { error: "Esse plano não é vendido nessa periodicidade." },
+      { status: 400 },
+    );
+  }
 
   const body = (await request.json().catch(() => null)) as CartaoPayload | null;
 
@@ -69,51 +103,39 @@ export async function POST(request: Request) {
   }
 
   try {
-    const pagamentoMP = await mpPayment.create({
-      body: {
-        transaction_amount: valorMensal,
-        description: `Assinatura Mimu (${nomePlano})`,
-        token: body.token,
-        installments: body.installments || 1,
-        payment_method_id: body.payment_method_id,
-        issuer_id: body.issuer_id ? Number(body.issuer_id) : undefined,
-        external_reference: assinatura.id,
-        notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/pagamento/webhook`,
-        // É o que aparece na fatura do cartão. Sem isso, a cobrança chega com
-        // um nome genérico e a pessoa não reconhece: é uma das maiores causas
-        // de contestação. Máximo de 22 caracteres.
-        statement_descriptor: "MIMU",
-        payer: {
-          email: body.payer?.email || user.email || "",
-          identification: body.payer?.identification?.number
-            ? {
-                type: body.payer.identification.type || "CPF",
-                number: body.payer.identification.number,
-              }
-            : undefined,
-        },
-      },
-      // O identificador do aparelho vai como cabeçalho (X-Meli-Session-Id),
-      // não no corpo. É por ele que a análise antifraude do Mercado Pago
-      // liga o pagamento ao dispositivo que preencheu o cartão.
-      requestOptions: body.device_id
-        ? { meliSessionId: body.device_id }
-        : undefined,
+    /*
+     * Assinatura recorrente, e não mais pagamento avulso.
+     *
+     * O avulso dava 30 dias e acabava: a pessoa batia numa parede e pagava de
+     * novo na mão. Quem não voltava quase nunca estava sem dinheiro — estava
+     * sem lembrar. Agora quem cobra todo mês é o Mercado Pago.
+     *
+     * A primeira cobrança acontece aqui mesmo, porque a assinatura nasce
+     * `authorized`. Se nascesse pendente, a pessoa sairia do checkout achando
+     * que assinou sem ter sido cobrada.
+     */
+    const recorrente = await criarAssinaturaRecorrente({
+      cardTokenId: body.token,
+      emailDoPagador: body.payer?.email || user.email || "",
+      valor: valorDoPeriodo,
+      periodicidade,
+      nomeDoPlano: nomePlano,
+      referenciaExterna: assinatura.id,
+      urlDeRetorno: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     });
 
-    if (!pagamentoMP.id) {
+    if (!recorrente) {
       return NextResponse.json(
         { error: "Não foi possível processar o pagamento agora." },
         { status: 502 },
       );
     }
 
-    const aprovado = pagamentoMP.status === "approved";
-    const statusInterno = aprovado
-      ? "aprovado"
-      : pagamentoMP.status === "rejected"
-        ? "recusado"
-        : "pendente";
+    /*
+     * `authorized` significa que o Mercado Pago aceitou o cartão e a cobrança
+     * está autorizada. Qualquer outro estado é assinatura que não começou.
+     */
+    const aprovado = recorrente.status === "authorized";
 
   /*
    * Gravar em `pagamentos` e `assinaturas` usa a service role, não a sessão de
@@ -128,32 +150,41 @@ export async function POST(request: Request) {
    * sessão verificada, então a service role não amplia o alcance de nada.
    */
     const servidor = createServiceClient();
+
     await servidor.from("pagamentos").insert({
       empresa_id: empresa.id,
       assinatura_id: assinatura.id,
-      valor: valorMensal,
-      status: statusInterno,
+      valor: valorDoPeriodo,
+      status: aprovado ? "aprovado" : "pendente",
       forma_pagamento: "cartao",
-      mp_payment_id: String(pagamentoMP.id),
-      mp_status: pagamentoMP.status ?? null,
+      mp_payment_id: recorrente.id,
+      mp_status: recorrente.status,
     });
 
     if (aprovado) {
-      await ativarAssinatura(servidor, assinatura.id);
+      /*
+       * Guarda o id da assinatura no Mercado Pago ANTES de ativar.
+       *
+       * É por ele que o webhook encontra esta linha quando a cobrança do mês
+       * seguinte acontecer. Sem ele gravado, a renovação chegaria e não teria
+       * onde pousar — a assinatura venceria no nosso banco com o cartão da
+       * pessoa sendo debitado normalmente.
+       */
+      await servidor
+        .from("assinaturas")
+        .update({ mp_subscription_id: recorrente.id })
+        .eq("id", assinatura.id);
+
+      await ativarAssinatura(servidor, assinatura.id, periodicidade);
       return NextResponse.json({ status: "aprovado" });
     }
 
-    if (pagamentoMP.status === "rejected") {
-      return NextResponse.json(
-        {
-          status: "recusado",
-          error: mensagemErro(pagamentoMP.status, pagamentoMP.status_detail),
-        },
-        { status: 402 },
-      );
-    }
+    return NextResponse.json({
+      status: "recusado",
+      error:
+        "O cartão não foi aceito. Confira os dados ou tente outro cartão.",
+    }, { status: 402 });
 
-    return NextResponse.json({ status: "pendente" });
   } catch (err) {
     const detalhe = err as { message?: string; cause?: unknown; status?: number };
     console.error("Erro ao criar pagamento com cartão no Mercado Pago:", {
