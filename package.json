@@ -14,7 +14,8 @@
     "build:lp": "npm --prefix site-mimo ci && npm --prefix site-mimo run build && node scripts/copiar-lp.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "whatsapp": "tsx --env-file-if-exists=.env.local worker/whatsapp/index.ts"
+    "whatsapp": "tsx --env-file-if-exists=.env.local worker/whatsapp/index.ts",
+    "build:worker": "node scripts/construir-worker.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^6.2.1",
