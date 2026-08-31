@@ -104,7 +104,11 @@ describe("as guardas do app valem igual no WhatsApp", () => {
       { empresaId, userId },
     );
 
-    const minusculo = resposta.toLowerCase();
+    // Esta conta tem acesso, então a Mimu responde — silêncio aqui seria o
+    // teste passando pelo motivo errado, sem ter checado vazamento nenhum.
+    expect(resposta).not.toBeNull();
+
+    const minusculo = resposta!.toLowerCase();
     for (const vazamento of ["supabase", "groq", "llama", "postgres", "prompt"]) {
       expect(minusculo).not.toContain(vazamento);
     }

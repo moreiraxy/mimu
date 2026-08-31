@@ -1,6 +1,8 @@
 import { createClientComoUsuario } from "@/lib/supabase/como-usuario";
 import { responderConsulta } from "@/lib/mimu/consulta";
 import { verificarAcesso, RESPOSTA_SEM_ACESSO } from "@/lib/mimu/acesso";
+import { createServiceClient } from "@/lib/supabase/service";
+import { registrarEvento } from "@/lib/eventos";
 import { transcrever } from "@/lib/mimu/transcricao";
 import {
   classificarIntencao,
@@ -74,10 +76,45 @@ const RESPOSTA_AUDIO_FALHOU: Record<
     "Não consegui entender seu áudio agora. Tenta de novo, ou me escreve?",
 };
 
+/*
+ * De quanto em quanto tempo vale repetir o aviso de "sem acesso".
+ *
+ * Seis horas: quem escreve de manhã e de novo à tarde é alguém que esqueceu, e
+ * merece o lembrete. Quem escreve cinco vezes seguidas já leu.
+ */
+const HORAS_ENTRE_AVISOS = 6;
+
+/**
+ * Esta conta já foi avisada há pouco de que não tem acesso?
+ *
+ * A marca fica em `eventos`, que é o log operacional do sistema — e não em
+ * `canal_mensagens`, que registra o que CHEGOU e não o que a Mimu decidiu.
+ * Por isso vai com service role: é dado nosso, não da cliente.
+ *
+ * De quebra, o mesmo registro responde uma pergunta de negócio que ninguém
+ * tinha como responder antes: quantas pessoas batem no limite de plano pelo
+ * WhatsApp. É o número que diz se vale a pena vender por esse canal.
+ */
+async function jaAvisouRecentemente(empresaId: string): Promise<boolean> {
+  const desde = new Date(
+    Date.now() - HORAS_ENTRE_AVISOS * 60 * 60 * 1000,
+  ).toISOString();
+
+  const { data } = await createServiceClient()
+    .from("eventos")
+    .select("id")
+    .eq("tipo", "whatsapp_sem_acesso")
+    .eq("empresa_id", empresaId)
+    .gte("created_at", desde)
+    .limit(1);
+
+  return Boolean(data?.length);
+}
+
 export async function responderPelaMimu(
   mensagem: MensagemRecebida,
   conta: { empresaId: string; userId: string },
-): Promise<string> {
+): Promise<string | null> {
   let texto = mensagem.texto.trim();
 
   if (texto.length > MAX_CARACTERES_MENSAGEM) {
@@ -123,6 +160,25 @@ export async function responderPelaMimu(
    */
   const acesso = await verificarAcesso(supabase, conta.empresaId);
   if (!acesso.liberado) {
+    /*
+     * Avisa uma vez, depois fica quieta.
+     *
+     * Repetir a mesma frase a cada mensagem parecia defeito: a pessoa escreve,
+     * recebe o mesmo texto, escreve de novo, recebe o mesmo texto. E responder
+     * sempre a mesma coisa é o que um sistema quebrado faz, não o que uma
+     * pessoa faria.
+     *
+     * O silêncio depois do aviso não é indiferença: quem perdeu o acesso
+     * continua com o app inteiro para registrar e consultar, e foi isso que a
+     * mensagem explicou. Repetir não acrescenta informação nenhuma.
+     */
+    if (await jaAvisouRecentemente(conta.empresaId)) return null;
+
+    await registrarEvento("whatsapp_sem_acesso", {
+      empresaId: conta.empresaId,
+      userId: conta.userId,
+      detalhe: { motivo: acesso.motivo },
+    });
     return RESPOSTA_SEM_ACESSO[acesso.motivo];
   }
 

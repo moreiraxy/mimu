@@ -49,6 +49,10 @@ export type TipoEvento =
   // que a tabela de eventos existe para acabar.
   | "whatsapp_caiu"
   | "whatsapp_conectou"
+  // Alguém sem plano tentou conversar pelo WhatsApp. Serve de marca para
+  // não repetir o aviso, e de medida de quantas pessoas batem no limite
+  // por lá — que é o número que diz se vale a pena vender por esse canal.
+  | "whatsapp_sem_acesso"
   // Recorrência do Mercado Pago. Sem estes, uma cobrança que passa (ou que
   // deixa de passar) não deixa rastro nenhum — e o sintoma seria alguém
   // pagando e perdendo o acesso, descoberto só pela reclamação.

@@ -180,6 +180,54 @@ describe("teto do plano vale no WhatsApp", () => {
   });
 });
 
+describe("o aviso de plano não vira repetição", () => {
+  it("avisa na primeira mensagem e cala nas seguintes", async () => {
+    const conta = await criarConta("Insistente");
+    criadas.push(conta.userId);
+
+    await service
+      .from("assinaturas")
+      .update({ plano: "premium", status: "cancelada" })
+      .eq("empresa_id", conta.empresaId);
+
+    /*
+     * Repetir a mesma frase a cada mensagem parecia defeito: a pessoa escreve,
+     * recebe o mesmo texto, escreve de novo, recebe o mesmo texto. É o que um
+     * sistema quebrado faz — e não acrescenta informação nenhuma, porque a
+     * primeira mensagem já explicou tudo que havia para explicar.
+     */
+    const primeira = await responderPelaMimu(msg("quanto vendi?"), conta);
+    expect(primeira).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+
+    for (const texto of ["oi?", "alô", "você sumiu?"]) {
+      expect(await responderPelaMimu(msg(texto), conta)).toBeNull();
+    }
+  });
+
+  it("o silêncio é por conta, não geral", async () => {
+    // Uma conta avisada não pode calar a Mimu para outra. O erro seria fácil de
+    // cometer (uma marca global em vez de por empresa) e difícil de perceber:
+    // a segunda pessoa simplesmente não receberia nada.
+    const avisada = await criarConta("JaAvisada");
+    const outra = await criarConta("OutraSemPlano");
+    criadas.push(avisada.userId, outra.userId);
+
+    for (const c of [avisada, outra]) {
+      await service
+        .from("assinaturas")
+        .update({ plano: "premium", status: "cancelada" })
+        .eq("empresa_id", c.empresaId);
+    }
+
+    await responderPelaMimu(msg("quanto vendi?"), avisada);
+    expect(await responderPelaMimu(msg("oi?"), avisada)).toBeNull();
+
+    expect(await responderPelaMimu(msg("quanto vendi?"), outra)).toBe(
+      RESPOSTA_SEM_ACESSO.sem_modulo_ia,
+    );
+  });
+});
+
 describe("áudio não custa dinheiro para quem não tem acesso", () => {
   /*
    * O teste que faltava.

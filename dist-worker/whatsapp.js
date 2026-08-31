@@ -546,6 +546,10 @@ async function atender(mensagem, responder) {
   }
   try {
     const texto = await responder(mensagem, vinculo);
+    if (texto === null) {
+      await fecharRegistro(mensagem, "ignorada", vinculo.empresaId);
+      return null;
+    }
     await fecharRegistro(mensagem, "respondida", vinculo.empresaId);
     return { texto };
   } catch (erro) {
@@ -1601,6 +1605,14 @@ var RESPOSTA_AUDIO_FALHOU = {
   vazio: "N\xE3o consegui ouvir nada nesse \xE1udio. Tenta gravar de novo?",
   falhou: "N\xE3o consegui entender seu \xE1udio agora. Tenta de novo, ou me escreve?"
 };
+var HORAS_ENTRE_AVISOS = 6;
+async function jaAvisouRecentemente(empresaId) {
+  const desde = new Date(
+    Date.now() - HORAS_ENTRE_AVISOS * 60 * 60 * 1e3
+  ).toISOString();
+  const { data } = await createServiceClient().from("eventos").select("id").eq("tipo", "whatsapp_sem_acesso").eq("empresa_id", empresaId).gte("created_at", desde).limit(1);
+  return Boolean(data?.length);
+}
 async function responderPelaMimu(mensagem, conta) {
   let texto = mensagem.texto.trim();
   if (texto.length > MAX_CARACTERES_MENSAGEM) {
@@ -1617,6 +1629,12 @@ async function responderPelaMimu(mensagem, conta) {
   }
   const acesso = await verificarAcesso(supabase, conta.empresaId);
   if (!acesso.liberado) {
+    if (await jaAvisouRecentemente(conta.empresaId)) return null;
+    await registrarEvento("whatsapp_sem_acesso", {
+      empresaId: conta.empresaId,
+      userId: conta.userId,
+      detalhe: { motivo: acesso.motivo }
+    });
     return RESPOSTA_SEM_ACESSO[acesso.motivo];
   }
   if (!texto && mensagem.obterAudio) {

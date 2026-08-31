@@ -179,7 +179,15 @@ export async function atender(
   responder: (
     mensagem: MensagemRecebida,
     conta: { empresaId: string; userId: string },
-  ) => Promise<string>,
+    /*
+     * `null` é uma resposta legítima: significa "não responder nada".
+     *
+     * O agente usa isso quando repetir seria pior que calar — hoje, para não
+     * mandar o mesmo aviso de plano a cada mensagem de quem já foi avisada.
+     * Sem este caso no contrato, o silêncio precisaria virar string vazia, e
+     * string vazia é o tipo de valor que alguém acaba enviando por engano.
+     */
+  ) => Promise<string | null>,
 ): Promise<RespostaDoAgente> {
   const nova = await registrarChegada(mensagem);
   if (!nova) return null;
@@ -218,6 +226,20 @@ export async function atender(
    */
   try {
     const texto = await responder(mensagem, vinculo);
+
+    /*
+     * Silêncio deliberado do agente.
+     *
+     * Registrado como 'ignorada' e não como 'respondida': a diferença importa
+     * para quem for investigar depois "por que ela não respondeu". Sem isso, o
+     * log diria que respondeu — e a investigação começaria procurando um
+     * problema de entrega que não existe.
+     */
+    if (texto === null) {
+      await fecharRegistro(mensagem, "ignorada", vinculo.empresaId);
+      return null;
+    }
+
     await fecharRegistro(mensagem, "respondida", vinculo.empresaId);
     return { texto };
   } catch (erro) {
