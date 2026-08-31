@@ -467,6 +467,23 @@ async function buscarVinculoAtivo(telefone) {
   if (!data) return null;
   return { empresaId: data.empresa_id, userId: data.user_id };
 }
+async function confirmarVinculo(telefoneBruto, codigoBruto) {
+  const telefone = normalizarTelefone(telefoneBruto);
+  const codigo = codigoBruto.trim().toUpperCase();
+  if (await excedeuLimite("whatsapp_vinculo", telefone)) {
+    return { ok: false, motivo: "muitas_tentativas" };
+  }
+  await registrarTentativa("whatsapp_vinculo", telefone);
+  const service = createServiceClient();
+  const { data: pendente } = await service.from("whatsapp_links").select("id, empresa_id").eq("codigo", codigo).is("verificado_em", null).is("revogado_em", null).gt("codigo_expira_em", (/* @__PURE__ */ new Date()).toISOString()).maybeSingle();
+  if (!pendente) return { ok: false, motivo: "codigo_invalido" };
+  const agora = (/* @__PURE__ */ new Date()).toISOString();
+  await service.from("whatsapp_links").update({ revogado_em: agora }).eq("telefone", telefone).not("verificado_em", "is", null).is("revogado_em", null);
+  await service.from("whatsapp_links").update({ revogado_em: agora }).eq("empresa_id", pendente.empresa_id).not("verificado_em", "is", null).is("revogado_em", null);
+  const { error } = await service.from("whatsapp_links").update({ telefone, verificado_em: agora }).eq("id", pendente.id);
+  if (error) return { ok: false, motivo: "codigo_invalido" };
+  return { ok: true, empresaId: pendente.empresa_id };
+}
 
 // lib/canais/atendimento.ts
 var RESPOSTA_NAO_VINCULADO = "Oi! Eu sou a Mimu \u{1F49A}\n\nAinda n\xE3o reconhe\xE7o esse n\xFAmero. Para conversar comigo por aqui, abra o app da Mimu, v\xE1 em *Minha empresa* e toque em *Conectar WhatsApp*. Vou te dar um c\xF3digo para voc\xEA me mandar aqui.";
@@ -493,11 +510,37 @@ async function fecharRegistro(mensagem, resultado, empresaId) {
     console.error("N\xE3o consegui fechar o registro da mensagem.", error);
   }
 }
+var FORMATO_DO_CODIGO = /\b[ABCDEFGHJKMNPQRTUVWXYZ2346789]{6}\b/gi;
+async function tentarConectar(mensagem) {
+  const candidatos = mensagem.texto.match(FORMATO_DO_CODIGO);
+  if (!candidatos?.length) return null;
+  for (const candidato of candidatos) {
+    const resultado = await confirmarVinculo(mensagem.remetente, candidato);
+    if (resultado.ok) {
+      await fecharRegistro(mensagem, "respondida", resultado.empresaId);
+      return {
+        texto: "Pronto, conectei! \u{1F49A}\n\nAgora \xE9 s\xF3 me perguntar o que quiser: quanto voc\xEA vendeu hoje, como est\xE1 a agenda, o que est\xE1 acabando no estoque. Pode falar ou mandar \xE1udio."
+      };
+    }
+    if (resultado.motivo === "muitas_tentativas") {
+      await fecharRegistro(mensagem, "nao_vinculada", null);
+      return {
+        texto: "Tivemos muitas tentativas seguidas por aqui. Espere alguns minutos e tente de novo com um c\xF3digo novo do app."
+      };
+    }
+  }
+  await fecharRegistro(mensagem, "nao_vinculada", null);
+  return {
+    texto: "Esse c\xF3digo n\xE3o vale mais \u{1F615}\n\nEle expira em 10 minutos. Abra o app em *Minha empresa* \u2192 *Conectar WhatsApp*, pegue um c\xF3digo novo e me mande aqui."
+  };
+}
 async function atender(mensagem, responder) {
   const nova = await registrarChegada(mensagem);
   if (!nova) return null;
   const vinculo = await buscarVinculoAtivo(mensagem.remetente);
   if (!vinculo) {
+    const resposta = await tentarConectar(mensagem);
+    if (resposta) return resposta;
     await fecharRegistro(mensagem, "nao_vinculada", null);
     return { texto: RESPOSTA_NAO_VINCULADO };
   }

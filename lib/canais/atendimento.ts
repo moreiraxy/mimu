@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { buscarVinculoAtivo } from "@/lib/whatsapp/vinculo";
+import { buscarVinculoAtivo, confirmarVinculo } from "@/lib/whatsapp/vinculo";
 import {
   mascararRemetente,
   type MensagemRecebida,
@@ -101,6 +101,79 @@ async function fecharRegistro(
  * parâmetro para esta função não depender do agente: na fase 3 é um eco, na
  * fase 4 vira a Mimu de verdade, e nada aqui muda.
  */
+/*
+ * O código como ele chega: no meio de uma frase.
+ *
+ * A tela monta "Oi Mimu! Meu código é ABC123", mas ninguém é obrigado a usar o
+ * botão — tem quem digite só o código, quem cole com espaço no meio, quem
+ * escreva em minúsculas. Procurar a sequência dentro do texto cobre os três
+ * sem pedir formato a ninguém.
+ *
+ * O alfabeto é o mesmo de quem gera (sem I, L, O, S, 0, 1, 5 — os que se
+ * confundem ao ler), e por isso a busca não casa com palavra comum do
+ * português: qualquer vogal fora de A e E já derruba a candidata.
+ */
+const FORMATO_DO_CODIGO = /\b[ABCDEFGHJKMNPQRTUVWXYZ2346789]{6}\b/gi;
+
+/**
+ * Tenta fechar o vínculo com um código vindo na mensagem.
+ *
+ * Devolve null quando não há nada que pareça um código — aí quem responde é a
+ * mensagem padrão de "não te conheço".
+ */
+async function tentarConectar(
+  mensagem: MensagemRecebida,
+): Promise<RespostaDoAgente | null> {
+  const candidatos = mensagem.texto.match(FORMATO_DO_CODIGO);
+  if (!candidatos?.length) return null;
+
+  for (const candidato of candidatos) {
+    const resultado = await confirmarVinculo(mensagem.remetente, candidato);
+
+    if (resultado.ok) {
+      await fecharRegistro(mensagem, "respondida", resultado.empresaId);
+      return {
+        texto:
+          "Pronto, conectei! 💚\n\n" +
+          "Agora é só me perguntar o que quiser: quanto você vendeu hoje, " +
+          "como está a agenda, o que está acabando no estoque. " +
+          "Pode falar ou mandar áudio.",
+      };
+    }
+
+    /*
+     * Tentativas demais encerram aqui, sem tentar os outros candidatos.
+     *
+     * Continuar consumiria o teto que existe justamente para impedir que se
+     * chute código — e várias sequências numa mensagem só é exatamente a cara
+     * de quem está tentando adivinhar.
+     */
+    if (resultado.motivo === "muitas_tentativas") {
+      await fecharRegistro(mensagem, "nao_vinculada", null);
+      return {
+        texto:
+          "Tivemos muitas tentativas seguidas por aqui. " +
+          "Espere alguns minutos e tente de novo com um código novo do app.",
+      };
+    }
+  }
+
+  /*
+   * Parecia código e não era — expirado, ou digitado errado.
+   *
+   * Vale uma resposta própria: cair na mensagem padrão de "não te conheço"
+   * faria a pessoa repetir exatamente o que acabou de fazer, sem entender que
+   * o problema é o prazo de dez minutos.
+   */
+  await fecharRegistro(mensagem, "nao_vinculada", null);
+  return {
+    texto:
+      "Esse código não vale mais 😕\n\n" +
+      "Ele expira em 10 minutos. Abra o app em *Minha empresa* → " +
+      "*Conectar WhatsApp*, pegue um código novo e me mande aqui.",
+  };
+}
+
 export async function atender(
   mensagem: MensagemRecebida,
   responder: (
@@ -114,6 +187,18 @@ export async function atender(
   const vinculo = await buscarVinculoAtivo(mensagem.remetente);
 
   if (!vinculo) {
+    /*
+     * Antes de dizer "não te conheço", ver se a mensagem TRAZ o código.
+     *
+     * Este é o passo 3 do vínculo, e ele faltava: `confirmarVinculo` existia,
+     * testada, e nada a chamava. O efeito era todo mundo cair na resposta
+     * genérica, inclusive quem tinha acabado de pegar o código no app — a
+     * conexão era impossível de completar, e a mensagem sugeria justamente
+     * fazer o que não funcionava.
+     */
+    const resposta = await tentarConectar(mensagem);
+    if (resposta) return resposta;
+
     await fecharRegistro(mensagem, "nao_vinculada", null);
     return { texto: RESPOSTA_NAO_VINCULADO };
   }
