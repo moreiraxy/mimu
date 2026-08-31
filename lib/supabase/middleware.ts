@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createServiceClient } from "@/lib/supabase/service";
 import { assinaturaVencida, trialVencido, planoEfetivo } from "@/lib/assinatura";
+import { enderecoExiste } from "@/lib/rotas-existentes";
 import { PLANO_GRATUITO, modulosLiberados } from "@/lib/planos";
 import { moduloExigidoPor } from "@/lib/rotas-modulos";
 import type { ModuloAtivo } from "@/types";
@@ -199,6 +200,25 @@ export async function updateSession(request: NextRequest) {
   const isGuestOnlyRoute = GUEST_ONLY_ROUTES.includes(pathname);
 
   if (!user && !isGuestOnlyRoute) {
+    /*
+     * Endereço que não existe vira 404 nosso, não desvio para o login.
+     *
+     * O "pega tudo" abaixo alcançava também o que nunca existiu: digitar
+     * `mimu.pro/qualqercoisa` respondia 307 para /login. A pessoa via um
+     * formulário de senha em vez de "essa página não existe", e o buscador
+     * via um redirecionamento no lugar de um 404 — que é como endereço
+     * inventado acaba indexado. A tela de 404 existia, com marca e saídas, e
+     * era inalcançável.
+     *
+     * Deixar passar não abre nada: o que exige sessão continua exigindo no
+     * layout, que redireciona por conta própria. E `enderecoExiste` só
+     * responde por endereços que NÃO existem — para os que existem, nada
+     * muda.
+     */
+    if (!enderecoExiste(pathname)) {
+      return response;
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
