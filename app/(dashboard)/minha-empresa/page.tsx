@@ -8,7 +8,10 @@ import { CategoriasSection } from "./CategoriasSection";
 import { MetaSection } from "./MetaSection";
 import { ModulosSection } from "./ModulosSection";
 import { PreferenciasSection } from "./PreferenciasSection";
+import { PlanoSection } from "./PlanoSection";
+import { WhatsAppSection } from "./WhatsAppSection";
 import { ContaSection } from "./ContaSection";
+import { ExcluirContaSection } from "./ExcluirContaSection";
 
 /**
  * Não há mais cópia local da empresa aqui.
@@ -45,7 +48,10 @@ export default function MinhaEmpresaPage() {
         <MetaSection empresa={empresa} onAtualizado={atualizarEmpresa} />
         <ModulosSection empresa={empresa} onAtualizado={atualizarEmpresa} />
         <PreferenciasSection empresa={empresa} onAtualizado={atualizarEmpresa} />
-        <ContaSection empresa={empresa} />
+        <WhatsAppSection />
+        <PlanoSection />
+        <ContaSection />
+        <ExcluirContaSection empresa={empresa} />
       </div>
     </div>
   );

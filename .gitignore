@@ -59,3 +59,11 @@ next-env.d.ts
 /public/lp.html
 /public/lp/
 /public/fonts/marca/
+
+# A sessão do WhatsApp — CREDENCIAL, nunca versionar.
+#
+# A pasta guarda as chaves que autenticam o número da Mimu no WhatsApp. Quem
+# tiver esses arquivos assume a conta: lê as conversas e manda mensagem como se
+# fosse a gente. Commitar isso é o mesmo que commitar uma senha, com o agravante
+# de que revogar exige acesso físico ao celular do número.
+.whatsapp-sessao/

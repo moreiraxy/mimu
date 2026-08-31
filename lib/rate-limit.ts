@@ -24,6 +24,19 @@ const LIMITES = {
    * quem está rodando um script.
    */
   recuperar_senha: { max: 3, janelaMs: 60 * 60 * 1000 },
+  /**
+   * Tentativas de confirmar um código de vínculo do WhatsApp, por número.
+   *
+   * É o único ponto do produto onde alguém sem sessão pode se ligar a uma
+   * conta. O código é curto de propósito (a pessoa digita no celular), e o que
+   * o torna inviável de adivinhar não é só o tamanho — é isto aqui. Sem teto,
+   * um número chutando códigos em laço acharia um pendente e passaria a
+   * enxergar o negócio de outra pessoa.
+   *
+   * 5 por hora é folgado para quem errou de digitar e apertado para quem está
+   * chutando.
+   */
+  whatsapp_vinculo: { max: 5, janelaMs: 60 * 60 * 1000 },
 } as const;
 
 export type TipoRateLimit = keyof typeof LIMITES;

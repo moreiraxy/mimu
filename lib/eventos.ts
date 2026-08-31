@@ -38,7 +38,23 @@ export type TipoEvento =
   | "cakto_venda_falhou"
   | "cakto_reversao"
   | "cakto_reversao_falhou"
-  | "cakto_atencao";
+  | "cakto_atencao"
+  // A pessoa apagou a própria conta pela tela de Minha Empresa. Fica como
+  // evento porque a linha da empresa some no instante seguinte: sem isto, o
+  // painel admin veria uma conta desaparecer sem nenhum rastro de que houve
+  // uma decisão, e não uma falha.
+  | "conta_excluida_pelo_usuario"
+  // O canal do WhatsApp caiu ou voltou. Sem estes, uma queda de madrugada
+  // deixa a Mimu muda até alguém reparar sozinho — que é o apagão silencioso
+  // que a tabela de eventos existe para acabar.
+  | "whatsapp_caiu"
+  | "whatsapp_conectou"
+  // Recorrência do Mercado Pago. Sem estes, uma cobrança que passa (ou que
+  // deixa de passar) não deixa rastro nenhum — e o sintoma seria alguém
+  // pagando e perdendo o acesso, descoberto só pela reclamação.
+  | "mp_cobranca_recorrente"
+  | "mp_assinatura_encerrada"
+  | "mp_assinatura_sem_dono";
 
 export interface DadosEvento {
   empresaId?: string | null;

@@ -11,11 +11,17 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "build:lp": "npm --prefix site-mimo ci && npm --prefix site-mimo run build && node scripts/copiar-lp.mjs"
+    "build:lp": "npm --prefix site-mimo ci && npm --prefix site-mimo run build && node scripts/copiar-lp.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "whatsapp": "tsx --env-file-if-exists=.env.local worker/whatsapp/index.ts"
   },
   "dependencies": {
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.2.1",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.47.10",
+    "baileys": "6.17.16",
     "clsx": "^2.1.1",
     "groq-sdk": "^1.5.0",
     "idb": "^8.0.3",
@@ -24,15 +30,19 @@
     "mercadopago": "^3.3.0",
     "motion": "^13.0.0",
     "next": "^14.2.35",
+    "qrcode-terminal": "^0.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^2.5.5",
+    "tsx": "^4.23.13",
     "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.2.1",
     "@types/node": "^20.17.9",
+    "@types/qrcode-terminal": "^0.12.2",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
     "@types/web-push": "^3.6.4",
@@ -45,9 +55,15 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "sharp": "^0.35.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=18.18.0"
+  },
+  "overrides": {
+    "baileys": {
+      "sharp": "$sharp"
+    }
   }
 }
