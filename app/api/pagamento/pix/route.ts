@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura } from "@/lib/assinatura";
 import { mpPayment } from "@/lib/mercadopago";
 import { PLANOS, PLANO_PADRAO, planoValido } from "@/lib/planos";
+import { urlAbsoluta } from "@/lib/site";
 
 const EXPIRACAO_MINUTOS = 30;
 
@@ -61,7 +62,7 @@ export async function POST() {
         date_of_expiration: expiracao.toISOString(),
         external_reference: assinatura.id,
         statement_descriptor: "MIMU",
-        notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/pagamento/webhook`,
+        notification_url: urlAbsoluta("/api/pagamento/webhook"),
         payer: {
           email: user.email ?? "",
           first_name: nome,

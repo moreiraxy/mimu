@@ -3,11 +3,15 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura, ativarAssinatura } from "@/lib/assinatura";
 import { criarAssinaturaRecorrente } from "@/lib/assinatura-recorrente";
-import { PLANOS, PLANO_PADRAO, planoValido ,
+import {
+  PLANOS,
+  PLANO_PADRAO,
+  planoValido,
   periodicidadeValida,
   valorDoPlano,
   type Periodicidade,
 } from "@/lib/planos";
+import { urlAbsoluta } from "@/lib/site";
 
 interface CartaoPayload {
   token?: string;
@@ -121,7 +125,7 @@ export async function POST(request: Request) {
       periodicidade,
       nomeDoPlano: nomePlano,
       referenciaExterna: assinatura.id,
-      urlDeRetorno: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      urlDeRetorno: urlAbsoluta("/dashboard"),
     });
 
     if (!recorrente) {

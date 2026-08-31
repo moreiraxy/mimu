@@ -10,6 +10,20 @@ import { MARCA_APP_IOS } from "./lib/plataforma";
  * volta (push por APNs, câmera, Face ID, haptics). Essa camada é o que
  * responde pela diretriz 4.2 da Apple, "Minimum Functionality".
  */
+/*
+ * O endereço fica gravado DENTRO do aplicativo instalado.
+ *
+ * Não é como no site, onde trocar de domínio é mudar uma variável e
+ * republicar: um app que já está no iPhone de alguém continua abrindo o
+ * endereço com que foi compilado. Mudar exige nova versão, nova revisão da
+ * Apple, e quem não atualizar fica com uma tela branca.
+ *
+ * A variável existe para o desenvolvimento e para a migração de domínio
+ * poderem apontar para outro lugar. O padrão é a produção, de propósito: um
+ * envio para a loja feito com a variável esquecida aponta para o lugar certo.
+ */
+const DOMINIO = process.env.CAPACITOR_DOMINIO ?? "mimu.up.railway.app";
+
 const config: CapacitorConfig = {
   /*
    * O bundle id é definitivo: uma vez publicado, a App Store não deixa mudar.
@@ -40,10 +54,10 @@ const config: CapacitorConfig = {
      * mas nunca enviar para a loja apontando para outro lugar que não a
      * produção.
      */
-    url: "https://mimu.up.railway.app",
+    url: `https://${DOMINIO}`,
     // O certificado é válido; aceitar inválido só serviria para esconder um
     // problema de infraestrutura até ele aparecer na mão de um cliente.
-    allowNavigation: ["mimu.up.railway.app"],
+    allowNavigation: [DOMINIO],
   },
 
   ios: {
