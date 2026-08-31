@@ -38,13 +38,23 @@ export function WhatsAppSection() {
   const [estado, setEstado] = useState<Estado | null>(null);
   const [codigo, setCodigo] = useState<string | null>(null);
   const [desconectando, setDesconectando] = useState(false);
+  // Separa "ainda carregando" de "deu errado" — ver o comentário no render.
+  const [falhou, setFalhou] = useState(false);
 
   useEffect(() => {
     let cancelado = false;
 
     async function carregar() {
       const resposta = await fetch("/api/whatsapp/vinculo").catch(() => null);
-      if (!resposta?.ok || cancelado) return;
+      if (cancelado) return;
+      if (!resposta?.ok) {
+        console.warn(
+          "[mimu] Não consegui ler o estado do vínculo do WhatsApp:",
+          resposta ? `HTTP ${resposta.status}` : "a requisição não completou",
+        );
+        setFalhou(true);
+        return;
+      }
 
       const atual = (await resposta.json()) as Estado;
       if (cancelado) return;
@@ -91,9 +101,46 @@ export function WhatsAppSection() {
    * Mostrar um botão que não leva a lugar nenhum é pior do que não mostrar
    * nada: a pessoa toca, não acontece nada, e conclui que a Mimu está
    * quebrada.
+   *
+   * Continua sumindo em silêncio de propósito — mas AVISA no console, porque
+   * este caso não é "a dona não tem direito", é "faltou configuração no
+   * servidor". Sem o aviso, a diferença entre os dois é invisível para quem
+   * for investigar, e a seção some sem deixar rastro.
    */
-  if (!NUMERO_MIMU) return null;
-  if (!estado) return null;
+  if (!NUMERO_MIMU) {
+    if (typeof console !== "undefined") {
+      console.warn(
+        "[mimu] Seção do WhatsApp escondida: NEXT_PUBLIC_WHATSAPP_MIMU não foi " +
+          "gravada na compilação. Ela é lida na hora do build, não em execução — " +
+          "definir a variável no painel exige um deploy novo para valer.",
+      );
+    }
+    return null;
+  }
+
+  /*
+   * Enquanto carrega, a seção EXISTE.
+   *
+   * Antes ela devolvia nada até a consulta responder, e nada é o que ela devolve
+   * também quando a consulta FALHA. Os dois casos eram indistinguíveis — de
+   * fora, "a seção não aparece", e ninguém tinha como saber se estava lenta,
+   * quebrada, ou se aquela conta simplesmente não tinha a função.
+   */
+  if (!estado) {
+    return (
+      <SectionCard
+        icone={MessageCircle}
+        titulo="Mimu no WhatsApp"
+        descricao="Fale com a Mimu de onde você já está"
+      >
+        <p className="text-sm text-neutro-muted">
+          {falhou
+            ? "Não consegui verificar se o seu WhatsApp está conectado. Recarregue a página — se continuar, me chame que eu olho."
+            : "Verificando…"}
+        </p>
+      </SectionCard>
+    );
+  }
 
   const mensagemPronta = codigo
     ? `Oi Mimu! Meu código é ${codigo}`
