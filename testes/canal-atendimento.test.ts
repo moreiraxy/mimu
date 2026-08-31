@@ -129,7 +129,7 @@ describe("idempotência (4.3)", () => {
 });
 
 describe("número não vinculado (4.1)", () => {
-  it("recebe instrução de como conectar, e nada de dado", async () => {
+  it("não recebe resposta nenhuma, e nada de dado", async () => {
     const atendente = atendenteQueConta();
     const resposta = await atender(
       {
@@ -142,7 +142,17 @@ describe("número não vinculado (4.1)", () => {
       atendente.responder,
     );
 
-    expect(resposta?.texto).toContain("Conectar WhatsApp");
+    /*
+     * Silêncio, e não uma instrução de como conectar.
+     *
+     * O número da Mimu é o mesmo usado para prospecção humana: responder a
+     * quem escreve sem código mandaria um texto automático para cada prospect
+     * que responde a um contato comercial. Além de atrapalhar a venda, é o
+     * padrão que faz o WhatsApp bloquear uma conta — e perder o número
+     * custaria a prospecção E o canal.
+     */
+    expect(resposta).toBeNull();
+
     // O atendente NÃO é chamado: quem não está vinculada não chega perto do
     // agente nem dos dados.
     expect(atendente.chamadas).toBe(0);
@@ -229,8 +239,8 @@ describe("áudio (transcrição custa dinheiro)", () => {
       async () => "nunca chega aqui",
     );
 
-    // A resposta é a de sempre para quem não conectou...
-    expect(resposta?.texto).toContain("Conectar WhatsApp");
+    // Nenhuma resposta, como para todo desconhecido sem código...
+    expect(resposta).toBeNull();
     // ...e o áudio nem foi baixado. Sem isto, qualquer desconhecido mandando
     // áudio geraria custo de banda e de transcrição.
     expect(baixou).toBe(false);

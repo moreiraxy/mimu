@@ -486,7 +486,6 @@ async function confirmarVinculo(telefoneBruto, codigoBruto) {
 }
 
 // lib/canais/atendimento.ts
-var RESPOSTA_NAO_VINCULADO = "Oi! Eu sou a Mimu \u{1F49A}\n\nAinda n\xE3o reconhe\xE7o esse n\xFAmero. Para conversar comigo por aqui, abra o app da Mimu, v\xE1 em *Minha empresa* e toque em *Conectar WhatsApp*. Vou te dar um c\xF3digo para voc\xEA me mandar aqui.";
 async function registrarChegada(mensagem) {
   const { error } = await createServiceClient().from("canal_mensagens").insert({
     canal: mensagem.canal,
@@ -542,7 +541,7 @@ async function atender(mensagem, responder) {
     const resposta = await tentarConectar(mensagem);
     if (resposta) return resposta;
     await fecharRegistro(mensagem, "nao_vinculada", null);
-    return { texto: RESPOSTA_NAO_VINCULADO };
+    return null;
   }
   try {
     const texto = await responder(mensagem, vinculo);

@@ -142,10 +142,18 @@ describe("conectar o WhatsApp mandando o código", () => {
     expect(resposta?.texto).toContain("não vale mais");
   });
 
-  it("responde o convite normal quando não há código nenhum", async () => {
+  it("fica CALADA para número desconhecido sem código", async () => {
+    /*
+     * O número da Mimu é o mesmo usado para prospecção humana. Responder aqui
+     * significaria mandar um texto automático para cada prospect que responde
+     * a um contato comercial — confuso para ele, atrapalha a venda, e é o
+     * padrão exato que faz o WhatsApp bloquear uma conta.
+     *
+     * Perder o número custaria as duas coisas de uma vez.
+     */
     const resposta = await atender(mensagem("oi, tudo bem?"), naoDeveriaAtender);
 
-    expect(resposta?.texto).toContain("Ainda não reconheço");
+    expect(resposta).toBeNull();
   });
 
   it("não confunde palavra comum com código", async () => {
@@ -160,6 +168,9 @@ describe("conectar o WhatsApp mandando o código", () => {
       naoDeveriaAtender,
     );
 
-    expect(resposta?.texto).toContain("Ainda não reconheço");
+    // Silêncio, e não a resposta de código expirado: uma frase comum lida como
+    // código faria a Mimu responder a um prospect no meio de uma conversa de
+    // venda, dizendo que o código dele venceu.
+    expect(resposta).toBeNull();
   });
 });

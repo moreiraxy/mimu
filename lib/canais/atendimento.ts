@@ -16,20 +16,6 @@ import {
  * antes de ser processada. Ver `registrarChegada`.
  */
 
-/**
- * A resposta para quem escreve de um número que não conhecemos.
- *
- * Diz como conectar e nada mais. Não confirma nem nega que exista conta com
- * aquele número, não cumprimenta pelo nome, não dá pista de dado nenhum:
- * quem está do outro lado pode ser qualquer pessoa, inclusive alguém que
- * recebeu um número reciclado pela operadora.
- */
-const RESPOSTA_NAO_VINCULADO =
-  "Oi! Eu sou a Mimu 💚\n\n" +
-  "Ainda não reconheço esse número. Para conversar comigo por aqui, abra o " +
-  "app da Mimu, vá em *Minha empresa* e toque em *Conectar WhatsApp*. Vou te " +
-  "dar um código para você me mandar aqui.";
-
 type Resultado = "respondida" | "nao_vinculada" | "ignorada" | "falhou";
 
 /**
@@ -207,8 +193,28 @@ export async function atender(
     const resposta = await tentarConectar(mensagem);
     if (resposta) return resposta;
 
+    /*
+     * Número desconhecido e sem código: SILÊNCIO.
+     *
+     * O número da Mimu é o mesmo usado para prospecção humana. Responder a
+     * quem escreve sem código significaria mandar um texto automático para
+     * cada prospect que responde a um contato comercial — que é confuso para
+     * ele, atrapalha a venda, e é o padrão exato que faz o WhatsApp bloquear
+     * uma conta: a mesma mensagem, para muitos números diferentes, sem que
+     * eles tenham pedido.
+     *
+     * Perder o número custaria as duas coisas de uma vez, a prospecção e o
+     * canal.
+     *
+     * A Mimu só se manifesta para quem prova que a procurou: mandando o código
+     * que nasceu dentro do app. Quem tem código continua sendo atendido em
+     * `tentarConectar`, acima — inclusive com aviso quando ele expirou.
+     *
+     * O convite para conectar não se perde: ele está no app, na tela que gera
+     * o código, que é de onde a pessoa sai para vir até aqui.
+     */
     await fecharRegistro(mensagem, "nao_vinculada", null);
-    return { texto: RESPOSTA_NAO_VINCULADO };
+    return null;
   }
 
   /*
