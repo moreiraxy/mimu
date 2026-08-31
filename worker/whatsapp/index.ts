@@ -200,7 +200,7 @@ async function main() {
    * só faria ela subir outro no lugar. Ele fica esperando, e assume se o dono
    * parar de dar sinal.
    */
-  let trava = tentarAssumir(PASTA_DA_SESSAO);
+  let trava = tentarAssumir(PASTA_DA_SESSAO, () => contadores);
 
   while (!trava) {
     const dono = donoAtual(PASTA_DA_SESSAO);
@@ -211,7 +211,7 @@ async function main() {
     console.log(`[whatsapp] ${situacao.detalhe}. Tentando de novo em 15s.`);
 
     await new Promise((r) => setTimeout(r, ESPERA_ENTRE_TENTATIVAS_MS));
-    trava = tentarAssumir(PASTA_DA_SESSAO);
+    trava = tentarAssumir(PASTA_DA_SESSAO, () => contadores);
   }
 
   console.log("[whatsapp] esta cópia é a responsável pela conexão.");

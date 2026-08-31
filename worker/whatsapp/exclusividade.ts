@@ -44,6 +44,15 @@ interface Conteudo {
   pid: number;
   desde: string;
   batida: number;
+  /*
+   * O que a cópia DONA viu chegar.
+   *
+   * Vai junto com o sinal de vida porque quem responde HTTP quase nunca é
+   * quem está conectado — e olhar os contadores da cópia errada mostra zeros,
+   * que é indistinguível de "nada chegou". Levou uma investigação inteira até
+   * eu perceber que estava lendo o processo errado.
+   */
+  contadores?: unknown;
 }
 
 function caminho(pastaDaSessao: string): string {
@@ -70,7 +79,11 @@ function escrever(arquivo: string, dados: Conteudo) {
  *
  * Devolve `null` quando outra cópia viva já é responsável.
  */
-export function tentarAssumir(pastaDaSessao: string): Trava | null {
+export function tentarAssumir(
+  pastaDaSessao: string,
+  /** Consultado a cada sinal de vida, para publicar o que só a dona enxerga. */
+  lerContadores?: () => unknown,
+): Trava | null {
   mkdirSync(pastaDaSessao, { recursive: true });
   const arquivo = caminho(pastaDaSessao);
 
@@ -113,19 +126,23 @@ export function tentarAssumir(pastaDaSessao: string): Trava | null {
   }
 
   escrever(arquivo, { pid: process.pid, desde: new Date().toISOString(), batida: agora });
-  return new Trava(arquivo);
+  return new Trava(arquivo, lerContadores);
 }
 
 export class Trava {
   private batendo: NodeJS.Timeout;
 
-  constructor(private readonly arquivo: string) {
+  constructor(
+    private readonly arquivo: string,
+    private readonly lerContadores?: () => unknown,
+  ) {
     this.batendo = setInterval(() => {
       try {
         escrever(this.arquivo, {
           pid: process.pid,
           desde: new Date().toISOString(),
           batida: Date.now(),
+          contadores: this.lerContadores?.(),
         });
       } catch {
         // Disco cheio ou pasta removida. Não derruba o worker: a conexão com o
@@ -154,11 +171,13 @@ export class Trava {
  * Sem isto, uma cópia em espera responderia "conectando" para sempre e alguém
  * passaria a tarde procurando defeito onde não há.
  */
-export function donoAtual(pastaDaSessao: string): { pid: number; desde: string } | null {
+export function donoAtual(
+  pastaDaSessao: string,
+): { pid: number; desde: string; contadores?: unknown } | null {
   const dono = ler(caminho(pastaDaSessao));
   if (!dono) return null;
   if (Date.now() - dono.batida >= ABANDONO_MS) return null;
-  return { pid: dono.pid, desde: dono.desde };
+  return { pid: dono.pid, desde: dono.desde, contadores: dono.contadores };
 }
 
 export const ESPERA_ENTRE_TENTATIVAS_MS = 15_000;

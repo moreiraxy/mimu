@@ -153,7 +153,19 @@ export function servirSaude(situacao: Situacao, pastaDaSessao: string): Server {
       desde: situacao.desde,
       ...(situacao.detalhe ? { detalhe: situacao.detalhe } : {}),
       ...(dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {}),
-      ...(situacao.contadores ? { recebido: situacao.contadores } : {}),
+      /*
+       * Os contadores vêm de quem está CONECTADO, não deste processo.
+       *
+       * Quem responde HTTP quase nunca é quem fala com o WhatsApp. Mostrar os
+       * próprios contadores exibiria zeros para sempre — e zero é
+       * indistinguível de "nada chegou", que é justamente a pergunta que estes
+       * números existem para responder.
+       */
+      ...(dono?.contadores
+        ? { recebido: dono.contadores }
+        : situacao.contadores
+          ? { recebido: situacao.contadores }
+          : {}),
     });
 
     /*

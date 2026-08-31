@@ -228,7 +228,7 @@ function ler(arquivo) {
 function escrever(arquivo, dados) {
   (0, import_node_fs.writeFileSync)(arquivo, JSON.stringify(dados), "utf8");
 }
-function tentarAssumir(pastaDaSessao) {
+function tentarAssumir(pastaDaSessao, lerContadores) {
   (0, import_node_fs.mkdirSync)(pastaDaSessao, { recursive: true });
   const arquivo = caminho(pastaDaSessao);
   const dono = ler(arquivo);
@@ -245,17 +245,19 @@ function tentarAssumir(pastaDaSessao) {
     }
   }
   escrever(arquivo, { pid: process.pid, desde: (/* @__PURE__ */ new Date()).toISOString(), batida: agora });
-  return new Trava(arquivo);
+  return new Trava(arquivo, lerContadores);
 }
 var Trava = class {
-  constructor(arquivo) {
+  constructor(arquivo, lerContadores) {
     this.arquivo = arquivo;
+    this.lerContadores = lerContadores;
     this.batendo = setInterval(() => {
       try {
         escrever(this.arquivo, {
           pid: process.pid,
           desde: (/* @__PURE__ */ new Date()).toISOString(),
-          batida: Date.now()
+          batida: Date.now(),
+          contadores: this.lerContadores?.()
         });
       } catch {
       }
@@ -274,7 +276,7 @@ function donoAtual(pastaDaSessao) {
   const dono = ler(caminho(pastaDaSessao));
   if (!dono) return null;
   if (Date.now() - dono.batida >= ABANDONO_MS) return null;
-  return { pid: dono.pid, desde: dono.desde };
+  return { pid: dono.pid, desde: dono.desde, contadores: dono.contadores };
 }
 var ESPERA_ENTRE_TENTATIVAS_MS = 15e3;
 
@@ -346,7 +348,15 @@ function servirSaude(situacao2, pastaDaSessao) {
       desde: situacao2.desde,
       ...situacao2.detalhe ? { detalhe: situacao2.detalhe } : {},
       ...dono ? { conexao_em: `pid ${dono.pid}`, desde_o_dono: dono.desde } : {},
-      ...situacao2.contadores ? { recebido: situacao2.contadores } : {}
+      /*
+       * Os contadores vêm de quem está CONECTADO, não deste processo.
+       *
+       * Quem responde HTTP quase nunca é quem fala com o WhatsApp. Mostrar os
+       * próprios contadores exibiria zeros para sempre — e zero é
+       * indistinguível de "nada chegou", que é justamente a pergunta que estes
+       * números existem para responder.
+       */
+      ...dono?.contadores ? { recebido: dono.contadores } : situacao2.contadores ? { recebido: situacao2.contadores } : {}
     });
     const status = caminho2 === "/saude" && !canalDePe ? 503 : 200;
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -1692,14 +1702,14 @@ async function main() {
   conferirAmbiente();
   console.log(`[whatsapp] sess\xE3o em ${PASTA_DA_SESSAO}`);
   const servidorDeSaude = servirSaude(situacao, PASTA_DA_SESSAO);
-  let trava = tentarAssumir(PASTA_DA_SESSAO);
+  let trava = tentarAssumir(PASTA_DA_SESSAO, () => contadores);
   while (!trava) {
     const dono = donoAtual(PASTA_DA_SESSAO);
     situacao.estado = "em_espera";
     situacao.detalhe = dono ? `outra c\xF3pia (pid ${dono.pid}) est\xE1 conectada desde ${dono.desde}` : "esperando a vez";
     console.log(`[whatsapp] ${situacao.detalhe}. Tentando de novo em 15s.`);
     await new Promise((r) => setTimeout(r, ESPERA_ENTRE_TENTATIVAS_MS));
-    trava = tentarAssumir(PASTA_DA_SESSAO);
+    trava = tentarAssumir(PASTA_DA_SESSAO, () => contadores);
   }
   console.log("[whatsapp] esta c\xF3pia \xE9 a respons\xE1vel pela conex\xE3o.");
   const conexao = await conectar({
