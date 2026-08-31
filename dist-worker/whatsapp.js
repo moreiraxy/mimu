@@ -39,6 +39,7 @@ function mascararRemetente(remetente) {
 }
 
 // worker/whatsapp/conexao.ts
+var IDADE_MAXIMA_MIN = 20;
 function atrasoDeResposta() {
   return 2e3 + Math.random() * 3e3;
 }
@@ -146,14 +147,16 @@ async function conectar(opcoes) {
       const descartar = (motivo) => {
         if (c) c.descartes[motivo] = (c.descartes[motivo] ?? 0) + 1;
       };
-      if (type !== "notify") {
-        descartar(`tipo:${type}`);
-        return;
-      }
       for (const bruta of messages) {
         const remoteJid = bruta.key.remoteJid;
         if (!remoteJid) {
           descartar("sem_remetente");
+          continue;
+        }
+        const quando = bruta.messageTimestamp ? new Date(Number(bruta.messageTimestamp) * 1e3) : /* @__PURE__ */ new Date();
+        const idadeMin = (Date.now() - quando.getTime()) / 6e4;
+        if (idadeMin > IDADE_MAXIMA_MIN) {
+          descartar(`velha_demais:${type}`);
           continue;
         }
         if (bruta.key.fromMe) {
@@ -189,7 +192,7 @@ async function conectar(opcoes) {
           // depois de o atendimento confirmar o vínculo.
           texto: texto ?? "",
           obterAudio: audio ? baixadorDeAudio(bruta) : void 0,
-          recebidaEm: bruta.messageTimestamp ? new Date(Number(bruta.messageTimestamp) * 1e3) : /* @__PURE__ */ new Date()
+          recebidaEm: quando
         };
         if (c) c.aceitas += 1;
         enfileirar(async () => {

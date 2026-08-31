@@ -46,6 +46,16 @@ export interface OpcoesConexao {
   contadores?: Contadores;
 }
 
+/*
+ * Até quando uma mensagem ainda merece resposta.
+ *
+ * Precisa cobrir um deploy inteiro (o worker reinicia e leva um a dois minutos
+ * para voltar) com folga para a reentrega. E precisa ser curto o bastante para
+ * não alcançar o histórico que o WhatsApp sincroniza num pareamento novo —
+ * responder a conversa de ontem assustaria qualquer pessoa.
+ */
+const IDADE_MAXIMA_MIN = 20;
+
 export interface Contadores {
   /** Lotes que o WhatsApp entregou, de qualquer tipo. */
   lotes: number;
@@ -284,18 +294,39 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
         if (c) c.descartes[motivo] = (c.descartes[motivo] ?? 0) + 1;
       };
 
-      // "notify" é mensagem nova de verdade. "append" é histórico sendo
-      // sincronizado depois de reconectar — responder a isso faria a Mimu
-      // reagir a conversas de dias atrás toda vez que a conexão caísse.
-      if (type !== "notify") {
-        descartar(`tipo:${type}`);
-        return;
-      }
 
       for (const bruta of messages) {
         const remoteJid = bruta.key.remoteJid;
         if (!remoteJid) {
           descartar("sem_remetente");
+          continue;
+        }
+
+        /*
+         * O que decide é a IDADE da mensagem, não o rótulo da entrega.
+         *
+         * A versão anterior descartava tudo que não fosse "notify", para a Mimu
+         * não reagir a conversas antigas ao reconectar. Mas o WhatsApp guarda o
+         * que chega enquanto o worker está fora do ar e reentrega tudo junto na
+         * volta — com o rótulo "append", o mesmo do histórico. O filtro jogava
+         * fora as duas coisas.
+         *
+         * Custou uma sessão de pareamento: a mensagem com o código foi enviada
+         * durante um reinício, chegou na reconexão, e foi descartada como se
+         * fosse conversa de outro dia.
+         *
+         * A idade separa o que o rótulo confunde. Vinte minutos cobre um deploy
+         * com folga e não alcança histórico de verdade. E reprocessar não é
+         * risco: o índice único de (canal, mensagem_id) recusa a segunda
+         * passagem da mesma mensagem.
+         */
+        const quando = bruta.messageTimestamp
+          ? new Date(Number(bruta.messageTimestamp) * 1000)
+          : new Date();
+        const idadeMin = (Date.now() - quando.getTime()) / 60_000;
+
+        if (idadeMin > IDADE_MAXIMA_MIN) {
+          descartar(`velha_demais:${type}`);
           continue;
         }
 
@@ -392,9 +423,7 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
           // depois de o atendimento confirmar o vínculo.
           texto: texto ?? "",
           obterAudio: audio ? baixadorDeAudio(bruta) : undefined,
-          recebidaEm: bruta.messageTimestamp
-            ? new Date(Number(bruta.messageTimestamp) * 1000)
-            : new Date(),
+          recebidaEm: quando,
         };
 
         if (c) c.aceitas += 1;
