@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import qrcode from "qrcode-terminal";
 import { conectar, type EstadoConexao } from "./conexao";
+import { servirSaude, type Situacao } from "./saude";
 import { atender } from "@/lib/canais/atendimento";
 import { registrarEvento } from "@/lib/eventos";
 import { avisarAdmins } from "@/lib/avisos-internos";
@@ -45,7 +46,30 @@ const PASTA_DA_SESSAO =
  */
 const mimu: Atendente = (mensagem) => atender(mensagem, responderPelaMimu);
 
+/*
+ * O que a porta HTTP responde. Um objeto só, atualizado no lugar.
+ *
+ * Lido a cada requisição em vez de copiado: assim a página sempre mostra o
+ * estado de agora, e não o de quando o servidor subiu.
+ */
+const situacao: Situacao = {
+  estado: "subindo",
+  desde: new Date().toISOString(),
+  qr: null,
+};
+
 function aoMudarEstado(estado: EstadoConexao, detalhe?: string) {
+  situacao.estado = estado;
+  situacao.desde = new Date().toISOString();
+
+  /*
+   * O QR fica guardado só enquanto serve.
+   *
+   * Depois de conectado ele não vale mais nada, e continuar servindo um código
+   * morto numa página só confunde quem for conferir se está tudo certo.
+   */
+  situacao.qr = estado === "aguardando_leitura_do_qr" ? (detalhe ?? null) : null;
+
   switch (estado) {
     case "aguardando_leitura_do_qr":
       console.log(
@@ -144,6 +168,15 @@ async function main() {
   conferirAmbiente();
   console.log(`[whatsapp] sessão em ${PASTA_DA_SESSAO}`);
 
+  /*
+   * A porta sobe ANTES da conexão com o WhatsApp, e é de propósito.
+   *
+   * Hospedagem gerenciada dá um prazo curto para o processo começar a
+   * responder, e o pareamento pode demorar minutos — se a porta esperasse por
+   * ele, a plataforma mataria o worker antes de alguém conseguir ler o QR.
+   */
+  const servidorDeSaude = servirSaude(situacao);
+
   const conexao = await conectar({
     pastaDaSessao: PASTA_DA_SESSAO,
     atender: mimu,
@@ -163,7 +196,10 @@ async function main() {
       console.log(`\n[whatsapp] ${sinal} recebido. Terminando o que está na fila...`);
       conexao
         .parar()
-        .then(() => process.exit(0))
+        .then(() => {
+          servidorDeSaude.close();
+          process.exit(0);
+        })
         .catch(() => process.exit(1));
     });
   }
