@@ -164,9 +164,15 @@ async function conectar(opcoes) {
           descartar(`nao_e_conversa_direta:${(0, import_baileys.jidDecode)(remoteJid)?.server ?? "?"}`);
           continue;
         }
+        const telefone = (0, import_baileys.jidDecode)(bruta.key.senderPn ?? remoteJid)?.user;
+        if (!telefone) {
+          descartar("sem_telefone");
+          continue;
+        }
         if (c) {
           const servidor = (0, import_baileys.jidDecode)(remoteJid)?.server ?? "?";
-          c.formatos[servidor] = (c.formatos[servidor] ?? 0) + 1;
+          const rotulo = bruta.key.senderPn ? `${servidor}+telefone` : servidor;
+          c.formatos[rotulo] = (c.formatos[rotulo] ?? 0) + 1;
         }
         const conteudo = bruta.message ?? {};
         const texto = extrairTexto(conteudo);
@@ -178,7 +184,7 @@ async function conectar(opcoes) {
         const mensagem = {
           canal: "whatsapp",
           idNoCanal: bruta.key.id,
-          remetente: remoteJid.split("@")[0],
+          remetente: telefone,
           // Vazio quando é áudio: o texto nasce da transcrição, e ela só roda
           // depois de o atendimento confirmar o vínculo.
           texto: texto ?? "",

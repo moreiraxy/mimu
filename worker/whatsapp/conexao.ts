@@ -333,12 +333,39 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
           continue;
         }
 
+        /*
+         * Quem escreveu, como TELEFONE — nunca como identificador interno.
+         *
+         * O WhatsApp passou a endereçar conversa por `@lid`, um número interno
+         * que não é o telefone de ninguém. Guardar isso como telefone quebraria
+         * o vínculo de conta: é pelo número que a Mimu descobre de quem é a
+         * conversa, e o `@lid` é um número diferente, com outra quantidade de
+         * dígitos.
+         *
+         * `senderPn` é o telefone que a plataforma entrega ao lado do `@lid`.
+         * Quando o endereço já é o formato antigo, ele não vem — e aí o próprio
+         * endereço É o telefone.
+         */
+        const telefone = jidDecode(bruta.key.senderPn ?? remoteJid)?.user;
+
+        if (!telefone) {
+          /*
+           * Sem telefone não dá para saber de quem é a conversa, e responder
+           * seria pior do que calar: a resposta iria para alguém que não
+           * podemos identificar, e um vínculo criado assim apontaria para o
+           * lugar errado.
+           */
+          descartar("sem_telefone");
+          continue;
+        }
+
         if (c) {
-          // Qual formato de identificador está chegando. Serve para saber
-          // quando a migração para `@lid` estiver completa — e para a próxima
+          // Qual formato está chegando, e se o telefone veio junto. Serve para
+          // saber quando a migração para `@lid` terminar — e para a próxima
           // mudança do WhatsApp não custar outra investigação às cegas.
           const servidor = jidDecode(remoteJid)?.server ?? "?";
-          c.formatos[servidor] = (c.formatos[servidor] ?? 0) + 1;
+          const rotulo = bruta.key.senderPn ? `${servidor}+telefone` : servidor;
+          c.formatos[rotulo] = (c.formatos[rotulo] ?? 0) + 1;
         }
 
         const conteudo = bruta.message ?? {};
@@ -360,7 +387,7 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
         const mensagem: MensagemRecebida = {
           canal: "whatsapp",
           idNoCanal: bruta.key.id!,
-          remetente: remoteJid.split("@")[0]!,
+          remetente: telefone,
           // Vazio quando é áudio: o texto nasce da transcrição, e ela só roda
           // depois de o atendimento confirmar o vínculo.
           texto: texto ?? "",
