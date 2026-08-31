@@ -28,7 +28,15 @@ const { render, STORIES, LEGAL } = await import(
   pathToFileURL(path.join(DIST_SSR, "entry-ssr.js")).href
 );
 
-const SITE = "https://mimu.up.railway.app";
+/*
+ * O endereço oficial do site, para as URLs canônicas.
+ *
+ * Ficou para trás na troca de domínio porque o script de migração só olhava o
+ * index.html da landing — e este arquivo é JavaScript, não HTML. O sintoma foi
+ * silencioso do jeito pior: todas as páginas anunciavam ao Google que a versão
+ * oficial delas morava num endereço que ia sair do ar.
+ */
+const SITE = "https://mimu.pro";
 
 /**
  * As rotas e o que cada uma diz de si.

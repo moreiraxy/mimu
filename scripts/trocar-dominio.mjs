@@ -15,7 +15,7 @@
  * terceiro. Esses casos ele lista no fim, para você fazer com os olhos.
  */
 
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const novo = process.argv[2];
@@ -60,6 +60,11 @@ const alvos = [
   ".env.production",
   "capacitor.config.ts",
   "site-mimo/index.html",
+  // O endereço canônico da landing vive numa constante de JavaScript, não no
+  // HTML. Ficou para trás na primeira migração e só apareceu porque alguém foi
+  // conferir a página publicada: todas anunciavam ao Google que a versão
+  // oficial morava num endereço prestes a sair do ar.
+  "site-mimo/scripts/prerender.mjs",
   ...readdirSync("supabase/emails")
     .filter((f) => f.endsWith(".html"))
     .map((f) => join("supabase/emails", f)),
@@ -163,6 +168,73 @@ select cron.schedule(
 );
 
 // ---------------------------------------------------------------------------
+// A varredura final — o script confere o próprio trabalho
+// ---------------------------------------------------------------------------
+//
+// A lista de alvos acima é escrita à mão, e por isso vai ficar incompleta um
+// dia. Já ficou: `site-mimo/scripts/prerender.mjs` guardava o endereço numa
+// constante de JavaScript, e o script só olhava HTML. Passou reto, a landing
+// subiu anunciando ao Google que a versão oficial de cada página morava num
+// endereço prestes a sair do ar, e a descoberta veio de alguém abrindo o site
+// publicado e reparando.
+//
+// Uma lista que se sabe incompleta precisa ser conferida por quem não depende
+// dela. Por isso a varredura olha o projeto inteiro, sem consultar os alvos.
+
+const IGNORADOS = [
+  "node_modules",
+  ".git",
+  "dist",
+  "dist-ssr",
+  ".next",
+  // Gerados a cada build a partir de site-mimo/. Aparecer aqui é consequência,
+  // não causa: some sozinho no próximo `npm run build`.
+  "public/lp",
+  "public/lp.html",
+  // Este arquivo guarda o endereço antigo numa constante, por definição.
+  // Denunciar a si mesmo em toda execução seria ruído garantido, e ruído
+  // garantido é como um aviso deixa de ser lido.
+  "scripts/trocar-dominio.mjs",
+];
+
+function varrer(dir, achados = []) {
+  for (const nome of readdirSync(dir)) {
+    const caminho = join(dir, nome);
+    const relativo = caminho.replace(/^\.\//, "");
+
+    if (IGNORADOS.some((i) => relativo === i || relativo.endsWith(`/${i}`))) continue;
+
+    let info;
+    try {
+      info = statSync(caminho);
+    } catch {
+      continue; // link quebrado
+    }
+
+    if (info.isDirectory()) {
+      varrer(caminho, achados);
+      continue;
+    }
+
+    // Arquivo binário grande não tem endereço dentro, e ler tudo custa caro.
+    if (info.size > 2_000_000) continue;
+
+    let conteudo;
+    try {
+      conteudo = readFileSync(caminho, "utf8");
+    } catch {
+      continue; // binário
+    }
+
+    const n = conteudo.split(ANTIGO).length - 1;
+    if (n > 0) achados.push({ arquivo: relativo, ocorrencias: n });
+  }
+  return achados;
+}
+
+const sobraram = varrer(".");
+
+// ---------------------------------------------------------------------------
 // O relatório
 // ---------------------------------------------------------------------------
 
@@ -170,6 +242,24 @@ console.log(`\n${ANTIGO}  →  ${novo}\n`);
 console.log(`Reescritos (${totalTrocas} ocorrências):`);
 console.log(mexidos.join("\n"));
 console.log(`\nMigration criada:\n  ${migration}`);
+
+if (sobraram.length > 0) {
+  console.log(`
+╔════════════════════════════════════════════════════════════
+║  AINDA SOBROU "${ANTIGO}" EM ${sobraram.length} ARQUIVO(S)
+╠════════════════════════════════════════════════════════════`);
+  for (const { arquivo, ocorrencias } of sobraram) {
+    console.log(`║  ${arquivo} (${ocorrencias})`);
+  }
+  console.log(`╚════════════════════════════════════════════════════════════
+
+Estes não estavam na lista de alvos do script. Confira um por um:
+o que for endereço de verdade precisa ser trocado à mão, e o alvo
+acrescentado no script para a próxima troca não repetir o esquecimento.
+`);
+} else {
+  console.log("\nVarredura final: nenhuma menção ao endereço antigo sobrou no projeto.");
+}
 
 console.log(`
 ────────────────────────────────────────────────────────────
