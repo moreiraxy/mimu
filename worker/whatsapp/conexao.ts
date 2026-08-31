@@ -4,6 +4,10 @@ import makeWASocket, {
   type WAMessage,
   fetchLatestBaileysVersion,
   useMultiFileAuthState,
+  isJidGroup,
+  isJidBroadcast,
+  isJidNewsletter,
+  jidDecode,
   type WASocket,
 } from "baileys";
 import type { Boom } from "@hapi/boom";
@@ -51,6 +55,8 @@ export interface Contadores {
   aceitas: number;
   /** Por que as outras foram descartadas. */
   descartes: Record<string, number>;
+  /** Em que formato de identificador as mensagens aceitas chegaram. */
+  formatos: Record<string, number>;
 }
 
 export type EstadoConexao =
@@ -303,14 +309,36 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
         /*
          * Só conversa de um para um.
          *
-         * Grupo (@g.us) e status (status@broadcast) ficam de fora. Num grupo,
-         * a Mimu responderia dado financeiro de uma pessoa na frente de
-         * outras — e é também o lugar de onde vem denúncia, que é o que leva
-         * um número a ser banido.
+         * Grupo, transmissão/status e canal ficam de fora. Num grupo, a Mimu
+         * responderia dado financeiro de uma pessoa na frente de outras — e é
+         * também de onde vem denúncia, que é o que leva um número a ser banido.
+         *
+         * A REGRA É POR EXCLUSÃO, e a versão anterior errou justamente aqui.
+         * Ela exigia o sufixo `@s.whatsapp.net`, e o WhatsApp passou a entregar
+         * conversa direta com o identificador novo (`@lid`). O resultado: TODA
+         * mensagem legítima era descartada como se fosse grupo. Conectado,
+         * estável, e mudo — sem erro em lugar nenhum.
+         *
+         * Lista do que se aceita envelhece quando a plataforma muda; lista do
+         * que se recusa envelhece para o lado seguro, deixando passar o que é
+         * novo em vez de barrar. E quem decide são as funções do próprio
+         * Baileys, não uma comparação de texto nossa.
          */
-        if (!remoteJid.endsWith("@s.whatsapp.net")) {
-          descartar("nao_e_conversa_direta");
+        if (
+          isJidGroup(remoteJid) ||
+          isJidBroadcast(remoteJid) ||
+          isJidNewsletter(remoteJid)
+        ) {
+          descartar(`nao_e_conversa_direta:${jidDecode(remoteJid)?.server ?? "?"}`);
           continue;
+        }
+
+        if (c) {
+          // Qual formato de identificador está chegando. Serve para saber
+          // quando a migração para `@lid` estiver completa — e para a próxima
+          // mudança do WhatsApp não custar outra investigação às cegas.
+          const servidor = jidDecode(remoteJid)?.server ?? "?";
+          c.formatos[servidor] = (c.formatos[servidor] ?? 0) + 1;
         }
 
         const conteudo = bruta.message ?? {};

@@ -58,7 +58,7 @@ const mimu: Atendente = (mensagem) => atender(mensagem, responderPelaMimu);
  * Lido a cada requisição em vez de copiado: assim a página sempre mostra o
  * estado de agora, e não o de quando o servidor subiu.
  */
-const contadores = { lotes: 0, brutas: 0, aceitas: 0, descartes: {} };
+const contadores = { lotes: 0, brutas: 0, aceitas: 0, descartes: {}, formatos: {} };
 
 const situacao: Situacao = {
   estado: "subindo",

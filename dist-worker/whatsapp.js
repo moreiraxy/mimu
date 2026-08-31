@@ -160,9 +160,13 @@ async function conectar(opcoes) {
           descartar("de_mim_mesma");
           continue;
         }
-        if (!remoteJid.endsWith("@s.whatsapp.net")) {
-          descartar("nao_e_conversa_direta");
+        if ((0, import_baileys.isJidGroup)(remoteJid) || (0, import_baileys.isJidBroadcast)(remoteJid) || (0, import_baileys.isJidNewsletter)(remoteJid)) {
+          descartar(`nao_e_conversa_direta:${(0, import_baileys.jidDecode)(remoteJid)?.server ?? "?"}`);
           continue;
+        }
+        if (c) {
+          const servidor = (0, import_baileys.jidDecode)(remoteJid)?.server ?? "?";
+          c.formatos[servidor] = (c.formatos[servidor] ?? 0) + 1;
         }
         const conteudo = bruta.message ?? {};
         const texto = extrairTexto(conteudo);
@@ -1634,7 +1638,7 @@ Apaguei das suas contas. \u{1F49A}`;
 // worker/whatsapp/index.ts
 var PASTA_DA_SESSAO = process.env.WHATSAPP_SESSAO_DIR ?? (0, import_node_path2.join)(process.cwd(), ".whatsapp-sessao");
 var mimu = (mensagem) => atender(mensagem, responderPelaMimu);
-var contadores = { lotes: 0, brutas: 0, aceitas: 0, descartes: {} };
+var contadores = { lotes: 0, brutas: 0, aceitas: 0, descartes: {}, formatos: {} };
 var situacao = {
   estado: "subindo",
   desde: (/* @__PURE__ */ new Date()).toISOString(),
