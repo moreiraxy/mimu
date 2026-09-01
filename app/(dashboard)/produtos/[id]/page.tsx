@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -65,6 +66,8 @@ export default function EditarProdutoPage() {
         ativo: dados.ativo,
       })
       .eq("id", produto.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setEnviando(false);
 

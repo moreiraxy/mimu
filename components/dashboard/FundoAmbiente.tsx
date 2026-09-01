@@ -87,10 +87,9 @@ export function FundoAmbiente() {
         Lá embaixo fica só um resto de brilho, para o vidro da barra e da
         pílula da Mimu não ficarem sobre preto absoluto.
       */}
-      <span className="absolute -right-24 -top-28 h-[380px] w-[380px] rounded-full bg-primary/24 blur-[100px] dark:bg-primary/[0.17] md:-right-[10vw] md:-top-[18vh] md:h-[55vw] md:w-[55vw] md:blur-[160px]" />
-      <span className="absolute -left-28 -top-10 h-[320px] w-[320px] rounded-full bg-verde/20 blur-[100px] dark:bg-verde/[0.13] md:-left-[12vw] md:-top-[8vh] md:h-[45vw] md:w-[45vw] md:blur-[160px]" />
-      <span className="absolute -right-16 top-[26%] h-[300px] w-[300px] rounded-full bg-primary/16 blur-[100px] dark:bg-primary/[0.10] md:-right-[8vw] md:top-[30%] md:h-[40vw] md:w-[40vw] md:blur-[160px]" />
-      <span className="absolute -bottom-24 -left-16 h-[300px] w-[300px] rounded-full bg-verde/12 blur-[110px] dark:bg-verde/[0.07] md:-bottom-[12vh] md:-left-[6vw] md:h-[42vw] md:w-[42vw] md:blur-[170px]" />
+      {/* As quatro luzes são degradês, e o porquê (desempenho, medido) está
+          na regra `.luz-ambiente` em globals.css. */}
+      <div className="luz-ambiente absolute inset-0" />
     </div>
   );
 }

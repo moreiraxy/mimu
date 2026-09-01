@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { guardaNoCache, leDoCache } from "@/lib/cache-de-tela";
 import { janelaDeHoje } from "@/lib/datas";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import {
@@ -57,8 +58,22 @@ function hojeISO(): string {
 export function useDashboard() {
   const { empresa, loading: carregandoEmpresa } = useEmpresa();
   const [supabase] = useState(() => createClient());
-  const [dados, setDados] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  /*
+   * A tela abre com o que ela já tinha, quando tinha.
+   *
+   * `loading` começa false se há algo guardado: o painel desenha na hora e a
+   * busca segue por trás. É a diferença entre voltar para uma aba e ver os
+   * seus números, ou ver dois segundos de retângulo cinza — que do lado de
+   * fora parece o toque não ter pego. Ver lib/cache-de-tela.ts.
+   */
+  const chaveCache = `dashboard:${empresa?.id ?? ""}`;
+  const [dados, setDados] = useState<DashboardData | null>(
+    () => leDoCache<DashboardData>(chaveCache) ?? null,
+  );
+  const [loading, setLoading] = useState(
+    () => leDoCache<DashboardData>(chaveCache) === undefined,
+  );
   const [error, setError] = useState<string | null>(null);
 
   /*
@@ -136,7 +151,7 @@ export function useDashboard() {
     );
     const statusNegocio = calcularStatusNegocio(progressoMeta);
 
-    setDados({
+    const montado: DashboardData = {
       faturamentoHoje,
       faturamentoMes,
       faturamentoPrevisto,
@@ -153,7 +168,10 @@ export function useDashboard() {
         transacoes,
         "passada",
       ),
-    });
+    };
+
+    setDados(montado);
+    guardaNoCache(chaveCache, montado);
     setLoading(false);
   // Depende do ID e não do OBJETO empresa: o provider pode entregar um objeto
   // novo com os mesmos dados (troca de token, revalidação), e comparar por

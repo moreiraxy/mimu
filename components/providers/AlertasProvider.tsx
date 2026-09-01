@@ -76,13 +76,37 @@ export function AlertasProvider({ children }: { children: ReactNode }) {
     }
   }, [empresa]);
 
-  // Checa ao carregar (assim que a empresa está disponível).
+  /*
+   * Checa ao carregar, mas SÓ DEPOIS QUE O APP ACALMAR.
+   *
+   * Isto disparava no instante em que a empresa chegava — exatamente o
+   * instante em que o painel dispara as quatro consultas dele. Medido, a
+   * resposta desta rota leva de 3 a 5 segundos (ela conversa com o modelo), e
+   * durante esse tempo ela ocupa uma conexão e volta com trabalho para a
+   * thread principal bem no meio da montagem da tela.
+   *
+   * Aviso proativo é o que menos tem pressa no app: ele fala de algo que já
+   * aconteceu, e ninguém está esperando por ele. Sair do caminho da primeira
+   * pintura não custa nada a ele e devolve a tela mais cedo.
+   *
+   * `requestIdleCallback` espera a thread principal ficar livre; o `timeout`
+   * garante que ele rode de qualquer jeito em navegador ocupado, e o
+   * `setTimeout` cobre o Safari, que só ganhou `requestIdleCallback` há pouco.
+   */
   useEffect(() => {
-    if (empresa) {
-      verificar();
-    } else {
+    if (!empresa) {
       setLoading(false);
+      return;
     }
+
+    const ocioso = window.requestIdleCallback;
+    if (ocioso) {
+      const id = ocioso(() => verificar(), { timeout: 4000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+
+    const id = window.setTimeout(verificar, 2500);
+    return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [empresa?.id]);
 

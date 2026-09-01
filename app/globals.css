@@ -295,6 +295,71 @@ html.trancado body::before {
    * desktop, onde a barra nem é renderizada, e sobrariam 158px de vazio no
    * fim de toda página grande.
    */
+  /*
+   * As luzes do papel de parede — DEGRADÊS, e não círculos desfocados.
+   *
+   * Eram quatro `<span>` redondos com `blur(100px)`. Um desfoque gaussiano de
+   * 100px sobre um elemento de 380px é caro de rasterizar, e o preço não é
+   * pago uma vez só: toda superfície de vidro por cima tem `backdrop-filter`,
+   * então ela precisa LER o resultado desses desfoques para se desenhar.
+   * Quatro borrões grandes debaixo de quinze superfícies de vidro, num
+   * celular, é a conta que produzia quadros de 117ms durante a rolagem — o
+   * normal é 16ms.
+   *
+   * Um `radial-gradient` desenha a mesma mancha suave: cor no centro que se
+   * dissolve até sumir. Só que é preenchimento comum — o navegador pinta uma
+   * vez, guarda, e nunca mais recalcula, porque nada aqui se move. O olho não
+   * distingue as duas coisas; o compositor distingue muito.
+   *
+   * A parada do meio (45%) existe para imitar a queda do desfoque: um degradê
+   * de dois pontos cai reto e a mancha fica com cara de disco, enquanto o
+   * gaussiano concentra a cor no miolo e some depressa na borda.
+   *
+   * A cor final é a mesma com alfa ZERO, e não `transparent`: `transparent` é
+   * preto transparente, e a interpolação até ele passa por cinza — o que
+   * sujaria o néon com um halo acinzentado.
+   */
+  .luz-ambiente {
+    /*
+     * `at X% Y%` É O CENTRO DA MANCHA, e foi por não usar isto que eu errei na
+     * primeira tentativa: com `background-position` a porcentagem não posiciona
+     * o centro, ela interpola entre "encostado à esquerda" e "encostado à
+     * direita" — as luzes foram todas parar no lugar errado.
+     *
+     * Os números vêm da geometria dos círculos que existiam aqui antes. Para
+     * cada um: o centro é a posição dele mais metade do tamanho, e o raio é o
+     * raio do círculo MAIS o alcance do desfoque (um `blur(100px)` do CSS tem
+     * sigma 50, e um gaussiano morre a cerca de três sigmas). É isso que faz o
+     * degradê ocupar a mesma área que o borrão ocupava.
+     *
+     * Em porcentagem da tela, e não em pixels: a mesma regra serve ao celular
+     * e ao monitor sem um segundo conjunto de valores para `md`.
+     */
+    background-image:
+      radial-gradient(87% 40% at 76% 9%,
+        rgb(204 255 0 / 0.24), rgb(204 255 0 / 0.11) 40%, rgb(204 255 0 / 0.03) 70%, rgb(204 255 0 / 0) 100%),
+      radial-gradient(79% 37% at 12% 14%,
+        rgb(45 190 140 / 0.20), rgb(45 190 140 / 0.09) 40%, rgb(45 190 140 / 0.025) 70%, rgb(45 190 140 / 0) 100%),
+      radial-gradient(77% 36% at 78% 44%,
+        rgb(204 255 0 / 0.16), rgb(204 255 0 / 0.07) 40%, rgb(204 255 0 / 0.02) 70%, rgb(204 255 0 / 0) 100%),
+      radial-gradient(78% 36% at 22% 94%,
+        rgb(45 190 140 / 0.12), rgb(45 190 140 / 0.05) 40%, rgb(45 190 140 / 0.015) 70%, rgb(45 190 140 / 0) 100%);
+  }
+
+  /* No tema escuro a mesma luz vale menos: o preto por trás faz o néon render
+     muito mais. São as doses que os `dark:` dos círculos antigos já tinham. */
+  :root.dark .luz-ambiente {
+    background-image:
+      radial-gradient(87% 40% at 76% 9%,
+        rgb(204 255 0 / 0.17), rgb(204 255 0 / 0.08) 40%, rgb(204 255 0 / 0.022) 70%, rgb(204 255 0 / 0) 100%),
+      radial-gradient(79% 37% at 12% 14%,
+        rgb(45 190 140 / 0.13), rgb(45 190 140 / 0.06) 40%, rgb(45 190 140 / 0.016) 70%, rgb(45 190 140 / 0) 100%),
+      radial-gradient(77% 36% at 78% 44%,
+        rgb(204 255 0 / 0.10), rgb(204 255 0 / 0.045) 40%, rgb(204 255 0 / 0.012) 70%, rgb(204 255 0 / 0) 100%),
+      radial-gradient(78% 36% at 22% 94%,
+        rgb(45 190 140 / 0.07), rgb(45 190 140 / 0.03) 40%, rgb(45 190 140 / 0.008) 70%, rgb(45 190 140 / 0) 100%);
+  }
+
   .respiro-barra {
     padding-bottom: calc(env(safe-area-inset-bottom) + 158px);
   }

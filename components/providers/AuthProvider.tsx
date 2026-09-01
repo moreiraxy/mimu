@@ -163,11 +163,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  /*
+   * `getSession()` E NÃO `getUser()`. Esta linha é a diferença entre o painel
+   * abrir em meio segundo e abrir em cinco.
+   *
+   * `getUser()` vai à REDE a cada chamada: ele pede ao servidor de auth do
+   * Supabase que valide o token. Medido aqui, com o banco na própria máquina,
+   * cada chamada levou entre 1,5 e 2,9 SEGUNDOS — e nada do app começa antes
+   * dela, porque é ela que diz de quem são os dados a buscar. Num celular em
+   * rede de bairro é pior.
+   *
+   * `getSession()` lê a sessão do cookie que já está no navegador. Zero rede,
+   * resposta imediata.
+   *
+   * ISSO NÃO ABRE BURACO DE SEGURANÇA, e vale ser explícito: aqui a sessão só
+   * decide o que DESENHAR. Quem decide o que a pessoa pode LER é o RLS do
+   * Postgres, que valida o token a cada consulta, no servidor. Uma sessão
+   * forjada no navegador não devolve uma linha sequer de outra empresa — ela
+   * só faria o app desenhar um nome errado para quem já está mexendo no
+   * próprio navegador. As rotas de servidor e o middleware seguem usando
+   * `getUser()`, que é onde a verificação importa.
+   */
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      setUser(data.user);
-      if (data.user) {
-        await loadEmpresa(data.user.id);
+    supabase.auth.getSession().then(async ({ data }) => {
+      const usuario = data.session?.user ?? null;
+      setUser(usuario);
+      if (usuario) {
+        await loadEmpresa(usuario.id);
       }
       setLoading(false);
     });
@@ -215,6 +237,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * ninguém — e só nesse caso. Com sessão em mãos, o `if` corta antes de
    * qualquer ida à rede, então navegar dentro do app continua não custando
    * nada.
+   *
+   * Este efeito e o de cima disparavam JUNTOS na montagem (o `user` ainda é
+   * null no primeiro render), então eram DUAS idas à rede de uma vez, cada uma
+   * de segundos. Lendo o cookie, as duas passaram a custar nada — e a repetida
+   * deixou de importar.
    */
   const pathname = usePathname();
 
@@ -222,10 +249,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) return;
     let cancelado = false;
 
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (cancelado || !data.user) return;
-      setUser(data.user);
-      await loadEmpresa(data.user.id);
+    supabase.auth.getSession().then(async ({ data }) => {
+      const usuario = data.session?.user ?? null;
+      if (cancelado || !usuario) return;
+      setUser(usuario);
+      await loadEmpresa(usuario.id);
       setLoading(false);
     });
 

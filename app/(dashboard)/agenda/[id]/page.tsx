@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DollarSign, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
@@ -89,6 +90,8 @@ export default function DetalheAgendamentoPage() {
       .from("agendamentos")
       .update({ status: novoStatus })
       .eq("id", agendamento.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     if (error) {
       showToast("Não foi possível atualizar. Tente de novo.");
@@ -105,6 +108,8 @@ export default function DetalheAgendamentoPage() {
       .from("agendamentos")
       .delete()
       .eq("id", agendamento.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setConfirmandoCancelamento(false);
 
@@ -159,6 +164,8 @@ export default function DetalheAgendamentoPage() {
         transacao_id: transacao.id,
       })
       .eq("id", agendamento.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setConcluirAberto(false);
 
@@ -191,6 +198,8 @@ export default function DetalheAgendamentoPage() {
         status: dados.status,
       })
       .eq("id", agendamento.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setEnviandoEdicao(false);
 

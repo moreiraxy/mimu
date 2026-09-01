@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/Button";
@@ -72,6 +73,8 @@ export default function DetalheTransacaoPage() {
       .from("transacoes")
       .delete()
       .eq("id", transacao.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setConfirmandoExclusao(false);
 
@@ -102,6 +105,8 @@ export default function DetalheTransacaoPage() {
         data_vencimento: dados.contaPendente ? dados.dataVencimento : null,
       })
       .eq("id", transacao.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setEnviando(false);
 

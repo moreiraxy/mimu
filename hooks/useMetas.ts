@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import {
   calcularFaturamentoPorMes,
@@ -147,6 +148,8 @@ export function useMetas() {
         },
         { onConflict: "empresa_id,mes,ano" },
       );
+      // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+      limpaCache();
     }
 
     setDados({
@@ -186,6 +189,8 @@ export function useMetas() {
           meta_diaria: novaMetaDiaria,
         })
         .eq("id", empresa.id);
+      // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+      limpaCache();
 
       if (updateError) return false;
 
@@ -199,6 +204,8 @@ export function useMetas() {
           },
           { onConflict: "empresa_id,mes,ano" },
         );
+      // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+      limpaCache();
       }
 
       await carregar();

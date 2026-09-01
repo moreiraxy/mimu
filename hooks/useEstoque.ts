@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { produtoAbaixoDoMinimo } from "@/lib/calculations";
 import type { MovimentacaoComProduto, Produto } from "@/types";
@@ -78,6 +79,8 @@ export function useEstoque() {
         quantidade: dados.quantidade,
         motivo: dados.motivo || null,
       });
+      // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+      limpaCache();
 
     if (insertError) return false;
     await carregar();

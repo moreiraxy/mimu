@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { guardaNoCache, leDoCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import type { AgendamentoComCliente } from "@/types";
 
@@ -9,13 +10,25 @@ import type { AgendamentoComCliente } from "@/types";
 export function useAgendamentos(inicioISO: string, fimISO: string) {
   const { empresa, loading: carregandoEmpresa } = useEmpresa();
   const [supabase] = useState(() => createClient());
-  const [agendamentos, setAgendamentos] = useState<AgendamentoComCliente[]>([]);
-  const [loading, setLoading] = useState(true);
+  /*
+   * A chave inclui O INTERVALO, e não só a empresa: dia, semana e mês são
+   * três buscas diferentes na mesma tela, e uma chave só faria a visão de mês
+   * abrir com os agendamentos de um dia.
+   */
+  const chaveCache = `agendamentos:${empresa?.id ?? ""}:${inicioISO}:${fimISO}`;
+  const [agendamentos, setAgendamentos] = useState<AgendamentoComCliente[]>(
+    () => leDoCache<AgendamentoComCliente[]>(chaveCache) ?? [],
+  );
+  const [loading, setLoading] = useState(
+    () => leDoCache<AgendamentoComCliente[]>(chaveCache) === undefined,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const carregar = useCallback(async () => {
     if (!empresa) return;
-    setLoading(true);
+    // Esqueleto só quando não há o que mostrar; com dado em mão, a atualização
+    // acontece por baixo e a tela não pisca. Ver lib/cache-de-tela.ts.
+    if (leDoCache(chaveCache) === undefined) setLoading(true);
     setError(null);
 
     const { data, error: fetchError } = await supabase
@@ -32,9 +45,11 @@ export function useAgendamentos(inicioISO: string, fimISO: string) {
       return;
     }
 
-    setAgendamentos((data ?? []) as unknown as AgendamentoComCliente[]);
+    const lista = (data ?? []) as unknown as AgendamentoComCliente[];
+    setAgendamentos(lista);
+    guardaNoCache(chaveCache, lista);
     setLoading(false);
-  }, [empresa, supabase, inicioISO, fimISO]);
+  }, [empresa, supabase, inicioISO, fimISO, chaveCache]);
 
   useEffect(() => {
     if (empresa) {

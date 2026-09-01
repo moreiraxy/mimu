@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { guardaNoCache, leDoCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import type { Produto } from "@/types";
 
@@ -9,13 +10,19 @@ import type { Produto } from "@/types";
 export function useProdutos() {
   const { empresa, loading: carregandoEmpresa } = useEmpresa();
   const [supabase] = useState(() => createClient());
-  const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Abre com o que já tinha e busca por trás — ver lib/cache-de-tela.ts.
+  const chaveCache = `produtos:${empresa?.id ?? ""}`;
+  const [produtos, setProdutos] = useState<Produto[]>(
+    () => leDoCache<Produto[]>(chaveCache) ?? [],
+  );
+  const [loading, setLoading] = useState(
+    () => leDoCache<Produto[]>(chaveCache) === undefined,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const carregar = useCallback(async () => {
     if (!empresa) return;
-    setLoading(true);
+    if (leDoCache(chaveCache) === undefined) setLoading(true);
     setError(null);
 
     const { data, error: fetchError } = await supabase
@@ -30,7 +37,9 @@ export function useProdutos() {
       return;
     }
 
-    setProdutos(data ?? []);
+    const lista = data ?? [];
+    setProdutos(lista);
+    guardaNoCache(chaveCache, lista);
     setLoading(false);
   }, [empresa, supabase]);
 

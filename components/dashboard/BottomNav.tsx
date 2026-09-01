@@ -47,6 +47,27 @@ export function BottomNav({
   const [menuAberto, setMenuAberto] = useState(false);
   const [acoesAbertas, setAcoesAbertas] = useState(false);
 
+  /*
+   * O destino que a pessoa ACABOU de tocar, antes de o endereço mudar.
+   *
+   * Medido num celular médio, entre o toque e a troca de `pathname` passam de
+   * 300 a 460ms — a thread principal está ocupada montando a tela nova. Nesse
+   * intervalo a barra continuava mostrando a aba ANTERIOR acesa, ou seja: a
+   * pessoa toca, e por meio segundo a tela responde "não, você está aqui
+   * ainda". Não existe conclusão possível além de "não pegou", e ela toca de
+   * novo.
+   *
+   * Acender na hora não deixa a navegação mais rápida; deixa ela HONESTA — o
+   * app diz "ouvi" no instante do toque, que é a única coisa que ele sabe
+   * naquele momento.
+   */
+  const [tocado, setTocado] = useState<string | null>(null);
+
+  // Quando o endereço finalmente muda, quem manda volta a ser ele.
+  useEffect(() => {
+    setTocado(null);
+  }, [pathname]);
+
   /**
    * A barra recolhida: o estado da segunda foto da referência.
    *
@@ -208,13 +229,16 @@ export function BottomNav({
                 )}
               >
                 {destinos.map(({ href, label, Icon }) => {
-                  const ativo = pathname === href;
+                  // `tocado` vence enquanto o endereço não alcança. Ver o
+                  // comentário na declaração dele.
+                  const ativo = tocado ? tocado === href : pathname === href;
                   return (
                     <Link
                       key={href}
                       href={href}
                       aria-label={label}
                       aria-current={ativo ? "page" : undefined}
+                      onClick={() => setTocado(href)}
                       className="flex flex-1 items-center justify-center"
                     >
                       <span

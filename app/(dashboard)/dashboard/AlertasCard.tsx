@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import type { AlertaMimu, TipoAlerta } from "@/types";
@@ -69,6 +70,8 @@ export function AlertasCard({
       .from("transacoes")
       .update({ status_pagamento: "pago" })
       .eq("id", transacaoId);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     if (error) {
       showToast("Não consegui marcar como paga.");

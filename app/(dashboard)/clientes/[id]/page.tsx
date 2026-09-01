@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
 import { Avatar } from "@/components/Avatar";
@@ -100,6 +101,8 @@ export default function PerfilClientePage() {
       .from("clientes")
       .update({ observacoes: texto || null })
       .eq("id", cliente.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     if (error) {
       showToast("Não foi possível salvar as observações.");
@@ -133,6 +136,8 @@ export default function PerfilClientePage() {
       .from("clientes")
       .update({ saldo_fiado: novoSaldo })
       .eq("id", cliente.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setPagamentoAberto(false);
 
@@ -162,6 +167,8 @@ export default function PerfilClientePage() {
         saldo_fiado: dados.saldoFiado,
       })
       .eq("id", cliente.id);
+    // O guardado das listas acabou de ficar velho — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setEnviandoEdicao(false);
 

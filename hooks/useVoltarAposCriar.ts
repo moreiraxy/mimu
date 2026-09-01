@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { limpaCache } from "@/lib/cache-de-tela";
 
 /**
  * Depois de criar alguma coisa, a pessoa vai para a TELA DONA do registro.
@@ -26,6 +27,15 @@ export function useVoltarAposCriar(rota: string) {
   const router = useRouter();
 
   return useCallback(() => {
+    /*
+     * O que estava guardado das telas acabou de ficar velho.
+     *
+     * A tela de destino abre instantaneamente com o cache (ver
+     * lib/cache-de-tela.ts) — e sem esta linha ela abriria mostrando a lista
+     * SEM a venda que a pessoa acabou de registrar, e só depois a corrigiria.
+     * Nesse meio segundo a conclusão dela é que o registro não salvou.
+     */
+    limpaCache();
     router.replace(rota);
 
     /*
