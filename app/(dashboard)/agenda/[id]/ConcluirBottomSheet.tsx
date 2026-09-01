@@ -53,7 +53,7 @@ export function ConcluirBottomSheet({
     >
       <div
         className={cn(
-          "w-full max-w-[430px] rounded-t-card bg-superficie p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[430px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",
@@ -74,7 +74,7 @@ export function ConcluirBottomSheet({
               setCentavos(digitos ? Number(digitos) : 0);
             }}
             aria-label="Valor recebido"
-            className="w-full max-w-[220px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+            className="w-full max-w-[220px] vidro-card rounded-button px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
           />
         </div>
 
@@ -91,8 +91,8 @@ export function ConcluirBottomSheet({
                 className={cn(
                   "rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
                   formaPagamento === forma.valor
-                    ? "border-primary-forte bg-primary text-primary-text"
-                    : "border-neutro-border bg-superficie text-escuro",
+                    ? "bg-primary/20 text-primary-forte"
+                    : "vidro-card text-escuro",
                 )}
               >
                 {forma.label}

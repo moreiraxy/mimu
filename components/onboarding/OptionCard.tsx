@@ -46,7 +46,7 @@ export function OptionCard({
           : "flex-col items-center p-5 text-center",
         selected
           ? "border-primary-forte bg-primary-light"
-          : "border-neutro-border bg-superficie hover:border-primary-forte/40",
+          : "vidro-card hover:border-primary-forte/40",
       )}
     >
       <Icon

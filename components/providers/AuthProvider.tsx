@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import {
   createContext,
   useCallback,
@@ -187,6 +189,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, [supabase, loadEmpresa]);
+
+  /*
+   * A SEGUNDA pergunta: "e agora, já tem sessão?"
+   *
+   * ISTO CONSERTA O "SÓ FUNCIONA RECARREGANDO DUAS VEZES".
+   *
+   * O login acontece no SERVIDOR: a Server Action chama
+   * `signInWithPassword` e grava o cookie da sessão, depois manda para o
+   * painel. Mas quem carrega os dados aqui é o cliente do navegador, e ele foi
+   * construído lá atrás, na tela de login, quando cookie nenhum existia. O
+   * efeito acima pergunta `getUser()` uma única vez, na montagem — e o
+   * redirecionamento pós-login é navegação DE DENTRO do app, então este
+   * provider nunca desmonta e nunca volta a perguntar.
+   *
+   * Resultado: a pessoa entrava, caía no painel, e o painel ficava em esqueleto
+   * para sempre, porque `empresa` era null. Recarregar "resolvia" porque a
+   * recarga monta o provider de novo, agora com o cookie no lugar. Era o
+   * "sempre preciso abrir duas vezes".
+   *
+   * `onAuthStateChange` não cobre este caso: ele avisa sobre logins feitos
+   * pelo NAVEGADOR, e este foi feito pelo servidor.
+   *
+   * A pergunta é refeita a cada troca de endereço enquanto não houver
+   * ninguém — e só nesse caso. Com sessão em mãos, o `if` corta antes de
+   * qualquer ida à rede, então navegar dentro do app continua não custando
+   * nada.
+   */
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (user) return;
+    let cancelado = false;
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (cancelado || !data.user) return;
+      setUser(data.user);
+      await loadEmpresa(data.user.id);
+      setLoading(false);
+    });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [pathname, user, supabase, loadEmpresa]);
 
   /*
    * Sem empresa carregada a lista é vazia, e não "tudo".

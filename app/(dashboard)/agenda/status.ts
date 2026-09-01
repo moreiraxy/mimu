@@ -1,32 +1,46 @@
 import type { StatusAgendamento } from "@/types";
 
+/*
+ * O selo de status na linguagem do app.
+ *
+ * Os quatro estados vinham com o par fundo-claro + texto-escuro da mesma cor:
+ * verde no confirmado, âmbar no pendente, vermelho no faltou. Sobre vidro
+ * escuro, "Confirmado" saía verde-escuro sobre verde-água — quase ilegível — e
+ * um dia com cinco agendamentos virava uma fila de bandeirinhas coloridas
+ * disputando atenção com os nomes das clientes, que é o que se lê ali.
+ *
+ * Agora só o estado ATIVO acende, em néon. Os outros três são neutros e se
+ * distinguem pelo brilho do texto: pendente ainda é assunto (texto cheio),
+ * concluído e faltou já passaram (texto apagado). O ponto colorido da fita da
+ * semana continua fazendo a separação fina, que ali é o único espaço que tem.
+ */
 export const STATUS_CONFIG: Record<
   StatusAgendamento,
   { label: string; corBg: string; corTexto: string; corPonto: string }
 > = {
   confirmado: {
     label: "Confirmado",
-    corBg: "bg-verde-light",
-    corTexto: "text-verde-dark",
-    corPonto: "bg-verde",
+    corBg: "bg-primary/20",
+    corTexto: "text-primary-forte",
+    corPonto: "bg-primary",
   },
   pendente: {
     label: "Pendente",
-    corBg: "bg-ambar-light",
-    corTexto: "text-ambar-text",
-    corPonto: "bg-ambar",
+    corBg: "bg-white/[0.10]",
+    corTexto: "text-escuro",
+    corPonto: "bg-white/60",
   },
   nao_compareceu: {
     label: "Não compareceu",
-    corBg: "bg-erro-light",
-    corTexto: "text-erro",
-    corPonto: "bg-erro",
+    corBg: "bg-white/[0.06]",
+    corTexto: "text-neutro-muted",
+    corPonto: "bg-white/25",
   },
   concluido: {
     label: "Concluído",
-    corBg: "bg-neutro-disabled",
-    corTexto: "text-neutro-muted-strong",
-    corPonto: "bg-neutro-icon",
+    corBg: "bg-white/[0.06]",
+    corTexto: "text-neutro-muted",
+    corPonto: "bg-white/35",
   },
 };
 

@@ -278,7 +278,7 @@ export default function DetalheAgendamentoPage() {
         }
       />
 
-      <div className="rounded-card border border-neutro-border bg-superficie p-5">
+      <div className="vidro-card rounded-[20px] p-5">
         <div className="flex items-center justify-between gap-2">
           <p className="text-lg font-semibold text-escuro">
             {agendamento.titulo}
@@ -352,7 +352,7 @@ export default function DetalheAgendamentoPage() {
       )}
 
       {agendamento.cliente && (
-        <div className="mt-4 rounded-card border border-neutro-border bg-superficie p-4">
+        <div className="mt-4 vidro-card rounded-[20px] p-4">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-escuro">
               {agendamento.cliente.nome}

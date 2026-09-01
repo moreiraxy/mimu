@@ -8,7 +8,7 @@ export function ClienteListItem({ cliente }: { cliente: Cliente }) {
   return (
     <Link
       href={`/clientes/${cliente.id}`}
-      className="flex items-center gap-3 rounded-card border border-neutro-border bg-superficie p-3"
+      className="flex items-center gap-3 vidro-card rounded-[20px] p-3"
     >
       <Avatar nome={cliente.nome} size="md" />
       <div className="min-w-0 flex-1">

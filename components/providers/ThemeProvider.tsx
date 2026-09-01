@@ -46,6 +46,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (empresa?.tema) setTema(empresa.tema);
   }, [empresa?.tema]);
 
+  /*
+   * O <html> já nasce com `dark` vindo do servidor (ver app/layout.tsx), então
+   * este efeito não é mais quem ACENDE o tema escuro — é quem o APAGA, quando
+   * a empresa escolheu o claro. A troca ficou de uma direção só, e a abertura
+   * deixou de piscar branco.
+   */
   useEffect(() => {
     document.documentElement.classList.toggle("dark", tema === "escuro");
   }, [tema]);

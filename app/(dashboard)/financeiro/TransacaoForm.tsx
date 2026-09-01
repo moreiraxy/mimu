@@ -141,6 +141,8 @@ export function TransacaoForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      {/* O valor é o assunto do formulário: escala de valor grande do app
+          (40px, negrito, espaçamento fechado), e não `text-3xl` solto. */}
       <div className="flex flex-col items-center">
         <input
           type="text"
@@ -148,7 +150,7 @@ export function TransacaoForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitarValor}
           aria-label="Valor"
-          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+          className="vidro-card w-full max-w-[280px] rounded-[20px] px-4 py-4 text-center text-[40px] font-bold leading-none tracking-tight text-primary-forte outline-none"
         />
       </div>
 
@@ -170,7 +172,7 @@ export function TransacaoForm({
       </div>
 
       <div>
-        <p className="mb-2 text-xs font-semibold text-neutro-muted">
+        <p className="mb-2 text-[13px] text-neutro-muted">
           Categoria
         </p>
         <div className="flex flex-wrap gap-2">
@@ -179,10 +181,10 @@ export function TransacaoForm({
               key={opcao.id}
               type="button"
               onClick={() => setCategoria(opcao.nome)}
-              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
                 categoria === opcao.nome
-                  ? "border-primary-forte bg-primary text-primary-text"
-                  : "border-neutro-border bg-superficie text-escuro"
+                  ? "bg-primary/20 text-primary-forte"
+                  : "vidro-card text-escuro"
               }`}
             >
               {opcao.nome}
@@ -194,7 +196,7 @@ export function TransacaoForm({
       <ClienteSearchInput value={cliente} onChange={setCliente} />
 
       <div>
-        <p className="mb-2 text-xs font-semibold text-neutro-muted">
+        <p className="mb-2 text-[13px] text-neutro-muted">
           Forma de pagamento
         </p>
         <div className="flex flex-wrap gap-2">
@@ -205,8 +207,8 @@ export function TransacaoForm({
               onClick={() => setFormaPagamento(forma.valor)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
                 formaPagamento === forma.valor
-                  ? "border-primary-forte bg-primary text-primary-text"
-                  : "border-neutro-border bg-superficie text-escuro"
+                  ? "bg-primary/20 text-primary-forte"
+                  : "vidro-card text-escuro"
               }`}
             >
               {forma.label}
@@ -272,8 +274,8 @@ export function TransacaoForm({
                     onClick={() => setParcelas(n)}
                     className={`flex-1 rounded-button border py-2 text-sm font-semibold transition-colors ${
                       parcelas === n
-                        ? "border-primary-forte bg-primary text-primary-text"
-                        : "border-neutro-border bg-superficie text-escuro"
+                        ? "bg-primary/20 text-primary-forte"
+                        : "vidro-card text-escuro"
                     }`}
                   >
                     {n}x

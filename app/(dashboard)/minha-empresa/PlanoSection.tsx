@@ -6,7 +6,12 @@ import { Sparkles, ExternalLink } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import { formatDate, formatCurrency } from "@/lib/formatters";
-import { nomeDoPlano, PLANOS, ehPlanoGratuito } from "@/lib/planos";
+import {
+  nomeDoPlano,
+  PLANOS,
+  ehPlanoGratuito,
+  MENSAGENS_MIMU_POR_DIA,
+} from "@/lib/planos";
 import { caminhoDeCompra, abrirGerenciamentoDaApple, PRODUTO_IAP } from "@/lib/iap";
 import { linkWhatsApp } from "@/lib/contato";
 import { SectionCard } from "./SectionCard";
@@ -163,8 +168,9 @@ export function PlanoSection() {
             <p className="mt-1 text-xs leading-relaxed text-verde-texto">
               Se você não fizer nada, em {formatDate(assinatura.trial_fim)} sua
               conta passa sozinha para o plano gratuito. Você continua
-              registrando vendas e vendo seu faturamento, e não perde nada do
-              que já cadastrou.
+              registrando vendas, vendo seu faturamento e falando com a Mimu
+              (até {MENSAGENS_MIMU_POR_DIA.free} mensagens por dia), e não
+              perde nada do que já cadastrou.
             </p>
           </div>
         )}
@@ -174,10 +180,19 @@ export function PlanoSection() {
             <p className="text-sm font-semibold text-verde-texto">
               Você está no plano grátis
             </p>
+            {/*
+              Este texto dizia que a Mimu entrava no plano pago, e isso deixou
+              de ser verdade: a assistente agora responde em todo plano, com
+              teto de mensagens por dia. Copy que promete a menos é tão ruim
+              quanto copy que promete a mais — quem lê "a Mimu é paga" nunca
+              vai descobrir que já pode conversar com ela.
+            */}
             <p className="mt-1 text-xs leading-relaxed text-verde-texto">
-              Dá para registrar vendas e acompanhar o faturamento pra sempre,
-              sem pagar nada. Agenda, clientes, estoque e a Mimu entram no
-              plano pago.
+              Dá para registrar vendas, acompanhar o faturamento e falar com a
+              Mimu pra sempre, sem pagar nada — são{" "}
+              {MENSAGENS_MIMU_POR_DIA.free} mensagens por dia. No Pro são{" "}
+              {MENSAGENS_MIMU_POR_DIA.pro}, e entram agenda, clientes e
+              estoque.
             </p>
           </div>
         )}

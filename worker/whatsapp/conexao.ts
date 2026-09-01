@@ -219,6 +219,45 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
     }
   }
 
+  /**
+   * "digitando…" enquanto a Mimu pensa.
+   *
+   * Sem isto, quem manda uma pergunta pelo WhatsApp fica olhando para uma
+   * conversa parada por vários segundos — o tempo da chamada ao modelo mais o
+   * atraso humano de propósito — sem sinal nenhum de que alguém está do outro
+   * lado. É o mesmo silêncio de um número que não responde, e é o que faz a
+   * pessoa mandar a mensagem de novo.
+   *
+   * A presença do WhatsApp EXPIRA sozinha em poucos segundos, então não basta
+   * mandar uma vez: o aviso é repetido enquanto a resposta não sai. Ao final
+   * vai um "paused", senão a pessoa continua vendo "digitando…" depois de a
+   * resposta já ter chegado.
+   *
+   * Nada aqui pode derrubar a resposta: presença é cortesia, e uma falha nela
+   * é engolida de propósito.
+   */
+  function mostrarDigitando(destino: string): () => Promise<void> {
+    let vivo = true;
+
+    const bater = () => {
+      if (!vivo) return;
+      socket?.sendPresenceUpdate("composing", destino).catch(() => {});
+    };
+
+    bater();
+    const timer = setInterval(bater, 8000);
+
+    return async () => {
+      vivo = false;
+      clearInterval(timer);
+      try {
+        await socket?.sendPresenceUpdate("paused", destino);
+      } catch {
+        // Ver acima: presença nunca derruba o envio.
+      }
+    };
+  }
+
   function iniciarSocket() {
     socket = makeWASocket({
       version,
@@ -429,15 +468,25 @@ export async function conectar(opcoes: OpcoesConexao): Promise<Conexao> {
         if (c) c.aceitas += 1;
 
         enfileirar(async () => {
-          const resposta = await opcoes.atender(mensagem);
-          if (!resposta) return;
+          // Começa a "digitar" ANTES de pensar: é a espera do modelo que a
+          // pessoa sente, e ela começa aqui.
+          const pararDigitando = mostrarDigitando(remoteJid);
 
-          await esperar(atrasoDeResposta());
-          await enviarComTentativas(remoteJid, resposta.texto);
+          try {
+            const resposta = await opcoes.atender(mensagem);
+            if (!resposta) return;
 
-          console.log(
-            `[whatsapp] respondi ${mascararRemetente(mensagem.remetente)}`,
-          );
+            await esperar(atrasoDeResposta());
+            await enviarComTentativas(remoteJid, resposta.texto);
+
+            console.log(
+              `[whatsapp] respondi ${mascararRemetente(mensagem.remetente)}`,
+            );
+          } finally {
+            // `finally` e não depois do envio: se o atendimento falhar, o
+            // "digitando…" não pode ficar pendurado para sempre.
+            await pararDigitando();
+          }
         });
       }
     });

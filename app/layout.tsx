@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { OfflineProvider } from "@/components/providers/OfflineProvider";
 import { AlertasProvider } from "@/components/providers/AlertasProvider";
+import { ValoresProvider } from "@/components/providers/ValoresProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { SilenciarConsoleProducao } from "@/components/providers/SilenciarConsoleProducao";
 import "./globals.css";
@@ -109,7 +110,27 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#CCFF00",
+  /*
+   * A cor da barra de status do sistema, no app instalado.
+   *
+   * Era o néon da marca, e o resultado era uma faixa verde-limão acesa
+   * grudada em cima de um app de fundo preto — a marca aparecendo no lugar
+   * onde ela atrapalha, que é justamente onde o sistema mostra hora e
+   * bateria. Num app de referência a barra de status não se vê: ela é da cor
+   * do app, e o conteúdo parece começar no topo do vidro.
+   *
+   * Duas entradas porque a Mimu tem dois temas, e uma cor só acertaria em um.
+   * Os valores são os mesmos `--fundo` de globals.css — se um mudar, o outro
+   * muda junto, senão volta a aparecer a emenda.
+   */
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F7F6F3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
+  ],
+  // Diz ao sistema que os controles nativos (barras de rolagem, campos,
+  // menus do navegador) devem vir na versão escura. Sem isto, um seletor de
+  // data nativo abre branco no meio de um app preto.
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
   // Sem isso, o Chrome Android por padrão NÃO encolhe a viewport quando o
@@ -127,7 +148,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${nunito.variable} ${spaceGrotesk.variable}`}>
+    /*
+     * `dark` já vem no HTML do servidor.
+     *
+     * O ThemeProvider aplica o tema num efeito, ou seja, DEPOIS da primeira
+     * pintura: até ali o app aparecia branco e só então escurecia. É o piscar
+     * que mais denuncia um site embrulhado de app, e ele acontecia bem no
+     * pior momento — a abertura, que é onde só deveria haver a marca.
+     *
+     * Escuro é o padrão do ThemeProvider e o tema do site inteiro, então esta
+     * é a aposta que acerta na quase totalidade das aberturas. Quem escolheu
+     * claro ainda vê a troca, mas escuro→claro incomoda menos que o contrário
+     * — e é a mesma escolha que o provider já tinha feito.
+     */
+    <html
+      lang="pt-BR"
+      className={`dark ${nunito.variable} ${spaceGrotesk.variable}`}
+    >
       <head>
         {process.env.NODE_ENV !== "production" && (
           // Script inline (não passa pelos chunks do webpack) que desregistra
@@ -207,8 +244,10 @@ export default function RootLayout({
             <ToastProvider>
               <OfflineProvider>
                 <AlertasProvider>
-                  <OfflineBanner />
-                  {children}
+                  <ValoresProvider>
+                    <OfflineBanner />
+                    {children}
+                  </ValoresProvider>
                 </AlertasProvider>
               </OfflineProvider>
             </ToastProvider>

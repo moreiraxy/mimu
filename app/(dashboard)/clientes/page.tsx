@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { PageHeader } from "@/components/PageHeader";
 import { useMemo, useState } from "react";
 import { useClientes } from "@/hooks/useClientes";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FadeIn } from "@/components/ui/FadeIn";
 import { SearchIcon } from "@/components/icons/NavIcons";
 import { cn } from "@/lib/utils";
 import { ClienteListItem } from "./ClienteListItem";
@@ -45,40 +45,59 @@ export default function ClientesPage() {
     return <ClientesSkeleton />;
   }
 
+  /*
+   * O cabeçalho envolve TODOS os estados, e não só o da lista cheia.
+   *
+   * Erro e lista vazia eram `return` antecipados sem título nenhum: a tela
+   * abria com uma frase solta no meio do nada e a pessoa não tinha como saber
+   * onde estava. É justamente no estado vazio que saber onde se está mais
+   * importa, porque não há conteúdo para deduzir.
+   */
   if (error) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="text-sm text-neutro-muted">{error}</p>
-        <button
-          type="button"
-          onClick={refetch}
-          className="text-sm font-semibold text-primary-forte"
-        >
-          Tentar de novo
-        </button>
+      <div>
+        <PageHeader title="Clientes" voltar={false} />
+        <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
+          <p className="text-sm text-neutro-muted">{error}</p>
+          <button
+            type="button"
+            onClick={refetch}
+            className="text-sm font-semibold text-primary-forte"
+          >
+            Tentar de novo
+          </button>
+        </div>
       </div>
     );
   }
 
   if (clientes.length === 0) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-2 text-center">
-        <p className="text-sm text-neutro-muted">
-          Sua lista de clientes está vazia.
-        </p>
-        <Link
-          href="/clientes/novo"
-          className="text-sm font-semibold text-primary-forte"
-        >
-          Adicione seu primeiro cliente →
-        </Link>
+      <div>
+        <PageHeader title="Clientes" voltar={false} />
+        <div className="vidro-card flex flex-col items-center gap-2 rounded-[20px] px-5 py-10 text-center">
+          <p className="text-sm text-neutro-muted">
+            Sua lista de clientes está vazia.
+          </p>
+          <Link
+            href="/clientes/novo"
+            className="text-sm font-semibold text-primary-forte"
+          >
+            Adicione seu primeiro cliente →
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <FadeIn className="flex flex-col gap-4 lg:mx-auto lg:max-w-5xl">
-      <div className="flex items-center gap-2 rounded-button border border-neutro-border bg-superficie px-3.5 py-2.5">
+    <div className="flex flex-col gap-4 lg:mx-auto lg:max-w-5xl">
+      {/* SEM <FadeIn> AQUI: a transição de opacidade faz do elemento um
+          "backdrop root" enquanto roda, e todo o vidro de dentro perde o
+          desfoque por 150ms a cada navegação — a tela entra chapada e só
+          então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
+      <PageHeader title="Clientes" voltar={false} />
+      <div className="flex items-center gap-2 vidro-card rounded-button px-3.5 py-2.5">
         <SearchIcon size={16} className="text-neutro-muted" />
         <input
           value={busca}
@@ -97,8 +116,8 @@ export default function ClientesPage() {
             className={cn(
               "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
               filtro === opcao
-                ? "border-primary-forte bg-primary text-primary-text"
-                : "border-neutro-border bg-superficie text-escuro",
+                ? "bg-primary/20 text-primary-forte"
+                : "vidro-card text-escuro",
             )}
           >
             {opcao}
@@ -121,7 +140,7 @@ export default function ClientesPage() {
           ))}
         </div>
       )}
-    </FadeIn>
+    </div>
   );
 }
 

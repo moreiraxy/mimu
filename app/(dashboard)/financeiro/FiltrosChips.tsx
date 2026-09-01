@@ -18,10 +18,10 @@ export function FiltrosChips({
           type="button"
           onClick={() => onChange(filtro)}
           className={cn(
-            "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+            "flex-shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
             ativo === filtro
-              ? "border-primary-forte bg-primary text-primary-text"
-              : "border-neutro-border bg-superficie text-escuro",
+              ? "bg-primary/20 text-primary-forte"
+              : "vidro-card text-escuro",
           )}
         >
           {filtro}

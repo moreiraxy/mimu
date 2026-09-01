@@ -52,7 +52,7 @@ export function ConfirmDialog({
     >
       <div
         className={cn(
-          "w-full max-w-[430px] rounded-t-card bg-superficie p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[430px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",
@@ -72,7 +72,7 @@ export function ConfirmDialog({
               value={digitado}
               onChange={(e) => setDigitado(e.target.value)}
               autoComplete="off"
-              className="mt-1.5 h-11 w-full rounded-xl border border-neutro-border bg-fundo px-3.5 text-sm text-escuro outline-none focus:border-erro"
+              className="mt-1.5 h-11 w-full rounded-xl border border-neutro-border bg-white/[0.04] px-3.5 text-sm text-escuro outline-none focus:border-erro"
             />
           </label>
         )}

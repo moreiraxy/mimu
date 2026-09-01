@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { useProdutos } from "@/hooks/useProdutos";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FadeIn } from "@/components/ui/FadeIn";
 import { SearchIcon } from "@/components/icons/NavIcons";
 import { produtoAbaixoDoMinimo } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
@@ -60,7 +59,7 @@ export default function ProdutosPage() {
           <button
             type="button"
             onClick={refetch}
-            className="text-sm font-semibold text-primary-forte"
+            className="text-[15px] font-bold text-primary-forte"
           >
             Tentar de novo
           </button>
@@ -70,10 +69,14 @@ export default function ProdutosPage() {
   }
 
   return (
-    <FadeIn className="lg:mx-auto lg:max-w-5xl">
+    <div className="lg:mx-auto lg:max-w-5xl">
+      {/* SEM <FadeIn> AQUI: a transição de opacidade faz do elemento um
+          "backdrop root" enquanto roda, e todo o vidro de dentro perde o
+          desfoque por 150ms a cada navegação — a tela entra chapada e só
+          então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
       <PageHeader title="Produtos" />
 
-      <div className="flex items-center gap-2 rounded-button border border-neutro-border bg-superficie px-3.5 py-2.5">
+      <div className="flex items-center gap-2 vidro-card rounded-button px-3.5 py-2.5">
         <SearchIcon size={18} className="flex-shrink-0 text-neutro-muted" />
         <input
           type="text"
@@ -91,10 +94,10 @@ export default function ProdutosPage() {
             type="button"
             onClick={() => setFiltro(opcao)}
             className={cn(
-              "flex-shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+              "flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
               filtro === opcao
-                ? "bg-primary text-primary-text"
-                : "border border-neutro-border text-neutro-muted-strong",
+                ? "bg-primary/20 text-primary-forte"
+                : "vidro-card text-escuro",
             )}
           >
             {opcao}
@@ -106,7 +109,7 @@ export default function ProdutosPage() {
           estoque) e em coluna única sobra um vão enorme no meio de cada uma. */}
       <div className="mt-4 flex flex-col gap-2 xl:grid xl:grid-cols-2 xl:gap-3">
         {filtrados.length === 0 ? (
-          <p className="py-10 text-center text-sm text-neutro-muted">
+          <p className="py-10 text-center text-[15px] text-neutro-muted">
             {produtos.length === 0
               ? "Nenhum produto cadastrado ainda."
               : "Nenhum produto encontrado."}
@@ -119,6 +122,6 @@ export default function ProdutosPage() {
       </div>
 
       <NovoProdutoFab />
-    </FadeIn>
+    </div>
   );
 }

@@ -72,3 +72,42 @@ export function Logo({
     </div>
   );
 }
+
+/**
+ * A marca sozinha, em traço, herdando a cor de quem a usa.
+ *
+ * `LogoMark` é a marca em CAIXA: o M preto dentro do quadrado néon. Ela é a
+ * assinatura da Mimu em fundo neutro — tela de entrada, cabeçalho, ícone do
+ * app.
+ *
+ * Esta aqui é a marca sem caixa, para quando o fundo já é o material da
+ * interface — o botão de vidro da barra de baixo. Sobre vidro, o quadrado
+ * néon vira um adesivo colado por cima; o traço vazado deixa o desfoque
+ * aparecer através da marca, que é o que faz ela parecer parte do botão.
+ */
+export function MarcaTraco({
+  size = 24,
+  className,
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size * 0.75}
+      viewBox="0 0 48 36"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d={MARK_PATH}
+        stroke="currentColor"
+        strokeWidth={5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

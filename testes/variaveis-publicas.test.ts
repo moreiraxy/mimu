@@ -57,6 +57,28 @@ function usadasNoCodigo(): Set<string> {
   return achadas;
 }
 
+/**
+ * As que o próprio next.config.mjs injeta no build, pelo bloco `env`.
+ *
+ * Estas não precisam do .env.production, e o motivo é o mesmo que justifica o
+ * teste inteiro: o problema que ele existe para pegar é variável que só existe
+ * no painel da hospedagem e por isso nunca chega à compilação. Uma variável
+ * escrita no next.config.mjs chega à compilação por definição — ela É a
+ * compilação. Exigir que ela também esteja no .env.production obrigaria a
+ * repetir o valor à mão nos dois lugares, e o dia em que os dois discordassem
+ * o arquivo é que estaria mentindo.
+ */
+function injetadasNoBuild(): Set<string> {
+  const conteudo = readFileSync(join(RAIZ, "next.config.mjs"), "utf8");
+  const bloco = conteudo.match(/\benv:\s*\{([\s\S]*?)\}/);
+  const achadas = new Set<string>();
+  if (!bloco) return achadas;
+  for (const [, nome] of bloco[1]!.matchAll(/(NEXT_PUBLIC_[A-Z0-9_]+)\s*:/g)) {
+    achadas.add(nome!);
+  }
+  return achadas;
+}
+
 function declaradasNoArquivo(): Set<string> {
   const conteudo = readFileSync(join(RAIZ, ".env.production"), "utf8");
   const nomes = conteudo.matchAll(/^(NEXT_PUBLIC_[A-Z0-9_]+)=(.*)$/gm);
@@ -72,8 +94,11 @@ describe("as variáveis públicas", () => {
   it("estão todas no .env.production", () => {
     const usadas = [...usadasNoCodigo()].sort();
     const declaradas = declaradasNoArquivo();
+    const injetadas = injetadasNoBuild();
 
-    const faltando = usadas.filter((v) => !declaradas.has(v));
+    const faltando = usadas.filter(
+      (v) => !declaradas.has(v) && !injetadas.has(v),
+    );
 
     expect(
       faltando,

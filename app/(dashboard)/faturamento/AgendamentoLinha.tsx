@@ -18,7 +18,7 @@ export function AgendamentoLinha({
     <Link
       href={`/agenda/${agendamento.id}`}
       className={cn(
-        "flex items-center gap-3 rounded-card border border-neutro-border bg-superficie p-3",
+        "flex items-center gap-3 vidro-card rounded-[20px] p-3",
         naoCompareceu && "opacity-60",
       )}
     >

@@ -155,8 +155,12 @@ async function tentarConectar(
   return {
     texto:
       "Esse código não vale mais 😕\n\n" +
-      "Ele expira em 10 minutos. Abra o app em *Minha empresa* → " +
-      "*Conectar WhatsApp*, pegue um código novo e me mande aqui.",
+      // O caminho tem que bater com o app de verdade: a aba virou "Perfil" e
+      // o WhatsApp ganhou tela própria. Instrução que aponta para um lugar
+      // que não existe mais é pior que instrução nenhuma — a pessoa procura,
+      // não acha, e conclui que o app está quebrado.
+      "Ele expira em 10 minutos. Abra o app em *Perfil* → " +
+      "*Mimu no WhatsApp*, pegue um código novo e me mande aqui.",
   };
 }
 

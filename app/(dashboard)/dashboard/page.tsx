@@ -1,38 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, Hand, Minus, Plus, Sparkles } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Calendar,
+  Minus,
+  Plus,
+  UserPlus,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import type { ModuloAtivo } from "@/types";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
-import { LogoMark } from "@/components/Logo";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FadeIn } from "@/components/ui/FadeIn";
+import { useSeguraAbertura } from "@/components/TelaAbertura";
+import { CartaoDado } from "@/components/CartaoDado";
+import { Anel } from "@/components/graficos/Anel";
 import { cn } from "@/lib/utils";
 import {
   calcularProgressoMeta,
   calcularStatusNegocio,
 } from "@/lib/calculations";
 import {
-  formatCurrency,
   formatDataComDiaSemana,
   saudacaoPorHorario,
 } from "@/lib/formatters";
-import { StatusCard } from "./StatusCard";
+import { HeroHome } from "./HeroHome";
+import { CartaoDeHoje } from "./CartaoDeHoje";
 import { AgendaHojeCard } from "./AgendaHojeCard";
 import { AlertasCard } from "./AlertasCard";
-import { ResumoSemanalCard } from "./ResumoSemanalCard";
+import { CartaoResumoFaturamento } from "./CartaoResumoFaturamento";
+import { CartaoMensagensMimu } from "./CartaoMensagensMimu";
+import { PainelDeWidgets } from "./PainelDeWidgets";
 
+/**
+ * Os atalhos do topo do painel.
+ *
+ * "Chat" saiu daqui. A Mimu ganhou uma porta fixa — o botão da marca no canto
+ * da barra de baixo, presente em toda tela — e o painel chegou a ter TRÊS
+ * caminhos para o mesmo chat ao mesmo tempo: a marca no cabeçalho, este
+ * atalho e o botão da barra. Três portas para a mesma sala não é conveniência,
+ * é a pessoa achando que são coisas diferentes.
+ *
+ * `modulo` entrou porque a lista era fixa. Uma conta gratuita não tem agenda,
+ * e mesmo assim via "Agendamento" aqui: tocar levava a uma rota que o
+ * middleware devolve para o painel, sem explicar nada. Atalho que não leva a
+ * lugar nenhum é pior que atalho ausente.
+ */
 const ACOES_RAPIDAS = [
-  { label: "Nova venda", icone: Plus, href: "/financeiro/nova-entrada" },
-  { label: "Nova despesa", icone: Minus, href: "/financeiro/nova-saida" },
-  { label: "Agendamento", icone: Calendar, href: "/agenda/novo" },
-  { label: "Chat", icone: Sparkles, href: "/mimu" },
+  { label: "Nova venda", icone: Plus, href: "/financeiro/nova-entrada", modulo: "financeiro" },
+  { label: "Nova despesa", icone: Minus, href: "/financeiro/nova-saida", modulo: "financeiro" },
+  { label: "Agendamento", icone: Calendar, href: "/agenda/novo", modulo: "agenda" },
+  { label: "Novo cliente", icone: UserPlus, href: "/clientes/novo", modulo: "clientes" },
 ] as const;
 
 // Auth e onboarding já são garantidos pelo layout do grupo (dashboard).
 export default function DashboardPage() {
-  const { user, empresa, loading: carregandoAuth } = useAuth();
+  const { user, empresa, modulos, plano, loading: carregandoAuth } = useAuth();
   const {
     dados,
     loading: carregandoDashboard,
@@ -41,7 +66,16 @@ export default function DashboardPage() {
   } = useDashboard();
   const { alertas, dispensar } = useAlertasProativos();
 
+  // Segura a tela de abertura até os números do painel chegarem: é o painel a
+  // primeira tela de toda abertura, e é ele que define "o app carregou".
+  useSeguraAbertura(carregandoAuth || carregandoDashboard || !dados);
+
   if (carregandoAuth || carregandoDashboard || !dados) {
+    /*
+     * O esqueleto continua existindo para as VOLTAS a esta tela; na primeira
+     * abertura quem está por cima dele é a marca — ver `useSeguraAbertura`
+     * logo acima e components/TelaAbertura.tsx.
+     */
     return <DashboardSkeleton />;
   }
 
@@ -70,6 +104,8 @@ export default function DashboardPage() {
   );
   const statusDiario = calcularStatusNegocio(progressoDiario);
 
+  const atalhos = ACOES_RAPIDAS.filter((acao) => modulos.includes(acao.modulo as ModuloAtivo));
+
   const primeiroAcesso =
     dados.faturamentoHoje === 0 &&
     dados.faturamentoMes === 0 &&
@@ -78,112 +114,136 @@ export default function DashboardPage() {
     dados.totalAPagar === 0;
 
   return (
-    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="flex items-center gap-1.5 text-sm text-neutro-muted">
-            {saudacaoPorHorario()}, {primeiroNome}
-            <Hand className="h-4 w-4 text-primary-forte" strokeWidth={2.25} />
-          </p>
-          <p className="text-xs text-neutro-muted">
-            {formatDataComDiaSemana()}
-          </p>
-        </div>
-        <Link href="/mimu" aria-label="Falar com a Mimu">
-          <LogoMark size="sm" />
-        </Link>
-      </header>
+    /*
+      SEM <FadeIn> AQUI, e o motivo é técnico.
 
-      {/* Quatro atalhos ocupando a linha inteira. O `max-w-md` que havia aqui
-          prendia os quatro num quarto da tela e deixava o resto da linha vazio.
-          No computador eles viram ícone e texto lado a lado: numa caixa larga,
-          o empilhamento do celular deixaria um miolo pequeno boiando no meio
-          de muito espaço. */}
-      <div className="grid grid-cols-4 gap-2 lg:gap-3">
-        {ACOES_RAPIDAS.map((acao) => (
-          <Link
-            key={acao.label}
-            href={acao.href}
-            className="flex flex-col items-center gap-1.5 rounded-card border border-neutro-border bg-superficie py-3 text-center transition-colors hover:bg-fundo lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3.5 lg:text-left"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-primary-forte">
-              <acao.icone className="h-4 w-4" strokeWidth={2.25} />
-            </span>
-            <span className="text-[11px] font-semibold leading-tight text-escuro lg:text-sm">
-              {acao.label}
-            </span>
-          </Link>
-        ))}
-      </div>
+      Ele envolvia o painel inteiro com uma transição de `opacity`. Enquanto a
+      opacidade é menor que 1, o elemento vira um "backdrop root": tudo que
+      está dentro passa a capturar apenas o que existe DENTRO dele, e todo
+      `backdrop-filter` abaixo — ou seja, o material de todos os widgets —
+      achata de uma vez. O fundo deixa de atravessar os cards, que é o efeito
+      inteiro.
+
+      A entrada da tela não se perdeu: quem cobre esse momento é a tela de
+      abertura com a marca, que já espera os dados chegarem.
+    */
+    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
+      <HeroHome
+        nome={empresa?.nome ?? "Mimu"}
+        primeiroNome={primeiroNome}
+        plano={plano}
+        atalhos={atalhos}
+      />
 
       {primeiroAcesso ? (
-        <div className="rounded-[20px] bg-primary p-5 text-primary-text">
-          <p className="text-sm text-primary-text/80">
-            Bem-vinda, {primeiroNome}! Registre sua primeira venda para começar.
+        /* Também sai do néon chapado: um cartão de vidro com a marca em traço
+           fino, na mesma linguagem do resto. */
+        <div className="vidro-card rounded-[20px] p-5">
+          <p className="text-sm leading-relaxed text-escuro">
+            Bem-vinda, {primeiroNome}! Registre sua primeira venda para a Mimu
+            começar a acompanhar seu negócio.
           </p>
           <Link
-            href="/financeiro"
-            className="mt-4 inline-flex items-center justify-center rounded-button bg-superficie px-4 py-2.5 text-sm font-semibold text-primary-forte"
+            href="/financeiro/nova-entrada"
+            className="mt-4 inline-flex items-center justify-center rounded-button bg-primary px-4 py-2.5 text-sm font-bold text-primary-text"
           >
-            + Nova venda
+            Registrar primeira venda
           </Link>
         </div>
       ) : (
-        <StatusCard
-          status={statusDiario}
-          realizado={dados.faturamentoHoje}
-          previsto={dados.faturamentoPrevisto}
-          meta={metaDiaria}
-          progresso={progressoDiario}
+        /*
+          O painel deixou de ser uma lista fixa de cartões.
+          Cada pessoa monta o seu: segurar um widget abre o menu (tamanho,
+          remover, editar), e no modo de edição dá para acrescentar, tirar e
+          reordenar. Ver lib/widgets.ts.
+        */
+        <PainelDeWidgets
+          modulos={modulos}
+          conteudo={(id, tamanho) => {
+            switch (id) {
+              case "hoje":
+                return (
+                  <CartaoDeHoje
+                    status={statusDiario}
+                    realizado={dados.faturamentoHoje}
+                    previsto={dados.faturamentoPrevisto}
+                    meta={metaDiaria}
+                    progresso={progressoDiario}
+                    tamanho={tamanho === "grande" ? "grande" : "medio"}
+                  />
+                );
+              case "a-receber":
+                return (
+                  <CartaoDado
+                    /*
+                      O anel mostra quanto do que está em aberto já é "a
+                      receber" — é a mesma leitura do "Limite disponível" da
+                      referência: um número sozinho não diz se é muito ou
+                      pouco, e a proporção diz.
+                    */
+                    grafico={
+                      <Anel
+                        progresso={
+                          dados.totalAReceber + dados.totalAPagar > 0
+                            ? (dados.totalAReceber /
+                                (dados.totalAReceber + dados.totalAPagar)) *
+                              100
+                            : 0
+                        }
+                        cor="rgb(var(--verde-texto))"
+                      />
+                    }
+                    /*
+                     * O NÚMERO NÃO É COLORIDO — quem carrega a cor é o anel.
+                     *
+                     * "A receber" saía em verde-água e "A pagar" em laranja:
+                     * dois tons que não existem em nenhuma outra parte do app,
+                     * lado a lado, no meio de uma tela onde todo valor é
+                     * branco. Pintar o anel E o número diz a mesma coisa duas
+                     * vezes e gasta as duas únicas cores fortes da home com
+                     * uma informação que o rótulo já dá.
+                     */
+                    rotulo="A receber"
+                    valor={dados.totalAReceber}
+                    href="/financeiro"
+                  />
+                );
+              case "a-pagar":
+                return (
+                  <CartaoDado
+                    grafico={
+                      <Anel
+                        progresso={
+                          dados.totalAReceber + dados.totalAPagar > 0
+                            ? (dados.totalAPagar /
+                                (dados.totalAReceber + dados.totalAPagar)) *
+                              100
+                            : 0
+                        }
+                        cor="rgb(var(--ambar-texto))"
+                      />
+                    }
+                    rotulo="A pagar"
+                    valor={dados.totalAPagar}
+                    href="/financeiro"
+                  />
+                );
+              case "faturamento":
+                return <CartaoResumoFaturamento alto={tamanho === "grande"} />;
+              case "agenda":
+                return <AgendaHojeCard agendamentos={dados.agendamentosHoje} />;
+              case "alertas":
+                return <AlertasCard alertas={alertas} onDispensar={dispensar} />;
+              case "mimu":
+                return <CartaoMensagensMimu />;
+              default:
+                return null;
+            }
+          }}
         />
       )}
 
-      {/* Os dois saldos e a agenda dividem a mesma linha no computador. Sozinha,
-          cada uma dessas coisas é pequena demais para uma linha inteira, e era
-          daí que vinha a sensação de tela vazia. */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:items-start lg:gap-6">
-        <Link
-          href="/financeiro"
-          className="rounded-card border border-neutro-border bg-superficie p-4"
-        >
-          <p className="text-xs text-neutro-muted">A receber</p>
-          <p className="mt-1 text-lg font-semibold text-verde-texto">
-            {formatCurrency(dados.totalAReceber)}
-          </p>
-        </Link>
-        <Link
-          href="/financeiro"
-          className="rounded-card border border-neutro-border bg-superficie p-4"
-        >
-          <p className="text-xs text-neutro-muted">A pagar</p>
-          <p className="mt-1 text-lg font-semibold text-ambar-texto">
-            {formatCurrency(dados.totalAPagar)}
-          </p>
-        </Link>
-        <div className="col-span-2">
-          <AgendaHojeCard agendamentos={dados.agendamentosHoje} />
-        </div>
-      </div>
-
-      {/* O gráfico divide a linha com os alertas — mas só quando existe algum.
-          O cartão de alertas some quando não há nada a dizer, e reservar um
-          terço da linha para ele abriria um vão do tamanho dele. */}
-      <div
-        className={cn(
-          "flex flex-col gap-5 lg:gap-6",
-          alertas.length > 0 && "lg:grid lg:grid-cols-3 lg:items-start",
-        )}
-      >
-        <div className={cn(alertas.length > 0 && "lg:col-span-2")}>
-          <ResumoSemanalCard
-            resumo={dados.resumoSemanal}
-            semanaAtual={dados.faturamentoSemanaAtual}
-            semanaPassada={dados.faturamentoSemanaPassada}
-          />
-        </div>
-        <AlertasCard alertas={alertas} onDispensar={dispensar} />
-      </div>
-    </FadeIn>
+    </div>
   );
 }
 

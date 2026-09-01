@@ -136,6 +136,42 @@ export function acessoLiberado(
 }
 
 /**
+ * true quando a conta não tem mais relação com o produto — e, ao contrário do
+ * vencimento comum, NÃO cai no plano gratuito.
+ *
+ * A distinção é fina e vale dinheiro, então vale escrever por extenso.
+ *
+ * Uma assinatura 'ativa' cuja data passou, ou um trial que acabou, viram plano
+ * gratuito: ninguém decidiu nada, uma data passou, e o gratuito existe
+ * exatamente para essa pessoa (ver o rebaixamento em lib/supabase/middleware.ts
+ * e a migration 20260829120000).
+ *
+ * 'cancelada', 'pendente' e 'vencida' são outra coisa. O middleware manda as
+ * três para fora do app — /assinar ou /trial-vencido — e nenhuma delas é
+ * rebaixada para o gratuito. 'cancelada' é uma decisão (e o estado que o painel
+ * usa em estorno e contestação); 'pendente' escolheu um plano pago e nunca
+ * pagou; 'vencida' é a marca explícita de quem chegou ao fim.
+ *
+ * ISTO PRECISOU VIRAR UMA FUNÇÃO quando o plano gratuito ganhou a Mimu. Até
+ * então, o que barrava essas três no WhatsApp era um acidente feliz:
+ * `planoEfetivo` devolvia 'free', e 'free' não tinha o módulo `ia`. Assim que o
+ * gratuito passou a incluir a assistente, o acidente virou uma porta aberta —
+ * conta cancelada conversando de graça, sem nada aparecer em lugar nenhum.
+ * Proteção que depende de coincidência entre duas regras não sobrevive à
+ * primeira mudança em qualquer uma delas.
+ */
+export function assinaturaEncerrada(
+  assinatura: Pick<Assinatura, "status"> | null,
+): boolean {
+  if (!assinatura) return false;
+  return (
+    assinatura.status === "cancelada" ||
+    assinatura.status === "pendente" ||
+    assinatura.status === "vencida"
+  );
+}
+
+/**
  * O plano que VALE agora, que nem sempre é o que está gravado.
  *
  * Uma linha pode dizer `plano: 'pro'` e não dar acesso nenhum: é o caso de

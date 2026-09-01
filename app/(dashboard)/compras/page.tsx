@@ -143,7 +143,7 @@ export default function ComprasPage({
           <select
             value={fornecedorId}
             onChange={(e) => setFornecedorId(e.target.value)}
-            className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
+            className="rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
           >
             <option value="">Sem fornecedor</option>
             {fornecedores.map((f) => (
@@ -154,7 +154,7 @@ export default function ComprasPage({
           </select>
         </label>
 
-        <div className="rounded-card border border-neutro-border bg-superficie p-4">
+        <div className="vidro-card rounded-[20px] p-4">
           <p className="text-sm font-semibold text-escuro">Itens da compra</p>
 
           {produtosAtivos.length === 0 ? (
@@ -169,7 +169,7 @@ export default function ComprasPage({
                   <select
                     value={produtoSelecionado}
                     onChange={(e) => handleSelecionarProduto(e.target.value)}
-                    className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
+                    className="rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
                   >
                     <option value="">Selecione um produto</option>
                     {produtosAtivos.map((p) => (

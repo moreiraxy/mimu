@@ -42,7 +42,7 @@ export function NovoFornecedorModal({
     >
       <div
         className={cn(
-          "w-full max-w-[420px] rounded-t-card bg-superficie p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[420px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",

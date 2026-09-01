@@ -3,15 +3,15 @@
 import { cn } from "@/lib/utils";
 
 /*
- * O chip selecionado usa `text-fundo` e NÃO `text-white`.
+ * O chip aceso é o mesmo "ligado" da barra de baixo: véu da cor da marca, texto
+ * em néon.
  *
- * `escuro` é o token do texto principal, e ele inverte com o tema: quase preto
- * no claro, branco no escuro. Como fundo do chip aceso, isso significa que no
- * tema escuro o chip fica branco. Com `text-white` por cima, o rótulo era
- * branco sobre branco: a pílula aparecia vazia na tela.
- *
- * `fundo` é o token do fundo da página, e inverte junto na direção contrária,
- * então serve aos dois temas sem condicional.
+ * Antes era o token do texto principal usado como PREENCHIMENTO — um retângulo
+ * branco chapado no tema escuro, no meio de uma fila de pílulas de vidro. Além
+ * de destoar, obrigava um comentário inteiro explicando por que o rótulo tinha
+ * que ser a cor do fundo da página: com o fundo do chip invertendo junto com o
+ * tema, qualquer cor fixa por cima ficava branca sobre branca em um dos dois. O
+ * véu da marca resolve os dois temas sem condicional, porque néon não inverte.
  */
 
 
@@ -32,10 +32,10 @@ export function CategoriaChips({
         type="button"
         onClick={() => onChange(null)}
         className={cn(
-          "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+          "flex-shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
           ativa === null
-            ? "border-escuro bg-escuro text-fundo"
-            : "border-neutro-border bg-superficie text-escuro",
+            ? "bg-primary/20 text-primary-forte"
+            : "vidro-card text-escuro",
         )}
       >
         Todas categorias
@@ -46,10 +46,10 @@ export function CategoriaChips({
           type="button"
           onClick={() => onChange(categoria)}
           className={cn(
-            "flex-shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+            "flex-shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
             ativa === categoria
-              ? "border-escuro bg-escuro text-fundo"
-              : "border-neutro-border bg-superficie text-escuro",
+              ? "bg-primary/20 text-primary-forte"
+              : "vidro-card text-escuro",
           )}
         >
           {categoria}

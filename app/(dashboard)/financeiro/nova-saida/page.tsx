@@ -5,22 +5,21 @@ import { TrendingDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
+import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
 import { paraISOLocal } from "@/lib/utils";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu } from "@/lib/mimu-correcao";
 import { primeiroErroZod, schemaTransacao } from "@/lib/validacao/negocio";
 import { TransacaoForm, type DadosFormularioTransacao } from "../TransacaoForm";
-import { RegistroConcluido } from "../RegistroConcluido";
 
 export default function NovaSaidaPage() {
   const { empresa } = useEmpresa();
   const { showToast } = useToast();
+  const voltar = useVoltarAposCriar("/financeiro");
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [concluido, setConcluido] = useState(false);
-  const [concluidoOffline, setConcluidoOffline] = useState(false);
   const [chaveFormulario, setChaveFormulario] = useState(0);
 
   // Prefill vindo do "Corrigir" do chat da Mimu — via sessionStorage, nunca
@@ -133,25 +132,15 @@ export default function NovaSaidaPage() {
       offline ? "Saída salva! Vai sincronizar depois." : "Saída registrada!",
       TrendingDown,
     );
-    setConcluidoOffline(offline);
-    setConcluido(true);
-  }
-
-  if (concluido) {
-    return (
-      <RegistroConcluido
-        titulo="Saída registrada!"
-        subtitulo={
-          concluidoOffline
-            ? "Você estava sem conexão. Assim que voltar, ela sincroniza automaticamente."
-            : undefined
-        }
-        onNovo={() => {
-          setConcluido(false);
-          setChaveFormulario((k) => k + 1);
-        }}
-      />
-    );
+    /*
+     * Volta para onde a pessoa estava, em vez de parar numa tela de "pronto!".
+     *
+     * Havia aqui um <RegistroConcluido> com dois botões — "Registrar outro" e
+     * "Voltar para o financeiro" — e ele obrigava um toque a mais depois de um
+     * trabalho que já tinha terminado. A confirmação cabe no aviso que sobe, e
+     * o caminho de registrar outra é o "+" da barra, a um toque.
+     */
+    voltar();
   }
 
   return (

@@ -23,6 +23,9 @@ export type StatusAgendamento =
   | "concluido";
 export type Tema = "claro" | "escuro";
 export type RoleConversa = "user" | "assistant";
+
+/** Por onde a mensagem da conversa passou. Ver a migration 20260901190000. */
+type CanalDaConversa = "app" | "whatsapp";
 export type TipoAlerta =
   | "sem_venda"
   | "agendamento_pendente"
@@ -274,6 +277,7 @@ export interface Database {
           role: RoleConversa;
           content: string;
           metadata: Json | null;
+          canal: CanalDaConversa;
           created_at: string;
         };
         Insert: {
@@ -282,6 +286,8 @@ export interface Database {
           role: RoleConversa;
           content: string;
           metadata?: Json | null;
+          // Opcional na escrita: o banco tem `default 'app'`.
+          canal?: CanalDaConversa;
           created_at?: string;
         };
         Update: Partial<
@@ -554,7 +560,8 @@ export interface Database {
             | "cadastro"
             | "chat_ia"
             | "recuperar_senha"
-            | "whatsapp_vinculo";
+            | "whatsapp_vinculo"
+            | "mimu_dia";
           identificador: string;
           created_at: string;
         };
@@ -565,7 +572,8 @@ export interface Database {
             | "cadastro"
             | "chat_ia"
             | "recuperar_senha"
-            | "whatsapp_vinculo";
+            | "whatsapp_vinculo"
+            | "mimu_dia";
           identificador: string;
           created_at?: string;
         };

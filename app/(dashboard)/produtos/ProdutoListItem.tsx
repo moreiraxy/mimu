@@ -14,7 +14,7 @@ export function ProdutoListItem({ produto }: { produto: Produto }) {
       className={cn(
         "flex items-center gap-3 rounded-card border p-3",
         produto.ativo
-          ? "border-neutro-border bg-superficie"
+          ? "vidro-card"
           : "border-neutro-border bg-fundo opacity-70",
       )}
     >

@@ -6,10 +6,18 @@ export function Toggle({
   checked,
   onChange,
   label,
+  disabled = false,
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: string;
+  /**
+   * Desligado de verdade, e não só pálido.
+   *
+   * Um interruptor que se move e não faz nada é pior do que um que não se
+   * move: ele responde ao toque, então a pessoa acredita que ligou.
+   */
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -17,10 +25,12 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
         "relative flex h-[26px] w-11 flex-shrink-0 items-center rounded-full p-0.5 transition-colors duration-200",
         checked ? "bg-primary" : "bg-neutro-border",
+        disabled && "cursor-not-allowed opacity-40",
       )}
     >
       <span

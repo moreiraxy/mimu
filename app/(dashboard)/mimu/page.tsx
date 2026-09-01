@@ -10,18 +10,23 @@ import {
 import { useRouter } from "next/navigation";
 import {
   ArrowDownRight,
+  ArrowUp,
   ArrowUpRight,
   Check,
+  History,
   Mic,
-  Send,
+  Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
-import { LogoMark } from "@/components/Logo";
+import { LogoMark, MarcaTraco } from "@/components/Logo";
+import { FolhaAcoes } from "@/components/dashboard/FolhaAcoes";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { FolhaHistorico } from "./FolhaHistorico";
 import { cn, paraISOLocal } from "@/lib/utils";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { salvarCorrecaoMimu, type CorrecaoMimu } from "@/lib/mimu-correcao";
@@ -179,8 +184,17 @@ function extrairRegistroDeMetadata(
   };
 }
 
+/**
+ * Quanto tempo o "digitando" fica na tela, no mínimo.
+ *
+ * 700ms é o tempo de um olhar: dá para ver que ela está respondendo sem que a
+ * conversa pareça travada. Abaixo disso vira piscada; acima, começa a parecer
+ * lentidão inventada.
+ */
+const TEMPO_MINIMO_DIGITANDO = 700;
+
 export default function MimuChatPage() {
-  const { empresa, loading: carregandoAuth } = useAuth();
+  const { user, empresa, modulos, loading: carregandoAuth } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -193,6 +207,15 @@ export default function MimuChatPage() {
   const [inputValue, setInputValue] = useState("");
   const [gravando, setGravando] = useState(false);
   const [confirmAberto, setConfirmAberto] = useState(false);
+  const [acoesAbertas, setAcoesAbertas] = useState(false);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
+
+  // O primeiro nome abre a conversa ("Olá, Rayssa"). Cai em "por aqui" pelo
+  // mesmo motivo do painel: saudação sem nome é melhor que saudação com um
+  // "undefined" no meio.
+  const primeiroNome =
+    (user?.user_metadata?.nome_completo as string | undefined)?.split(" ")[0] ??
+    "por aqui";
   const [confirmandoRegistroId, setConfirmandoRegistroId] = useState<
     string | null
   >(null);
@@ -253,6 +276,50 @@ export default function MimuChatPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [empresa?.id]);
+
+  /*
+   * A pergunta digitada na barra de baixo chega aqui pela URL e é enviada
+   * sozinha.
+   *
+   * A barra "Pergunte à Mimu" virou um campo de verdade: quem escreve ali e
+   * aperta enviar espera que a conversa já ABRA com a mensagem mandada — não
+   * que a tela abra vazia e ela tenha que digitar tudo de novo.
+   *
+   * Espera o histórico carregar, senão a resposta apareceria antes das
+   * mensagens antigas e daria um pulo na lista. O `enviadaDaUrlRef` garante
+   * que isso aconteça UMA vez: sem ele, qualquer re-render mandaria de novo,
+   * e cada envio custa duas chamadas ao Groq.
+   *
+   * A URL é limpa logo em seguida — sem isso, recarregar a página (ou voltar
+   * para ela pelo histórico do navegador) reenviaria a mesma pergunta.
+   */
+  const enviadaDaUrlRef = useRef(false);
+
+  useEffect(() => {
+    if (enviadaDaUrlRef.current || carregandoHistorico || !empresa) return;
+
+    const pergunta = new URLSearchParams(window.location.search).get("q");
+    if (!pergunta?.trim()) return;
+
+    enviadaDaUrlRef.current = true;
+    /*
+     * Limpa a URL com o histórico do navegador, e não com `router.replace`.
+     *
+     * O `replace` do Next é uma NAVEGAÇÃO: ele entra na fila do roteador no
+     * meio do envio que acabou de começar, e na prática o `?q=` continuava na
+     * barra de endereço. Ficando ali, recarregar a página monta o componente de
+     * novo, o ref nasce zerado, e a mesma pergunta é enviada outra vez — duas
+     * chamadas ao Groq por um F5.
+     *
+     * `replaceState` só reescreve o endereço. É exatamente o que se quer aqui:
+     * apagar o rastro sem mexer no que está acontecendo na tela.
+     */
+    window.history.replaceState(null, "", "/mimu");
+    void enviarMensagem(pergunta);
+    // `enviarMensagem` é recriada a cada render e entrar aqui provocaria o
+    // laço que o ref já impede; as dependências que importam são estas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carregandoHistorico, empresa?.id]);
 
   // Rola pro fim em mensagens novas; restaura a posição quando a página
   // carrega mensagens mais antigas no topo (scrollRestoreRef).
@@ -319,6 +386,7 @@ export default function MimuChatPage() {
     setInputValue("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setEnviando(true);
+    const comecou = Date.now();
 
     try {
       const resposta = await fetch("/api/mimu/chat", {
@@ -330,6 +398,24 @@ export default function MimuChatPage() {
 
       if (!resposta.ok) {
         throw new Error(dados?.error ?? "A Mimu não conseguiu responder.");
+      }
+
+      /*
+       * A MIMU DIGITA ANTES DE FALAR, sempre — mesmo quando a resposta chega
+       * rápido.
+       *
+       * O indicador de "digitando" já existia, mas ele durava exatamente o
+       * tempo da rede: numa resposta de 200ms ele piscava e sumia, e a
+       * mensagem simplesmente aparecia do nada. Um piscar é pior que nada,
+       * porque o olho registra o movimento sem conseguir ler o que era.
+       *
+       * O piso é de tempo TOTAL, e não uma espera somada: uma resposta que
+       * demorou 3 segundos sai na hora, sem penalidade. Só a resposta rápida
+       * demais espera completar o mínimo.
+       */
+      const faltando = TEMPO_MINIMO_DIGITANDO - (Date.now() - comecou);
+      if (faltando > 0) {
+        await new Promise((resolve) => setTimeout(resolve, faltando));
       }
 
       setMessages((atual) => [
@@ -553,117 +639,195 @@ export default function MimuChatPage() {
   const chips = SUGESTOES[periodoDoDia(new Date().getHours())];
 
   return (
-    <div className="mx-auto flex flex-col gap-4 lg:max-w-3xl">
-      <div className="flex flex-col overflow-hidden rounded-card border border-neutro-border bg-superficie">
-        <header className="flex items-center justify-between border-b border-neutro-border px-4 py-3">
-          <div className="flex items-center gap-3">
-            <LogoMark size="sm" />
-            <div>
-              <p className="text-sm font-semibold text-escuro">Mimu</p>
-              <p className="flex items-center gap-1.5 text-xs text-neutro-muted">
-                <span className="h-1.5 w-1.5 rounded-full bg-verde" />
-                Online
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            aria-label="Limpar histórico"
-            onClick={() => setConfirmAberto(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-button text-neutro-muted transition-colors hover:bg-primary-light hover:text-primary-forte"
-          >
-            <Trash2 className="h-[18px] w-[18px]" strokeWidth={2} />
-          </button>
-        </header>
+    /*
+      O chat OCUPA A TELA INTEIRA, por cima de tudo — inclusive da barra de
+      baixo.
 
-        <div
-          ref={containerRef}
-          onScroll={aoRolar}
-          className="flex max-h-[55dvh] min-h-[45dvh] flex-col gap-4 overflow-y-auto p-4 lg:max-h-[62dvh]"
+      Era um cartão com borda no meio da página, com cabeçalho próprio ("Mimu /
+      Online"), a conversa espremida numa altura fixa de 55% da tela e a barra
+      de navegação ainda visível embaixo. Conversar é uma coisa que se faz de
+      corpo inteiro: qualquer moldura em volta rouba altura da conversa e
+      lembra o tempo todo que você está "dentro de uma tela" do app.
+
+      Na referência não há moldura, não há título e não há barra: há a conversa,
+      um X para sair e o campo. É o que está aqui.
+    */
+    <div className="fixed inset-0 z-50 flex flex-col bg-fundo">
+      <header
+        className="flex items-center justify-between px-4 pb-2"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 14px)" }}
+      >
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Fechar conversa"
+          className="vidro flex h-10 w-10 items-center justify-center rounded-full text-escuro"
         >
-          {carregandoHistorico ? (
-            <MensagensSkeleton />
-          ) : messages.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-1.5 py-10 text-center">
-              <LogoMark size="md" />
-              <p className="mt-2 font-semibold text-escuro">
-                Fala comigo!
-              </p>
-              <p className="max-w-[260px] text-sm text-neutro-muted">
-                Pergunta sobre seu caixa, agenda ou clientes que eu te ajudo.
-              </p>
-            </div>
-          ) : (
-            <>
-              {carregandoAntigas && (
-                <p className="text-center text-xs text-neutro-muted">
-                  Carregando mensagens antigas...
-                </p>
-              )}
-              {messages.map((mensagem) => (
-                <Balao
-                  key={mensagem.id}
-                  mensagem={mensagem}
-                  confirmando={confirmandoRegistroId === mensagem.id}
-                  onConfirmarRegistro={() => confirmarRegistro(mensagem)}
-                  onCorrigirRegistro={() => corrigirRegistro(mensagem)}
-                />
-              ))}
-            </>
-          )}
-          {enviando && <DigitandoIndicador />}
-        </div>
+          <X className="h-[18px] w-[18px]" strokeWidth={2} />
+        </button>
 
-        <div className="flex gap-2 overflow-x-auto scroll-fade-x border-t border-neutro-border px-4 py-2.5">
+        {/* O relógio abre as CONVERSAS RECENTES — as do app e as do WhatsApp.
+            Era uma lixeira: apagar tudo, a coisa mais destrutiva possível, era
+            a única disponível num canto que a referência usa para VOLTAR ao
+            que já foi conversado. Limpar continua existindo, como último item
+            de dentro da folha. */}
+        <button
+          type="button"
+          aria-label="Conversas recentes"
+          onClick={() => setHistoricoAberto(true)}
+          className="vidro flex h-10 w-10 items-center justify-center rounded-full text-escuro"
+        >
+          <History className="h-[18px] w-[18px]" strokeWidth={2} />
+        </button>
+      </header>
+
+      <div
+        ref={containerRef}
+        onScroll={aoRolar}
+        className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 pb-2"
+      >
+        {carregandoHistorico ? (
+          <MensagensSkeleton />
+        ) : messages.length === 0 ? (
+          /*
+            O vazio é o centro da tela, e não um aviso no alto.
+            É onde a marca se apresenta e faz a pergunta — a única coisa na
+            tela, para a resposta ser a próxima.
+          */
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+            <MarcaTraco size={58} className="text-escuro" />
+            <p className="mt-2 text-[22px] font-bold leading-tight text-escuro">
+              Olá, {primeiroNome}
+            </p>
+            <p className="text-[20px] leading-tight text-neutro-muted">
+              Como posso te ajudar?
+            </p>
+          </div>
+        ) : (
+          <>
+            {carregandoAntigas && (
+              <p className="text-center text-xs text-neutro-muted">
+                Carregando mensagens antigas...
+              </p>
+            )}
+            {messages.map((mensagem) => (
+              <Balao
+                key={mensagem.id}
+                mensagem={mensagem}
+                confirmando={confirmandoRegistroId === mensagem.id}
+                onConfirmarRegistro={() => confirmarRegistro(mensagem)}
+                onCorrigirRegistro={() => corrigirRegistro(mensagem)}
+              />
+            ))}
+          </>
+        )}
+        {enviando && <DigitandoIndicador />}
+      </div>
+
+      <div
+        className="flex flex-col gap-3 px-4 pt-2"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 14px)" }}
+      >
+        {/* As sugestões ficam logo ACIMA do campo, rolando na horizontal —
+            perto do polegar e do que vai ser digitado, não presas num
+            rodapé separado. */}
+        <div className="scroll-fade-x -mr-4 flex gap-2 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {chips.map((chip) => (
             <button
               key={chip}
               type="button"
               onClick={() => enviarMensagem(chip)}
               disabled={enviando}
-              className="flex-shrink-0 rounded-full border border-primary-border bg-primary-light px-3.5 py-1.5 text-xs font-medium text-primary-forte transition-colors hover:bg-primary hover:text-primary-text disabled:opacity-50"
+              className="vidro-card flex-shrink-0 rounded-full px-4 py-2.5 text-[13px] font-semibold text-escuro disabled:opacity-50"
             >
               {chip}
             </button>
           ))}
         </div>
 
-        <div className="flex items-end gap-2 border-t border-neutro-border p-3">
+        <div className="flex items-end gap-2.5">
+          {/* O "+" abre as ações de criar. Na referência ele guarda anexos;
+              aqui guarda o que a Mimu serve para fazer — registrar venda,
+              despesa, agendamento. */}
           <button
             type="button"
-            aria-label={gravando ? "Parar ditado" : "Ditar mensagem"}
-            onClick={alternarDitado}
-            className={cn(
-              "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-button transition-colors",
-              gravando
-                ? "bg-erro text-white"
-                : "text-neutro-muted hover:bg-primary-light hover:text-primary-forte",
+            aria-label="Nova ação"
+            onClick={() => setAcoesAbertas(true)}
+            className="vidro-card flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-escuro"
+          >
+            <Plus className="h-5 w-5" strokeWidth={2} />
+          </button>
+
+          <div className="vidro-card flex min-h-[48px] flex-1 items-end gap-2 rounded-[24px] py-2 pl-4 pr-2">
+            <textarea
+              ref={textareaRef}
+              /*
+                O TECLADO SOBE JUNTO COM A CONVERSA.
+
+                Quem toca no M da barra quer escrever — é o gesto inteiro da
+                referência: um toque abre a conversa com o cursor já no campo.
+                Sem isto, abrir a Mimu custava dois toques, e o segundo era num
+                campo lá embaixo, do outro lado da tela.
+
+                `autoFocus` do React vira um `focus()` logo depois de montar. No
+                Safari isso só abre o teclado quando a montagem veio de um toque
+                — que é exatamente o caso aqui — e quando não vem, o pior que
+                acontece é o campo ficar focado sem teclado, como antes.
+              */
+              autoFocus
+              rows={1}
+              value={inputValue}
+              onChange={(event) => aoDigitar(event.target.value)}
+              onKeyDown={aoTeclar}
+              placeholder="Envie uma mensagem"
+              className="max-h-[120px] flex-1 resize-none touch-manipulation bg-transparent py-1.5 text-base text-escuro outline-none placeholder:text-neutro-muted"
+            />
+
+            {/*
+              UM botão só, que troca de papel: microfone enquanto não há texto,
+              enviar assim que há. É o que a referência faz, e evita dois
+              botões redondos disputando o mesmo canto — com o campo vazio,
+              "enviar" não tem o que fazer.
+            */}
+            {inputValue.trim() ? (
+              <button
+                type="button"
+                aria-label="Enviar mensagem"
+                onClick={() => enviarMensagem(inputValue)}
+                disabled={enviando}
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-text disabled:opacity-50"
+              >
+                <ArrowUp className="h-[18px] w-[18px]" strokeWidth={2.5} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                aria-label={gravando ? "Parar ditado" : "Ditar mensagem"}
+                onClick={alternarDitado}
+                className={cn(
+                  "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full",
+                  gravando ? "bg-erro text-white" : "bg-escuro text-fundo",
+                )}
+              >
+                <Mic className="h-[18px] w-[18px]" strokeWidth={2} />
+              </button>
             )}
-          >
-            <Mic className="h-5 w-5" strokeWidth={2} />
-          </button>
-
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={inputValue}
-            onChange={(event) => aoDigitar(event.target.value)}
-            onKeyDown={aoTeclar}
-            placeholder="Fala com a Mimu..."
-            className="max-h-[120px] flex-1 resize-none touch-manipulation rounded-button border border-neutro-border bg-fundo px-3.5 py-2.5 text-base text-escuro outline-none placeholder:text-neutro-muted focus:border-primary-forte md:text-sm"
-          />
-
-          <button
-            type="button"
-            aria-label="Enviar mensagem"
-            onClick={() => enviarMensagem(inputValue)}
-            disabled={!inputValue.trim() || enviando}
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-button bg-primary text-primary-text transition-colors hover:bg-primary-hover disabled:bg-neutro-disabled disabled:text-neutro-disabled-text"
-          >
-            <Send className="h-[18px] w-[18px]" strokeWidth={2.25} />
-          </button>
+          </div>
         </div>
       </div>
+
+      <FolhaAcoes
+        aberta={acoesAbertas}
+        aoFechar={() => setAcoesAbertas(false)}
+        modulos={modulos}
+      />
+
+      <FolhaHistorico
+        aberta={historicoAberto}
+        aoFechar={() => setHistoricoAberto(false)}
+        empresaId={empresa.id}
+        aoPedirLimpeza={() => setConfirmAberto(true)}
+      />
 
       <ConfirmDialog
         open={confirmAberto}
@@ -709,7 +873,7 @@ function Balao({
             "rounded-card px-4 py-2.5 text-sm text-escuro",
             isUser
               ? "rounded-br-sm border border-primary-border bg-primary-light"
-              : "rounded-bl-sm border border-neutro-border bg-superficie",
+              : "vidro-card rounded-bl-sm",
           )}
         >
           <p className="whitespace-pre-wrap">{mensagem.content}</p>
@@ -756,7 +920,7 @@ function CartaoConfirmacaoRegistro({
   }
 
   return (
-    <div className="w-full min-w-[240px] rounded-card border border-neutro-border bg-superficie p-4">
+    <div className="w-full min-w-[240px] vidro-card rounded-[20px] p-4">
       <dl className="flex flex-col gap-1.5 text-sm">
         <div className="flex justify-between">
           <dt className="text-neutro-muted">Tipo</dt>
@@ -807,7 +971,7 @@ function CartaoConfirmacaoRegistro({
           type="button"
           onClick={onCorrigir}
           disabled={confirmando}
-          className="flex-1 rounded-button border border-neutro-border bg-superficie py-2 text-sm font-semibold text-escuro transition-colors hover:bg-fundo disabled:opacity-50"
+          className="flex-1 vidro-card rounded-button py-2 text-sm font-semibold text-escuro transition-colors hover:bg-fundo disabled:opacity-50"
         >
           Corrigir
         </button>
@@ -830,7 +994,7 @@ function CartaoResposta({ card }: { card: MimuCard }) {
   const subiu = (card.variacaoPercentual ?? 0) >= 0;
 
   return (
-    <div className="w-full min-w-[220px] rounded-card border border-neutro-border bg-superficie p-4">
+    <div className="w-full min-w-[220px] vidro-card rounded-[20px] p-4">
       <p className="text-xs text-neutro-muted">{card.titulo}</p>
       <p className="mt-1 text-2xl font-bold text-primary-forte">
         {formatCurrency(card.valor)}
@@ -865,7 +1029,7 @@ function DigitandoIndicador() {
   return (
     <div className="flex items-end gap-2">
       <LogoMark size="sm" />
-      <div className="flex items-center gap-1 rounded-card rounded-bl-sm border border-neutro-border bg-superficie px-4 py-3.5">
+      <div className="flex items-center gap-1 rounded-card vidro-card rounded-bl-sm px-4 py-3.5">
         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutro-muted [animation-delay:-0.3s]" />
         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutro-muted [animation-delay:-0.15s]" />
         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutro-muted" />
@@ -895,7 +1059,7 @@ function MensagensSkeleton() {
 function MimuChatSkeleton() {
   return (
     <div className="mx-auto flex flex-col gap-4 lg:max-w-3xl">
-      <div className="flex flex-col overflow-hidden rounded-card border border-neutro-border bg-superficie">
+      <div className="flex flex-col overflow-hidden vidro-card rounded-[20px]">
         <div className="flex items-center gap-3 border-b border-neutro-border px-4 py-3">
           <Skeleton className="h-9 w-9 rounded-2xl" />
           <div className="flex flex-col gap-1.5">

@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
+import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu, type CorrecaoMimu } from "@/lib/mimu-correcao";
@@ -28,6 +29,7 @@ export default function NovoAgendamentoPage({
   const { empresa } = useEmpresa();
   const router = useRouter();
   const { showToast } = useToast();
+  const voltar = useVoltarAposCriar("/agenda");
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export default function NovoAgendamentoPage({
         : "Agendamento criado!",
       Calendar,
     );
-    router.push("/agenda");
+    voltar();
   }
 
   // O Next já decodifica os valores da query string automaticamente — nada

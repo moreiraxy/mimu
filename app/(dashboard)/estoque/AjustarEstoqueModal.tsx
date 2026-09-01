@@ -52,7 +52,7 @@ export function AjustarEstoqueModal({
     >
       <div
         className={cn(
-          "w-full max-w-[420px] rounded-t-card bg-superficie p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[420px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",
@@ -70,7 +70,7 @@ export function AjustarEstoqueModal({
             <select
               value={produtoId}
               onChange={(e) => setProdutoId(e.target.value)}
-              className="rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
+              className="rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
             >
               {produtos.length === 0 && <option value="">Nenhum produto ativo</option>}
               {produtos.map((p) => (

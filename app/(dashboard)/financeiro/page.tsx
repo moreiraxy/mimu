@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
 import { useTransacoes } from "@/hooks/useTransacoes";
 import { useToast } from "@/hooks/useToast";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FadeIn } from "@/components/ui/FadeIn";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { calcularSaldoCaixa } from "@/lib/calculations";
 import { SaldoHeader } from "./SaldoHeader";
-import { GraficoBarras } from "./GraficoBarras";
+import { GraficoMovimentacao } from "./GraficoMovimentacao";
+import { AcoesFinanceiro } from "./AcoesFinanceiro";
 import { FiltrosChips } from "./FiltrosChips";
 import { CategoriaChips } from "./CategoriaChips";
 import { ListaTransacoes } from "./ListaTransacoes";
@@ -36,11 +36,11 @@ export default function FinanceiroPage() {
   if (error) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="text-sm text-neutro-muted">{error}</p>
+        <p className="text-[15px] text-neutro-muted">{error}</p>
         <button
           type="button"
           onClick={refetch}
-          className="text-sm font-semibold text-primary-forte"
+          className="text-[15px] font-bold text-primary-forte"
         >
           Tentar de novo
         </button>
@@ -49,6 +49,15 @@ export default function FinanceiroPage() {
   }
 
   const saldo = calcularSaldoCaixa(transacoes);
+  // As duas linhas de apoio do cartão de saldo são a CONTA daquele número:
+  // entradas menos saídas. Somadas aqui, do mesmo array, elas não podem
+  // divergir do saldo por cima.
+  const entradas = transacoes
+    .filter((t) => t.tipo === "entrada")
+    .reduce((soma, t) => soma + Number(t.valor), 0);
+  const saidas = transacoes
+    .filter((t) => t.tipo === "saida")
+    .reduce((soma, t) => soma + Number(t.valor), 0);
   const filtradasPorTipoData = aplicarFiltro(transacoes, filtro);
   const filtradas = aplicarFiltroCategoria(filtradasPorTipoData, categoriaFiltro);
   const grupos = agruparPorData(filtradas);
@@ -66,25 +75,18 @@ export default function FinanceiroPage() {
   }
 
   return (
-    <FadeIn className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl">
-      <SaldoHeader saldo={saldo} />
+    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-5xl">
+      {/* SEM <FadeIn> AQUI: a transição de opacidade faz do elemento um
+          "backdrop root" enquanto roda, e todo o vidro de dentro perde o
+          desfoque por 150ms a cada navegação — a tela entra chapada e só
+          então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
+      <PageHeader title="Financeiro" voltar={false} />
 
-      <div className="flex gap-3">
-        <Link
-          href="/financeiro/nova-entrada"
-          className="flex-1 rounded-button bg-primary py-3 text-center text-sm font-bold text-primary-text"
-        >
-          + Entrada
-        </Link>
-        <Link
-          href="/financeiro/nova-saida"
-          className="flex-1 rounded-button border-[1.5px] border-primary-forte py-3 text-center text-sm font-bold text-primary-forte"
-        >
-          − Saída
-        </Link>
-      </div>
+      <SaldoHeader saldo={saldo} entradas={entradas} saidas={saidas} />
 
-      <GraficoBarras transacoes={transacoes} />
+      <AcoesFinanceiro />
+
+      <GraficoMovimentacao transacoes={transacoes} />
 
       <FiltrosChips ativo={filtro} onChange={setFiltro} />
 
@@ -104,7 +106,7 @@ export default function FinanceiroPage() {
         onConfirm={confirmarExclusao}
         onCancel={() => setIdParaExcluir(null)}
       />
-    </FadeIn>
+    </div>
   );
 }
 

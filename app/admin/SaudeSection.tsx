@@ -91,7 +91,7 @@ export function SaudeSection() {
   return (
     <section className="mb-8">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="font-display text-lg font-bold text-escuro">
+        <h2 className="font-display text-[20px] font-bold text-escuro">
           Últimas 24 horas
         </h2>
         {semNada && (
@@ -108,16 +108,22 @@ export function SaudeSection() {
           return (
             <div
               key={tipo}
-              className={`rounded-card border p-3 ${
-                ruim
-                  ? "border-erro-texto/30 bg-erro-light"
-                  : "border-neutro-border bg-superficie"
-              }`}
+              className="vidro-card rounded-[20px] p-4"
             >
-              <p className="text-xs text-neutro-muted">{ROTULO[tipo]}</p>
+              <p className="text-[13px] leading-tight text-neutro-muted">
+                {ROTULO[tipo]}
+              </p>
+              {/*
+                O número que importa é destacado por PESO, não por vermelho.
+
+                O painel inteiro pintava o cartão de vermelho-claro quando havia
+                falha — e no tema escuro isso vira um bloco claro no meio de
+                superfícies de vidro, o único da tela. O ponto néon ao lado do
+                rótulo diz a mesma coisa e cabe na linguagem do app.
+              */}
               <p
-                className={`mt-1 text-2xl font-semibold ${
-                  ruim ? "text-erro-texto" : "text-escuro"
+                className={`mt-1 text-[28px] font-bold leading-none tracking-tight ${
+                  ruim ? "text-primary-forte" : "text-escuro"
                 }`}
               >
                 {contagem === null ? "—" : valor}
@@ -128,27 +134,29 @@ export function SaudeSection() {
       </div>
 
       {falhasRecentes.length > 0 && (
-        <div className="mt-3 rounded-card border border-neutro-border bg-superficie">
-          {falhasRecentes.map((e) => (
+        <div className="vidro-card mt-3 overflow-hidden rounded-[20px]">
+          {falhasRecentes.map((e, i) => (
             <div
               key={e.id}
-              className="flex items-start justify-between gap-4 border-b border-neutro-border px-4 py-3 last:border-b-0"
+              className={`flex items-start justify-between gap-4 px-4 py-3.5 ${
+                i > 0 ? "border-t border-white/[0.08]" : ""
+              }`}
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-erro-texto">
+                <p className="text-[15px] font-bold text-escuro">
                   {ROTULO[e.tipo] ?? e.tipo}
                 </p>
                 {/* O motivo cru, sem tradução: quem lê aqui é quem vai
                     consertar, e a mensagem original é o que serve para
                     procurar. */}
-                <p className="mt-0.5 break-words text-xs text-neutro-muted">
+                <p className="mt-0.5 break-words text-[13px] text-neutro-muted">
                   {String(
                     (e.detalhe as { motivo?: unknown } | null)?.motivo ??
                       JSON.stringify(e.detalhe ?? {}),
                   ).slice(0, 160)}
                 </p>
               </div>
-              <span className="flex-shrink-0 text-xs text-neutro-muted">
+              <span className="flex-shrink-0 text-[13px] text-neutro-muted">
                 {quando(e.created_at)}
               </span>
             </div>

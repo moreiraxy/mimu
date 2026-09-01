@@ -72,7 +72,7 @@ export default function DetalheFornecedorPage() {
     <div className="lg:mx-auto lg:max-w-2xl">
       <PageHeader title="Fornecedor" />
 
-      <div className="rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="vidro-card rounded-[20px] p-4">
         <p className="text-lg font-semibold text-escuro">{fornecedor.nome}</p>
         <div className="mt-2 flex flex-col gap-1">
           {fornecedor.telefone && (
@@ -119,7 +119,7 @@ export default function DetalheFornecedorPage() {
             {compras.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-card border border-neutro-border bg-superficie p-3"
+                className="flex items-center justify-between vidro-card rounded-[20px] p-3"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-escuro">

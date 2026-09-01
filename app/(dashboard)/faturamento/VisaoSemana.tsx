@@ -89,7 +89,7 @@ export function VisaoSemana({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="vidro-card rounded-[20px] p-4">
         <div className="flex h-40 items-end justify-between gap-1.5">
           {dias.map((dia, i) => {
             const total = dia.realizado + dia.previsto;

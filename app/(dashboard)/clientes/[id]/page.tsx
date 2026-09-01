@@ -244,7 +244,7 @@ export default function PerfilClientePage() {
         </div>
       </div>
 
-      <div className="mt-4 flex divide-x divide-neutro-border rounded-card border border-neutro-border bg-superficie py-3">
+      <div className="mt-4 flex divide-x divide-neutro-border vidro-card rounded-[20px] py-3">
         <Estatistica
           label="cliente há"
           valor={formatTempoCliente(cliente.created_at)}
@@ -256,7 +256,7 @@ export default function PerfilClientePage() {
         />
       </div>
 
-      <div className="mt-4 rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="mt-4 vidro-card rounded-[20px] p-4">
         <p className="text-sm font-semibold text-escuro">Frequência</p>
         <p className="mt-2 text-sm text-neutro-muted">
           Último atendimento:{" "}
@@ -291,7 +291,7 @@ export default function PerfilClientePage() {
         </div>
       )}
 
-      <div className="mt-4 rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="mt-4 vidro-card rounded-[20px] p-4">
         <p className="text-sm font-semibold text-escuro">
           Histórico de visitas
         </p>

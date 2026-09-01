@@ -98,6 +98,33 @@ const config: Config = {
           "0%, 60%, 100%": { opacity: "0.3", transform: "translateY(0)" },
           "30%": { opacity: "1", transform: "translateY(-4px)" },
         },
+        /*
+         * A respiração da marca na tela de abertura.
+         *
+         * Não é uma roda girando, e a diferença importa: a roda promete
+         * "estou trabalhando" e, quando demora, vira a medida do quanto
+         * está demorando. A marca que respira não mede nada — ela ocupa o
+         * tempo sem cobrar dele.
+         *
+         * Amplitude curta de propósito (4% de escala): mais que isso e o
+         * logo pulsa, o que lê como alerta.
+         */
+        respirar: {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.9" },
+          "50%": { transform: "scale(1.04)", opacity: "1" },
+        },
+        /*
+         * O balanço do modo de edição, igual ao da tela de início do iPhone.
+         *
+         * Amplitude minúscula (0,6 grau) e ritmo curto: é um sinal de estado,
+         * não uma animação. Mais que isso e a tela inteira parece tremendo,
+         * o que atrapalha justamente quem está tentando mirar um botão de
+         * remover.
+         */
+        balancar: {
+          "0%, 100%": { transform: "rotate(-0.6deg)" },
+          "50%": { transform: "rotate(0.6deg)" },
+        },
         "blink-erro": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.35" },
@@ -110,6 +137,8 @@ const config: Config = {
         "float-slow": "float-slow 6s ease-in-out infinite",
         "pulse-badge": "pulse-badge 2s ease-in-out infinite",
         "typing-dot": "typing-dot 1.2s infinite",
+        respirar: "respirar 2.4s ease-in-out infinite",
+        balancar: "balancar 0.35s ease-in-out infinite",
         "blink-erro": "blink-erro 1.1s ease-in-out infinite",
       },
     },

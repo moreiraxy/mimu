@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { inicioDoDiaNoBrasil } from "@/lib/datas";
 
 const LIMITES = {
   login: { max: 10, janelaMs: 60 * 60 * 1000 },
@@ -37,18 +38,64 @@ const LIMITES = {
    * chutando.
    */
   whatsapp_vinculo: { max: 5, janelaMs: 60 * 60 * 1000 },
+  /**
+   * A cota diária da Mimu, por EMPRESA.
+   *
+   * Por empresa e não por usuária porque é a conta que tem plano, e é o plano
+   * que compra a cota. Vale somando app e WhatsApp: é a mesma pessoa gastando
+   * a mesma API dos dois lados.
+   *
+   * O `max` aqui é o do plano gratuito e serve de piso seguro. Quem chama
+   * passa o teto do plano por parâmetro — ver `limiteDiarioDaMimu` em
+   * lib/planos.ts. Deixar o número certo aqui seria impossível: ele depende de
+   * quem está perguntando.
+   *
+   * `porDiaCivil` é o que torna a promessa verdadeira. Este teto é o ÚNICO que
+   * a pessoa lê na tela: "10 mensagens por dia" está escrito no perfil, no
+   * plano e na resposta da Mimu quando acaba. Os outros tetos daqui são
+   * proteções internas contra abuso, e ninguém precisa saber quando eles
+   * zeram.
+   *
+   * Uma janela de 24 horas corridas contaria certo e comunicaria errado: quem
+   * gastasse as dez às 15h veria as mensagens voltando de uma em uma a partir
+   * das 15h do dia seguinte, sem nada na tela explicando por quê. "Por dia" só
+   * quer dizer uma coisa para quem lê, e é esta: amanhã tem dez de novo.
+   *
+   * `janelaMs` fica porque a limpeza de `registrarTentativa` usa 24h, e um dia
+   * civil nunca é mais longo que isso — nenhuma linha de hoje é apagada por
+   * ela.
+   */
+  mimu_dia: { max: 10, janelaMs: 24 * 60 * 60 * 1000, porDiaCivil: true },
 } as const;
+
+/**
+ * A partir de quando este teto conta.
+ *
+ * Ou a meia-noite do dia no Brasil (para o que a pessoa lê como "por dia"), ou
+ * uma janela deslizante a partir de agora (para as proteções internas).
+ */
+function inicioDaJanela(tipo: TipoRateLimit): Date {
+  const limite = LIMITES[tipo];
+  return "porDiaCivil" in limite && limite.porDiaCivil
+    ? inicioDoDiaNoBrasil()
+    : new Date(Date.now() - limite.janelaMs);
+}
 
 export type TipoRateLimit = keyof typeof LIMITES;
 
-/** true se `identificador` (e-mail ou IP) já bateu o limite de tentativas na última hora. */
-export async function excedeuLimite(
+/**
+ * Quantas vezes `identificador` já apareceu dentro da janela deste tipo.
+ *
+ * Existe separado de `excedeuLimite` porque há um caso em que o booleano não
+ * basta: a tela precisa dizer "3 de 10 mensagens usadas hoje", e para isso
+ * precisa do número, não da resposta.
+ */
+export async function usoNaJanela(
   tipo: TipoRateLimit,
   identificador: string,
-): Promise<boolean> {
+): Promise<number> {
   const supabase = createServiceClient();
-  const { max, janelaMs } = LIMITES[tipo];
-  const desde = new Date(Date.now() - janelaMs).toISOString();
+  const desde = inicioDaJanela(tipo).toISOString();
 
   const { count } = await supabase
     .from("auth_rate_limit")
@@ -57,7 +104,24 @@ export async function excedeuLimite(
     .eq("identificador", identificador.toLowerCase())
     .gte("created_at", desde);
 
-  return (count ?? 0) >= max;
+  return count ?? 0;
+}
+
+/**
+ * true se `identificador` (e-mail, IP ou id de empresa) já bateu o limite na
+ * janela do tipo.
+ *
+ * `maximo` sobrescreve o teto da tabela, e existe para a cota da Mimu: lá o
+ * limite depende do PLANO de quem está perguntando, e um número fixo em
+ * LIMITES não teria como saber disso.
+ */
+export async function excedeuLimite(
+  tipo: TipoRateLimit,
+  identificador: string,
+  maximo?: number,
+): Promise<boolean> {
+  const usadas = await usoNaJanela(tipo, identificador);
+  return usadas >= (maximo ?? LIMITES[tipo].max);
 }
 
 /**

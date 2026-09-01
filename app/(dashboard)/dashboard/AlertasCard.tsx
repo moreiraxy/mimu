@@ -15,19 +15,33 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import type { AlertaMimu, TipoAlerta } from "@/types";
 import type { AlertaMetadata } from "@/lib/mimu-prompts";
 
-const ICONE_POR_TIPO: Record<TipoAlerta, { icone: LucideIcon; bg: string }> = {
-  sem_venda: { icone: Bell, bg: "bg-ambar" },
-  agendamento_pendente: { icone: CalendarClock, bg: "bg-ambar" },
-  conta_vencida: { icone: AlertTriangle, bg: "bg-erro" },
-  meta_risco: { icone: TrendingDown, bg: "bg-ambar" },
-  recorde: { icone: Trophy, bg: "bg-primary" },
-  cliente_sumiu: { icone: UserX, bg: "bg-ambar" },
-  estoque_baixo: { icone: Package, bg: "bg-ambar" },
-  tentativa_prompt_injection: { icone: ShieldAlert, bg: "bg-erro" },
+/*
+ * Cada tipo tem O SEU ÍCONE, e NENHUM tem a sua cor.
+ *
+ * Antes eram discos chapados: âmbar em quase todos, vermelho nos dois graves,
+ * néon no recorde — tudo dentro de um cartão âmbar-claro, o único bloco de cor
+ * preenchida do painel. Um lembrete de que faltou registrar uma venda entrava
+ * na tela com o mesmo peso visual de um incêndio, e ainda ficava difícil de
+ * ler: texto escuro sobre âmbar no tema escuro.
+ *
+ * A Mimu avisa; ela não alarma. O disco agora é o véu da marca em todos, e
+ * quem diferencia um aviso do outro é o desenho do ícone mais o texto — que é
+ * onde a informação sempre esteve.
+ */
+const ICONE_POR_TIPO: Record<TipoAlerta, LucideIcon> = {
+  sem_venda: Bell,
+  agendamento_pendente: CalendarClock,
+  conta_vencida: AlertTriangle,
+  meta_risco: TrendingDown,
+  recorde: Trophy,
+  cliente_sumiu: UserX,
+  estoque_baixo: Package,
+  tentativa_prompt_injection: ShieldAlert,
 };
 
 function extrairMetadata(metadata: AlertaMimu["metadata"]): AlertaMetadata {
@@ -65,34 +79,37 @@ export function AlertasCard({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-card bg-ambar-light p-4">
-      {alertas.map((alerta) => {
-        const { icone: Icone, bg } = ICONE_POR_TIPO[alerta.tipo];
+    <div className="vidro-card flex flex-col rounded-[20px]">
+      {alertas.map((alerta, indice) => {
+        const Icone = ICONE_POR_TIPO[alerta.tipo];
         const meta = extrairMetadata(alerta.metadata);
 
         return (
           <div
             key={alerta.id}
-            className="flex flex-col gap-2.5 border-b border-ambar/20 pb-3 last:border-0 last:pb-0"
+            className={cn(
+              "flex flex-col gap-3 p-4",
+              indice > 0 && "border-t border-white/[0.08]",
+            )}
           >
-            <div className="flex items-start gap-2.5">
-              <span
-                className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-white ${bg}`}
-              >
-                <Icone className="h-3.5 w-3.5" strokeWidth={2.25} />
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-forte">
+                <Icone className="h-[18px] w-[18px]" strokeWidth={2.25} />
               </span>
-              <p className="flex-1 text-sm text-escuro">{alerta.mensagem}</p>
+              <p className="flex-1 text-[15px] leading-snug text-escuro">
+                {alerta.mensagem}
+              </p>
               <button
                 type="button"
                 aria-label="Dispensar alerta"
                 onClick={() => onDispensar(alerta.id)}
-                className="flex-shrink-0 text-neutro-muted transition-colors hover:text-neutro-muted-strong"
+                className="flex-shrink-0 text-neutro-muted transition-colors hover:text-escuro"
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
 
-            <div className="ml-[34px] flex flex-wrap gap-2">
+            <div className="ml-12 flex flex-wrap gap-2">
               {alerta.tipo === "sem_venda" && (
                 <>
                   <BotaoAcao
@@ -180,11 +197,12 @@ function BotaoAcao({
     <button
       type="button"
       onClick={onClick}
-      className={
+      className={cn(
+        "rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
         secundario
-          ? "rounded-full border border-neutro-border bg-superficie px-3 py-1.5 text-xs font-semibold text-neutro-muted-strong transition-colors hover:bg-fundo"
-          : "rounded-full bg-ambar px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-ambar-dark"
-      }
+          ? "vidro-card text-neutro-muted"
+          : "bg-primary/20 text-primary-forte",
+      )}
     >
       {label}
     </button>

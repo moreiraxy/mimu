@@ -18,6 +18,8 @@ const ambiente = aplicarAmbienteLocal();
 
 const { responderPelaMimu } = await import("@/lib/canais/mimu-responde");
 const { RESPOSTA_SEM_ACESSO } = await import("@/lib/mimu/acesso");
+const { MENSAGENS_MIMU_POR_DIA } = await import("@/lib/planos");
+const { inicioDoDiaNoBrasil } = await import("@/lib/datas");
 
 const service = createRawClient<Database>(
   ambiente.url,
@@ -80,38 +82,123 @@ describe("suspensão vale no WhatsApp", () => {
 });
 
 describe("teto do plano vale no WhatsApp", () => {
-  it("plano gratuito não conversa com a IA por aqui", async () => {
+  it("plano gratuito CONVERSA — dentro da cota do dia", async () => {
     const conta = await criarConta("Gratuita");
     criadas.push(conta.userId);
 
     /*
-     * O gratuito não inclui `ia` porque cada resposta custa na Groq. A regra
-     * estava aplicada no app (o middleware barra /api/mimu) e era contornável
-     * por mensagem — este teste é o que impede isso de voltar.
+     * A regra virou ao contrário, e de propósito.
+     *
+     * O gratuito não tinha a Mimu porque cada resposta custa na Groq, e IA
+     * ilimitada de graça é uma conta que cresce com quem nunca vai pagar. O
+     * que mudou não foi o custo — foi a existência de um teto por dia
+     * (MENSAGENS_MIMU_POR_DIA). Com teto, a assistente pode ser de todo
+     * mundo, que é o que faz alguém querer assinar para falar mais.
      */
     await service
       .from("assinaturas")
       .update({ plano: "free", status: "ativa", proxima_cobranca: null, valor_mensal: 0 })
       .eq("empresa_id", conta.empresaId);
 
-    const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
-    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    // "desfazer" não chama o modelo, então o teste não gasta Groq — mas só
+    // chega nele quem passou pelo gate de acesso.
+    const resposta = await responderPelaMimu(msg("desfazer"), conta);
+    expect(resposta).not.toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    expect(resposta).not.toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
+    expect(resposta).not.toBe(RESPOSTA_SEM_ACESSO.assinatura_encerrada);
   });
 
-  it("assinatura pendente também não — o plano gravado não vale sozinho", async () => {
+  it("plano gratuito para de conversar quando a cota do dia acaba", async () => {
+    const conta = await criarConta("SemCota");
+    criadas.push(conta.userId);
+
+    await service
+      .from("assinaturas")
+      .update({ plano: "free", status: "ativa", proxima_cobranca: null, valor_mensal: 0 })
+      .eq("empresa_id", conta.empresaId);
+
+    /*
+     * Gasta a cota do dia direto na tabela em vez de mandar dez mensagens.
+     *
+     * Mandar de verdade custaria dez idas ao modelo — e o teste passaria a
+     * medir o Groq em vez de medir o teto. O que importa aqui é só uma coisa:
+     * cheio o contador, a Mimu para.
+     */
+    const gastas = Array.from({ length: MENSAGENS_MIMU_POR_DIA.free }, () => ({
+      tipo: "mimu_dia" as const,
+      identificador: conta.empresaId,
+    }));
+    await service.from("auth_rate_limit").insert(gastas);
+
+    const resposta = await responderPelaMimu(msg("desfazer"), conta);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
+  });
+
+  it("a cota zera na virada do dia, e não 24 horas depois de cada mensagem", async () => {
+    const conta = await criarConta("ViradaDoDia");
+    criadas.push(conta.userId);
+
+    await service
+      .from("assinaturas")
+      .update({ plano: "free", status: "ativa", proxima_cobranca: null, valor_mensal: 0 })
+      .eq("empresa_id", conta.empresaId);
+
+    /*
+     * O teste que separa "por dia" de "nas últimas 24 horas".
+     *
+     * As dez mensagens foram gastas no ÚLTIMO MINUTO DE ONTEM, no relógio do
+     * Brasil. Numa janela deslizante elas ainda contariam — têm menos de 24
+     * horas — e a Mimu ficaria calada. Num limite por dia elas são de ontem, e
+     * hoje a conta está zerada.
+     *
+     * É a diferença que a pessoa sente: com janela deslizante, quem gastou
+     * tudo às 15h vê as mensagens voltando de uma em uma a partir das 15h do
+     * dia seguinte, sem nada explicando. "Dez por dia" promete outra coisa.
+     *
+     * De quebra, isto prende o FUSO. Contando com o relógio do servidor, que
+     * roda em UTC, a virada aconteceria às 21h do Brasil — e este teste
+     * falharia todo dia entre 21h e meia-noite.
+     */
+    const ontemQuaseVirando = new Date(inicioDoDiaNoBrasil().getTime() - 60_000);
+    const deOntem = Array.from({ length: MENSAGENS_MIMU_POR_DIA.free }, () => ({
+      tipo: "mimu_dia" as const,
+      identificador: conta.empresaId,
+      created_at: ontemQuaseVirando.toISOString(),
+    }));
+    await service.from("auth_rate_limit").insert(deOntem);
+
+    const resposta = await responderPelaMimu(msg("desfazer"), conta);
+    expect(resposta).not.toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
+  });
+
+  it("a cota do gratuito não vale para quem paga", async () => {
+    const conta = await criarConta("PagaComCota");
+    criadas.push(conta.userId);
+
+    // Mesmo número de mensagens gastas do teste acima. A diferença é só o
+    // plano — e é ela que precisa mudar a resposta, senão o teto do Pro está
+    // sendo calculado pelo do gratuito.
+    const gastas = Array.from({ length: MENSAGENS_MIMU_POR_DIA.free }, () => ({
+      tipo: "mimu_dia" as const,
+      identificador: conta.empresaId,
+    }));
+    await service.from("auth_rate_limit").insert(gastas);
+
+    const resposta = await responderPelaMimu(msg("desfazer"), conta);
+    expect(resposta).not.toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
+  });
+
+  it("assinatura pendente não conversa — escolheu plano pago e nunca pagou", async () => {
     const conta = await criarConta("Pendente");
     criadas.push(conta.userId);
 
-    // 'pendente' guarda o plano que a pessoa escolheu e NUNCA pagou. Se o
-    // teto acreditasse no campo `plano`, quem parou na tela de pagamento teria
-    // a Mimu inteira de graça pelo WhatsApp.
     await service
       .from("assinaturas")
       .update({ plano: "premium", status: "pendente" })
       .eq("empresa_id", conta.empresaId);
 
     const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
-    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.assinatura_encerrada);
   });
 
   it("assinatura CANCELADA para de conversar", async () => {
@@ -119,16 +206,18 @@ describe("teto do plano vale no WhatsApp", () => {
     criadas.push(conta.userId);
 
     /*
-     * O caso mais importante desta lista, e o que faltava.
+     * O caso mais importante desta lista.
      *
      * Cancelar acontece no app ou no Mercado Pago, e o WhatsApp não fica
-     * sabendo de nada — não há evento, não há aviso. Se o teto olhasse só o
-     * campo `plano`, que continua gravado como 'premium', a pessoa seguiria
-     * conversando com a Mimu de graça por tempo indeterminado. Ninguém veria:
-     * o app barra, o WhatsApp não.
+     * sabendo de nada — não há evento, não há aviso.
      *
-     * O que segura é `planoEfetivo`, que ignora o plano gravado quando o
-     * status não dá acesso.
+     * E este teste quase deixou de proteger o que protege. O que barrava a
+     * conta cancelada era indireto: `planoEfetivo` devolvia 'free', e 'free'
+     * não tinha o módulo `ia`. No dia em que o gratuito ganhou a Mimu, essa
+     * corrente arrebentou sozinha e a conta cancelada passaria a conversar de
+     * graça — sem erro, sem log, sem nada. Agora quem barra é
+     * `assinaturaEncerrada`, que diz isso com todas as letras em vez de
+     * depender da coincidência entre duas regras.
      */
     await service
       .from("assinaturas")
@@ -136,10 +225,10 @@ describe("teto do plano vale no WhatsApp", () => {
       .eq("empresa_id", conta.empresaId);
 
     const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
-    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.assinatura_encerrada);
   });
 
-  it("assinatura paga que VENCEU para de conversar", async () => {
+  it("assinatura paga que VENCEU cai no gratuito, e o gratuito conversa", async () => {
     const conta = await criarConta("Vencida");
     criadas.push(conta.userId);
 
@@ -147,9 +236,13 @@ describe("teto do plano vale no WhatsApp", () => {
      * Vencer é diferente de cancelar: ninguém decidiu nada, a data passou.
      * O status continua 'ativa' — é a data da próxima cobrança que denuncia.
      *
-     * É o caso do cartão que falhou e ninguém percebeu. Sem esta checagem, uma
-     * venda anual daria um ano inteiro de Mimu de graça pelo WhatsApp depois
-     * de vencida, sem nada aparecer em lugar nenhum.
+     * O middleware rebaixa essa conta para o gratuito na próxima vez que ela
+     * abrir o app, e o WhatsApp precisa tratá-la do mesmo jeito: como conta
+     * gratuita, não como conta encerrada. Barrar aqui diria "você não tem
+     * acesso" para quem o app diz "você está no plano grátis".
+     *
+     * O que ela NÃO leva junto é o teto do Premium que deixou de pagar — isso
+     * é `planoEfetivo`, e continua valendo.
      */
     const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     await service
@@ -157,8 +250,16 @@ describe("teto do plano vale no WhatsApp", () => {
       .update({ plano: "premium", status: "ativa", proxima_cobranca: ontem })
       .eq("empresa_id", conta.empresaId);
 
-    const resposta = await responderPelaMimu(msg("quanto vendi?"), conta);
-    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    const gastas = Array.from({ length: MENSAGENS_MIMU_POR_DIA.free }, () => ({
+      tipo: "mimu_dia" as const,
+      identificador: conta.empresaId,
+    }));
+    await service.from("auth_rate_limit").insert(gastas);
+
+    // Gastou a cota do GRATUITO e parou: prova que o teto aplicado é o do
+    // gratuito, e não o do Premium gravado na linha.
+    const resposta = await responderPelaMimu(msg("desfazer"), conta);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
   });
 
   it("conta em trial é atendida — o teste dá acesso a tudo", async () => {
@@ -197,7 +298,7 @@ describe("o aviso de plano não vira repetição", () => {
      * primeira mensagem já explicou tudo que havia para explicar.
      */
     const primeira = await responderPelaMimu(msg("quanto vendi?"), conta);
-    expect(primeira).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    expect(primeira).toBe(RESPOSTA_SEM_ACESSO.assinatura_encerrada);
 
     for (const texto of ["oi?", "alô", "você sumiu?"]) {
       expect(await responderPelaMimu(msg(texto), conta)).toBeNull();
@@ -223,7 +324,7 @@ describe("o aviso de plano não vira repetição", () => {
     expect(await responderPelaMimu(msg("oi?"), avisada)).toBeNull();
 
     expect(await responderPelaMimu(msg("quanto vendi?"), outra)).toBe(
-      RESPOSTA_SEM_ACESSO.sem_modulo_ia,
+      RESPOSTA_SEM_ACESSO.assinatura_encerrada,
     );
   });
 });
@@ -269,16 +370,31 @@ describe("áudio não custa dinheiro para quem não tem acesso", () => {
     expect(transcreveu).toBe(false);
   });
 
-  it("plano gratuito: nem baixa o áudio", async () => {
-    const conta = await criarConta("GratuitaAudio");
+  it("cota esgotada: nem baixa o áudio", async () => {
+    const conta = await criarConta("SemCotaAudio");
     criadas.push(conta.userId);
     await service
       .from("assinaturas")
       .update({ plano: "free", status: "ativa", proxima_cobranca: null })
       .eq("empresa_id", conta.empresaId);
 
+    /*
+     * Este teste trocou de dono junto com a regra.
+     *
+     * Ele provava que conta gratuita não pagava Whisper porque não tinha
+     * acesso nenhum. Agora ela tem — e o gasto que precisa continuar barrado
+     * é o de quem já usou o dia inteiro. É o mesmo dinheiro, na mesma ordem:
+     * o gate roda ANTES de `obterAudio`, então áudio de quem não pode ser
+     * atendido nunca chega a ser baixado nem transcrito.
+     */
+    const gastas = Array.from({ length: MENSAGENS_MIMU_POR_DIA.free }, () => ({
+      tipo: "mimu_dia" as const,
+      identificador: conta.empresaId,
+    }));
+    await service.from("auth_rate_limit").insert(gastas);
+
     const { transcreveu, resposta } = await mandarAudio(conta);
-    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.sem_modulo_ia);
+    expect(resposta).toBe(RESPOSTA_SEM_ACESSO.cota_esgotada);
     expect(transcreveu).toBe(false);
   });
 

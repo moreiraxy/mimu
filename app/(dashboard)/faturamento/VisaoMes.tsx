@@ -118,7 +118,7 @@ export function VisaoMes({
         />
       </div>
 
-      <div className="rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="vidro-card rounded-[20px] p-4">
         <p className="text-sm text-neutro-muted">
           No ritmo atual, você vai fechar o mês em
         </p>
@@ -127,7 +127,7 @@ export function VisaoMes({
         </p>
       </div>
 
-      <div className="rounded-card border border-neutro-border bg-superficie p-4">
+      <div className="vidro-card rounded-[20px] p-4">
         <p className="text-xs text-neutro-muted">Mês passado</p>
         <p className="text-sm font-semibold text-escuro">
           {formatCurrency(dados.realizadoMesPassado)}
@@ -161,7 +161,7 @@ function CardMes({
   cor: string;
 }) {
   return (
-    <div className="rounded-card border border-neutro-border bg-superficie p-3 text-center">
+    <div className="vidro-card rounded-[20px] p-3 text-center">
       <p className={cn("text-sm font-bold", cor)}>{valor}</p>
       <p className="mt-0.5 text-[10px] text-neutro-muted">{label}</p>
     </div>

@@ -97,6 +97,24 @@ async function conectar(opcoes) {
       }
     }
   }
+  function mostrarDigitando(destino) {
+    let vivo = true;
+    const bater = () => {
+      if (!vivo) return;
+      socket?.sendPresenceUpdate("composing", destino).catch(() => {
+      });
+    };
+    bater();
+    const timer = setInterval(bater, 8e3);
+    return async () => {
+      vivo = false;
+      clearInterval(timer);
+      try {
+        await socket?.sendPresenceUpdate("paused", destino);
+      } catch {
+      }
+    };
+  }
   function iniciarSocket() {
     socket = (0, import_baileys.default)({
       version,
@@ -196,13 +214,18 @@ async function conectar(opcoes) {
         };
         if (c) c.aceitas += 1;
         enfileirar(async () => {
-          const resposta = await opcoes.atender(mensagem);
-          if (!resposta) return;
-          await esperar(atrasoDeResposta());
-          await enviarComTentativas(remoteJid, resposta.texto);
-          console.log(
-            `[whatsapp] respondi ${mascararRemetente(mensagem.remetente)}`
-          );
+          const pararDigitando = mostrarDigitando(remoteJid);
+          try {
+            const resposta = await opcoes.atender(mensagem);
+            if (!resposta) return;
+            await esperar(atrasoDeResposta());
+            await enviarComTentativas(remoteJid, resposta.texto);
+            console.log(
+              `[whatsapp] respondi ${mascararRemetente(mensagem.remetente)}`
+            );
+          } finally {
+            await pararDigitando();
+          }
         });
       }
     });
@@ -401,6 +424,29 @@ function createServiceClient() {
   );
 }
 
+// lib/datas.ts
+var FUSO_BRASIL = "America/Sao_Paulo";
+function inicioDoDiaNoBrasil(agora = /* @__PURE__ */ new Date()) {
+  const partes = new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSO_BRASIL,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  }).formatToParts(agora);
+  const ler2 = (tipo) => Number(partes.find((p) => p.type === tipo)?.value ?? 0);
+  const decorrido = ler2("hour") * 36e5 + ler2("minute") * 6e4 + ler2("second") * 1e3 + agora.getMilliseconds();
+  return new Date(agora.getTime() - decorrido);
+}
+function janelaDosUltimosDias(dias) {
+  const fim = /* @__PURE__ */ new Date();
+  fim.setHours(0, 0, 0, 0);
+  fim.setDate(fim.getDate() + 1);
+  const inicio = new Date(fim);
+  inicio.setDate(inicio.getDate() - dias);
+  return { inicio, fim };
+}
+
 // lib/rate-limit.ts
 var LIMITES = {
   login: { max: 10, janelaMs: 60 * 60 * 1e3 },
@@ -438,14 +484,49 @@ var LIMITES = {
    * 5 por hora é folgado para quem errou de digitar e apertado para quem está
    * chutando.
    */
-  whatsapp_vinculo: { max: 5, janelaMs: 60 * 60 * 1e3 }
+  whatsapp_vinculo: { max: 5, janelaMs: 60 * 60 * 1e3 },
+  /**
+   * A cota diária da Mimu, por EMPRESA.
+   *
+   * Por empresa e não por usuária porque é a conta que tem plano, e é o plano
+   * que compra a cota. Vale somando app e WhatsApp: é a mesma pessoa gastando
+   * a mesma API dos dois lados.
+   *
+   * O `max` aqui é o do plano gratuito e serve de piso seguro. Quem chama
+   * passa o teto do plano por parâmetro — ver `limiteDiarioDaMimu` em
+   * lib/planos.ts. Deixar o número certo aqui seria impossível: ele depende de
+   * quem está perguntando.
+   *
+   * `porDiaCivil` é o que torna a promessa verdadeira. Este teto é o ÚNICO que
+   * a pessoa lê na tela: "10 mensagens por dia" está escrito no perfil, no
+   * plano e na resposta da Mimu quando acaba. Os outros tetos daqui são
+   * proteções internas contra abuso, e ninguém precisa saber quando eles
+   * zeram.
+   *
+   * Uma janela de 24 horas corridas contaria certo e comunicaria errado: quem
+   * gastasse as dez às 15h veria as mensagens voltando de uma em uma a partir
+   * das 15h do dia seguinte, sem nada na tela explicando por quê. "Por dia" só
+   * quer dizer uma coisa para quem lê, e é esta: amanhã tem dez de novo.
+   *
+   * `janelaMs` fica porque a limpeza de `registrarTentativa` usa 24h, e um dia
+   * civil nunca é mais longo que isso — nenhuma linha de hoje é apagada por
+   * ela.
+   */
+  mimu_dia: { max: 10, janelaMs: 24 * 60 * 60 * 1e3, porDiaCivil: true }
 };
-async function excedeuLimite(tipo, identificador) {
+function inicioDaJanela(tipo) {
+  const limite = LIMITES[tipo];
+  return "porDiaCivil" in limite && limite.porDiaCivil ? inicioDoDiaNoBrasil() : new Date(Date.now() - limite.janelaMs);
+}
+async function usoNaJanela(tipo, identificador) {
   const supabase = createServiceClient();
-  const { max, janelaMs } = LIMITES[tipo];
-  const desde = new Date(Date.now() - janelaMs).toISOString();
+  const desde = inicioDaJanela(tipo).toISOString();
   const { count } = await supabase.from("auth_rate_limit").select("*", { count: "exact", head: true }).eq("tipo", tipo).eq("identificador", identificador.toLowerCase()).gte("created_at", desde);
-  return (count ?? 0) >= max;
+  return count ?? 0;
+}
+async function excedeuLimite(tipo, identificador, maximo) {
+  const usadas = await usoNaJanela(tipo, identificador);
+  return usadas >= (maximo ?? LIMITES[tipo].max);
 }
 async function registrarTentativa(tipo, identificador) {
   const supabase = createServiceClient();
@@ -530,7 +611,7 @@ async function tentarConectar(mensagem) {
   }
   await fecharRegistro(mensagem, "nao_vinculada", null);
   return {
-    texto: "Esse c\xF3digo n\xE3o vale mais \u{1F615}\n\nEle expira em 10 minutos. Abra o app em *Minha empresa* \u2192 *Conectar WhatsApp*, pegue um c\xF3digo novo e me mande aqui."
+    texto: "Esse c\xF3digo n\xE3o vale mais \u{1F615}\n\nEle expira em 10 minutos. Abra o app em *Perfil* \u2192 *Mimu no WhatsApp*, pegue um c\xF3digo novo e me mande aqui."
   };
 }
 async function atender(mensagem, responder) {
@@ -964,16 +1045,6 @@ function urlParaAlerta(tipo, metadata) {
   }
 }
 
-// lib/datas.ts
-function janelaDosUltimosDias(dias) {
-  const fim = /* @__PURE__ */ new Date();
-  fim.setHours(0, 0, 0, 0);
-  fim.setDate(fim.getDate() + 1);
-  const inicio = new Date(fim);
-  inicio.setDate(inicio.getDate() - dias);
-  return { inicio, fim };
-}
-
 // lib/calculations.ts
 function inicioDoPeriodo(periodo) {
   const inicio = /* @__PURE__ */ new Date();
@@ -1038,7 +1109,7 @@ function calcularTopCategoriasDespesa(transacoes, limite = 5) {
 
 // lib/mimu/consulta.ts
 var MAX_MENSAGENS_HISTORICO = 20;
-function inicioDaJanela() {
+function inicioDaJanela2() {
   const agora = /* @__PURE__ */ new Date();
   const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
   const inicioSemana = new Date(agora);
@@ -1075,7 +1146,7 @@ async function reunirDadosDoNegocio(supabase, empresa) {
   const fimJanelaAgenda = new Date(hoje);
   fimJanelaAgenda.setDate(fimJanelaAgenda.getDate() + 7);
   const [transacoesResult, agendamentosResult, clientesResult] = await Promise.all([
-    supabase.from("transacoes").select("*").eq("empresa_id", empresa.id).gte("data", inicioDaJanela().toISOString().slice(0, 10)),
+    supabase.from("transacoes").select("*").eq("empresa_id", empresa.id).gte("data", inicioDaJanela2().toISOString().slice(0, 10)),
     supabase.from("agendamentos").select("*, cliente:clientes(nome)").eq("empresa_id", empresa.id).gte("data_hora", `${hojeISO2}T00:00:00`).lte("data_hora", fimJanelaAgenda.toISOString()),
     supabase.from("clientes").select("nome, saldo_fiado").eq("empresa_id", empresa.id).gt("saldo_fiado", 0)
   ]);
@@ -1144,7 +1215,7 @@ async function perguntarAoModelo(systemPrompt, mensagens) {
   if (!resposta) throw ultimoErro;
   return resposta.choices[0]?.message?.content ?? "";
 }
-async function responderConsulta(supabase, empresa) {
+async function responderConsulta(supabase, empresa, canal = "app") {
   const dadosNegocio = await reunirDadosDoNegocio(supabase, empresa);
   if (!dadosNegocio) return { ok: false, motivo: "dados_indisponiveis" };
   const { data: historico, error: historicoError } = await supabase.from("conversas_mimu").select("role, content").eq("empresa_id", empresa.id).order("created_at", { ascending: false }).limit(MAX_MENSAGENS_HISTORICO);
@@ -1175,7 +1246,8 @@ async function responderConsulta(supabase, empresa) {
     empresa_id: empresa.id,
     role: "assistant",
     content: textoLimpo,
-    metadata: card ? JSON.parse(JSON.stringify({ card })) : null
+    metadata: card ? JSON.parse(JSON.stringify({ card })) : null,
+    canal
   }).select("id, created_at").single();
   if (insertAssistantError || !mensagemSalva) {
     return { ok: false, motivo: "nao_salvou" };
@@ -1198,18 +1270,25 @@ var PLANOS = {
 var VALOR_MENSAL_MIMU = PLANOS.pro.valorMensal;
 var MODULOS_DO_PLANO = {
   /*
-   * O gratuito fica com o caixa e nada mais.
+   * O gratuito fica com o caixa e com a Mimu.
    *
    * Registrar venda e ver o faturamento do mês é o que faz a Mimu valer a
    * pena abrir todo dia, e é o hábito que sustenta a conversão depois. Agenda,
    * clientes e estoque são o trabalho que a pessoa já faz de outro jeito — dá
    * para viver sem, e é por eles que se paga.
    *
-   * A IA fica de fora por um motivo a mais que os outros: cada resposta da
-   * Mimu custa dinheiro na Groq. Um plano gratuito com IA ilimitada é uma
-   * conta que cresce com o número de pessoas que nunca vão pagar.
+   * A IA ESTAVA DE FORA, e a razão era boa: cada resposta custa dinheiro na
+   * Groq, e IA ilimitada de graça é uma conta que cresce com o número de
+   * pessoas que nunca vão pagar.
+   *
+   * O que mudou não foi a conta — foi a existência de um teto. A Mimu agora
+   * responde a todo mundo, mas dentro de MENSAGENS_MIMU_POR_DIA, e o gratuito
+   * tem o menor de todos. O custo deixou de ser ilimitado, e com isso o
+   * argumento de manter a assistente escondida de quem não paga caiu: ela é o
+   * produto. Quem nunca conversou com a Mimu não tem por que assinar para
+   * conversar mais.
    */
-  free: ["financeiro"],
+  free: ["financeiro", "ia"],
   // Os pagos liberam tudo. A diferença entre Pro e Premium hoje é de preço e
   // de limites, não de módulo — quando passar a ser de módulo, é aqui que muda.
   pro: ["financeiro", "agenda", "clientes", "estoque", "ia"],
@@ -1219,6 +1298,16 @@ var MODULOS_DO_PLANO = {
   basico: ["financeiro", "agenda", "clientes", "estoque", "ia"],
   completo: ["financeiro", "agenda", "clientes", "estoque", "ia"]
 };
+var MENSAGENS_MIMU_POR_DIA = {
+  free: 10,
+  pro: 150,
+  premium: 500,
+  basico: 150,
+  completo: 150
+};
+function limiteDiarioDaMimu(plano) {
+  return MENSAGENS_MIMU_POR_DIA[plano] ?? MENSAGENS_MIMU_POR_DIA.free;
+}
 function modulosLiberados(plano, modulosEscolhidos) {
   const teto = MODULOS_DO_PLANO[plano] ?? MODULOS_DO_PLANO.free;
   return modulosEscolhidos.filter((modulo) => teto.includes(modulo));
@@ -1240,9 +1329,28 @@ function acessoLiberado(assinatura) {
   if (assinatura.status === "trial") return !trialVencido(assinatura);
   return false;
 }
+function assinaturaEncerrada(assinatura) {
+  if (!assinatura) return false;
+  return assinatura.status === "cancelada" || assinatura.status === "pendente" || assinatura.status === "vencida";
+}
 function planoEfetivo(assinatura) {
   if (!assinatura) return PLANO_GRATUITO;
   return acessoLiberado(assinatura) ? assinatura.plano : PLANO_GRATUITO;
+}
+
+// lib/mimu/cota.ts
+async function cotaDaMimu(plano, empresaId) {
+  const limite = limiteDiarioDaMimu(plano);
+  const usadas = await usoNaJanela("mimu_dia", empresaId);
+  return {
+    usadas,
+    limite,
+    restantes: Math.max(0, limite - usadas),
+    esgotada: usadas >= limite
+  };
+}
+async function consumirMensagemDaMimu(empresaId) {
+  await registrarTentativa("mimu_dia", empresaId);
 }
 
 // lib/mimu/acesso.ts
@@ -1251,20 +1359,36 @@ async function verificarAcesso(supabase, empresaId) {
   if (!data) return { liberado: false, motivo: "suspensa" };
   if (data.suspensa_em) return { liberado: false, motivo: "suspensa" };
   const assinatura = Array.isArray(data.assinaturas) ? data.assinaturas[0] ?? null : data.assinaturas ?? null;
+  if (assinaturaEncerrada(assinatura)) {
+    return { liberado: false, motivo: "assinatura_encerrada" };
+  }
+  const plano = planoEfetivo(assinatura);
   const modulos = modulosLiberados(
-    // O plano EFETIVO: uma linha 'pendente' guarda o plano que a pessoa
-    // escolheu e nunca pagou, e o teto não pode acreditar nela.
-    planoEfetivo(assinatura),
+    plano,
     data.modulos_ativos ?? []
   );
   if (!modulos.includes("ia")) {
     return { liberado: false, motivo: "sem_modulo_ia" };
   }
+  const cota = await cotaDaMimu(plano, empresaId);
+  if (cota.esgotada) {
+    return { liberado: false, motivo: "cota_esgotada" };
+  }
   return { liberado: true };
 }
 var RESPOSTA_SEM_ACESSO = {
   suspensa: "Sua conta est\xE1 pausada no momento, ent\xE3o n\xE3o consigo te ajudar por aqui. Fala com a gente que a gente resolve. \u{1F49A}",
-  sem_modulo_ia: "Conversar comigo faz parte do plano pago. No plano gr\xE1tis voc\xEA continua registrando suas vendas e vendo seu faturamento pelo app, sempre. Se quiser me ter por aqui, \xE9 s\xF3 dar uma olhada em *Minha empresa* no app. \u{1F49A}"
+  /*
+   * Este caso mudou de significado.
+   *
+   * Antes queria dizer "seu plano não inclui a Mimu", porque o gratuito não
+   * incluía. Agora todo plano inclui, e a única forma de cair aqui é a pessoa
+   * ter DESLIGADO a assistente nos módulos. A mensagem antiga mandaria alguém
+   * pagar por algo que ela já tem e desligou sozinha.
+   */
+  assinatura_encerrada: "Sua assinatura n\xE3o est\xE1 ativa, ent\xE3o n\xE3o consigo te atender por aqui. \u{1F49A}\n\n\xC9 s\xF3 resolver em *Perfil* \u2192 *Assinatura* no app que eu volto a responder.",
+  sem_modulo_ia: "A assistente est\xE1 desligada na sua conta. Para ligar de volta \xE9 em *Perfil* \u2192 *Perfil do neg\xF3cio* no app. \u{1F49A}",
+  cota_esgotada: "Por hoje \xE9 s\xF3! Voc\xEA j\xE1 usou suas mensagens de hoje comigo. \u{1F49A}\n\nAmanh\xE3 a conta zera e a gente continua \u2014 e o app segue aberto do jeito de sempre para registrar e consultar. Se quiser falar comigo mais vezes por dia, d\xE1 uma olhada em *Perfil* \u2192 *Assinatura*."
 };
 
 // lib/mimu/transcricao.ts
@@ -1558,16 +1682,17 @@ async function excedeuLimiteDoChat(userId) {
 async function registrarUsoDoChat(userId) {
   await registrarTentativa("chat_ia", userId);
 }
-async function salvarMensagemDaUsuaria(supabase, empresaId, texto) {
-  const { error } = await supabase.from("conversas_mimu").insert({ empresa_id: empresaId, role: "user", content: texto });
+async function salvarMensagemDaUsuaria(supabase, empresaId, texto, canal = "app") {
+  const { error } = await supabase.from("conversas_mimu").insert({ empresa_id: empresaId, role: "user", content: texto, canal });
   return !error;
 }
-async function salvarRespostaDaMimu(supabase, empresaId, conteudo) {
+async function salvarRespostaDaMimu(supabase, empresaId, conteudo, canal = "app") {
   const { data, error } = await supabase.from("conversas_mimu").insert({
     empresa_id: empresaId,
     role: "assistant",
     content: conteudo,
-    metadata: null
+    metadata: null,
+    canal
   }).select("id, created_at").single();
   if (error || !data) return null;
   return { id: data.id, criadaEm: data.created_at };
@@ -1636,6 +1761,7 @@ async function responderPelaMimu(mensagem, conta) {
     });
     return RESPOSTA_SEM_ACESSO[acesso.motivo];
   }
+  await consumirMensagemDaMimu(conta.empresaId);
   if (!texto && mensagem.obterAudio) {
     const audio = await mensagem.obterAudio().catch(() => null);
     const transcricao = audio ? await transcrever(audio) : null;
@@ -1647,12 +1773,22 @@ async function responderPelaMimu(mensagem, conta) {
   if (!texto) {
     return "N\xE3o consegui entender essa mensagem. Me manda em texto ou \xE1udio?";
   }
-  if (!await salvarMensagemDaUsuaria(supabase, conta.empresaId, texto)) {
+  if (!await salvarMensagemDaUsuaria(
+    supabase,
+    conta.empresaId,
+    texto,
+    "whatsapp"
+  )) {
     return "N\xE3o consegui guardar sua mensagem agora. Tenta de novo?";
   }
   if (pareceInjecaoDePrompt(texto)) {
     await registrarBloqueio(supabase, conta.empresaId, texto);
-    await salvarRespostaDaMimu(supabase, conta.empresaId, RESPOSTA_BLOQUEADA);
+    await salvarRespostaDaMimu(
+      supabase,
+      conta.empresaId,
+      RESPOSTA_BLOQUEADA,
+      "whatsapp"
+    );
     return RESPOSTA_BLOQUEADA;
   }
   if (pediuParaDesfazer(texto)) {
@@ -1681,7 +1817,12 @@ Apaguei das suas contas. \u{1F49A}`;
       classificacao
     );
     if (registrado.ok) {
-      await salvarRespostaDaMimu(supabase, conta.empresaId, registrado.recibo);
+      await salvarRespostaDaMimu(
+        supabase,
+        conta.empresaId,
+        registrado.recibo,
+        "whatsapp"
+      );
       return registrado.recibo;
     }
     if (registrado.motivo === "ambiguo" || registrado.motivo === "incompleto") {
@@ -1689,7 +1830,11 @@ Apaguei das suas contas. \u{1F49A}`;
     }
     return "N\xE3o consegui registrar agora. Tenta de novo, ou faz pelo app?";
   }
-  const resultado = await responderConsulta(supabase, empresa);
+  const resultado = await responderConsulta(
+    supabase,
+    empresa,
+    "whatsapp"
+  );
   if (!resultado.ok) {
     switch (resultado.motivo) {
       case "ia_indisponivel":

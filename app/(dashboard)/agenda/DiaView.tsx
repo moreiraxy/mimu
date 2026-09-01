@@ -63,7 +63,7 @@ export function DiaView({
           onClick={() => setSeletorAberto(false)}
         >
           <div
-            className="w-full max-w-[430px] rounded-t-card bg-superficie p-5 sm:rounded-card"
+            className="w-full max-w-[430px] vidro rounded-t-[24px] p-5 sm:rounded-card"
             onClick={(event) => event.stopPropagation()}
           >
             <CalendarioInline

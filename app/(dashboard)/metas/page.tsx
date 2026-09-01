@@ -6,7 +6,6 @@ import { useMetas } from "@/hooks/useMetas";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { FadeIn } from "@/components/ui/FadeIn";
 import { ProgressoCard } from "./ProgressoCard";
 import { SecundariosCards } from "./SecundariosCards";
 import { HistoricoCard } from "./HistoricoCard";
@@ -57,7 +56,11 @@ export default function MetasPage() {
   }
 
   return (
-    <FadeIn className="lg:mx-auto lg:max-w-5xl">
+    <div className="lg:mx-auto lg:max-w-5xl">
+      {/* SEM <FadeIn> AQUI: a transição de opacidade faz do elemento um
+          "backdrop root" enquanto roda, e todo o vidro de dentro perde o
+          desfoque por 150ms a cada navegação — a tela entra chapada e só
+          então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
       <PageHeader
         title="Metas"
         action={
@@ -77,7 +80,6 @@ export default function MetasPage() {
           realizado={dados.realizadoMes}
           meta={dados.metaMensal}
           progresso={dados.progressoMeta}
-          status={dados.statusNegocio}
           projecaoFechamento={dados.projecaoFechamento}
         />
 
@@ -98,6 +100,6 @@ export default function MetasPage() {
         onSalvar={handleSalvar}
         onFechar={() => setModalAberto(false)}
       />
-    </FadeIn>
+    </div>
   );
 }

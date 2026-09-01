@@ -57,7 +57,7 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
         {categorias.map((categoria) => (
           <span
             key={categoria.id}
-            className="flex items-center gap-1.5 rounded-full border border-neutro-border bg-fundo py-1.5 pl-3.5 pr-2 text-xs font-semibold text-escuro"
+            className="flex items-center gap-1.5 rounded-full border border-neutro-border bg-white/[0.04] py-1.5 pl-3.5 pr-2 text-xs font-semibold text-escuro"
           >
             {categoria.nome}
             <button
@@ -86,7 +86,7 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
             }
           }}
           placeholder="Nova categoria..."
-          className="flex-1 rounded-button border border-neutro-border bg-fundo px-3.5 py-2 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
+          className="flex-1 rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-2 text-base text-escuro outline-none focus:border-primary-forte md:text-sm"
         />
         <button
           type="button"

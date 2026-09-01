@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { formatCurrency, formatTime } from "@/lib/formatters";
+import { formatTime } from "@/lib/formatters";
+import { Valor } from "@/components/Valor";
 import type { AgendamentoComCliente, StatusAgendamento } from "@/types";
 
 const COR_STATUS: Record<StatusAgendamento, string> = {
@@ -19,7 +20,7 @@ export function AgendaHojeCard({
   const visiveis = agendamentos.slice(0, 3);
 
   return (
-    <div className="rounded-card border border-neutro-border bg-superficie p-4">
+    <div className="vidro-card rounded-card p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-escuro">Agenda de hoje</p>
         <Link href="/agenda" className="text-xs font-semibold text-primary-forte">
@@ -42,11 +43,19 @@ export function AgendaHojeCard({
                 {agendamento.cliente?.nome ?? "Cliente"} ·{" "}
                 {agendamento.titulo}
               </p>
+              {/* O valor do atendimento também se esconde: de nada adianta
+                  tampar o faturamento do dia se a agenda ao lado lista quanto
+                  cada cliente vai pagar. */}
               <p className="flex-shrink-0 text-xs text-neutro-muted">
                 {formatTime(agendamento.data_hora)}
-                {agendamento.valor_previsto
-                  ? ` · ${formatCurrency(agendamento.valor_previsto)}`
-                  : ""}
+                {agendamento.valor_previsto ? (
+                  <>
+                    {" · "}
+                    <Valor valor={agendamento.valor_previsto} />
+                  </>
+                ) : (
+                  ""
+                )}
               </p>
             </div>
           ))}

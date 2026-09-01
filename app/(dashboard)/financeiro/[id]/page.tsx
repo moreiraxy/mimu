@@ -184,7 +184,7 @@ export default function DetalheTransacaoPage() {
         }
       />
 
-      <div className="flex flex-col items-center gap-1 rounded-card border border-neutro-border bg-superficie p-6 text-center">
+      <div className="flex flex-col items-center gap-1 vidro-card rounded-[20px] p-6 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-fundo text-neutro-muted-strong">
           <IconeCategoria className="h-6 w-6" strokeWidth={2} />
         </span>
@@ -198,7 +198,7 @@ export default function DetalheTransacaoPage() {
         </p>
       </div>
 
-      <div className="mt-4 flex flex-col divide-y divide-neutro-border rounded-card border border-neutro-border bg-superficie">
+      <div className="mt-4 flex flex-col divide-y divide-neutro-border vidro-card rounded-[20px]">
         <LinhaDetalhe label="Tipo" valor={positiva ? "Entrada" : "Saída"} />
         <LinhaDetalhe label="Categoria" valor={transacao.categoria ?? "—"} />
         <LinhaDetalhe label="Cliente" valor={transacao.cliente?.nome ?? "—"} />
@@ -220,7 +220,7 @@ export default function DetalheTransacaoPage() {
       </div>
 
       {parcelasIrmas.length > 0 && (
-        <div className="mt-4 rounded-card border border-neutro-border bg-superficie p-4">
+        <div className="mt-4 vidro-card rounded-[20px] p-4">
           <p className="text-sm font-semibold text-escuro">
             Parcelas dessa compra
           </p>

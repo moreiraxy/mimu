@@ -94,18 +94,29 @@ export async function salvarMensagemDaUsuaria(
   supabase: ClientComIdentidade,
   empresaId: string,
   texto: string,
+  canal: CanalDaConversa = "app",
 ): Promise<boolean> {
   const { error } = await supabase
     .from("conversas_mimu")
-    .insert({ empresa_id: empresaId, role: "user", content: texto });
+    .insert({ empresa_id: empresaId, role: "user", content: texto, canal });
   return !error;
 }
+
+/**
+ * Por onde a mensagem passou.
+ *
+ * O padrão é "app" em todas as funções: quem grava pelo app é a maioria das
+ * chamadas, e um canal novo que esqueça de se declarar erra para o lado certo
+ * — aparece como app na lista, em vez de derrubar a gravação.
+ */
+export type CanalDaConversa = "app" | "whatsapp";
 
 /** Guarda uma resposta da Mimu que não veio do modelo. */
 export async function salvarRespostaDaMimu(
   supabase: ClientComIdentidade,
   empresaId: string,
   conteudo: string,
+  canal: CanalDaConversa = "app",
 ): Promise<{ id: string; criadaEm: string } | null> {
   const { data, error } = await supabase
     .from("conversas_mimu")
@@ -114,6 +125,7 @@ export async function salvarRespostaDaMimu(
       role: "assistant",
       content: conteudo,
       metadata: null,
+      canal,
     })
     .select("id, created_at")
     .single();

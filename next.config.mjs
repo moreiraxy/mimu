@@ -1,3 +1,24 @@
+import { readFileSync } from "node:fs";
+
+/*
+ * O Supabase local, liberado SÓ no desenvolvimento.
+ *
+ * O `connect-src` abaixo só permite `https://*.supabase.co`, que é o endereço
+ * do projeto hospedado. Quem roda o app contra o Supabase local (`supabase
+ * start`, em 127.0.0.1) bate numa parede que não parece uma parede: o servidor
+ * responde 200, a página monta, e cada busca do navegador é recusada em
+ * silêncio pelo próprio Chrome. O sintoma é o app inteiro preso em esqueleto
+ * de carregamento, sem erro no terminal — só um aviso no console que ninguém
+ * está olhando.
+ *
+ * Fica preso a `NODE_ENV !== "production"` de propósito. Em produção o
+ * `connect-src` continua exatamente como estava: nenhum endereço a mais.
+ */
+const emDesenvolvimento = process.env.NODE_ENV !== "production";
+const SUPABASE_LOCAL = emDesenvolvimento
+  ? " http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*"
+  : "";
+
 const securityHeaders = [
   {
     key: "X-Frame-Options",
@@ -33,7 +54,8 @@ const securityHeaders = [
       // O SDK conversa com a API do Mercado Pago para transformar o número do
       // cartão num token. É justamente esse desenho que faz o cartão NÃO
       // passar pelo nosso servidor.
-      "connect-src 'self' https://*.supabase.co https://api.groq.com https://api.mercadopago.com https://*.mercadolibre.com https://*.mercadopago.com https://*.mlstatic.com",
+      "connect-src 'self' https://*.supabase.co https://api.groq.com https://api.mercadopago.com https://*.mercadolibre.com https://*.mercadopago.com https://*.mlstatic.com" +
+        SUPABASE_LOCAL,
       "font-src 'self' https://*.mlstatic.com",
       // Os campos de cartão são iframes do próprio Mercado Pago: é o que
       // impede o número do cartão de encostar no nosso código.
@@ -61,9 +83,27 @@ const securityHeaders = [
   },
 ];
 
+/*
+ * A versão da Mimu, lida do package.json na hora do build.
+ *
+ * Ela aparece no rodapé das configurações — é o número que a pessoa lê para o
+ * suporte quando algo dá errado, e é o que diz se ela já está na correção que
+ * acabou de sair. Digitá-lo à mão numa tela garante o dia em que ele mente.
+ *
+ * `NEXT_PUBLIC_` porque quem mostra é um componente de cliente, e o valor é
+ * gravado no bundle durante a compilação — não há nada para configurar em
+ * painel de hospedagem nenhum.
+ */
+const pkg = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
+);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_VERSAO: pkg.version,
+  },
   experimental: {
     /**
      * Liga o instrumentation.ts, que roda uma vez quando o servidor sobe.

@@ -58,7 +58,11 @@ export function PushPermissionPrompt() {
     // Mimu) e bloqueando clique nele por cima. Aqui ele só empurra o
     // conteúdo da página pra baixo enquanto estiver visível, sem cobrir
     // nada.
-    <div className="mb-4 flex items-start gap-3 rounded-card border border-neutro-border bg-superficie p-4 shadow-sm md:max-w-[380px]">
+    //
+    // Vidro, como todo o resto: era o último cartão opaco da tela, e uma caixa
+    // preta chapada no meio de superfícies translúcidas denuncia que aquele
+    // pedaço não pertence ao app.
+    <div className="vidro-card mt-4 flex items-start gap-3 rounded-[18px] p-4 md:max-w-[380px]">
       <LogoMark size="sm" />
       <div className="min-w-0 flex-1">
         <p className="text-sm text-escuro">

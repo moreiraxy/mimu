@@ -1,14 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { MoreHorizontal } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowUp, MoreHorizontal } from "lucide-react";
 import { dividirNavegacao } from "@/components/dashboard/navItems";
 import { MenuLateral } from "@/components/dashboard/MenuLateral";
+import { FolhaAcoes } from "@/components/dashboard/FolhaAcoes";
+import { acoesLiberadas, ROTAS_SEM_ACOES } from "@/components/dashboard/acoesRapidas";
+import { MarcaTraco } from "@/components/Logo";
+import { PlusIcon } from "@/components/icons/NavIcons";
 import { useAuth } from "@/hooks/useAuth";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 import { cn } from "@/lib/utils";
+
+/**
+ * Quantos destinos cabem na barra ao lado do "+" e do botão da marca.
+ *
+ * Três, e não os quatro de antes, porque o botão da Mimu agora ocupa uma ilha
+ * própria à direita: o que sobra de largura é menor. Espremer os quatro ali
+ * devolveria o alvo de toque de 40px que a barra anterior já tinha corrigido.
+ */
+const DESTINOS_NA_BARRA = 3;
+
+/** A partir de onde a barra recolhe. Curto o bastante pra reagir ao primeiro gesto. */
+const LIMIAR_ROLAGEM = 56;
 
 export function BottomNav({
   admin = false,
@@ -25,242 +41,396 @@ export function BottomNav({
   modulosIniciais?: string[];
 }) {
   const pathname = usePathname();
-  const { modulos } = useAuth();
+  const { modulos: modulosDoCliente } = useAuth();
+  // A barra não existe no chat. Ver `naConversa`, logo abaixo do hook de rolagem.
   const { alertas } = useAlertasProativos();
   const [menuAberto, setMenuAberto] = useState(false);
-
-  // O do cliente só entra quando existir: ele é a fonte para mudanças feitas
-  // durante a sessão (ligar um módulo em Minha Empresa reflete na hora), mas
-  // o do servidor é quem faz a primeira pintura já estar certa.
-  //
-  // `modulos` vem do AuthProvider JÁ limitado ao teto do plano, e é por isso
-  // que ele substituiu `empresa.modulos_ativos` aqui: a lista crua é a escolha
-  // da pessoa e não sabe o que ela paga. Numa conta gratuita, ler a crua
-  // colocaria agenda e estoque na barra de baixo.
-  const { barra, menu, temMais } = dividirNavegacao(
-    modulos.length > 0 ? modulos : (modulosIniciais ?? []),
-  );
+  const [acoesAbertas, setAcoesAbertas] = useState(false);
 
   /**
-   * Indicador que desliza entre as abas, como nas barras novas do Android.
+   * A barra recolhida: o estado da segunda foto da referência.
    *
-   * A posição é MEDIDA do item ativo, não calculada por índice: a barra tem
-   * um número variável de abas (depende dos módulos ligados) e o botão "Mais"
-   * às vezes existe, às vezes não. Dividir a largura por uma contagem daria
-   * errado justamente nas contas que mudam.
+   * Aberta, ela mostra os destinos e a pílula "Pergunte à Mimu" flutua ACIMA
+   * dela. Recolhida, os destinos somem, sobra o ícone da página atual à
+   * esquerda e a pílula desce PARA DENTRO da barra, no meio. O botão da marca
+   * fica onde está nos dois estados — é a única coisa da barra que nunca se
+   * move, e é por isso que ele funciona como âncora.
    */
-  /**
-   * Compacta ao rolar para baixo, volta ao subir.
-   *
-   * É o gesto das barras do Instagram e do WhatsApp: enquanto a pessoa
-   * desce a lista, a barra recolhe e devolve altura para o conteúdo; ao
-   * subir, ela reaparece inteira. O limiar de 8px evita que o tranco de um
-   * toque faça a barra piscar.
-   */
-  const [compacta, setCompacta] = useState(false);
+  const [recolhida, setRecolhida] = useState(false);
 
   useEffect(() => {
     let anterior = window.scrollY;
 
     const aoRolar = () => {
       const atual = window.scrollY;
+      // O limiar de 8px evita que o tranco de um toque faça a barra piscar
+      // entre os dois estados.
+      if (Math.abs(atual - anterior) <= 8) return;
       const desceu = atual > anterior;
-      if (Math.abs(atual - anterior) > 8) {
-        // Perto do topo ela nunca fica compacta: ali não há o que ganhar em
-        // espaço, e a barra menor pareceria um defeito.
-        setCompacta(desceu && atual > 90);
-        anterior = atual;
-      }
+      anterior = atual;
+      // Perto do topo ela nunca fica recolhida: ali não há espaço a ganhar, e
+      // a barra menor pareceria um defeito em vez de uma resposta ao gesto.
+      setRecolhida(desceu && atual > LIMIAR_ROLAGEM);
     };
 
     window.addEventListener("scroll", aoRolar, { passive: true });
     return () => window.removeEventListener("scroll", aoRolar);
   }, []);
 
-  const navRef = useRef<HTMLElement>(null);
-  const [indicador, setIndicador] = useState<{
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-  } | null>(null);
-
+  // Trocar de página devolve a barra inteira: a tela nova começa no topo, e
+  // uma barra recolhida ali não corresponde a gesto nenhum que a pessoa fez.
   useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
+    setRecolhida(false);
+  }, [pathname]);
 
-    const medir = () => {
-      // Mede a MOLDURA DO ÍCONE, não o item inteiro. É o formato da barra do
-      // WhatsApp: a marca do "você está aqui" é uma pílula deitada atrás do
-      // ícone, e o rótulo fica embaixo, fora dela. Envolvendo ícone e rótulo
-      // juntos saía um losango alto, que é o que destoava da referência.
-      const alvo = nav.querySelector<HTMLElement>("[data-pilula='true']");
-      if (!alvo) return setIndicador(null);
-      const n = nav.getBoundingClientRect();
-      const a = alvo.getBoundingClientRect();
-      setIndicador({
-        x: a.left - n.left,
-        y: a.top - n.top,
-        w: a.width,
-        h: a.height,
-      });
-    };
+  // O do cliente só entra quando existir: ele é a fonte para mudanças feitas
+  // durante a sessão (ligar um módulo em Minha Empresa reflete na hora), mas
+  // o do servidor é quem faz a primeira pintura já estar certa.
+  const modulos =
+    modulosDoCliente.length > 0 ? modulosDoCliente : (modulosIniciais ?? []);
 
-    medir();
-    // Reagir ao giro da tela e à mudança de largura: sem isso o indicador
-    // ficaria parado onde a aba estava antes do redimensionamento.
-    const obs = new ResizeObserver(medir);
-    obs.observe(nav);
-    return () => obs.disconnect();
-  }, [pathname, barra.length, temMais, compacta]);
+  const { barra: barraCompleta, menu, temMais } = dividirNavegacao(modulos);
 
-  // O "Mais" só aparece quando há algo a mais pra mostrar — a não ser que seja
-  // a única porta de entrada do painel admin, já que a sidebar é `md:` pra cima
-  // e no celular não existiria outro caminho.
-  const mostrarMais = temMais || admin;
+  /*
+   * A Mimu sai da fileira de destinos.
+   *
+   * Ela não sumiu: virou o botão da marca, à direita, que é a decisão central
+   * desta barra — na referência a IA não é "mais um ícone de robô no meio dos
+   * outros", é a marca, sempre no mesmo canto. Deixar o item aqui TAMBÉM
+   * daria duas portas para o mesmo chat lado a lado na mesma barra.
+   */
+  const destinos = barraCompleta
+    .filter((item) => item.href !== "/mimu")
+    .slice(0, DESTINOS_NA_BARRA);
+
+  /*
+   * O menu mostra só o que NÃO está na barra.
+   *
+   * Ele listava tudo — Home, Financeiro, Agenda, Mimu, Perfil — inclusive os
+   * destinos que estavam ali do lado, na própria barra que abriu o menu. Era o
+   * mapa completo do app, e a ideia tinha lógica: ninguém precisa lembrar se um
+   * item está na barra ou escondido.
+   *
+   * Só que na prática produz o contrário. A pessoa abre "Mais" procurando o que
+   * não estava visível, e encontra primeiro as mesmas quatro coisas que acabou
+   * de ver. O menu vira uma segunda cópia da barra, e o que ele existe para
+   * revelar fica no fim da lista.
+   *
+   * A Mimu sai por um motivo a mais: ela tem porta fixa e própria, o botão da
+   * marca no canto da barra, presente em toda tela.
+   */
+  const escondidos = menu.filter(
+    (item) => item.href !== "/mimu" && !destinos.includes(item),
+  );
+  const mostrarMais = temMais || escondidos.length > 0 || admin;
+
+  const temAcoes =
+    acoesLiberadas(modulos).length > 0 && !ROTAS_SEM_ACOES.includes(pathname);
 
   // Fica aceso quando a página atual mora dentro do menu: sem isso, ao abrir
   // /produtos a barra inteira apaga e some a noção de onde você está.
   const atualEstaNoMenu =
-    !barra.some((item) => item.href === pathname) &&
+    !destinos.some((item) => item.href === pathname) &&
     (menu.some((item) => item.href === pathname) || pathname === "/admin");
+
+  /*
+   * O ícone que representa a página atual quando a barra está recolhida.
+   *
+   * Casa por prefixo, e não por igualdade: dentro de /financeiro/nova-entrada
+   * a página ainda é o Financeiro, e mostrar a casinha ali diria à pessoa que
+   * ela está num lugar onde não está. Sem nenhuma correspondência, a casinha é
+   * o palpite honesto — é a raiz do app.
+   */
+  const paginaAtual =
+    menu.find((item) => item.href === pathname) ??
+    menu.find(
+      (item) => item.href !== "/dashboard" && pathname.startsWith(item.href),
+    ) ??
+    menu[0];
+
+  /*
+   * NO CHAT DA MIMU A BARRA NÃO EXISTE.
+   *
+   * Não é só estética: o conteúdo do painel mora dentro de um `relative z-[1]`
+   * (ver o layout), e isso cria um CONTEXTO DE EMPILHAMENTO. O chat pede
+   * `z-50` de dentro desse contexto, então ele nunca passa do z-1 do pai — e a
+   * barra, que é irmã do contexto com `z-40`, ficava desenhada POR CIMA da
+   * conversa, cobrindo o campo de escrever. Subir o número do chat não
+   * resolveria: contra um contexto de empilhamento, número nenhum sobe.
+   *
+   * Some também porque conversar é a tela inteira: com o teclado aberto, uma
+   * barra flutuando no meio da conversa é o que mais rouba altura.
+   */
+  if (pathname === "/mimu") return null;
 
   return (
     <>
-      {/* Barra flutuante: descolada das bordas, cantos arredondados e sombra,
-          em vez de colada no fim da tela. Fica sobre o conteúdo com fundo
-          translúcido e desfoque, então o que está atrás continua sendo
-          percebido enquanto rola. A margem de baixo soma o safe-area do
-          iPhone, senão a barra encosta no indicador de gestos. */}
+      {/* A barra flutua: descolada das bordas, cantos totalmente redondos e
+          sombra, em vez de colada no fim da tela. A margem de baixo soma o
+          safe-area do iPhone, senão ela encosta no indicador de gestos. */}
       <div
-        className="fixed inset-x-0 z-40 px-3 md:hidden"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 20px)" }}
+        className="fixed inset-x-0 z-40 px-3"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
       >
-        <nav
-          ref={navRef}
-          className={cn(
-            "relative mx-auto flex max-w-[430px] items-stretch justify-around",
-            // A altura é a única coisa que muda entre inteira e compacta, e a
-            // transição fica no elemento, não numa classe condicional: assim
-            // ela vale nos dois sentidos, encolhendo e voltando.
-            "transition-[height] duration-300 ease-out motion-reduce:transition-none",
-            // 64px é a altura da barra do WhatsApp: a pílula de 32 mais o
-            // rótulo, com uma folga curta em cima e embaixo. Estava em 80 —
-            // a medida do Material Design para uma barra COLADA no fim da
-            // tela, que ganha altura porque encosta na borda. Esta aqui
-            // flutua, com margem e sombra por fora, e nessa altura sobrava
-            // ar dentro dela: lia como uma barra gorda, não como uma barra
-            // espaçosa.
-            compacta ? "h-[52px]" : "h-[64px]",
-            // Cantos totalmente arredondados, como na referência: com raio
-            // fixo de 28px numa barra de 80px o canto ficava "quase" redondo,
-            // que lê como erro de medida em vez de decisão.
-            "rounded-full border border-neutro-border shadow-[0_10px_36px_-10px_rgba(0,0,0,0.45)]",
-            // Mais opaca que antes. A referência é quase sólida: translucidez
-            // demais deixa o conteúdo passar por trás dos rótulos e atrapalha
-            // a leitura justamente do que serve para se localizar.
-            "bg-superficie/95",
-            "supports-[backdrop-filter]:bg-superficie/80 supports-[backdrop-filter]:backdrop-blur-2xl",
-          )}
-        >
-          {/* A pílula fica ATRÁS dos itens (-z-0 com os links em relative), e
-              é ela que se move — não os ícones. Mover o conteúdo faria o
-              rótulo tremer durante a transição. */}
-          {indicador && (
-            <span
-              aria-hidden="true"
-              // Pílula discreta, e não um bloco colorido: na referência ela
-              // só marca onde você está, sem competir com o ícone. O destaque
-              // de cor fica no próprio ícone e no rótulo, que já mudam para a
-              // cor da marca.
-              className="pointer-events-none absolute left-0 top-0 rounded-full bg-primary-light transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{
-                width: indicador.w,
-                height: indicador.h,
-                transform: `translate(${indicador.x}px, ${indicador.y}px)`,
-              }}
-            />
-          )}
-          {barra.map(({ href, label, Icon }) => {
-            const ativo = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={ativo ? "page" : undefined}
-                data-ativo={ativo}
-                className="relative flex flex-1 flex-col items-center justify-center gap-1"
-              >
-                {/* 64×32 em pixel, e não na escala do app: é a medida exata
-                    da pílula da barra do Android, e a raiz daqui é 14px — na
-                    escala em rem ela sairia 12% menor que a referência.
-                    Existe em todos os itens, ativo ou não, para o ícone não
-                    pular de lugar quando a aba muda. */}
-                <span
-                  data-pilula={ativo}
-                  className="relative flex h-[32px] w-[64px] items-center justify-center"
-                >
-                  <Icon size={24} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
-                  {href === "/mimu" && alertas.length > 0 && (
-                    <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-erro px-1 text-[9px] font-bold leading-none text-white">
-                      {alertas.length > 9 ? "9+" : alertas.length}
-                    </span>
-                  )}
-                </span>
-                {/* O rótulo agora aparece sempre, e não só no item ativo:
-                    ícone sozinho obriga a adivinhar, e a altura da barra
-                    parava de mudar conforme a aba. */}
-                <span
-                  className={cn(
-                    "text-[10px] font-semibold leading-none",
-                    ativo ? "text-primary-forte" : "text-neutro-muted",
-                  )}
-                >
-                  {label}
-                </span>
-              </Link>
-            );
-          })}
+        <div className="mx-auto flex max-w-[430px] flex-col items-stretch gap-2.5">
+          {/* A pílula ACIMA da barra — o estado da primeira foto. Ela não é
+              removida do DOM ao recolher: some encolhendo a própria altura,
+              e é isso que faz a barra parecer engolir a pílula em vez de a
+              pílula piscar e reaparecer noutro lugar. */}
+          <div
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none",
+              recolhida
+                ? "pointer-events-none h-0 translate-y-3 opacity-0"
+                : "h-[52px] translate-y-0 opacity-100",
+            )}
+          >
+            <PilulaMimu alertas={alertas.length} />
+          </div>
 
-          {mostrarMais && (
-            <button
-              type="button"
-              onClick={() => setMenuAberto(true)}
-              aria-label="Abrir menu"
-              aria-haspopup="dialog"
-              aria-expanded={menuAberto}
-              data-ativo={atualEstaNoMenu}
-              className="relative flex flex-1 flex-col items-center justify-center gap-1"
+          <div className="flex items-stretch gap-2.5">
+            <nav
+              aria-label="Navegação principal"
+              className={cn(
+                "vidro relative h-[64px] flex-1 overflow-hidden rounded-full",
+                "shadow-[0_10px_36px_-10px_rgba(0,0,0,0.45)]",
+              )}
             >
-              <span
-                data-pilula={atualEstaNoMenu}
-                className="flex h-[32px] w-[64px] items-center justify-center"
-              >
-                <MoreHorizontal
-                  size={24}
-                  className={atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"}
-                />
-              </span>
-              <span
+              {/* As duas caras da barra vivem empilhadas e trocam por
+                  opacidade. Trocar por remoção faria o conteúdo pular de
+                  largura no meio da transição. */}
+              <div
+                aria-hidden={recolhida}
                 className={cn(
-                  "text-[10px] font-semibold leading-none",
-                  atualEstaNoMenu ? "text-primary-forte" : "text-neutro-muted",
+                  "absolute inset-0 flex items-stretch justify-around px-1",
+                  "transition-opacity duration-200 ease-out motion-reduce:transition-none",
+                  recolhida ? "pointer-events-none opacity-0" : "opacity-100",
                 )}
               >
-                Mais
-              </span>
-            </button>
-          )}
-        </nav>
+                {destinos.map(({ href, label, Icon }) => {
+                  const ativo = pathname === href;
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      aria-label={label}
+                      aria-current={ativo ? "page" : undefined}
+                      className="flex flex-1 items-center justify-center"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-[42px] w-full max-w-[64px] items-center justify-center rounded-full",
+                          "transition-colors duration-200 motion-reduce:transition-none",
+                          ativo ? "bg-primary-light" : "bg-transparent",
+                        )}
+                      >
+                        <Icon
+                          size={23}
+                          className={ativo ? "text-primary-forte" : "text-neutro-icon"}
+                        />
+                      </span>
+                    </Link>
+                  );
+                })}
+
+                {temAcoes && (
+                  <button
+                    type="button"
+                    onClick={() => setAcoesAbertas(true)}
+                    aria-label="Nova ação"
+                    aria-haspopup="dialog"
+                    className="flex flex-1 items-center justify-center"
+                  >
+                    <span className="flex h-[42px] w-full max-w-[64px] items-center justify-center rounded-full text-neutro-icon">
+                      <PlusIcon size={24} />
+                    </span>
+                  </button>
+                )}
+
+                {mostrarMais && (
+                  <button
+                    type="button"
+                    onClick={() => setMenuAberto(true)}
+                    aria-label="Abrir menu"
+                    aria-haspopup="dialog"
+                    aria-expanded={menuAberto}
+                    className="flex flex-1 items-center justify-center"
+                  >
+                    <span
+                      className={cn(
+                        "flex h-[42px] w-full max-w-[64px] items-center justify-center rounded-full",
+                        atualEstaNoMenu ? "bg-primary/20" : "bg-transparent",
+                      )}
+                    >
+                      <MoreHorizontal
+                        size={23}
+                        className={
+                          atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"
+                        }
+                      />
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {/* Recolhida: ícone da página à esquerda, pílula da Mimu no
+                  resto. */}
+              <div
+                aria-hidden={!recolhida}
+                className={cn(
+                  "absolute inset-0 flex items-center gap-1 py-[11px] pl-1 pr-2",
+                  "transition-opacity duration-200 ease-out motion-reduce:transition-none",
+                  recolhida ? "opacity-100" : "pointer-events-none opacity-0",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setRecolhida(false)}
+                  aria-label={`${paginaAtual?.label ?? "Página atual"} — abrir navegação`}
+                  className="flex h-[42px] w-[58px] flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-forte"
+                >
+                  {paginaAtual ? <paginaAtual.Icon size={23} /> : null}
+                </button>
+                <PilulaMimu alertas={alertas.length} compacta />
+              </div>
+            </nav>
+
+            <BotaoMimu alertas={alertas.length} />
+          </div>
+        </div>
       </div>
 
       <MenuLateral
         aberto={menuAberto}
         aoFechar={() => setMenuAberto(false)}
-        itens={menu}
+        itens={escondidos}
         admin={admin}
         alertas={alertas.length}
       />
+
+      <FolhaAcoes
+        aberta={acoesAbertas}
+        aoFechar={() => setAcoesAbertas(false)}
+        modulos={modulos}
+      />
     </>
+  );
+}
+
+/**
+ * "Pergunte à Mimu": um campo de verdade, e não um link para um campo.
+ *
+ * Era um <Link> que abria o chat vazio. A diferença parece pequena e não é:
+ * quem toca ali JÁ TEM a pergunta na cabeça, e a versão antiga pedia para ela
+ * abrir uma tela, achar o campo, e só então escrever. Agora escreve na hora, e
+ * a conversa abre com a mensagem já enviada — quem recebe e dispara é o efeito
+ * de app/(dashboard)/mimu/page.tsx, pela URL.
+ *
+ * A mesma barra serve nos dois lugares (flutuando acima e encaixada dentro)
+ * porque é a MESMA coisa noutro lugar. Dois componentes pareceriam iguais até
+ * o dia em que alguém mudasse um só.
+ */
+function PilulaMimu({
+  alertas,
+  compacta = false,
+}: {
+  alertas: number;
+  compacta?: boolean;
+}) {
+  const router = useRouter();
+  const [texto, setTexto] = useState("");
+
+  function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    const pergunta = texto.trim();
+    // Sem texto, o toque vale como "abrir a conversa" — que é o que a barra
+    // fazia antes e continua sendo o esperado de quem só quer olhar o chat.
+    router.push(pergunta ? `/mimu?q=${encodeURIComponent(pergunta)}` : "/mimu");
+    setTexto("");
+  }
+
+  return (
+    <form
+      onSubmit={enviar}
+      className={cn(
+        "flex w-full items-center gap-2.5 rounded-full",
+        compacta
+          ? "h-full min-w-0 px-3"
+          : "vidro h-[52px] px-4 shadow-[0_10px_36px_-14px_rgba(0,0,0,0.45)]",
+      )}
+    >
+      {/*
+        A marca aqui dentro é uma PORTA, não um enfeite.
+
+        Quando a barra virou campo de digitação, ela deixou de ser um link e a
+        marca virou um ícone morto: quem tocasse nela só ganhava o cursor
+        piscando no campo. Sendo a marca da Mimu, o toque tem que abrir a
+        conversa — é o mesmo gesto do botão redondo lá do canto, e não faz
+        sentido a mesma marca levar a lugares diferentes na mesma barra.
+      */}
+      <Link
+        href="/mimu"
+        aria-label="Abrir a conversa com a Mimu"
+        className="flex flex-shrink-0 items-center text-primary-forte"
+      >
+        <MarcaTraco size={19} />
+      </Link>
+      <input
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+        placeholder="Pergunte à Mimu"
+        aria-label="Pergunte à Mimu"
+        enterKeyHint="send"
+        className="min-w-0 flex-1 bg-transparent text-[15px] text-escuro outline-none placeholder:text-neutro-muted"
+      />
+      {texto.trim() ? (
+        <button
+          type="submit"
+          aria-label="Enviar para a Mimu"
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-text"
+        >
+          <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+        </button>
+      ) : (
+        alertas > 0 && (
+          <Link
+            href="/mimu"
+            aria-label={`${alertas} avisos da Mimu`}
+            className="flex h-[18px] min-w-[18px] flex-shrink-0 items-center justify-center rounded-full bg-erro px-1 text-[10px] font-bold leading-none text-white"
+          >
+            {alertas > 9 ? "9+" : alertas}
+          </Link>
+        )
+      )}
+    </form>
+  );
+}
+
+/**
+ * O botão da marca — a porta da Mimu, sempre no mesmo canto.
+ *
+ * Na referência, a IA não é retratada como IA: é a marca. É uma decisão de
+ * produto antes de ser de layout, e é o motivo de este botão não ter rótulo,
+ * não entrar na fileira de destinos e não se mexer quando a barra recolhe. A
+ * pessoa aprende o canto uma vez.
+ */
+function BotaoMimu({ alertas }: { alertas: number }) {
+  return (
+    <Link
+      href="/mimu"
+      aria-label="Falar com a Mimu"
+      className={cn(
+        "vidro relative flex h-[64px] w-[64px] flex-shrink-0 items-center justify-center rounded-[24px]",
+        "text-primary-forte shadow-[0_10px_36px_-10px_rgba(0,0,0,0.45)]",
+        "transition-transform duration-150 active:scale-95 motion-reduce:transition-none",
+      )}
+    >
+      <MarcaTraco size={30} />
+      {alertas > 0 && (
+        <span className="absolute right-2 top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-erro px-1 text-[10px] font-bold leading-none text-white">
+          {alertas > 9 ? "9+" : alertas}
+        </span>
+      )}
+    </Link>
   );
 }

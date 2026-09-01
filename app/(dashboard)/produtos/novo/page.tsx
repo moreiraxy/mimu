@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
+import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
 import { ProdutoForm, type DadosFormularioProduto } from "../ProdutoForm";
 
 export default function NovoProdutoPage() {
   const { empresa } = useEmpresa();
-  const router = useRouter();
   const { showToast } = useToast();
+  const voltar = useVoltarAposCriar("/produtos");
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export default function NovoProdutoPage() {
     setEnviando(true);
     setErro(null);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("produtos")
       .insert({
         empresa_id: empresa.id,
@@ -33,19 +33,28 @@ export default function NovoProdutoPage() {
         quantidade_minima: dados.quantidadeMinima,
         codigo_barras: dados.codigoBarras || null,
         ativo: dados.ativo,
-      })
-      .select("id")
-      .single();
+      });
 
     setEnviando(false);
 
-    if (error || !data) {
+    if (error) {
       setErro("Não foi possível salvar. Tente de novo.");
       return;
     }
 
     showToast("Produto cadastrado!");
-    router.push(`/produtos/${data.id}`);
+    /*
+     * Volta para a lista, e não para a ficha do produto recém-criado.
+     *
+     * Ir para a ficha parece atencioso e não é: quem acabou de cadastrar já
+     * sabe o que digitou, e o que ela quer ver é o produto na lista — ou
+     * cadastrar o próximo. Abrindo a ficha, os dois caminhos custam um toque
+     * a mais, e ela ainda fica presa numa tela nova sem ter pedido.
+     *
+     * É a mesma regra de venda, despesa, agendamento e cliente
+     * (hooks/useVoltarAposCriar.ts).
+     */
+    voltar();
   }
 
   return (

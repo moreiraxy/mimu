@@ -22,7 +22,7 @@ export function ObservacoesCard({
   }
 
   return (
-    <div className="rounded-card border border-neutro-border bg-superficie p-4">
+    <div className="vidro-card rounded-[20px] p-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-escuro">Observações</p>
         {!editando && (
@@ -46,7 +46,7 @@ export function ObservacoesCard({
             onChange={(event) => setValor(event.target.value)}
             rows={3}
             autoFocus
-            className="resize-none rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-primary-forte focus:bg-superficie"
+            className="resize-none rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-primary-forte focus:bg-superficie"
           />
           <div className="flex gap-2">
             <Button

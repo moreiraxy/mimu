@@ -41,6 +41,31 @@
     --ambar-light: 254 246 235;
     --ambar-soft: 253 240 221;
     --erro-light: 253 234 234;
+    /*
+     * O vidro no tema claro precisa ser MAIS opaco que no escuro.
+     *
+     * Sobre fundo claro o contraste entre a superfície e o que passa atrás é
+     * pequeno, então texto escuro sobre vidro muito transparente perde a
+     * borda e some. No escuro sobra contraste, e ali dá para deixar passar
+     * bem mais.
+     */
+    /*
+     * O vidro é LUZ, não a cor do cartão.
+     *
+     * Estava feito com `--superficie` a 82% sobre `--fundo`. No tema escuro
+     * isso é #111 sobre #0A0A0A: dois pretos quase idênticos, então o cartão
+     * era matematicamente transparente e visualmente opaco. Transparência que
+     * não se vê não é transparência.
+     *
+     * Vidro de verdade é uma camada de branco em alfa BAIXO por cima do que
+     * está atrás, mais o desfoque. No tema claro o branco precisa de mais
+     * corpo (senão o texto escuro perde o fundo); no escuro, muito menos.
+     */
+    --vidro-fundo: 255 255 255;
+    --vidro-fundo-alpha: 0.62;
+    /* No claro a quina se desenha com sombra, não com luz. */
+    --vidro-linha: 15 15 15;
+    --vidro-linha-alpha: 0.10;
   }
 
   /*
@@ -67,6 +92,12 @@
     --ambar-light: 54 43 24;
     --ambar-soft: 61 47 22;
     --erro-light: 58 29 27;
+    --vidro-fundo: 255 255 255;
+    --vidro-fundo-alpha: 0.11;
+    /* No escuro é a luz que bate na quina que desenha a borda — uma linha
+       mais escura que a superfície simplesmente desaparece. */
+    --vidro-linha: 255 255 255;
+    --vidro-linha-alpha: 0.14;
   }
 
   /*
@@ -128,12 +159,163 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
-  .animate-float-slow {
+  .animate-float-slow,
+  /* A marca da tela de abertura para de respirar, mas continua lá: quem
+     desligou movimento pediu para nada se mexer, não para ver menos. */
+  .animate-respirar,
+  /* O balanço da edição some para quem desligou movimento: o estado continua
+     dito pelos botões de remover e mover, que não dependem de animação. */
+  .animate-balancar {
     animation: none;
   }
 }
 
+/*
+ * Os valores escondidos, antes de o React existir.
+ *
+ * Quem ligou o olho de esconder tem a preferência no localStorage, e o
+ * servidor não tem como saber disso — o HTML que ele manda traz os números de
+ * verdade. Sem esta regra, quem abre a Mimu com o cliente na frente vê o
+ * faturamento piscar antes de sumir, que é exatamente o momento que o recurso
+ * existe para evitar.
+ *
+ * `:not([data-pronto])` é o que faz a regra se aposentar sozinha: assim que o
+ * React monta, ele marca cada valor com `data-pronto` e passa a mostrar os
+ * pontinhos por conta própria. Sem essa parte, a regra continuaria apagando os
+ * pontinhos também.
+ */
+html[data-valores="escondidos"] [data-valor]:not([data-pronto]) {
+  color: transparent;
+}
+
+/*
+ * A cobertura do cadeado biométrico, pintada ANTES de qualquer JS do app.
+ *
+ * O overlay em React (components/TravaBiometrica.tsx) só existe depois da
+ * hidratação, e até lá o painel já apareceu na tela — o faturamento piscaria
+ * justamente para quem o cadeado existe para esconder.
+ *
+ * Este pseudo-elemento não depende de React nenhum: o script do <head> marca
+ * o <html>, e a tinta cobre tudo no primeiro quadro. Fica em z-index 90, logo
+ * abaixo do overlay de verdade (100), que é quem mostra o botão.
+ */
+html.trancado body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background-color: rgb(var(--fundo));
+}
+
 @layer utilities {
+  /*
+   * O MATERIAL. Um só, para tudo que flutua: widgets, pílulas, barra, folhas.
+   *
+   * A película é um DEGRADÊ BRANCO, e não uma cor chapada escura.
+   *
+   * Eu troquei isto uma vez por `rgba(28,28,30,0.62)`, que é a receita do
+   * material escuro do iOS, e piorou: sobre um fundo que é LUZ (néon e verde
+   * em manchas), uma camada cinza-escura a 62% funciona como filtro neutro —
+   * ela apaga a cor de trás em vez de deixar passar. A receita do iOS assume
+   * um wallpaper de foto, com áreas claras e escuras; a nossa assume luz
+   * colorida sobre preto, e as duas pedem coisas diferentes.
+   *
+   * Vidro de verdade não tem o mesmo brilho em toda a superfície: pega mais
+   * luz na aresta de cima e vai ficando limpo para baixo. Do topo (11%) para o
+   * pé (3%) a peça fica quase transparente embaixo, e é ali que a luz atravessa
+   * inteira.
+   *
+   * `saturate(200%)` é o que faz o néon ATRAVESSAR em vez de embaçar: desfocar
+   * lava a cor, e sem devolver saturação com sobra o verde-limão chega cinza
+   * do outro lado.
+   *
+   * O `inset` no topo é o fio de luz na aresta — é o que o olho lê como
+   * espessura de vidro.
+   *
+   * ATENÇÃO AO QUE QUEBRA ISTO: `backdrop-filter` para de funcionar se QUALQUER
+   * ancestral tiver transform, filter, opacity < 1, mask ou will-change dessas.
+   * Antes de mexer aqui, confira a cadeia inteira de pais.
+   */
+  .vidro,
+  .vidro-card,
+  .vidro-pilula {
+    /*
+     * `background-color: transparent` é OBRIGATÓRIO aqui, e não é redundante.
+     *
+     * O material inteiro é feito de `background-image`. Num `<div>` isso basta,
+     * porque a cor de fundo padrão dele já é transparente. Mas `<input>`,
+     * `<textarea>`, `<select>` e `<button>` recebem do próprio navegador um
+     * `background-color: field` — BRANCO OPACO. O degradê então era pintado por
+     * cima de uma placa branca, e o campo de valor da nova entrada aparecia
+     * como um retângulo branco no meio de uma tela escura de vidro.
+     *
+     * Não é preferência: sem esta linha, todo campo de formulário que usar o
+     * material sai chapado, e o defeito só aparece em quem tem estilo de
+     * navegador — que é justamente o que ninguém pensa em conferir.
+     */
+    background-color: transparent;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--vidro-fundo) / var(--vidro-fundo-alpha)),
+      rgb(var(--vidro-fundo) / calc(var(--vidro-fundo-alpha) * 0.3))
+    );
+    border: 1px solid rgb(var(--vidro-linha) / var(--vidro-linha-alpha));
+    -webkit-backdrop-filter: blur(22px) saturate(200%);
+    backdrop-filter: blur(22px) saturate(200%);
+    box-shadow: inset 0 1px 0 0 rgb(var(--vidro-fundo) / 0.14);
+  }
+
+  /*
+   * O plano B para navegador sem backdrop-filter (WebView antiga do Android,
+   * Firefox com a flag desligada). Ali a superfície fica quase opaca de
+   * propósito: translucidez SEM desfoque deixa o texto de trás atravessar o de
+   * cima, e ler duas frases sobrepostas é o pior dos dois mundos.
+   */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .vidro,
+    .vidro-card,
+    .vidro-pilula {
+      background-image: none;
+      background-color: rgb(var(--superficie) / 0.96);
+      border-color: rgb(var(--neutro-border));
+      box-shadow: none;
+    }
+  }
+
+  /*
+   * O respiro que a barra de baixo exige do conteúdo.
+   *
+   * A barra flutua POR CIMA da página, então ela não empurra nada: sem esta
+   * folga o último cartão de toda tela fica atrás dela — e o último é sempre
+   * o que ninguém testa. A conta é a barra (64) + a folga até a pílula (10) +
+   * a pílula "Pergunte à Mimu" (52) + a margem do fim da tela (16), mais o
+   * safe-area do iPhone.
+   *
+   * É classe, e não `style` no componente: o inline venceria o `md:pb-10` do
+   * desktop, onde a barra nem é renderizada, e sobrariam 158px de vazio no
+   * fim de toda página grande.
+   */
+  .respiro-barra {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 158px);
+  }
+
+  /*
+   * O respiro do topo, com o safe-area somado.
+   *
+   * Sem ele, o botão de voltar de cada tela fica embaixo do relógio e da
+   * bateria no iPhone. Era responsabilidade de cada tela e por isso vivia
+   * faltando em alguma.
+   */
+  .respiro-topo {
+    padding-top: calc(env(safe-area-inset-top) + 14px);
+  }
+
+  @media (min-width: 768px) {
+    .respiro-topo {
+      padding-top: 2rem;
+    }
+  }
+
   /*
    * Fileiras de chips com scroll horizontal (filtros, horários, sugestões)
    * cortavam o último item em cheio na borda da tela, sem nenhuma pista de

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
+import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { primeiroErroZod, schemaCliente } from "@/lib/validacao/negocio";
@@ -14,6 +15,7 @@ export default function NovoClientePage() {
   const { empresa } = useEmpresa();
   const router = useRouter();
   const { showToast } = useToast();
+  const voltar = useVoltarAposCriar("/clientes");
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -60,7 +62,7 @@ export default function NovoClientePage() {
 
     if (resultado.offline) {
       showToast("Cliente salvo! Vai sincronizar quando a conexão voltar.");
-      router.push("/clientes");
+      voltar();
       return;
     }
 

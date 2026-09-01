@@ -1,5 +1,13 @@
 import { Skeleton } from "@/components/ui/Skeleton";
 
+/**
+ * O contorno do que está chegando, enquanto o servidor monta a tela.
+ *
+ * A marca da abertura NÃO mora aqui — ver o comentário de
+ * components/TelaAbertura.tsx. Este fallback dura o tempo de o HTML chegar, e
+ * quem abre o app pela primeira vez espera muito mais que isso: espera a
+ * sessão e os dados. Pôr a marca aqui fazia ela quase nunca aparecer.
+ */
 export default function DashboardLoading() {
   return (
     <div className="flex flex-col gap-6">

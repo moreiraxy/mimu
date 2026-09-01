@@ -20,9 +20,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          /*
+            O campo é translúcido, e não `bg-fundo`.
+
+            Com a cor do fundo ele virava um retângulo preto chapado no meio de
+            uma tela de vidro — o mesmo defeito dos cartões antes: uma caixa
+            opaca denuncia que aquele pedaço não pertence ao material do resto.
+            Branco a 4% deixa a luz do fundo atravessar o campo como atravessa
+            tudo em volta, e sobe para 8% no foco, que é a forma de dizer "é
+            aqui que você está digitando" sem precisar de outra cor.
+          */
           className={cn(
-            "rounded-button border border-neutro-border bg-fundo px-3.5 py-3 text-base text-escuro placeholder:text-neutro-muted md:text-sm",
-            "outline-none transition-colors focus:border-primary-forte focus:bg-superficie",
+            "rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-base text-escuro placeholder:text-neutro-muted md:text-sm",
+            "outline-none transition-colors focus:border-primary-forte focus:bg-white/[0.08]",
             className,
           )}
           {...props}

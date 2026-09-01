@@ -3,21 +3,28 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, X } from "lucide-react";
+import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useMountedTransition } from "@/hooks/useMountedTransition";
 import { cn } from "@/lib/utils";
 import type { NAV_ITEMS } from "@/components/dashboard/navItems";
 
 type Item = (typeof NAV_ITEMS)[number];
 
-const DURACAO_SAIDA = 260;
+const DURACAO_SAIDA = 240;
 
 /**
- * Menu do celular, aberto pelo botão "Mais" da barra de baixo.
+ * O menu do botão "Mais" da barra de baixo.
  *
- * Entra pela direita e sai pela direita — o mesmo caminho nos dois sentidos,
- * pra ficar claro de onde ele veio e pra onde foi. Fecha por toque fora, pelo
- * X e pelo Esc.
+ * ERA UMA GAVETA PRETA de tela cheia entrando pela direita, com uma lista de
+ * linhas soltas e um "MENU" miúdo em maiúsculas no alto. Nenhuma dessas coisas
+ * existe no resto do app: nem o preto chapado, nem a lista sem cartões, nem a
+ * entrada lateral.
+ *
+ * Agora é uma FOLHA DE VIDRO que sobe de baixo, com cada destino num cartão
+ * próprio — o mesmo material e o mesmo formato das opções do perfil, e o mesmo
+ * gesto da folha de "Nova ação". E sobe de baixo por um motivo simples: o botão
+ * que a abre está na barra de baixo, e o menu aparecendo onde o dedo acabou de
+ * tocar poupa a viagem de volta.
  */
 export function MenuLateral({
   aberto,
@@ -62,13 +69,21 @@ export function MenuLateral({
   if (!rendered) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-      <button
-        type="button"
-        aria-label="Fechar menu"
+    <div
+      className="fixed inset-0 z-[60]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu"
+    >
+      <div
+        aria-hidden="true"
         onClick={aoFechar}
         className={cn(
-          "absolute inset-0 h-full w-full bg-escuro/50 transition-opacity duration-200",
+          // Escurece mais que o padrão porque os cartões da folha são de VIDRO:
+          // eles deixam passar o que está atrás, e sobre um gráfico claro o
+          // rótulo da opção começa a competir com a página. O escurecimento é
+          // o que devolve a leitura sem tirar a translucidez.
+          "absolute inset-0 bg-black/65 transition-opacity duration-200 motion-reduce:transition-none",
           visible ? "opacity-100" : "opacity-0",
         )}
       />
@@ -77,27 +92,21 @@ export function MenuLateral({
         ref={painelRef}
         tabIndex={-1}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-[82%] max-w-[320px] flex-col bg-superficie shadow-2xl outline-none",
-          "transition-transform duration-260 ease-out motion-reduce:transition-opacity motion-reduce:duration-100",
-          visible ? "translate-x-0" : "translate-x-full motion-reduce:translate-x-0",
+          "absolute inset-x-0 bottom-0 outline-none",
+          "transition-transform duration-[240ms] ease-out motion-reduce:transition-none",
+          visible ? "translate-y-0" : "translate-y-full",
         )}
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
       >
-        <div className="flex items-center justify-between border-b border-neutro-border px-5 py-4">
-          <span className="text-sm font-bold uppercase tracking-wide text-neutro-muted">
-            Menu
-          </span>
-          <button
-            type="button"
-            onClick={aoFechar}
-            aria-label="Fechar menu"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-neutro-icon transition-colors hover:bg-neutro-border hover:text-escuro"
-          >
-            <X className="h-5 w-5" strokeWidth={2.25} />
-          </button>
-        </div>
+        <div className="mx-auto flex max-w-[430px] flex-col gap-2.5 px-3">
+          {/* Puxador: a pista de que a folha se fecha arrastando pra baixo. */}
+          <div className="flex justify-center pb-1">
+            <span
+              aria-hidden="true"
+              className="h-1 w-9 rounded-full bg-white/30"
+            />
+          </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-3">
           {itens.map(({ href, label, Icon }) => {
             const ativo = pathname === href;
             return (
@@ -107,46 +116,58 @@ export function MenuLateral({
                 onClick={aoFechar}
                 aria-current={ativo ? "page" : undefined}
                 className={cn(
-                  // 52px de altura: alvo de toque confortável, bem acima dos
-                  // 44px mínimos.
-                  "flex h-[52px] items-center gap-3.5 rounded-button px-3 transition-colors",
-                  ativo ? "bg-primary-light text-primary-forte" : "text-escuro hover:bg-neutro-border",
+                  "vidro flex items-center gap-3 rounded-[18px] px-4 py-[17px]",
+                  "transition-transform active:scale-[0.99] motion-reduce:active:scale-100",
                 )}
               >
-                <Icon size={22} className={ativo ? "text-primary-forte" : "text-neutro-icon"} />
-                <span className="flex-1 text-[15px] font-semibold">{label}</span>
+                <Icon
+                  size={20}
+                  className={ativo ? "text-primary-forte" : "text-neutro-muted"}
+                />
+                <span
+                  className={cn(
+                    "flex-1 text-[15px] font-semibold",
+                    ativo ? "text-primary-forte" : "text-escuro",
+                  )}
+                >
+                  {label}
+                </span>
                 {href === "/mimu" && alertas > 0 && (
-                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-erro px-1.5 text-[11px] font-bold leading-none text-white">
+                  <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-erro px-1 text-[10px] font-bold leading-none text-white">
                     {alertas > 9 ? "9+" : alertas}
                   </span>
                 )}
+                <ChevronRight
+                  className="h-[18px] w-[18px] text-neutro-muted"
+                  strokeWidth={2}
+                />
               </Link>
             );
           })}
 
           {admin && (
-            <>
-              <div className="my-2 border-t border-neutro-border" />
-              <Link
-                href="/admin"
-                onClick={aoFechar}
-                aria-current={pathname === "/admin" ? "page" : undefined}
-                className={cn(
-                  "flex h-[52px] items-center gap-3.5 rounded-button px-3 transition-colors",
-                  pathname === "/admin"
-                    ? "bg-primary-light text-primary-forte"
-                    : "text-escuro hover:bg-neutro-border",
-                )}
-              >
-                <ShieldCheck
-                  size={22}
-                  className={pathname === "/admin" ? "text-primary-forte" : "text-neutro-icon"}
-                />
-                <span className="flex-1 text-[15px] font-semibold">Painel</span>
-              </Link>
-            </>
+            <Link
+              href="/admin"
+              onClick={aoFechar}
+              aria-current={pathname === "/admin" ? "page" : undefined}
+              className="vidro flex items-center gap-3 rounded-[18px] px-4 py-[17px]"
+            >
+              <ShieldCheck
+                size={20}
+                className={
+                  pathname === "/admin" ? "text-primary-forte" : "text-neutro-muted"
+                }
+              />
+              <span className="flex-1 text-[15px] font-semibold text-escuro">
+                Painel
+              </span>
+              <ChevronRight
+                className="h-[18px] w-[18px] text-neutro-muted"
+                strokeWidth={2}
+              />
+            </Link>
           )}
-        </nav>
+        </div>
       </div>
     </div>
   );

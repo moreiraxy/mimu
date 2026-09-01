@@ -100,7 +100,7 @@ export default function FornecedoresPage() {
             <Link
               key={f.id}
               href={`/fornecedores/${f.id}`}
-              className="flex items-center gap-3 rounded-card border border-neutro-border bg-superficie p-3"
+              className="flex items-center gap-3 vidro-card rounded-[20px] p-3"
             >
               <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
                 <Truck className="h-4 w-4" strokeWidth={2.25} />

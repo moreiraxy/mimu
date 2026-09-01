@@ -113,18 +113,25 @@ export const VALOR_MENSAL_MIMU = PLANOS.pro.valorMensal;
  */
 export const MODULOS_DO_PLANO: Record<PlanoComAcesso, readonly ModuloAtivo[]> = {
   /*
-   * O gratuito fica com o caixa e nada mais.
+   * O gratuito fica com o caixa e com a Mimu.
    *
    * Registrar venda e ver o faturamento do mês é o que faz a Mimu valer a
    * pena abrir todo dia, e é o hábito que sustenta a conversão depois. Agenda,
    * clientes e estoque são o trabalho que a pessoa já faz de outro jeito — dá
    * para viver sem, e é por eles que se paga.
    *
-   * A IA fica de fora por um motivo a mais que os outros: cada resposta da
-   * Mimu custa dinheiro na Groq. Um plano gratuito com IA ilimitada é uma
-   * conta que cresce com o número de pessoas que nunca vão pagar.
+   * A IA ESTAVA DE FORA, e a razão era boa: cada resposta custa dinheiro na
+   * Groq, e IA ilimitada de graça é uma conta que cresce com o número de
+   * pessoas que nunca vão pagar.
+   *
+   * O que mudou não foi a conta — foi a existência de um teto. A Mimu agora
+   * responde a todo mundo, mas dentro de MENSAGENS_MIMU_POR_DIA, e o gratuito
+   * tem o menor de todos. O custo deixou de ser ilimitado, e com isso o
+   * argumento de manter a assistente escondida de quem não paga caiu: ela é o
+   * produto. Quem nunca conversou com a Mimu não tem por que assinar para
+   * conversar mais.
    */
-  free: ["financeiro"],
+  free: ["financeiro", "ia"],
 
   // Os pagos liberam tudo. A diferença entre Pro e Premium hoje é de preço e
   // de limites, não de módulo — quando passar a ser de módulo, é aqui que muda.
@@ -136,6 +143,56 @@ export const MODULOS_DO_PLANO: Record<PlanoComAcesso, readonly ModuloAtivo[]> = 
   basico: ["financeiro", "agenda", "clientes", "estoque", "ia"],
   completo: ["financeiro", "agenda", "clientes", "estoque", "ia"],
 };
+
+/**
+ * Quantas mensagens a Mimu responde por dia, em cada plano.
+ *
+ * É O TETO DE CUSTO DO PRODUTO, e não um detalhe de embalagem. Cada mensagem
+ * são duas chamadas ao Groq (classificar a intenção e responder), e áudio
+ * ainda paga o Whisper por minuto. Sem este número, o gasto da Mimu cresce
+ * com o número de contas gratuitas — que é justamente o número que a gente
+ * quer ver crescer.
+ *
+ * O teto vale SOMANDO OS CANAIS: o que se gasta no app e no WhatsApp sai da
+ * mesma cota, porque é a mesma pessoa gastando a mesma API. Cota por canal
+ * seria o mesmo teto duas vezes, e ninguém entenderia por que a conversa
+ * continua num lugar e para no outro.
+ *
+ * Sobre os valores:
+ *
+ *   free      10 — dá para registrar as vendas do dia conversando e sentir
+ *                  para que serve. Não dá para usar a Mimu como o caderno
+ *                  inteiro, que é exatamente a linha onde começa o Pro.
+ *   pro      150 — folgado a ponto de não se notar em uso real. Quem atende
+ *                  no balcão não manda 150 mensagens num dia; quem manda está
+ *                  automatizando alguma coisa.
+ *   premium  500 — para quem usa a Mimu como operação, não como consulta.
+ *
+ * Os herdados acompanham o Pro: quem pagou por eles não pode receber menos do
+ * que recebia numa mudança de catálogo que não pediu.
+ */
+export const MENSAGENS_MIMU_POR_DIA: Record<PlanoComAcesso, number> = {
+  free: 10,
+  pro: 150,
+  premium: 500,
+  basico: 150,
+  completo: 150,
+};
+
+/**
+ * O teto do plano, com o gratuito como resposta para o desconhecido.
+ *
+ * Mesma regra de `modulosLiberados`: um plano que este código não conhece cai
+ * no menor teto, não no maior. Errar liberando de menos dá reclamação, que se
+ * conserta. Errar liberando de mais só aparece na fatura da Groq no fim do
+ * mês.
+ */
+export function limiteDiarioDaMimu(plano: string | null | undefined): number {
+  return (
+    MENSAGENS_MIMU_POR_DIA[plano as PlanoComAcesso] ??
+    MENSAGENS_MIMU_POR_DIA.free
+  );
+}
 
 /**
  * Até onde o histórico é visível, em meses. `null` é sem limite.

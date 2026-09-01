@@ -5,23 +5,22 @@ import { DollarSign } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
+import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 import { PageHeader } from "@/components/PageHeader";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu } from "@/lib/mimu-correcao";
 import { primeiroErroZod, schemaTransacao } from "@/lib/validacao/negocio";
 import { TransacaoForm, type DadosFormularioTransacao } from "../TransacaoForm";
-import { RegistroConcluido } from "../RegistroConcluido";
 
 export default function NovaEntradaPage() {
   const { empresa } = useEmpresa();
   const { showToast } = useToast();
+  const voltar = useVoltarAposCriar("/financeiro");
   const { verificarAgora } = useAlertasProativos();
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [concluido, setConcluido] = useState(false);
-  const [concluidoOffline, setConcluidoOffline] = useState(false);
   const [chaveFormulario, setChaveFormulario] = useState(0);
 
   // Prefill vindo do "Corrigir" do chat da Mimu — via sessionStorage, nunca
@@ -93,29 +92,20 @@ export default function NovaEntradaPage() {
       resultado.offline ? "Entrada salva! Vai sincronizar depois." : "Entrada registrada!",
       DollarSign,
     );
-    setConcluidoOffline(resultado.offline);
-    setConcluido(true);
+    /*
+     * Volta para onde a pessoa estava, em vez de parar numa tela de "pronto!".
+     *
+     * Havia aqui um <RegistroConcluido> com dois botões — "Registrar outro" e
+     * "Voltar para o financeiro" — e ele obrigava um toque a mais depois de um
+     * trabalho que já tinha terminado. Quem registra venda no balcão faz isso
+     * com o cliente esperando; a confirmação cabe no aviso que sobe, e o
+     * caminho de registrar outra é o "+" da barra, a um toque.
+     */
+    voltar();
     if (!resultado.offline) {
       // Checa alertas na hora — é o gatilho do "recorde batido" (Comando 3).
       verificarAgora();
     }
-  }
-
-  if (concluido) {
-    return (
-      <RegistroConcluido
-        titulo="Entrada registrada!"
-        subtitulo={
-          concluidoOffline
-            ? "Você estava sem conexão. Assim que voltar, ela sincroniza automaticamente."
-            : undefined
-        }
-        onNovo={() => {
-          setConcluido(false);
-          setChaveFormulario((k) => k + 1);
-        }}
-      />
-    );
   }
 
   return (

@@ -28,6 +28,8 @@ import {
   type ClassificacaoMimu,
   type RegistroPendente,
 } from "@/lib/mimu-prompts";
+import { verificarAcesso, RESPOSTA_SEM_ACESSO_NO_APP } from "@/lib/mimu/acesso";
+import { consumirMensagemDaMimu } from "@/lib/mimu/cota";
 import type { Empresa } from "@/types";
 import type { Json } from "@/types/database";
 
@@ -243,6 +245,28 @@ export async function POST(request: Request) {
       { status: 404 },
     );
   }
+
+  /*
+   * O MESMO portão do WhatsApp: suspensão, módulo e cota do dia.
+   *
+   * Esta rota confiava só no middleware, que sabe de módulo mas não sabe de
+   * cota — e a cota é o que existe agora entre o plano gratuito e a fatura da
+   * Groq. Reaproveitar `verificarAcesso` em vez de reescrever a regra aqui é
+   * o que garante que os dois canais parem no mesmo lugar: uma segunda cópia
+   * divergiria no dia em que alguém mexesse numa só, e o canal esquecido
+   * viraria a porta destrancada.
+   *
+   * Vem antes de salvar a mensagem: quem foi barrada não deve ficar com a
+   * conversa gravada como se tivesse conversado.
+   */
+  const acesso = await verificarAcesso(comIdentidade(supabase), empresa.id);
+  if (!acesso.liberado) {
+    return NextResponse.json(
+      { error: RESPOSTA_SEM_ACESSO_NO_APP[acesso.motivo] },
+      { status: acesso.motivo === "cota_esgotada" ? 429 : 403 },
+    );
+  }
+  await consumirMensagemDaMimu(empresa.id);
 
   const salvou = await salvarMensagemDaUsuaria(
     comIdentidade(supabase),

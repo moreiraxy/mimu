@@ -1,4 +1,5 @@
 import type { ClientComIdentidade } from "@/lib/supabase/identidade";
+import type { CanalDaConversa } from "@/lib/mimu/guardas";
 import {
   getGroq,
   DEFAULT_MODEL,
@@ -277,6 +278,9 @@ async function perguntarAoModelo(
 export async function responderConsulta(
   supabase: Supabase,
   empresa: Empresa,
+  /** Por onde a resposta vai sair. Só marca a linha; o histórico lido é o
+      mesmo, de todos os canais — ver a migration do campo `canal`. */
+  canal: CanalDaConversa = "app",
 ): Promise<ResultadoConsulta> {
   const dadosNegocio = await reunirDadosDoNegocio(supabase, empresa);
   if (!dadosNegocio) return { ok: false, motivo: "dados_indisponiveis" };
@@ -328,6 +332,7 @@ export async function responderConsulta(
       role: "assistant",
       content: textoLimpo,
       metadata: card ? (JSON.parse(JSON.stringify({ card })) as Json) : null,
+      canal,
     })
     .select("id, created_at")
     .single();

@@ -105,7 +105,7 @@ export function ExcluirContaSection({ empresa }: { empresa: Empresa }) {
           />
 
           {erro && (
-            <p className="rounded-button bg-superficie px-3 py-2 text-xs text-erro-texto">
+            <p className="rounded-button bg-erro-light px-3 py-2 text-xs text-erro-texto">
               {erro}
             </p>
           )}

@@ -1,6 +1,7 @@
 import { createClientComoUsuario } from "@/lib/supabase/como-usuario";
 import { responderConsulta } from "@/lib/mimu/consulta";
 import { verificarAcesso, RESPOSTA_SEM_ACESSO } from "@/lib/mimu/acesso";
+import { consumirMensagemDaMimu } from "@/lib/mimu/cota";
 import { createServiceClient } from "@/lib/supabase/service";
 import { registrarEvento } from "@/lib/eventos";
 import { transcrever } from "@/lib/mimu/transcricao";
@@ -183,6 +184,19 @@ export async function responderPelaMimu(
   }
 
   /*
+   * A mensagem do dia é debitada AQUI, antes de qualquer gasto.
+   *
+   * Antes da transcrição e antes do modelo, porque é a partir deste ponto que
+   * a conta começa a custar dinheiro de verdade — e porque duas mensagens
+   * chegando juntas passariam as duas se o débito só acontecesse no fim.
+   *
+   * Sim, isso significa que um áudio que a transcrição não entende consome
+   * uma mensagem. É proposital: o Whisper foi pago do mesmo jeito. Debitar só
+   * o que dá certo transformaria áudio ruim em conversa de graça.
+   */
+  await consumirMensagemDaMimu(conta.empresaId);
+
+  /*
    * SÓ AGORA o áudio vira texto.
    *
    * Depois de conferir suspensão e plano, e não antes. Transcrever custa por
@@ -208,7 +222,14 @@ export async function responderPelaMimu(
     return "Não consegui entender essa mensagem. Me manda em texto ou áudio?";
   }
 
-  if (!(await salvarMensagemDaUsuaria(supabase, conta.empresaId, texto))) {
+  if (
+    !(await salvarMensagemDaUsuaria(
+      supabase,
+      conta.empresaId,
+      texto,
+      "whatsapp",
+    ))
+  ) {
     return "Não consegui guardar sua mensagem agora. Tenta de novo?";
   }
 
@@ -221,7 +242,12 @@ export async function responderPelaMimu(
    */
   if (pareceInjecaoDePrompt(texto)) {
     await registrarBloqueio(supabase, conta.empresaId, texto);
-    await salvarRespostaDaMimu(supabase, conta.empresaId, RESPOSTA_BLOQUEADA);
+    await salvarRespostaDaMimu(
+      supabase,
+      conta.empresaId,
+      RESPOSTA_BLOQUEADA,
+      "whatsapp",
+    );
     return RESPOSTA_BLOQUEADA;
   }
 
@@ -273,7 +299,12 @@ export async function responderPelaMimu(
     );
 
     if (registrado.ok) {
-      await salvarRespostaDaMimu(supabase, conta.empresaId, registrado.recibo);
+      await salvarRespostaDaMimu(
+        supabase,
+        conta.empresaId,
+        registrado.recibo,
+        "whatsapp",
+      );
       return registrado.recibo;
     }
 
@@ -286,7 +317,11 @@ export async function responderPelaMimu(
     return "Não consegui registrar agora. Tenta de novo, ou faz pelo app?";
   }
 
-  const resultado = await responderConsulta(supabase, empresa as Empresa);
+  const resultado = await responderConsulta(
+    supabase,
+    empresa as Empresa,
+    "whatsapp",
+  );
 
   if (!resultado.ok) {
     /*

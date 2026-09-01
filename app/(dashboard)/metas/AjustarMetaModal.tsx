@@ -37,7 +37,7 @@ export function AjustarMetaModal({
     >
       <div
         className={cn(
-          "w-full max-w-[400px] rounded-t-card bg-superficie p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[400px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",
@@ -59,7 +59,7 @@ export function AjustarMetaModal({
             setCentavos(digitos ? Number(digitos) : 0);
           }}
           aria-label="Meta mensal"
-          className="mt-4 w-full rounded-button border border-neutro-border bg-fundo px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+          className="mt-4 w-full rounded-button border border-neutro-border bg-white/[0.04] px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
 
         <div className="mt-5 flex gap-3">

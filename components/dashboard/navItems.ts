@@ -1,4 +1,4 @@
-import { Package, Settings, Target } from "lucide-react";
+import { Package, Target, UserRound } from "lucide-react";
 import {
   AgendaIcon,
   ClientesIcon,
@@ -46,11 +46,19 @@ export const NAV_ITEMS = [
     Icon: Package,
     modulo: "estoque" as ModuloAtivo,
   },
+  /*
+   * "Perfil", e não mais "Empresa".
+   *
+   * O destino mudou de conteúdo: era uma página de ajustes do negócio e virou
+   * a tela da CONTA — foto, plano, assinatura, senha, biometria, suporte,
+   * sair. Os dados do negócio continuam lá dentro, uma linha entre as outras.
+   * "Empresa" mandaria procurar "sair da conta" em qualquer outro lugar.
+   */
   {
     href: "/minha-empresa",
     prioridade: 7,
-    label: "Empresa",
-    Icon: Settings,
+    label: "Perfil",
+    Icon: UserRound,
     modulo: null,
   },
 ] as const;

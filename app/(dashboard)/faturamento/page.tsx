@@ -37,7 +37,7 @@ export default function FaturamentoPage() {
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-semibold",
                 visao === opcao.valor
-                  ? "bg-superficie text-primary-forte shadow-sm"
+                  ? "bg-escuro text-fundo"
                   : "text-neutro-muted",
               )}
             >

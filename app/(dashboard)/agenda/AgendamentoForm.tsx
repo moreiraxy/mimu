@@ -173,7 +173,7 @@ export function AgendamentoForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitarValor}
           aria-label="Valor previsto"
-          className="w-full max-w-[240px] rounded-button border border-neutro-border bg-superficie px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+          className="w-full max-w-[240px] vidro-card rounded-button px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
         />
       </div>
 
@@ -182,7 +182,7 @@ export function AgendamentoForm({
         <button
           type="button"
           onClick={() => setCalendarioAberto((v) => !v)}
-          className="w-full rounded-button border border-neutro-border bg-superficie px-3.5 py-3 text-left text-sm text-escuro"
+          className="w-full vidro-card rounded-button px-3.5 py-3 text-left text-sm text-escuro"
         >
           {new Date(`${data}T00:00:00`).toLocaleDateString("pt-BR", {
             day: "2-digit",
@@ -191,7 +191,7 @@ export function AgendamentoForm({
           })}
         </button>
         {calendarioAberto && (
-          <div className="mt-2 rounded-card border border-neutro-border bg-superficie p-4">
+          <div className="mt-2 vidro-card rounded-[20px] p-4">
             <CalendarioInline
               value={data}
               onChange={(iso) => {
@@ -216,8 +216,8 @@ export function AgendamentoForm({
               className={cn(
                 "flex-shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
                 horario === h
-                  ? "border-primary-forte bg-primary text-primary-text"
-                  : "border-neutro-border bg-superficie text-escuro",
+                  ? "bg-primary/20 text-primary-forte"
+                  : "vidro-card text-escuro",
               )}
             >
               {h}
@@ -243,8 +243,8 @@ export function AgendamentoForm({
               className={cn(
                 "rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
                 duracaoMinutos === opcao.minutos
-                  ? "border-primary-forte bg-primary text-primary-text"
-                  : "border-neutro-border bg-superficie text-escuro",
+                  ? "bg-primary/20 text-primary-forte"
+                  : "vidro-card text-escuro",
               )}
             >
               {opcao.label}
@@ -273,8 +273,8 @@ export function AgendamentoForm({
               className={cn(
                 "flex-1 rounded-button border py-2.5 text-sm font-semibold transition-colors",
                 status === s
-                  ? "border-primary-forte bg-primary text-primary-text"
-                  : "border-neutro-border bg-superficie text-escuro",
+                  ? "bg-primary/20 text-primary-forte"
+                  : "vidro-card text-escuro",
               )}
             >
               {s === "confirmado" ? "Confirmado" : "Pendente"}

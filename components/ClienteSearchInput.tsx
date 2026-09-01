@@ -81,7 +81,7 @@ export function ClienteSearchInput({
         </button>
       )}
       {!value && query.trim().length >= 2 && (resultados.length > 0 || buscando) && (
-        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-button border border-neutro-border bg-superficie shadow-md">
+        <div className="vidro absolute z-10 mt-1 w-full overflow-hidden rounded-button shadow-md">
           {buscando ? (
             <p className="px-3.5 py-2.5 text-sm text-neutro-muted">
               Buscando...
