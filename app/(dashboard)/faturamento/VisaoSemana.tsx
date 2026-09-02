@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { calcularFaturamentoPrevisto } from "@/lib/calculations";
-import { formatCurrency } from "@/lib/formatters";
+import { Valor } from "@/components/Valor";
+import { GraficoDuasSeries } from "@/components/graficos/GraficoDuasSeries";
 import { cn, paraISOLocal } from "@/lib/utils";
 import { AgendamentoLinha } from "./AgendamentoLinha";
 import type { AgendamentoComCliente, Transacao } from "@/types";
@@ -89,64 +90,38 @@ export function VisaoSemana({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="vidro-card rounded-[20px] p-4">
-        <div className="flex h-40 items-end justify-between gap-1.5">
-          {dias.map((dia, i) => {
-            const total = dia.realizado + dia.previsto;
-            const alturaRealizado = (dia.realizado / maiorValor) * 100;
-            const alturaPrevisto = (dia.previsto / maiorValor) * 100;
+      {/*
+        O MESMO gráfico de duas séries do financeiro, com linha ou coluna na
+        escolha de quem usa (components/graficos/GraficoDuasSeries).
 
-            return (
-              <div
-                key={dia.iso}
-                className={cn(
-                  "flex flex-1 flex-col items-center gap-1 rounded-card py-1",
-                  dia.ehHoje && "bg-primary-light",
-                )}
-              >
-                <span className="text-[9px] font-semibold text-neutro-muted">
-                  {total > 0 ? formatarValorCompacto(total) : ""}
-                </span>
-                <div className="flex h-28 w-full items-end gap-0.5 px-0.5">
-                  <div className="flex h-full flex-1 flex-col-reverse justify-start">
-                    <div
-                      className="w-full rounded-t-sm bg-verde"
-                      style={{ height: `${alturaRealizado}%` }}
-                    />
-                  </div>
-                  <div className="flex h-full flex-1 flex-col-reverse justify-start">
-                    <div
-                      className="w-full rounded-t-sm bg-primary/35"
-                      style={{ height: `${alturaPrevisto}%` }}
-                    />
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    "text-[10px] font-semibold",
-                    dia.ehHoje ? "text-primary-forte" : "text-neutro-muted",
-                  )}
-                >
-                  {DIAS_SEMANA[i]}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <p className="text-center text-xs text-neutro-muted">
-        Realizado: {formatCurrency(realizadoSemana)} · Previsto:{" "}
-        {formatCurrency(previstoSemana)} · Total potencial:{" "}
-        {formatCurrency(potencialSemana)}
-      </p>
+        Aqui só havia colunas, e nem sempre a coluna é a leitura certa: quem
+        olha a semana quer saber PARA ONDE ela está indo, e isso a curva conta
+        melhor. Faltava a opção porque este desenho era uma cópia do que existia
+        no financeiro — quando a escolha nasceu lá, a cópia daqui ficou para
+        trás. Agora é uma peça só, e o que melhora num lugar melhora nos dois.
+      */}
+      <GraficoDuasSeries
+        titulo="A semana"
+        principal={{ nome: "Realizado", valores: dias.map((d) => d.realizado) }}
+        apoio={{ nome: "Previsto", valores: dias.map((d) => d.previsto) }}
+        rotulos={DIAS_SEMANA}
+        destaque={dias.findIndex((d) => d.ehHoje)}
+        altura={140}
+        rodape={
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.08] pt-3.5">
+            <LinhaDeApoio rotulo="Já realizado" valor={realizadoSemana} />
+            <LinhaDeApoio rotulo="Previsto" valor={previstoSemana} destaque />
+            <LinhaDeApoio rotulo="Potencial da semana" valor={potencialSemana} />
+          </div>
+        }
+      />
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-semibold text-escuro">
+        <p className="px-1 text-[13px] font-semibold text-neutro-muted">
           Próximos agendamentos
         </p>
         {proximos.length === 0 ? (
-          <p className="py-4 text-center text-sm text-neutro-muted">
+          <p className="py-4 text-center text-[15px] text-neutro-muted">
             Nenhum agendamento futuro essa semana.
           </p>
         ) : (
@@ -155,6 +130,29 @@ export function VisaoSemana({
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function LinhaDeApoio({
+  rotulo,
+  valor,
+  destaque = false,
+}: {
+  rotulo: string;
+  valor: number;
+  destaque?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="truncate text-[15px] text-neutro-muted">{rotulo}</span>
+      <Valor
+        valor={valor}
+        className={cn(
+          "text-[15px] font-bold",
+          destaque ? "text-primary-forte" : "text-escuro",
+        )}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { calcularFaturamentoPrevisto } from "@/lib/calculations";
-import { formatCurrency } from "@/lib/formatters";
+import { Valor } from "@/components/Valor";
+import { cn } from "@/lib/utils";
 import { paraISOLocal } from "@/lib/utils";
 import { AgendamentoLinha } from "./AgendamentoLinha";
 import type { AgendamentoComCliente, Transacao } from "@/types";
@@ -33,33 +34,36 @@ export function VisaoHoje({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="vidro-card rounded-[20px] border-2 border-verde p-4">
-          <p className="text-xs text-neutro-muted">Realizado</p>
-          <p className="mt-1 text-xl font-bold text-verde-texto">
-            {formatCurrency(realizado)}
-          </p>
-        </div>
-        <div className="vidro-card rounded-[20px] border-2 border-dashed border-primary-forte p-4">
-          <p className="text-xs text-neutro-muted">Previsto</p>
-          <p className="mt-1 text-xl font-bold text-primary-forte">
-            {formatCurrency(previsto)}
-          </p>
-        </div>
-      </div>
+      {/*
+        O POTENCIAL É O CARTÃO GRANDE, e realizado e previsto são as linhas que
+        o explicam — a mesma anatomia do "Faturamento de hoje" do painel.
 
-      {/* text-fundo, não text-white: o fundo `escuro` fica branco no tema
-          escuro, e texto branco por cima desaparece. */}
-      <div className="rounded-card bg-escuro p-4 text-center">
-        <p className="text-xs text-fundo/70">Potencial total do dia</p>
-        <p className="mt-1 text-2xl font-bold text-fundo">
-          {formatCurrency(potencial)}
+        Antes era o contrário: dois cartõezinhos com borda de 2px em cores
+        diferentes (um verde sólido, outro néon tracejado) e, embaixo, o
+        potencial num RETÂNGULO CHAPADO `bg-escuro` — que no tema escuro é
+        branco, ou seja, a única placa branca de um app inteiro de vidro. O
+        número mais importante da tela era o que mais destoava dela.
+      */}
+      <div className="vidro-card rounded-[20px] p-4">
+        <p className="text-[15px] leading-tight text-neutro-muted">
+          Potencial total do dia
         </p>
+        <Valor
+          valor={potencial}
+          className="mt-1 block truncate text-[40px] font-bold leading-none tracking-tight text-escuro"
+        />
+
+        <div className="mt-4 flex flex-col gap-2">
+          <LinhaDeApoio rotulo="Já realizado" valor={realizado} />
+          {/* O previsto é o único em néon: é o que ainda pode acontecer, e a
+              diferença entre os dois é o assunto desta tela. */}
+          <LinhaDeApoio rotulo="Previsto" valor={previsto} destaque />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
         {agendamentosHoje.length === 0 ? (
-          <p className="py-6 text-center text-sm text-neutro-muted">
+          <p className="py-6 text-center text-[15px] text-neutro-muted">
             Nenhum agendamento hoje.
           </p>
         ) : (
@@ -68,6 +72,29 @@ export function VisaoHoje({
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function LinhaDeApoio({
+  rotulo,
+  valor,
+  destaque = false,
+}: {
+  rotulo: string;
+  valor: number;
+  destaque?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <span className="truncate text-[15px] text-neutro-muted">{rotulo}</span>
+      <Valor
+        valor={valor}
+        className={cn(
+          "text-[15px] font-bold",
+          destaque ? "text-primary-forte" : "text-escuro",
+        )}
+      />
     </div>
   );
 }
