@@ -54,6 +54,23 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
    */
   useEffect(() => {
     document.documentElement.classList.toggle("dark", tema === "escuro");
+
+    /*
+     * Guarda a escolha para a PRÓXIMA abertura.
+     *
+     * Quem lê isto é o script embutido no <head> (ver app/layout.tsx), que roda
+     * antes da primeira pintura. Sem ele, quem usa o tema claro atravessava uma
+     * virada de tema inteira a cada abertura — e virar o tema repinta todas as
+     * superfícies de vidro de uma vez, o que custa centenas de milissegundos.
+     *
+     * O banco continua sendo a fonte da verdade: isto aqui é só um atalho para
+     * o primeiro quadro, e é corrigido assim que a empresa chega.
+     */
+    try {
+      window.localStorage.setItem("mimu:tema", tema);
+    } catch {
+      // Armazenamento bloqueado: volta a valer o comportamento de antes.
+    }
   }, [tema]);
 
   const alternarTema = useCallback(() => {

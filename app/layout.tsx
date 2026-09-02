@@ -166,6 +166,37 @@ export default function RootLayout({
       className={`dark ${nunito.variable} ${spaceGrotesk.variable}`}
     >
       <head>
+        {/*
+          O TEMA ANTES DA PRIMEIRA PINTURA.
+          
+          O `<html>` nasce com `dark` porque é a aposta certa para quem chega
+          pela primeira vez (a landing, o cadastro e o onboarding são escuros).
+          Mas quem ESCOLHEU o claro pagava a troca depois, quando a empresa
+          carregava — e essa troca não é barata: medida num celular emulado,
+          custa de 111 a 378ms até pintar, com até 463ms só de recálculo de
+          estilo, porque ela repinta as 17 superfícies de vidro da tela de uma
+          vez. Do lado de fora é um tranco de um terço de segundo, e só quem
+          usa o tema claro sentia.
+
+          Este script roda ANTES de qualquer pintura e lê a escolha guardada na
+          visita anterior. Quem já entrou uma vez nunca mais vê a virada; quem
+          nunca entrou continua começando escuro, como antes.
+
+          Inline e não num chunk: chunk é buscado e executado depois do
+          primeiro quadro, que é exatamente o que estamos tentando evitar.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              try {
+                if (localStorage.getItem('mimu:tema') === 'claro') {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })();`,
+          }}
+        />
+
         {process.env.NODE_ENV !== "production" && (
           // Script inline (não passa pelos chunks do webpack) que desregistra
           // qualquer service worker preso de uma sessão de dev anterior e
