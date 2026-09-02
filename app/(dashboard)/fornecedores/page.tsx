@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
@@ -32,6 +33,8 @@ export default function FornecedoresPage() {
       telefone: dados.telefone || null,
       email: dados.email || null,
     });
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
     setSalvando(false);
 
     if (insertError) {

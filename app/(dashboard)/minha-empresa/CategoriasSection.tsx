@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Tags, Plus, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useToast } from "@/hooks/useToast";
@@ -25,6 +26,8 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
     const { error } = await supabase
       .from("categorias")
       .insert({ empresa_id: empresa.id, tipo, nome });
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setEnviando(false);
 
@@ -43,6 +46,8 @@ function ListaCategoria({ tipo, titulo }: { tipo: TipoCategoria; titulo: string 
 
   async function excluir(id: string) {
     const { error } = await supabase.from("categorias").delete().eq("id", id);
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
     if (error) {
       showToast("Não consegui excluir.");
       return;

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useProdutos } from "@/hooks/useProdutos";
@@ -97,6 +98,8 @@ export default function ComprasPage({
       })
       .select("id")
       .single();
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     if (erroCompra || !compra) {
       setSalvando(false);
@@ -112,6 +115,8 @@ export default function ComprasPage({
         preco_unitario: item.precoUnitario,
       })),
     );
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     setSalvando(false);
 

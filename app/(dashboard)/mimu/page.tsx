@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { useDitado } from "@/hooks/useDitado";
@@ -485,6 +486,20 @@ export default function MimuChatPage() {
         });
         if (error) throw error;
       }
+
+      /*
+       * O QUE A MIMU ACABOU DE GRAVAR TEM QUE APARECER NA HORA.
+       *
+       * As telas abrem com o que já mostraram uma vez (lib/cache-de-tela.ts), e
+       * essa gravação aconteceu FORA delas — do chat. Sem esta linha, a pessoa
+       * fala "vendi 90 reais", a Mimu confirma, ela vai ao faturamento e vê o
+       * número de antes. É o pior defeito possível num app de dinheiro: o
+       * registro funcionou, e a tela diz que não.
+       *
+       * O cache foi meu, e este buraco também: eu esqueci de contar a ele o
+       * caminho que não passa por formulário nenhum.
+       */
+      limpaCache();
 
       const registroConfirmado: RegistroPendente = {
         ...registro,

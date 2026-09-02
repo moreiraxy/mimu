@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Target, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { limpaCache } from "@/lib/cache-de-tela";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { calcularMetaDiaria, formatCurrency } from "@/lib/formatters";
@@ -117,6 +118,8 @@ export function MetaSection({
         meta_diaria: novaMetaDiaria,
       })
       .eq("id", empresa.id);
+    // As listas guardadas ficaram velhas — ver lib/cache-de-tela.ts.
+    limpaCache();
 
     if (error) {
       setSalvando(false);
