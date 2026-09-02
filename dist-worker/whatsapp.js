@@ -1394,17 +1394,27 @@ var RESPOSTA_SEM_ACESSO = {
 // lib/mimu/transcricao.ts
 var MODELO_TRANSCRICAO = "whisper-large-v3-turbo";
 var MAX_BYTES = 8 * 1024 * 1024;
-async function transcrever(audio) {
+var EXTENSAO = {
+  "audio/ogg": "ogg",
+  "audio/webm": "webm",
+  "audio/mp4": "mp4",
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/x-m4a": "m4a"
+};
+function nomeDoArquivo(tipo) {
+  const base = tipo.split(";")[0].trim().toLowerCase();
+  const ext = EXTENSAO[base] ?? "ogg";
+  return { nome: `audio.${ext}`, tipo: base || "audio/ogg" };
+}
+async function transcrever(audio, tipoDeclarado = "audio/ogg") {
   if (audio.byteLength > MAX_BYTES) {
     return { ok: false, motivo: "grande_demais" };
   }
+  const { nome, tipo } = nomeDoArquivo(tipoDeclarado);
   try {
     const resposta = await getGroq().audio.transcriptions.create({
-      // O nome do arquivo importa: a API decide o formato pela extensão, e
-      // áudio de voz do WhatsApp vem em OGG/Opus.
-      file: new File([new Uint8Array(audio)], "audio.ogg", {
-        type: "audio/ogg"
-      }),
+      file: new File([new Uint8Array(audio)], nome, { type: tipo }),
       model: MODELO_TRANSCRICAO,
       // Dizer o idioma melhora a precisão e evita o Whisper "traduzir" para
       // inglês sozinho, que ele faz quando fica em dúvida.

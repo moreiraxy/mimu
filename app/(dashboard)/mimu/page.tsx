@@ -14,14 +14,17 @@ import {
   ArrowUpRight,
   Check,
   History,
+  Loader2,
   Mic,
   Plus,
+  Square,
   Trash2,
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
+import { useDitado } from "@/hooks/useDitado";
 import { LogoMark, MarcaTraco } from "@/components/Logo";
 import { FolhaAcoes } from "@/components/dashboard/FolhaAcoes";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -32,33 +35,6 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import { salvarCorrecaoMimu, type CorrecaoMimu } from "@/lib/mimu-correcao";
 import type { Json } from "@/types/database";
 import type { MimuCard, RegistroPendente, TipoRegistroMimu } from "@/lib/mimu-prompts";
-
-// A Web Speech API não tem tipos oficiais no lib.dom padrão do TS — declaramos
-// só o que a gente usa.
-interface SpeechRecognitionResultLike {
-  transcript: string;
-}
-interface SpeechRecognitionEventLike {
-  results: ArrayLike<ArrayLike<SpeechRecognitionResultLike>>;
-}
-interface SpeechRecognitionInstance {
-  lang: string;
-  interimResults: boolean;
-  maxAlternatives: number;
-  start: () => void;
-  stop: () => void;
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-}
-type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
 
 interface MimuMessage {
   id: string;
@@ -205,10 +181,24 @@ export default function MimuChatPage() {
   const [temMaisAntigas, setTemMaisAntigas] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [gravando, setGravando] = useState(false);
   const [confirmAberto, setConfirmAberto] = useState(false);
   const [acoesAbertas, setAcoesAbertas] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(false);
+
+  /*
+   * O ditado grava e manda transcrever no servidor — ver hooks/useDitado.ts
+   * para o porquê de não ser mais a API de voz do navegador.
+   *
+   * O texto ENTRA NO CAMPO em vez de virar mensagem sozinho: falar é um jeito
+   * de escrever, não de enviar. Quem dita quer ler o que a máquina entendeu
+   * antes de mandar — ainda mais quando a frase tem um valor em dinheiro
+   * dentro.
+   */
+  const ditado = useDitado({
+    aoTranscrever: (texto) =>
+      setInputValue((atual) => (atual ? `${atual} ${texto}` : texto)),
+    aoFalhar: (mensagem) => showToast(mensagem),
+  });
 
   // O primeiro nome abre a conversa ("Olá, Rayssa"). Cai em "por aqui" pelo
   // mesmo motivo do painel: saudação sem nome é melhor que saudação com um
@@ -222,7 +212,6 @@ export default function MimuChatPage() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const scrollRestoreRef = useRef<{ height: number; top: number } | null>(
     null,
   );
@@ -587,35 +576,6 @@ export default function MimuChatPage() {
     showToast("Histórico limpo!", Trash2);
   }
 
-  function alternarDitado() {
-    if (gravando) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const Construtor =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!Construtor) {
-      showToast("Seu navegador não suporta ditado por voz.");
-      return;
-    }
-
-    const recognition = new Construtor();
-    recognition.lang = "pt-BR";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onresult = (event) => {
-      const texto = event.results[0]?.[0]?.transcript ?? "";
-      setInputValue((atual) => (atual ? `${atual} ${texto}` : texto));
-    };
-    recognition.onend = () => setGravando(false);
-    recognition.onerror = () => setGravando(false);
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setGravando(true);
-  }
-
   function aoTeclar(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -802,14 +762,38 @@ export default function MimuChatPage() {
             ) : (
               <button
                 type="button"
-                aria-label={gravando ? "Parar ditado" : "Ditar mensagem"}
-                onClick={alternarDitado}
+                aria-label={
+                  ditado.estado === "gravando"
+                    ? "Parar e transcrever"
+                    : ditado.estado === "transcrevendo"
+                      ? "Transcrevendo"
+                      : "Gravar áudio"
+                }
+                onClick={ditado.alternar}
+                disabled={ditado.estado === "transcrevendo"}
                 className={cn(
-                  "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full",
-                  gravando ? "bg-erro text-white" : "bg-escuro text-fundo",
+                  "flex h-9 flex-shrink-0 items-center justify-center gap-1.5 rounded-full transition-[width,background-color]",
+                  // Gravando, o botão cresce para caber o contador. É o que
+                  // diz que está ouvindo AGORA — e o número subindo é a prova
+                  // de que não travou, que era exatamente a dúvida de antes.
+                  ditado.estado === "gravando"
+                    ? "w-[68px] bg-erro px-2 text-white"
+                    : "w-9 bg-escuro text-fundo",
                 )}
               >
-                <Mic className="h-[18px] w-[18px]" strokeWidth={2} />
+                {ditado.estado === "transcrevendo" ? (
+                  <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} />
+                ) : ditado.estado === "gravando" ? (
+                  <>
+                    <Square className="h-3 w-3 fill-current" strokeWidth={0} />
+                    <span className="text-[12px] font-bold tabular-nums">
+                      {Math.floor(ditado.segundos / 60)}:
+                      {String(ditado.segundos % 60).padStart(2, "0")}
+                    </span>
+                  </>
+                ) : (
+                  <Mic className="h-[18px] w-[18px]" strokeWidth={2} />
+                )}
               </button>
             )}
           </div>

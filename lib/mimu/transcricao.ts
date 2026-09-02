@@ -37,20 +37,45 @@ export type ResultadoTranscricao =
   | { ok: true; texto: string }
   | { ok: false; motivo: "grande_demais" | "vazio" | "falhou" };
 
+/**
+ * O formato do áudio, para a API saber decodificar.
+ *
+ * O NOME DO ARQUIVO É QUEM DECIDE, e não o `type` — a API olha a extensão. O
+ * WhatsApp entrega OGG/Opus e era o único caso, então a extensão vinha fixa no
+ * código. O microfone do navegador entrega outra coisa: `webm` no Chrome e no
+ * Android, `mp4` no Safari e no iPhone. Mandar um `.ogg` que na verdade é
+ * `webm` faz a transcrição voltar vazia — sem erro, só sem texto.
+ */
+const EXTENSAO: Record<string, string> = {
+  "audio/ogg": "ogg",
+  "audio/webm": "webm",
+  "audio/mp4": "mp4",
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/x-m4a": "m4a",
+};
+
+/** O tipo declarado pode vir com parâmetros: `audio/webm;codecs=opus`. */
+function nomeDoArquivo(tipo: string): { nome: string; tipo: string } {
+  const base = tipo.split(";")[0]!.trim().toLowerCase();
+  const ext = EXTENSAO[base] ?? "ogg";
+  return { nome: `audio.${ext}`, tipo: base || "audio/ogg" };
+}
+
 export async function transcrever(
   audio: Buffer,
+  /** Padrão OGG: é o que o WhatsApp manda, e era o único caso quando isto nasceu. */
+  tipoDeclarado = "audio/ogg",
 ): Promise<ResultadoTranscricao> {
   if (audio.byteLength > MAX_BYTES) {
     return { ok: false, motivo: "grande_demais" };
   }
 
+  const { nome, tipo } = nomeDoArquivo(tipoDeclarado);
+
   try {
     const resposta = await getGroq().audio.transcriptions.create({
-      // O nome do arquivo importa: a API decide o formato pela extensão, e
-      // áudio de voz do WhatsApp vem em OGG/Opus.
-      file: new File([new Uint8Array(audio)], "audio.ogg", {
-        type: "audio/ogg",
-      }),
+      file: new File([new Uint8Array(audio)], nome, { type: tipo }),
       model: MODELO_TRANSCRICAO,
       // Dizer o idioma melhora a precisão e evita o Whisper "traduzir" para
       // inglês sozinho, que ele faz quando fica em dúvida.
