@@ -960,8 +960,11 @@ Sua \xFAnica tarefa \xE9 analisar a mensagem da pessoa e devolver APENAS um JSON
 {"intencao":"registro"|"consulta"|"outro","tipo":"entrada"|"saida"|"agendamento"|null,"dados":{"valor":number|null,"descricao":string|null,"cliente":string|null,"data":string|null,"horario":string|null}}
 
 Regras:
-- "registro" = a pessoa est\xE1 avisando que algo aconteceu ou quer marcar algo (recebeu dinheiro, pagou uma conta, quer marcar um hor\xE1rio com um cliente).
-- "consulta" = a pessoa est\xE1 perguntando algo sobre o neg\xF3cio (caixa, agenda, clientes, metas).
+- "registro" = a pessoa quer que algo entre no sistema. Vale de duas formas, e as DUAS contam:
+  (a) AVISANDO que aconteceu: "recebi 350", "paguei o aluguel", "vendi 3 bolos".
+  (b) MANDANDO registrar: "registra", "anota", "lan\xE7a", "adiciona", "cadastra", "coloca", "marca". Esta \xE9 a forma mais direta de pedir, e ela \xE9 registro mesmo quando a frase usa palavras que tamb\xE9m aparecem em pergunta \u2014 "faturamento", "venda", "caixa", "despesa".
+- "consulta" = a pessoa est\xE1 PERGUNTANDO algo sobre o neg\xF3cio (caixa, agenda, clientes, metas). Uma consulta quer saber um n\xFAmero que j\xE1 existe; ela nunca traz um valor novo para ser guardado.
+- NA D\xDAVIDA ENTRE OS DOIS, decide o valor: mensagem que traz um valor em dinheiro junto de um verbo de mandar ("registra 250") \xE9 registro, nunca consulta. Responder o faturamento de hoje a quem pediu para registrar 250 reais \xE9 o pior erro poss\xEDvel aqui \u2014 a pessoa acha que gravou, e n\xE3o gravou nada.
 - "outro" = qualquer outra coisa (sauda\xE7\xE3o, agradecimento, conversa solta).
 - "tipo" s\xF3 \xE9 preenchido quando intencao \xE9 "registro": "entrada" (dinheiro recebido), "saida" (dinheiro pago) ou "agendamento" (marcar hor\xE1rio com cliente). Nos demais casos, "tipo" \xE9 null.
 - "valor" \xE9 sempre n\xFAmero puro, sem "R$" e sem separador de milhar. null se n\xE3o houver valor.
@@ -973,7 +976,11 @@ Exemplos:
 "recebi 350 da Maria" \u2192 {"intencao":"registro","tipo":"entrada","dados":{"valor":350,"descricao":null,"cliente":"Maria","data":null,"horario":null}}
 "paguei 200 de aluguel" \u2192 {"intencao":"registro","tipo":"saida","dados":{"valor":200,"descricao":"aluguel","cliente":null,"data":null,"horario":null}}
 "agenda Ana amanh\xE3 \xE0s 15h" \u2192 {"intencao":"registro","tipo":"agendamento","dados":{"valor":null,"descricao":null,"cliente":"Ana","data":"(amanh\xE3 calculado a partir de hoje)","horario":"15:00"}}
+"registra um faturamento de hoje de 250 reais" \u2192 {"intencao":"registro","tipo":"entrada","dados":{"valor":250,"descricao":null,"cliente":null,"data":"${hojeISO2}","horario":null}}
+"anota 80 de despesa com material" \u2192 {"intencao":"registro","tipo":"saida","dados":{"valor":80,"descricao":"material","cliente":null,"data":null,"horario":null}}
+"lan\xE7a uma venda de 120" \u2192 {"intencao":"registro","tipo":"entrada","dados":{"valor":120,"descricao":null,"cliente":null,"data":null,"horario":null}}
 "quanto vendi hoje?" \u2192 {"intencao":"consulta","tipo":null,"dados":{"valor":null,"descricao":null,"cliente":null,"data":null,"horario":null}}
+"qual meu faturamento de hoje?" \u2192 {"intencao":"consulta","tipo":null,"dados":{"valor":null,"descricao":null,"cliente":null,"data":null,"horario":null}}
 "oi, tudo bem?" \u2192 {"intencao":"outro","tipo":null,"dados":{"valor":null,"descricao":null,"cliente":null,"data":null,"horario":null}}
 
 Responda s\xF3 com o JSON, nada mais. Sem markdown, sem explica\xE7\xE3o.`;
