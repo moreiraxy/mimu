@@ -66,7 +66,7 @@ export function HeaderMarketing() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
               onClick={() => setAberto(false)}
-              className="fixed inset-0 z-[60] bg-escuro/40"
+              className="fixed inset-0 z-[60] bg-black/55"
             />
             <motion.div
               initial={{ opacity: 0, y: reduzida ? 0 : -24, scale: reduzida ? 1 : 0.96 }}

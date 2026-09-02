@@ -46,21 +46,21 @@ export function ConcluirBottomSheet({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[70] flex items-end justify-center bg-escuro/50 transition-opacity duration-200 sm:items-center",
+        "fixed inset-0 z-[70] flex items-end justify-center bg-black/65 transition-opacity duration-200 sm:items-center",
         visible ? "opacity-100" : "opacity-0",
       )}
       onClick={onFechar}
     >
       <div
         className={cn(
-          "w-full max-w-[430px] vidro rounded-t-[24px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
+          "w-full max-w-[430px] vidro rounded-t-[28px] p-6 transition-[transform,opacity] duration-250 ease-out motion-reduce:transition-opacity motion-reduce:duration-100 sm:rounded-card",
           visible
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0 motion-reduce:translate-y-0",
         )}
         onClick={(event) => event.stopPropagation()}
       >
-        <p className="text-base font-semibold text-escuro">
+        <p className="text-[20px] font-bold leading-tight tracking-tight text-escuro">
           Confirmar recebimento
         </p>
 
@@ -74,12 +74,12 @@ export function ConcluirBottomSheet({
               setCentavos(digitos ? Number(digitos) : 0);
             }}
             aria-label="Valor recebido"
-            className="w-full max-w-[220px] vidro-card rounded-button px-4 py-3 text-center text-2xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+            className="vidro-card w-full max-w-[260px] rounded-[20px] px-4 py-4 text-center text-[40px] font-bold leading-none tracking-tight text-primary-forte outline-none"
           />
         </div>
 
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold text-neutro-muted">
+          <p className="mb-2 text-[13px] text-neutro-muted">
             Forma de pagamento
           </p>
           <div className="flex flex-wrap gap-2">
@@ -89,7 +89,7 @@ export function ConcluirBottomSheet({
                 type="button"
                 onClick={() => setFormaPagamento(forma.valor)}
                 className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                  "rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
                   formaPagamento === forma.valor
                     ? "bg-primary/20 text-primary-forte"
                     : "vidro-card text-escuro",

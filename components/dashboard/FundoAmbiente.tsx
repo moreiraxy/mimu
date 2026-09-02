@@ -14,10 +14,25 @@
  * sempre exatamente a mesma coisa atrás de si, nada muda, e a transparência
  * some — vira um cartão pintado com a cor do que estava atrás.
  *
- * A CAMADA: ele é `fixed inset-0` em `z-0`, e o conteúdo do app rola por cima
- * em `z-1` com fundo transparente. É essa separação que faz o fundo aparecer
- * ATRAVÉS dos cards conforme eles sobem — se o conteúdo tivesse fundo próprio,
- * ou se o fundo rolasse junto, o efeito morreria.
+ * A CAMADA: ele é `fixed inset-0` em `-z-10`, ATRÁS de tudo, e o conteúdo do
+ * app rola por cima com fundo transparente. É essa separação que faz o fundo
+ * aparecer ATRAVÉS dos cards conforme eles sobem — se o conteúdo tivesse fundo
+ * próprio, ou se o fundo rolasse junto, o efeito morreria.
+ *
+ * O NÚMERO NEGATIVO É O QUE IMPORTA, e ele custou caro para ser descoberto.
+ *
+ * Antes o fundo era `z-0` e o conteúdo do painel era `relative z-[1]` para
+ * passar na frente dele. Só que z-index num elemento posicionado cria um
+ * CONTEXTO DE EMPILHAMENTO: tudo que nasce lá dentro fica preso naquele z-1,
+ * por maior que seja o número que peça. Como a barra de baixo é irmã desse
+ * contexto e vale z-40, TODA folha e TODO modal aberto de dentro de uma tela
+ * — concluir e receber, confirmar exclusão, ajustar meta, o menu do widget —
+ * era desenhado POR BAIXO da barra. O botão principal deles fica justamente na
+ * faixa que a barra ocupa: a pessoa tocava, o toque ia para a barra, e nada
+ * acontecia.
+ *
+ * Com o fundo em `-z-10` o conteúdo não precisa de z-index nenhum, o contexto
+ * deixa de existir, e cada folha volta a valer o número que ela pede.
  *
  * `fixed` também resolve dois problemas de uma vez: a luz cobre a tela inteira
  * em qualquer posição de rolagem (então não existe "abaixo da primeira dobra
@@ -38,7 +53,7 @@ export function FundoAmbiente() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
       {/*
         AQUI ENTRA A ILUSTRAÇÃO, quando ela existir:

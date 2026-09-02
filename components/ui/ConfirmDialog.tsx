@@ -45,7 +45,21 @@ export function ConfirmDialog({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[70] flex items-end justify-center bg-escuro/50 transition-opacity duration-200 sm:items-center",
+        /*
+          `bg-black/65`, e NUNCA `bg-escuro/50`.
+
+          `escuro` é o token do TEXTO, e ele inverte com o tema: no tema escuro
+          vale branco. Como véu de modal, isso não escurecia a tela — clareava.
+          A página inteira ficava leitosa atrás da folha, e a folha de vidro por
+          cima de um branco a 50% virava uma massa cinza sem contraste nenhum.
+          Preto é preto nos dois temas, que é exatamente o que um véu precisa
+          ser.
+
+          65% e não 40%: as folhas são de VIDRO e deixam passar o que está
+          atrás. O escurecimento é o que devolve a leitura do que está na
+          frente.
+        */
+        "fixed inset-0 z-[70] flex items-end justify-center bg-black/65 transition-opacity duration-200 sm:items-center",
         visible ? "opacity-100" : "opacity-0",
       )}
       onClick={onCancel}

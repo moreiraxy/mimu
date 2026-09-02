@@ -138,7 +138,12 @@ export default async function DashboardGroupLayout({
       */}
       {/* O conteúdo rola por cima do fundo fixo, em z-1 e sem fundo próprio.
           Qualquer cor de fundo aqui apagaria o wallpaper atrás dos cards. */}
-      <div className="relative z-[1]">
+      {/* SEM `z-[1]` AQUI. Um z-index neste div criaria um contexto de
+          empilhamento e prenderia dentro dele toda folha e todo modal aberto
+          pelas telas — que ficariam por baixo da barra de baixo, com o botão
+          principal deles sem receber toque. O fundo é quem desce para `-z-10`.
+          Ver components/dashboard/FundoAmbiente.tsx. */}
+      <div className="relative">
         <div className="respiro-barra respiro-topo mx-auto max-w-[430px] px-4 md:max-w-3xl md:px-6 lg:max-w-5xl lg:px-8">
           {children}
           {/*

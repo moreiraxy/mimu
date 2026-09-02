@@ -172,15 +172,15 @@ export function BottomNav({
   /*
    * NO CHAT DA MIMU A BARRA NÃO EXISTE.
    *
-   * Não é só estética: o conteúdo do painel mora dentro de um `relative z-[1]`
-   * (ver o layout), e isso cria um CONTEXTO DE EMPILHAMENTO. O chat pede
-   * `z-50` de dentro desse contexto, então ele nunca passa do z-1 do pai — e a
-   * barra, que é irmã do contexto com `z-40`, ficava desenhada POR CIMA da
-   * conversa, cobrindo o campo de escrever. Subir o número do chat não
-   * resolveria: contra um contexto de empilhamento, número nenhum sobe.
+   * Hoje isto é decisão de interface: conversar é a tela inteira, e com o
+   * teclado aberto uma barra flutuando no meio da conversa é o que mais rouba
+   * altura.
    *
-   * Some também porque conversar é a tela inteira: com o teclado aberto, uma
-   * barra flutuando no meio da conversa é o que mais rouba altura.
+   * Nasceu, porém, como conserto de um defeito — o chat pedia `z-50` de dentro
+   * do contexto de empilhamento criado pelo `z-[1]` do layout, e a barra
+   * passava por cima dele. Aquele contexto não existe mais (o fundo desceu
+   * para `-z-10`), então esta linha virou o que ela deveria ter sido desde o
+   * começo: uma escolha, e não um remendo.
    */
   if (pathname === "/mimu") return null;
 

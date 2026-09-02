@@ -22,7 +22,7 @@ export default function AuthLayout({
     <div className="dark relative flex min-h-screen flex-col items-center justify-center gap-8 bg-fundo px-6 py-12">
       <FundoAmbiente />
 
-      <div className="relative z-[1] flex w-full max-w-sm flex-col items-center gap-8">
+      <div className="relative flex w-full max-w-sm flex-col items-center gap-8">
         <Logo size="md" />
         <div className="vidro-card w-full rounded-[24px] p-6">{children}</div>
       </div>

@@ -45,7 +45,7 @@ export function AjustarEstoqueModal({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[70] flex items-end justify-center bg-escuro/50 transition-opacity duration-200 sm:items-center",
+        "fixed inset-0 z-[70] flex items-end justify-center bg-black/65 transition-opacity duration-200 sm:items-center",
         visible ? "opacity-100" : "opacity-0",
       )}
       onClick={onFechar}

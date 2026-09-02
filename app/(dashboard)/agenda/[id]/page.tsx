@@ -335,8 +335,10 @@ export default function DetalheAgendamentoPage() {
 
       {agendamento.status === "confirmado" && (
         <div className="mt-4 flex flex-col gap-3">
+          {/* Sem `bg-verde`: era a única peça do produto nessa cor, e ela não
+              existe em mais lugar nenhum. O botão principal do app é néon. */}
           <Button
-            className="w-full bg-verde hover:bg-verde-dark"
+            className="w-full"
             onClick={() => setConcluirAberto(true)}
           >
             Concluir e receber

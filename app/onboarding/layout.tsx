@@ -38,7 +38,7 @@ export default async function OnboardingLayout({
     <div className="dark relative flex min-h-screen flex-col items-center bg-fundo px-5 py-10">
       <FundoAmbiente />
 
-      <div className="relative z-[1] flex w-full max-w-lg flex-col items-center">
+      <div className="relative flex w-full max-w-lg flex-col items-center">
         <Logo size="sm" className="mb-8" />
         <div className="vidro-card w-full rounded-[24px] p-6">{children}</div>
       </div>
