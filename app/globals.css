@@ -319,6 +319,40 @@ html.trancado body::before {
    * preto transparente, e a interpolação até ele passa por cinza — o que
    * sujaria o néon com um halo acinzentado.
    */
+  /*
+   * O preenchimento automático do navegador, sem estragar o vidro.
+   *
+   * Quando o Chrome ou o Safari completam e-mail e senha guardados, eles
+   * PINTAM O CAMPO com um fundo opaco próprio — azul-claro no Chrome,
+   * amarelado no Safari — e escrevem em preto por cima. Num app de tema escuro
+   * com campos translúcidos, o resultado são duas caixas claras no meio de um
+   * cartão de vidro. Parece defeito, e é indistinguível de um.
+   *
+   * O detalhe cruel é que isso só aparece em quem TEM a senha salva: some em
+   * qualquer navegador limpo, que é onde a gente confere. Quem usa o app todo
+   * dia vê; quem testa, não.
+   *
+   * `transition: background-color` com uma duração absurda é o remédio
+   * conhecido: o navegador anima o fundo até a cor dele em vez de aplicar de
+   * uma vez, e a animação nunca chega ao fim. O fundo real — o nosso, com a
+   * translucidez — é o que continua visível. `-webkit-text-fill-color` faz o
+   * mesmo pelo texto, que o navegador também força.
+   *
+   * Não dá para resolver com `background-color` normal: a regra do
+   * preenchimento vem do próprio navegador e ganha de qualquer folha de
+   * estilo, `!important` incluído.
+   */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: rgb(var(--escuro));
+    caret-color: rgb(var(--escuro));
+    transition: background-color 100000s ease-in-out 0s;
+  }
+
   .luz-ambiente {
     /*
      * `at X% Y%` É O CENTRO DA MANCHA, e foi por não usar isto que eu errei na
