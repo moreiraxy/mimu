@@ -548,6 +548,11 @@ async function buscarVinculoAtivo(telefone) {
   if (!data) return null;
   return { empresaId: data.empresa_id, userId: data.user_id };
 }
+async function codigoConhecido(codigoBruto) {
+  const codigo = codigoBruto.trim().toUpperCase();
+  const { data } = await createServiceClient().from("whatsapp_links").select("id").eq("codigo", codigo).limit(1);
+  return Boolean(data?.length);
+}
 async function confirmarVinculo(telefoneBruto, codigoBruto) {
   const telefone = normalizarTelefone(telefoneBruto);
   const codigo = codigoBruto.trim().toUpperCase();
@@ -594,7 +599,12 @@ var FORMATO_DO_CODIGO = /\b[ABCDEFGHJKMNPQRTUVWXYZ2346789]{6}\b/gi;
 async function tentarConectar(mensagem) {
   const candidatos = mensagem.texto.match(FORMATO_DO_CODIGO);
   if (!candidatos?.length) return null;
+  const reais = [];
   for (const candidato of candidatos) {
+    if (await codigoConhecido(candidato)) reais.push(candidato);
+  }
+  if (reais.length === 0) return null;
+  for (const candidato of reais) {
     const resultado = await confirmarVinculo(mensagem.remetente, candidato);
     if (resultado.ok) {
       await fecharRegistro(mensagem, "respondida", resultado.empresaId);

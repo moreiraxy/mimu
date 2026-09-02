@@ -1,5 +1,9 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { buscarVinculoAtivo, confirmarVinculo } from "@/lib/whatsapp/vinculo";
+import {
+  buscarVinculoAtivo,
+  codigoConhecido,
+  confirmarVinculo,
+} from "@/lib/whatsapp/vinculo";
 import {
   mascararRemetente,
   type MensagemRecebida,
@@ -113,7 +117,32 @@ async function tentarConectar(
   const candidatos = mensagem.texto.match(FORMATO_DO_CODIGO);
   if (!candidatos?.length) return null;
 
+  /*
+   * O FORMATO NÃO BASTA — e essa era a porta aberta para o número da
+   * prospecção.
+   *
+   * O comentário acima afirmava que a busca não casa com palavra comum do
+   * português. Medido contra respostas reais de quem recebe um contato
+   * comercial, casa em cinco de dezoito: "pode me *ajudar*?", "pode *fechar*
+   * comigo?", "*quarta* pode ser", "pode *mandar* por aqui", "pode *chamar*?".
+   * Cada uma dessas fazia a Mimu responder "esse código não vale mais" para
+   * alguém que nunca teve código nenhum.
+   *
+   * Então a pergunta deixa de ser "parece um código?" e passa a ser "É um
+   * código?". Só sequências que a Mimu de fato emitiu seguem adiante; o resto
+   * é palavra, e palavra recebe o mesmo silêncio de qualquer desconhecido.
+   *
+   * A consulta acontece ANTES de `confirmarVinculo` de propósito: assim uma
+   * conversa comum não gasta as tentativas do teto anti-chute, que existe para
+   * quem está tentando adivinhar código de verdade.
+   */
+  const reais: string[] = [];
   for (const candidato of candidatos) {
+    if (await codigoConhecido(candidato)) reais.push(candidato);
+  }
+  if (reais.length === 0) return null;
+
+  for (const candidato of reais) {
     const resultado = await confirmarVinculo(mensagem.remetente, candidato);
 
     if (resultado.ok) {

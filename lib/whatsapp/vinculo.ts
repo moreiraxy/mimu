@@ -147,6 +147,35 @@ export type ResultadoConfirmacao =
  * cinco tentativas por hora, chutar é inviável. Sem o teto, seria questão de
  * tempo — e o prêmio seria enxergar o negócio de outra pessoa.
  */
+/**
+ * Esta sequência é um código que a Mimu já emitiu alguma vez?
+ *
+ * EXISTE PARA A MIMU PODER FICAR CALADA. O formato do código — seis
+ * caracteres de um alfabeto sem I, L, O, S, 0, 1 e 5 — parecia não casar com
+ * palavra do português, e não é verdade: "ajudar", "fechar", "chamar",
+ * "quarta" e "mandar" casam todas. Como o número é o mesmo da prospecção,
+ * qualquer prospect que respondesse "pode me ajudar?" recebia um automático
+ * dizendo que o código dele tinha expirado — e ele nunca teve código nenhum.
+ *
+ * Com esta pergunta o canal separa dois casos que antes eram um só: uma
+ * sequência que NUNCA foi código é uma palavra, e merece silêncio; uma que já
+ * foi merece a explicação sobre os dez minutos.
+ *
+ * Olha em qualquer estado — expirado, já usado, revogado. O que importa aqui
+ * não é se ele vale, e sim se ele um dia existiu.
+ */
+export async function codigoConhecido(codigoBruto: string): Promise<boolean> {
+  const codigo = codigoBruto.trim().toUpperCase();
+
+  const { data } = await createServiceClient()
+    .from("whatsapp_links")
+    .select("id")
+    .eq("codigo", codigo)
+    .limit(1);
+
+  return Boolean(data?.length);
+}
+
 export async function confirmarVinculo(
   telefoneBruto: string,
   codigoBruto: string,

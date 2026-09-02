@@ -123,23 +123,28 @@ describe("conectar o WhatsApp mandando o código", () => {
     expect(resposta?.texto).toContain("conectei");
   });
 
-  it("explica o prazo quando o código não vale mais", async () => {
+  it("fica CALADA para uma sequência que NUNCA foi código", async () => {
+    /*
+     * ESTE TESTE AFIRMAVA O DEFEITO.
+     *
+     * Ele mandava "ABC234" — uma sequência com a cara certa que a Mimu nunca
+     * emitiu — e exigia a resposta de "código expirado". Ou seja: exigia que
+     * qualquer texto no formato recebesse um automático, que é exatamente o
+     * que fazia um prospect escrevendo "pode me ajudar?" ser respondido.
+     *
+     * O certo é o oposto: nunca emitido é palavra, e palavra recebe silêncio.
+     * Quem mandou um código de verdade que venceu continua sendo atendido —
+     * é o teste logo abaixo, com um código realmente emitido.
+     */
     await service
       .from("whatsapp_links")
       .update({ revogado_em: new Date().toISOString() })
       .eq("empresa_id", empresaId)
       .is("revogado_em", null);
 
-    /*
-     * Um código que tem a cara certa e não existe.
-     *
-     * Cair na resposta padrão de "não te conheço" faria a pessoa repetir
-     * exatamente o que acabou de fazer, sem entender que o problema é o prazo
-     * de dez minutos.
-     */
     const resposta = await atender(mensagem("ABC234"), naoDeveriaAtender);
 
-    expect(resposta?.texto).toContain("não vale mais");
+    expect(resposta).toBeNull();
   });
 
   it("fica CALADA para número desconhecido sem código", async () => {
@@ -156,21 +161,57 @@ describe("conectar o WhatsApp mandando o código", () => {
     expect(resposta).toBeNull();
   });
 
-  it("não confunde palavra comum com código", async () => {
+  it("fica CALADA quando a palavra tem a CARA de um código", async () => {
     /*
-     * O alfabeto do código exclui I, L, O, S, 0, 1 e 5 — as letras e dígitos
-     * que se confundem ao ler. O efeito colateral é bom: palavra do português
-     * com seis letras quase sempre tem alguma dessas, então não é lida como
-     * código por engano.
+     * ESTE TESTE JÁ EXISTIA E PASSAVA — com a frase errada.
+     *
+     * Ele usava "bom dia, gostaria de saber sobre vendas", que não casa com o
+     * formato do código, e por isso passava mesmo com o defeito de pé. Dava
+     * segurança falsa exatamente onde mais custa.
+     *
+     * O formato é seis caracteres de um alfabeto sem I, L, O, S, 0, 1 e 5, e
+     * o comentário do código afirmava que isso não casa com palavra comum do
+     * português. Casa: destas cinco, TODAS casam. E como o número da Mimu é o
+     * mesmo da prospecção, cada uma fazia um prospect receber "esse código não
+     * vale mais" — sobre um código que ele nunca teve.
      */
+    const frasesDeProspect = [
+      "oi, pode me ajudar?",
+      "vc pode fechar comigo?",
+      "quero saber mais, pode chamar?",
+      "quarta pode ser",
+      "pode mandar por aqui",
+    ];
+
+    for (const frase of frasesDeProspect) {
+      const resposta = await atender(mensagem(frase), naoDeveriaAtender);
+      expect(resposta, `"${frase}" deveria receber silêncio`).toBeNull();
+    }
+  });
+
+  it("ainda explica o prazo para um código de verdade que venceu", async () => {
+    /*
+     * O silêncio acima não pode engolir quem realmente tentou conectar. A
+     * diferença entre os dois casos é o banco: uma sequência que a Mimu emitiu
+     * um dia merece a explicação dos dez minutos; uma que nunca existiu é
+     * palavra.
+     */
+    const { codigo } = (await criarCodigoDeVinculo(
+      comIdentidade(createClientComoUsuario(userId)),
+      empresaId,
+      userId,
+    ))!;
+
+    await service
+      .from("whatsapp_links")
+      .update({ codigo_expira_em: new Date(Date.now() - 60_000).toISOString() })
+      .eq("codigo", codigo);
+
     const resposta = await atender(
-      mensagem("bom dia, gostaria de saber sobre vendas"),
+      mensagem(`Oi Mimu! Meu código é ${codigo}`),
       naoDeveriaAtender,
     );
 
-    // Silêncio, e não a resposta de código expirado: uma frase comum lida como
-    // código faria a Mimu responder a um prospect no meio de uma conversa de
-    // venda, dizendo que o código dele venceu.
-    expect(resposta).toBeNull();
+    expect(resposta?.texto).toContain("não vale mais");
   });
 });
