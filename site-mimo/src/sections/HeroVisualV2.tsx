@@ -345,13 +345,36 @@ function Celular() {
               baixo do furo) e sombra. `object-fit: fill` porque o
               contêiner já carrega o aspect-ratio nativo da imagem (496:1021),
               então não há letterboxing a corrigir. */}
-          <img
-            src="/img/v2/iphone-frame-sitev2.png"
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-20 h-full w-full"
-            style={{ objectFit: "fill" }}
-          />
+          {/*
+            A MOLDURA VAI EM WEBP, com o PNG de reserva.
+
+            Ela é o arquivo mais pesado da landing inteira: 102 KB de uma
+            página de 330 KB — quase um terço. Ficou de fora do sistema de
+            imagens responsivas (não passa pelo <Img>, não está no manifesto de
+            larguras), então era servida crua. Em WebP com alpha ela cai para
+            7 KB.
+
+            Medido antes de trocar: o canal alpha saiu bit a bit idêntico, e
+            nos pixels VISÍVEIS a diferença de cor é de 1,12 em 255. A
+            diferença grande que aparece numa comparação ingênua está nos 456
+            mil pixels transparentes, onde a cor não é desenhada.
+
+            `<picture>` e não só trocar a extensão: quem não suportar webp
+            continua recebendo o PNG, que segue no disco.
+          */}
+          <picture>
+            <source
+              srcSet="/img/v2/iphone-frame-sitev2.webp"
+              type="image/webp"
+            />
+            <img
+              src="/img/v2/iphone-frame-sitev2.png"
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full"
+              style={{ objectFit: "fill" }}
+            />
+          </picture>
         </div>
       </div>
     </div>
