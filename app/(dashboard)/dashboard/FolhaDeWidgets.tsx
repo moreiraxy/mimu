@@ -81,7 +81,7 @@ export function FolhaDeWidgets({
       >
         <div className="mx-auto flex max-w-[430px] flex-col gap-2.5 px-3">
           <div className="flex justify-center pb-1">
-            <span aria-hidden="true" className="h-1 w-9 rounded-full bg-white/30" />
+            <span aria-hidden="true" className="h-1 w-9 rounded-full bg-escuro/25" />
           </div>
 
           {disponiveis.length === 0 ? (

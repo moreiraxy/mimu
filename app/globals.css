@@ -353,6 +353,36 @@ html.trancado body::before {
     transition: background-color 100000s ease-in-out 0s;
   }
 
+  /*
+   * O GRÃO — a camada que tira a cara de "degradê de CSS".
+   *
+   * Degradê puro é liso demais para parecer matéria: o olho reconhece a
+   * interpolação e lê "gradiente", não "luz". O que quebra isso é ruído — o
+   * mesmo motivo pelo qual filme tem grão e render 3D leva grão depois de
+   * pronto. Sem ele o fundo fica limpo e sintético; com ele, ganha textura e as
+   * faixas de transição entre uma cor e outra deixam de ter aquele degrau
+   * (banding) que aparece em tela boa.
+   *
+   * É `feTurbulence` num SVG embutido como data-uri, e isso é o ponto: nenhuma
+   * ida à rede, nenhum arquivo para versionar, nada que possa dar 404. O
+   * navegador rasteriza o azulejo UMA vez e repete — `stitchTiles` é o que faz
+   * a emenda sumir. Custo por quadro: zero, porque nada aqui se move.
+   *
+   * `baseFrequency` alto (0.9) dá grão fino, de filme; baixo daria manchas.
+   * A opacidade é pequena de propósito: grão que se vê é sujeira, grão que só
+   * se sente é textura.
+   */
+  .grao-ambiente {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23r)' opacity='0.42'/%3E%3C/svg%3E");
+    opacity: 0.05;
+  }
+
+  :root.dark .grao-ambiente {
+    /* No escuro o grão precisa de menos: o preto já esconde metade dele, e
+       passar da conta deixa a tela suja em vez de texturizada. */
+    opacity: 0.035;
+  }
+
   .luz-ambiente {
     /*
      * `at X% Y%` É O CENTRO DA MANCHA, e foi por não usar isto que eu errei na
@@ -382,6 +412,53 @@ html.trancado body::before {
 
   /* No tema escuro a mesma luz vale menos: o preto por trás faz o néon render
      muito mais. São as doses que os `dark:` dos círculos antigos já tinham. */
+  /*
+   * A LUZ DE HORIZONTE — a faixa larga e baixa que atravessa o alto da tela.
+   *
+   * As quatro manchas dão pontos de luz; esta dá DIREÇÃO. Sem ela a tela lê
+   * como quatro borrões soltos no escuro, e não como um ambiente iluminado por
+   * cima. É o que a referência faz: a claridade vem de uma origem, e não de
+   * lugar nenhum.
+   *
+   * `ellipse ... at 50% -18%` põe o centro FORA da tela, acima da borda: o que
+   * se vê é só a barriga da luz entrando, sem a mancha redonda aparecer.
+   */
+  .horizonte-ambiente {
+    background-image: radial-gradient(
+      140% 46% at 50% -18%,
+      rgb(204 255 0 / 0.10),
+      rgb(204 255 0 / 0.035) 46%,
+      rgb(204 255 0 / 0) 100%
+    );
+  }
+
+  :root.dark .horizonte-ambiente {
+    background-image: radial-gradient(
+      140% 46% at 50% -18%,
+      rgb(204 255 0 / 0.07),
+      rgb(204 255 0 / 0.025) 46%,
+      rgb(204 255 0 / 0) 100%
+    );
+  }
+
+  /*
+   * A VINHETA — escurece os cantos e o pé da tela.
+   *
+   * Serve à leitura antes de servir à estética: ela devolve preto às bordas, e
+   * é justamente o contraste entre claro e escuro que faz o cartão de vidro
+   * MUDAR de cor conforme sobe. Luz espalhada por igual não revela travessia
+   * nenhuma.
+   *
+   * Só no tema escuro: no claro ela sujaria o fundo branco.
+   */
+  :root.dark .vinheta-ambiente {
+    background-image: radial-gradient(
+      120% 85% at 50% 32%,
+      rgb(0 0 0 / 0) 55%,
+      rgb(0 0 0 / 0.35) 100%
+    );
+  }
+
   :root.dark .luz-ambiente {
     background-image:
       radial-gradient(87% 40% at 76% 9%,

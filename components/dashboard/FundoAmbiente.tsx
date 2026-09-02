@@ -102,9 +102,18 @@ export function FundoAmbiente() {
         Lá embaixo fica só um resto de brilho, para o vidro da barra e da
         pílula da Mimu não ficarem sobre preto absoluto.
       */}
-      {/* As quatro luzes são degradês, e o porquê (desempenho, medido) está
-          na regra `.luz-ambiente` em globals.css. */}
+      {/*
+        QUATRO CAMADAS, e cada uma faz uma coisa. Todas são degradê ou azulejo
+        estático: o navegador pinta uma vez e nunca recalcula, porque nada aqui
+        se move. O porquê de cada uma está na sua regra, em globals.css.
+
+        A ordem importa: o grão vem por último para cair POR CIMA da luz — grão
+        embaixo do brilho não texturiza nada.
+      */}
+      <div className="horizonte-ambiente absolute inset-0" />
       <div className="luz-ambiente absolute inset-0" />
+      <div className="vinheta-ambiente absolute inset-0" />
+      <div className="grao-ambiente absolute inset-0" />
     </div>
   );
 }

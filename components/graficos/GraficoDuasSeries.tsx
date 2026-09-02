@@ -59,7 +59,10 @@ export function GraficoDuasSeries({
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <Legenda cor="bg-primary" texto={principal.nome} />
-            <Legenda cor="bg-white/35" texto={apoio.nome} />
+            {/* `escuro/35` e não `white/35`: `escuro` é o token do texto, que
+                inverte com o tema. Em branco fixo, a série de apoio sumia
+                inteira no tema claro — legenda, linha e coluna. */}
+            <Legenda cor="bg-escuro/35" texto={apoio.nome} />
           </div>
         </div>
 
@@ -87,7 +90,7 @@ export function GraficoDuasSeries({
               valores={apoio.valores}
               altura={altura}
               maximo={maximo}
-              cor="rgb(255 255 255 / 0.45)"
+              cor="rgb(var(--escuro) / 0.45)"
               pontoFinal={false}
             />
           </div>
@@ -130,7 +133,7 @@ export function GraficoDuasSeries({
               />
               <Haste
                 altura={((apoio.valores[i] ?? 0) / maximo) * 100}
-                classe="bg-white/35"
+                classe="bg-escuro/35"
               />
             </div>
           ))}

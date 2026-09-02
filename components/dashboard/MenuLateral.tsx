@@ -103,7 +103,7 @@ export function MenuLateral({
           <div className="flex justify-center pb-1">
             <span
               aria-hidden="true"
-              className="h-1 w-9 rounded-full bg-white/30"
+              className="h-1 w-9 rounded-full bg-escuro/25"
             />
           </div>
 
