@@ -23,11 +23,11 @@ export default function RecuperarSenhaPage() {
   if (state?.success) {
     return (
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-verde-light">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/20 text-primary-forte">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M4 12 L9 17 L20 6"
-              stroke="#2DBE8C"
+              stroke="currentColor"
               strokeWidth={2.6}
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -67,10 +67,10 @@ export default function RecuperarSenhaPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-escuro">
+        <h1 className="text-[24px] font-bold leading-tight tracking-tight text-escuro">
           Esqueceu sua senha?
         </h1>
-        <p className="mt-1 text-sm text-neutro-muted">
+        <p className="mt-1 text-[15px] text-neutro-muted">
           Sem problema. Enviamos um link para você criar uma nova.
         </p>
       </div>
@@ -84,7 +84,7 @@ export default function RecuperarSenhaPage() {
           required
         />
         {state?.error && (
-          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
+          <p className="rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
             {state.error}
           </p>
         )}

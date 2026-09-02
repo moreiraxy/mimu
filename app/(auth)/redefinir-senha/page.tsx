@@ -72,8 +72,8 @@ export default function RedefinirSenhaPage() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <h1 className="text-xl font-semibold text-escuro">Nova senha</h1>
-        <p className="mt-1 text-sm text-neutro-muted">
+        <h1 className="text-[24px] font-bold leading-tight tracking-tight text-escuro">Nova senha</h1>
+        <p className="mt-1 text-[15px] text-neutro-muted">
           Escolha uma senha nova para a sua conta.
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function RedefinirSenhaPage() {
         required
       />
       {erro && (
-        <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
+        <p className="rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
           {erro}
         </p>
       )}

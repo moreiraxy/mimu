@@ -7,6 +7,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { signUp, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { BotoesSociais } from "@/components/auth/BotoesSociais";
 import { PLANOS, planoValido } from "@/lib/planos";
 
 const initialState: AuthFormState = undefined;
@@ -48,24 +49,28 @@ function FormularioCadastro() {
           <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1 text-xs font-bold text-primary-forte">
             Plano {escolhido.nome} · R$ {escolhido.valorMensal}/mês
           </span>
-          <h1 className="mt-3 text-xl font-semibold text-escuro">
+          <h1 className="mt-3 text-[24px] font-bold leading-tight tracking-tight text-escuro">
             Crie sua conta para assinar
           </h1>
-          <p className="mt-1 text-sm text-neutro-muted">
+          <p className="mt-1 text-[15px] text-neutro-muted">
             É o próximo passo: assim que a conta estiver pronta, você vai para
             o pagamento.
           </p>
         </div>
       ) : (
         <div>
-          <h1 className="text-xl font-semibold text-escuro">
+          <h1 className="text-[24px] font-bold leading-tight tracking-tight text-escuro">
             Vamos organizar seu negócio
           </h1>
-          <p className="mt-1 text-sm text-neutro-muted">
+          <p className="mt-1 text-[15px] text-neutro-muted">
             Leva menos de um minuto para começar.
           </p>
         </div>
       )}
+
+      {/* Desligado hoje — ver lib/login-social.ts. Fica aqui para o dia de
+          ligar ser um lugar só, e não dois. */}
+      <BotoesSociais plano={plano ?? ""} />
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="plano" value={plano ?? ""} />
@@ -98,7 +103,7 @@ function FormularioCadastro() {
           required
         />
         {state?.error && (
-          <p className="rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
+          <p className="rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
             {state.error}
           </p>
         )}
