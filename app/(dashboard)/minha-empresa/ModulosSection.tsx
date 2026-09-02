@@ -77,20 +77,20 @@ export function ModulosSection({
       titulo="Módulos ativos"
       descricao="Desativar um módulo esconde ele do menu. Os dados continuam guardados."
     >
-      <div className="flex flex-col divide-y divide-neutro-border rounded-button border border-neutro-border">
+      <div className="vidro-card flex flex-col divide-y divide-white/[0.08] overflow-hidden rounded-[20px]">
         {MODULOS.map((modulo) => (
           <div
             key={modulo.id}
             className="flex items-center gap-3 px-3.5 py-3"
           >
-            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-primary-forte">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-forte">
               <modulo.icone className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-escuro">
+              <p className="text-[15px] font-bold text-escuro">
                 {modulo.label}
               </p>
-              <p className="text-xs text-neutro-muted">{modulo.descricao}</p>
+              <p className="mt-0.5 text-[13px] text-neutro-muted">{modulo.descricao}</p>
             </div>
             <Toggle
               checked={ativos.includes(modulo.id)}
@@ -101,7 +101,7 @@ export function ModulosSection({
         ))}
       </div>
       {salvandoId && (
-        <p className="mt-2 text-xs text-neutro-muted">Salvando...</p>
+        <p className="mt-2 text-[13px] text-neutro-muted">Salvando...</p>
       )}
     </SectionCard>
   );

@@ -39,30 +39,39 @@ export function OptionCard({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
+      /*
+        O ACESO É O VÉU DA MARCA, o mesmo "ligado" do resto do app.
+        Era `bg-primary-light`: um bloco claro chapado no tema escuro, e ainda
+        o único da tela — a opção escolhida virava a coisa mais berrante da
+        página, quando o que ela precisa dizer é só "é esta".
+      */
       className={cn(
-        "flex gap-3 rounded-card border p-4 text-left transition-colors",
+        "flex gap-3 rounded-[18px] p-4 text-left transition-colors",
         description
           ? "flex-row items-center"
           : "flex-col items-center p-5 text-center",
-        selected
-          ? "border-primary-forte bg-primary-light"
-          : "vidro-card hover:border-primary-forte/40",
+        selected ? "bg-primary/20" : "vidro-card",
       )}
     >
       <Icon
         className={cn(
           "flex-shrink-0",
           description ? "h-6 w-6" : "h-7 w-7",
-          selected ? "text-primary-forte" : "text-neutro-muted-strong",
+          selected ? "text-primary-forte" : "text-neutro-muted",
         )}
         strokeWidth={2}
       />
       <span className={description ? "flex-1" : undefined}>
-        <span className="block text-sm font-semibold text-escuro">
+        <span
+          className={cn(
+            "block text-[15px] font-bold",
+            selected ? "text-primary-forte" : "text-escuro",
+          )}
+        >
           {label}
         </span>
         {description && (
-          <span className="block text-xs text-neutro-muted">
+          <span className="mt-0.5 block text-[13px] text-neutro-muted">
             {description}
           </span>
         )}

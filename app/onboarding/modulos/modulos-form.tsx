@@ -50,15 +50,15 @@ export function ModulosForm({
     <div>
       <Link
         href="/onboarding/negocio"
-        className="mb-4 inline-block text-sm text-neutro-muted"
+        className="mb-4 inline-block text-[15px] text-neutro-muted"
       >
         ← Voltar
       </Link>
       <OnboardingProgress step={2} />
-      <h1 className="text-xl font-semibold text-escuro">
+      <h1 className="text-[24px] font-bold leading-tight tracking-tight text-escuro">
         O que você quer controlar?
       </h1>
-      <p className="mt-1 text-sm text-neutro-muted">
+      <p className="mt-1 text-[15px] text-neutro-muted">
         Você pode ativar ou desativar qualquer módulo depois.
       </p>
 
@@ -77,7 +77,7 @@ export function ModulosForm({
       </div>
 
       {erro && (
-        <p className="mt-4 rounded-button bg-erro-light px-3 py-2 text-sm text-erro-texto">
+        <p className="mt-4 rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
           {erro}
         </p>
       )}

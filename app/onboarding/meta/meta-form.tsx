@@ -53,15 +53,15 @@ export function MetaForm({
     <div>
       <Link
         href="/onboarding/modulos"
-        className="mb-4 inline-block text-sm text-neutro-muted"
+        className="mb-4 inline-block text-[15px] text-neutro-muted"
       >
         ← Voltar
       </Link>
       <OnboardingProgress step={3} />
-      <h1 className="text-center text-xl font-semibold text-escuro">
+      <h1 className="text-center text-[24px] font-bold leading-tight tracking-tight text-escuro">
         Quanto você quer faturar por mês?
       </h1>
-      <p className="mt-1 text-center text-sm text-neutro-muted">
+      <p className="mt-1 text-center text-[15px] text-neutro-muted">
         Não precisa ser exato. Pode ajustar depois.
       </p>
 
@@ -72,9 +72,9 @@ export function MetaForm({
           value={formatarCentavos(centavos)}
           onChange={handleDigitar}
           aria-label="Meta mensal de faturamento"
-          className="w-full max-w-[280px] rounded-button border border-neutro-border bg-superficie px-4 py-4 text-center text-3xl font-semibold text-primary-forte outline-none focus:border-primary-forte"
+          className="vidro-card w-full max-w-[280px] rounded-[20px] px-4 py-4 text-center text-[40px] font-bold leading-none tracking-tight text-primary-forte outline-none"
         />
-        <p className="mt-3 min-h-[20px] text-center text-sm text-neutro-muted">
+        <p className="mt-3 min-h-[20px] text-center text-[13px] text-neutro-muted">
           {metaDiaria !== null
             ? `Para bater essa meta, você precisa de ${formatCurrency(metaDiaria)} por dia.`
             : " "}
@@ -106,7 +106,7 @@ export function MetaForm({
         type="button"
         onClick={() => concluir(true)}
         disabled={pending}
-        className="mt-3 block w-full text-center text-sm text-neutro-muted disabled:opacity-50"
+        className="mt-3 block w-full text-center text-[15px] text-neutro-muted disabled:opacity-50"
       >
         Pular por enquanto
       </button>
