@@ -35,7 +35,7 @@ export function SeletorSegmentado<T extends string>({
     <div
       className={cn(
         "flex gap-1 rounded-full p-1",
-        fundo === "vidro" ? "vidro-card" : "bg-white/[0.06]",
+        fundo === "vidro" ? "vidro-card" : "bg-escuro/[0.06]",
         className,
       )}
     >

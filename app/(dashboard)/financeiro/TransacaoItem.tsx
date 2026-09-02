@@ -76,7 +76,7 @@ export function TransacaoItem({
         // O fio separador mora AQUI, no trilho, e não na linha que desliza:
         // preso à linha, ele viajaria junto com ela e a lista pareceria se
         // desmontar durante o arrasto.
-        !primeiro && "border-t border-white/[0.08]",
+        !primeiro && "border-t border-escuro/[0.08]",
       )}
     >
       {/*
@@ -117,7 +117,7 @@ export function TransacaoItem({
           arrastada && "bg-superficie",
         )}
       >
-        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-neutro-muted-strong">
+        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-escuro/[0.08] text-neutro-muted-strong">
           <IconeCategoria className="h-4 w-4" strokeWidth={2} />
         </span>
 

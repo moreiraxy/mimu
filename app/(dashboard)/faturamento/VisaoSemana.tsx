@@ -108,7 +108,7 @@ export function VisaoSemana({
         destaque={dias.findIndex((d) => d.ehHoje)}
         altura={140}
         rodape={
-          <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.08] pt-3.5">
+          <div className="mt-4 flex flex-col gap-2 border-t border-escuro/[0.08] pt-3.5">
             <LinhaDeApoio rotulo="Já realizado" valor={realizadoSemana} />
             <LinhaDeApoio rotulo="Previsto" valor={previstoSemana} destaque />
             <LinhaDeApoio rotulo="Potencial da semana" valor={potencialSemana} />

@@ -139,7 +139,7 @@ export function SaudeSection() {
             <div
               key={e.id}
               className={`flex items-start justify-between gap-4 px-4 py-3.5 ${
-                i > 0 ? "border-t border-white/[0.08]" : ""
+                i > 0 ? "border-t border-escuro/[0.08]" : ""
               }`}
             >
               <div className="min-w-0">

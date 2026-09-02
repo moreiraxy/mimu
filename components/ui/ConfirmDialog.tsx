@@ -86,7 +86,7 @@ export function ConfirmDialog({
               value={digitado}
               onChange={(e) => setDigitado(e.target.value)}
               autoComplete="off"
-              className="mt-1.5 h-11 w-full rounded-xl border border-neutro-border bg-white/[0.04] px-3.5 text-sm text-escuro outline-none focus:border-erro"
+              className="mt-1.5 h-11 w-full rounded-xl border border-neutro-border bg-escuro/[0.04] px-3.5 text-sm text-escuro outline-none focus:border-erro"
             />
           </label>
         )}

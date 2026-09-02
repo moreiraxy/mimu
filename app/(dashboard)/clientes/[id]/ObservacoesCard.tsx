@@ -46,7 +46,7 @@ export function ObservacoesCard({
             onChange={(event) => setValor(event.target.value)}
             rows={3}
             autoFocus
-            className="resize-none rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-primary-forte focus:bg-superficie"
+            className="resize-none rounded-button border border-neutro-border bg-escuro/[0.04] px-3.5 py-3 text-sm text-escuro outline-none transition-colors focus:border-primary-forte focus:bg-superficie"
           />
           <div className="flex gap-2">
             <Button

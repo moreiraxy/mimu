@@ -226,7 +226,7 @@ export function FolhaHistorico({
                         onClick={() =>
                           setAbertoNoDia(expandido ? null : dia.chave)
                         }
-                        className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors active:bg-white/[0.06]"
+                        className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors active:bg-escuro/[0.06]"
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ export function FolhaHistorico({
                                 "max-w-[85%] rounded-2xl px-3 py-2 text-[13px]",
                                 linha.role === "user"
                                   ? "self-end bg-primary/20 text-escuro"
-                                  : "self-start bg-white/[0.06] text-escuro",
+                                  : "self-start bg-escuro/[0.06] text-escuro",
                               )}
                             >
                               <p className="whitespace-pre-wrap break-words">
@@ -291,7 +291,7 @@ export function FolhaHistorico({
                 aoFechar();
                 aoPedirLimpeza();
               }}
-              className="flex w-full items-center gap-3 border-t border-white/[0.08] px-5 py-3.5 text-left transition-colors active:bg-white/[0.06]"
+              className="flex w-full items-center gap-3 border-t border-escuro/[0.08] px-5 py-3.5 text-left transition-colors active:bg-escuro/[0.06]"
             >
               <Trash2
                 className="h-[18px] w-[18px] flex-shrink-0 text-neutro-muted"

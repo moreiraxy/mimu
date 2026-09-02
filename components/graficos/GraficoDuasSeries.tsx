@@ -70,7 +70,7 @@ export function GraficoDuasSeries({
           type="button"
           onClick={alternar}
           aria-label={tipo === "linha" ? "Ver em barras" : "Ver em linha"}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-escuro"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-escuro/[0.06] text-escuro"
         >
           {tipo === "linha" ? (
             <BarChart3 className="h-[18px] w-[18px]" strokeWidth={2} />

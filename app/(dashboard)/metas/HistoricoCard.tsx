@@ -20,7 +20,7 @@ export function HistoricoCard({
         <History className="h-4 w-4 text-primary-forte" strokeWidth={2.25} />
         Últimos 6 meses
       </p>
-      <div className="flex flex-col divide-y divide-white/[0.08]">
+      <div className="flex flex-col divide-y divide-escuro/[0.08]">
         {historico.map((linha) => {
           const bateu = linha.meta !== null && linha.realizado >= linha.meta;
           return (
@@ -40,7 +40,7 @@ export function HistoricoCard({
                     className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       bateu
                         ? "bg-primary/20 text-primary-forte"
-                        : "bg-white/[0.06] text-neutro-muted"
+                        : "bg-escuro/[0.06] text-neutro-muted"
                     }`}
                   >
                     {bateu ? (

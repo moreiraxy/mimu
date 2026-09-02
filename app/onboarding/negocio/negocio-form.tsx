@@ -79,7 +79,7 @@ export function NegocioForm({
       )}
 
       {erro && (
-        <p className="mt-4 rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
+        <p className="mt-4 rounded-[14px] border-l-[3px] border-escuro/25 bg-escuro/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
           {erro}
         </p>
       )}

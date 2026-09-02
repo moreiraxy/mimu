@@ -128,6 +128,8 @@ export default function PerfilPage() {
             <p className="text-xl font-extrabold leading-none tracking-tight text-primary">
               SEJA PRO
             </p>
+            {/* `text-white` aqui é correto: este cartão tem fundo #111111
+                fixo nos dois temas, então o texto branco vale para ambos. */}
             <p className="mt-1.5 max-w-[210px] text-[13px] leading-snug text-white/70">
               Para conversar mais com a Mimu e liberar agenda, clientes e
               estoque.

@@ -31,8 +31,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aqui que você está digitando" sem precisar de outra cor.
           */
           className={cn(
-            "rounded-button border border-neutro-border bg-white/[0.04] px-3.5 py-3 text-base text-escuro placeholder:text-neutro-muted md:text-sm",
-            "outline-none transition-colors focus:border-primary-forte focus:bg-white/[0.08]",
+            "rounded-button border border-neutro-border bg-escuro/[0.04] px-3.5 py-3 text-base text-escuro placeholder:text-neutro-muted md:text-sm",
+            "outline-none transition-colors focus:border-primary-forte focus:bg-escuro/[0.08]",
             className,
           )}
           {...props}

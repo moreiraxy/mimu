@@ -60,7 +60,7 @@ export function CartaoDado({
         */}
         {grafico ??
           (Icone ? (
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.07] text-escuro">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-escuro/[0.07] text-escuro">
               <Icone className="h-[19px] w-[19px]" strokeWidth={1.75} />
             </span>
           ) : (

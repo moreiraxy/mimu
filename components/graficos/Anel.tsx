@@ -40,7 +40,18 @@ export function Anel({
         cy={tamanho / 2}
         r={raio}
         fill="none"
-        stroke="rgb(var(--vidro-fundo) / 0.12)"
+        /*
+          O trilho usa `escuro`, e não `vidro-fundo`.
+
+          `--vidro-fundo` é BRANCO nos dois temas — ele é a cor do material de
+          vidro, não uma cor de traço. Como trilho, ficava branco sobre cartão
+          claro: com o progresso em zero (uma conta a receber zerada, por
+          exemplo) o anel inteiro desaparecia da tela no tema claro, e o cartão
+          ficava com um buraco no lugar do gráfico.
+
+          `escuro` é o token do texto e inverte com o tema.
+        */
+        stroke="rgb(var(--escuro) / 0.12)"
         strokeWidth={espessura}
       />
       {preenchido > 0 && (

@@ -96,7 +96,7 @@ export function MenuDoWidget({
         <Opcao icone={Trash2} rotulo="Remover" perigo aoTocar={aoRemover} />
 
         {tamanhos.length > 1 && (
-          <div className="mt-1.5 flex items-center justify-center gap-2 border-t border-white/10 pt-2.5">
+          <div className="mt-1.5 flex items-center justify-center gap-2 border-t border-escuro/10 pt-2.5">
             {tamanhos.map((t) => (
               <button
                 key={t}
@@ -137,7 +137,7 @@ function Opcao({
       type="button"
       onClick={aoTocar}
       className={cn(
-        "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[15px] font-semibold transition-colors active:bg-white/10",
+        "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[15px] font-semibold transition-colors active:bg-escuro/10",
         perigo ? "text-erro-texto" : "text-escuro",
       )}
     >

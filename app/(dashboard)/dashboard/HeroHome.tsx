@@ -154,7 +154,7 @@ export function HeroHome({
             <Link
               key={acao.href}
               href={acao.href}
-              className="vidro-pilula flex flex-shrink-0 items-center gap-2 rounded-full py-2.5 pl-3.5 pr-4 text-[13px] font-semibold text-white"
+              className="vidro-pilula flex flex-shrink-0 items-center gap-2 rounded-full py-2.5 pl-3.5 pr-4 text-[13px] font-semibold text-escuro"
             >
               <acao.icone className="h-4 w-4 text-primary" strokeWidth={2.5} />
               {acao.label}
@@ -164,7 +164,15 @@ export function HeroHome({
       )}
 
       <div className="relative mt-7">
-        <h1 className="flex flex-wrap items-center gap-x-3 text-[38px] font-semibold leading-[1.05] tracking-tight text-white">
+        {/*
+          `text-escuro`, e NUNCA `text-white`.
+
+          Esta é a maior frase do app, e ela estava em branco fixo: no tema
+          claro era texto branco sobre fundo claro — a saudação simplesmente
+          não existia. `escuro` é o token do texto e inverte com o tema, então
+          fica branco no escuro (como estava) e quase preto no claro.
+        */}
+        <h1 className="flex flex-wrap items-center gap-x-3 text-[38px] font-semibold leading-[1.05] tracking-tight text-escuro">
           <span className="w-full">{saudacaoPorHorario()},</span>
           <span>{primeiroNome}</span>
           {/* A mãozinha acenando ao lado do nome. */}
@@ -173,7 +181,7 @@ export function HeroHome({
             strokeWidth={2.25}
           />
         </h1>
-        <p className="mt-1.5 text-[13px] text-white/60">
+        <p className="mt-1.5 text-[13px] text-neutro-muted">
           {formatDataComDiaSemana()}
         </p>
       </div>

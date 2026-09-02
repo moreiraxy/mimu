@@ -45,7 +45,7 @@ export function ProgressoCard({
 
       {meta > 0 ? (
         <>
-          <div className="mt-4 h-[5px] w-full overflow-hidden rounded-full bg-white/[0.10]">
+          <div className="mt-4 h-[5px] w-full overflow-hidden rounded-full bg-escuro/[0.10]">
             <div
               className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out motion-reduce:transition-none"
               style={{ width: `${larguraBarra}%` }}

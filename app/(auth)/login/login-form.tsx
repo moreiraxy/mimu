@@ -46,8 +46,8 @@ function Recado({
 }) {
   return (
     <p
-      className={`rounded-[14px] border-l-[3px] bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro ${
-        tom === "marca" ? "border-primary" : "border-white/25"
+      className={`rounded-[14px] border-l-[3px] bg-escuro/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro ${
+        tom === "marca" ? "border-primary" : "border-escuro/25"
       }`}
     >
       {children}
@@ -125,7 +125,7 @@ export function LoginForm({
 
       {comSocial && (
         <div className="flex items-center gap-3">
-          <span className="h-px flex-1 bg-white/[0.12]" />
+          <span className="h-px flex-1 bg-escuro/[0.12]" />
           {/*
             "ou entre com e-mail", e não "ou". A tela precisa deixar claro que o
             e-mail continua sendo um caminho INTEIRO, e não uma alternativa de
@@ -134,7 +134,7 @@ export function LoginForm({
           <span className="text-[13px] text-neutro-muted">
             ou entre com e-mail
           </span>
-          <span className="h-px flex-1 bg-white/[0.12]" />
+          <span className="h-px flex-1 bg-escuro/[0.12]" />
         </div>
       )}
 

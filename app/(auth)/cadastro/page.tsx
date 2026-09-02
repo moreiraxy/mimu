@@ -103,7 +103,7 @@ function FormularioCadastro() {
           required
         />
         {state?.error && (
-          <p className="rounded-[14px] border-l-[3px] border-white/25 bg-white/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
+          <p className="rounded-[14px] border-l-[3px] border-escuro/25 bg-escuro/[0.06] py-2.5 pl-3 pr-3 text-[13px] leading-snug text-escuro">
             {state.error}
           </p>
         )}

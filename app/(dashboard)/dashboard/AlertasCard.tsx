@@ -92,7 +92,7 @@ export function AlertasCard({
             key={alerta.id}
             className={cn(
               "flex flex-col gap-3 p-4",
-              indice > 0 && "border-t border-white/[0.08]",
+              indice > 0 && "border-t border-escuro/[0.08]",
             )}
           >
             <div className="flex items-start gap-3">

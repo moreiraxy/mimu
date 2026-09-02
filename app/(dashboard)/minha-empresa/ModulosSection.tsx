@@ -77,7 +77,7 @@ export function ModulosSection({
       titulo="Módulos ativos"
       descricao="Desativar um módulo esconde ele do menu. Os dados continuam guardados."
     >
-      <div className="vidro-card flex flex-col divide-y divide-white/[0.08] overflow-hidden rounded-[20px]">
+      <div className="vidro-card flex flex-col divide-y divide-escuro/[0.08] overflow-hidden rounded-[20px]">
         {MODULOS.map((modulo) => (
           <div
             key={modulo.id}
