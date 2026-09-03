@@ -3,9 +3,9 @@ import { PLANOS, valorDoPlano, type PlanoPago, type Periodicidade } from "@/lib/
 /**
  * O programa de afiliados, num lugar só.
  *
- * TUDO AQUI PRECISA BATER COM O PAINEL DA CAKTO. Esta é a página que o afiliado
- * lê antes de se inscrever; se ela promete uma comissão e a Cakto paga outra, a
- * reclamação é certa e justa. Quando mudar lá, mude aqui.
+ * OS NÚMEROS AQUI PRECISAM BATER COM QUEM FOR PAGAR. Esta é a página que o
+ * afiliado lê antes de se inscrever; se ela promete uma comissão e o repasse
+ * sai outro, a reclamação é certa e justa. Quando mudar lá, mude aqui.
  */
 
 /**
@@ -16,22 +16,16 @@ import { PLANOS, valorDoPlano, type PlanoPago, type Periodicidade } from "@/lib/
  * inscrever no nada. Ligar o programa é virar este booleano e publicar — não
  * escrever a página às pressas no dia.
  *
- * Ligado em 26/08/2026 para que a URL pudesse ser colada no campo de página de
- * afiliado da Cakto, e DESLIGADO em 03/09/2026 junto com ela.
+ * Ligado em 26/08/2026 e DESLIGADO em 03/09/2026, quando a plataforma que
+ * pagava as comissões deixou de ser usada.
  *
- * O programa era pago pela Cakto — comissão, rastreio de indicação e repasse
- * eram dela. Sem a plataforma não existe programa, e uma página no ar
- * prometendo comissão que ninguém vai pagar é pior do que página nenhuma: ela
- * convida gente a se inscrever no nada.
+ * Comissão, rastreio de indicação e repasse eram dela. Sem plataforma não
+ * existe programa, e uma página no ar prometendo comissão que ninguém vai
+ * pagar é pior do que página nenhuma: convida gente a se inscrever no nada.
  *
- * O texto e os números seguem aqui, prontos. Se um dia entrar outra plataforma
- * de afiliados, é revisar os valores e virar este booleano — não reescrever a
- * página às pressas no dia.
- *
- * ANTES DE RELIGAR: a página ainda diz, por escrito, que a inscrição acontece
- * pela Cakto. Com o programa desligado ela responde 404 e ninguém lê aquilo,
- * mas religar sem trocar esse trecho anunciaria uma plataforma que não é mais
- * usada.
+ * O texto e os números seguem aqui, prontos e sem citar plataforma nenhuma. Se
+ * um dia entrar outra, é conferir os valores contra o que ela paga e virar
+ * este booleano — não reescrever a página às pressas no dia.
  */
 export const PROGRAMA_ATIVO = false;
 

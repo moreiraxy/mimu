@@ -58,16 +58,17 @@ export type StatusPagamentoMP =
   | "aprovado"
   | "recusado"
   | "reembolsado";
-// O nome carrega "MP" por herança: hoje as duas origens gravam aqui, e o
-// boleto só existe porque a Cakto vende assim. O checkout próprio continua
-// oferecendo apenas Pix e cartão.
+// O nome carrega "MP" por herança de quando o Mercado Pago era a única
+// origem. O "boleto" veio junto e ninguém emite mais: o checkout próprio
+// oferece Pix e cartão. Fica no tipo porque o banco ainda aceita o valor e
+// linhas antigas podem tê-lo.
 export type FormaPagamentoMP = "pix" | "cartao" | "boleto";
-// Quem processou a cobrança. O checkout próprio (Mercado Pago) e o da Cakto
-// convivem, então toda linha de pagamento precisa dizer de onde veio.
+// Quem processou a cobrança. Toda linha de pagamento precisa dizer de onde
+// veio, porque o cancelamento muda de lugar conforme a origem.
 // "apple" é o In-App Purchase do app iOS. Importa para além da contabilidade:
 // quem assinou pela Apple SÓ cancela na Apple, em Ajustes → Assinaturas, e é
 // por esta coluna que a tela sabe disso. Ver 20260830100000_origem_apple.sql.
-export type OrigemPagamento = "mercadopago" | "cakto" | "manual" | "apple";
+export type OrigemPagamento = "mercadopago" | "manual" | "apple";
 
 export interface Database {
   public: {
@@ -765,12 +766,10 @@ export interface Database {
           mp_payment_id: string | null;
           mp_status: string | null;
           origem: OrigemPagamento;
-          cakto_payment_id: string | null;
-          cakto_status: string | null;
           created_at: string;
           manual_referencia: string | null;
           // transactionId do StoreKit. Chave de idempotência do IAP, mesmo
-          // papel de mp_payment_id e cakto_payment_id.
+          // papel do mp_payment_id.
           apple_transaction_id: string | null;
         };
         Insert: {
@@ -783,8 +782,6 @@ export interface Database {
           mp_payment_id?: string | null;
           mp_status?: string | null;
           origem?: OrigemPagamento;
-          cakto_payment_id?: string | null;
-          cakto_status?: string | null;
           created_at?: string;
           manual_referencia?: string | null;
           apple_transaction_id?: string | null;

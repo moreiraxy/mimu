@@ -65,13 +65,6 @@ export type ResultadoCompra =
   | { ok: false; motivo: string };
 
 /*
- * A CAKTO SAIU EM 03/09/2026 e o mapeamento dela continua aqui de propósito: a
- * coluna `cakto_payment_id` e o valor 'cakto' do check constraint seguem no
- * banco, e tirá-los exigiria uma migration que não resolve nada — não há uma
- * linha sequer com essa origem. Enquanto o banco aceitar, o código que traduz
- * o banco continua honesto. O que morreu foi a ENTRADA: não existe mais webhook
- * nem link de checkout dela.
- *
  * Cada provedor grava o id dele na própria coluna, em vez de dividirem uma
  * coluna genérica. É proposital: o painel do Mercado Pago lê `mp_payment_id`
  * para a pontuação de qualidade da integração, e unificar isso agora mexeria
@@ -80,7 +73,6 @@ export type ResultadoCompra =
  */
 const COLUNA_ID = {
   mercadopago: "mp_payment_id",
-  cakto: "cakto_payment_id",
   // Venda manual não tem transação de provedor. A referência é escrita por
   // quem registra (o id do Pix, por exemplo) e serve de chave de idempotência
   // do mesmo jeito: registrar a mesma venda duas vezes não cria duas linhas.
@@ -105,15 +97,10 @@ function colunasDoProvedor(compra: CompraExterna) {
   if (compra.origem === "apple") {
     return { apple_transaction_id: compra.pagamentoId };
   }
-  return compra.origem === "cakto"
-    ? {
-        cakto_payment_id: compra.pagamentoId,
-        cakto_status: compra.statusProvedor,
-      }
-    : {
-        mp_payment_id: compra.pagamentoId,
-        mp_status: compra.statusProvedor,
-      };
+  return {
+    mp_payment_id: compra.pagamentoId,
+    mp_status: compra.statusProvedor,
+  };
 }
 
 /**
@@ -250,9 +237,9 @@ export async function liberarCompraExterna(
    * Upsert por `empresa_id`, que é único em `assinaturas`.
    *
    * Insert puro quebraria no caso mais provável de todos: quem já usava a Mimu
-   * no teste grátis e comprou pelo link da Cakto. Essa conta já tem uma linha
-   * de assinatura em "trial", e o que precisa acontecer é ela virar "ativa" —
-   * não nascer uma segunda.
+   * no teste grátis e resolveu assinar. Essa conta já tem uma linha de
+   * assinatura em "trial", e o que precisa acontecer é ela virar "ativa" — não
+   * nascer uma segunda.
    */
   const { data: assinatura, error: erroAssinatura } = await service
     .from("assinaturas")
@@ -485,9 +472,6 @@ function colunasDeStatus(reversao: {
   origem: OrigemPagamento;
   statusProvedor: string | null;
 }) {
-  if (reversao.origem === "cakto") {
-    return { cakto_status: reversao.statusProvedor };
-  }
   if (reversao.origem === "mercadopago") {
     return { mp_status: reversao.statusProvedor };
   }

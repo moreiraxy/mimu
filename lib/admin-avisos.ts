@@ -69,9 +69,9 @@ export async function avisarAdminsVenda(dados: {
  * Sem este push, a descoberta viria pela cliente reclamando que pagou e ficou
  * de fora.
  *
- * Nasceu para o webhook da Cakto, que não reenviava notificação — uma venda
- * não liberada na primeira tentativa nunca voltava sozinha. A Cakto saiu em
- * 03/09/2026, mas o aviso ficou: a venda manual do painel admin passa pelo
+ * Nasceu para um checkout externo que não reenviava notificação — uma venda
+ * não liberada na primeira tentativa nunca voltava sozinha. Esse checkout saiu
+ * em 03/09/2026, mas o aviso ficou: a venda manual do painel admin passa pelo
  * mesmo caminho, e falhar ali tem a mesma consequência.
  */
 export async function avisarAdminsVendaNaoLiberada(

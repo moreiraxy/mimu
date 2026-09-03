@@ -189,10 +189,8 @@ export default function AfiliadosPage() {
 
         <h2 className="mt-10 text-lg font-bold text-escuro">Como participar</h2>
         <p className="mt-1 text-sm leading-relaxed text-neutro-muted">
-          A inscrição acontece pela Cakto, que é quem registra as vendas e paga
-          as comissões. Cada pedido é aprovado por nós, uma a uma — a Mimu é
-          usada por gente que confia em quem indicou, e isso não pode ser
-          automático.
+          Cada pedido é aprovado por nós, uma a uma — a Mimu é usada por gente
+          que confia em quem indicou, e isso não pode ser automático.
         </p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
