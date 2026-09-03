@@ -1,0 +1,70 @@
+# Mantém os dois repositórios da Mimu com o mesmo `main`.
+#
+# POR QUE EXISTEM DOIS. A Mimu está hospedada na conta Hostinger do diretor da
+# Fortis, que é quem paga — e o repositório de onde a Hostinger publica vive na
+# conta dele (`zanettizmax-boop/mimu`). O outro (`moreiraxy/mimu`) é o da
+# Rayssa, que existe para o dia em que aquele acesso acabar: sem ele, perder a
+# conta seria perder o produto.
+#
+# ATÉ AGORA A SINCRONIA ERA UMA CONFIGURAÇÃO LOCAL — o `origin` da máquina dela
+# tinha duas URLs de push. Funcionava só ali: qualquer outra pessoa que
+# clonasse e desse push atualizaria UM repositório, e o outro ficaria para trás
+# sem erro nenhum. Com o dev do iOS entrando, isso vira uma bomba-relógio
+# silenciosa.
+#
+# A DIREÇÃO É DELIBERADA: daqui (de onde a Hostinger publica) PARA a cópia
+# pessoal, e não o contrário.
+#
+# Se este espelho falhar, o que envelhece é a cópia de segurança, e o site
+# continua publicando. Na direção inversa, uma falha do espelho pararia os
+# deploys — o mesmo defeito custaria muito mais caro.
+#
+# (Cheguei a inverter isso achando que a Rayssa não era admin no repositório do
+# diretor: a API respondia `permissions.admin: false`. Ela é — o endpoint de
+# segredos respondeu 200 para o token dela, e só admin lê aquilo. O campo da
+# API estava errado, e a permissão real é que decide.)
+#
+# NÃO USA `--force`, e isso também é escolha. Espelho que sobrescreve à força
+# apaga em silêncio um commit que só exista do outro lado, que é exatamente o
+# que uma cópia de segurança não pode fazer. Se os dois divergirem, esta ação
+# FALHA e manda e-mail — alguém olha e decide. Divergência é assunto de gente.
+
+name: Espelhar main para a cópia de segurança
+
+on:
+  push:
+    branches: [main]
+  # Para disparar à mão depois de resolver uma divergência.
+  workflow_dispatch:
+
+jobs:
+  espelhar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o histórico inteiro
+        uses: actions/checkout@v4
+        with:
+          # `0` = clone completo. Sem isto o checkout traz só o último commit e
+          # o push para o espelho seria recusado por falta de ancestral.
+          fetch-depth: 0
+
+      - name: Espelhar
+        env:
+          # Token com escrita no repositório de destino.
+          # Ver APP-STORE.md, seção "O espelho entre os dois repositórios".
+          TOKEN: ${{ secrets.TOKEN_ESPELHO }}
+          DESTINO: ${{ vars.REPO_ESPELHO }}
+        run: |
+          # ESTE ARQUIVO VIVE NOS DOIS REPOSITÓRIOS, porque eles são cópias um
+          # do outro — mas só UM tem os segredos configurados. No outro, a ação
+          # avisa e sai em paz: falhar ali encheria a caixa de e-mail de alguém
+          # com um erro que não é erro.
+          if [ -z "$TOKEN" ] || [ -z "$DESTINO" ]; then
+            echo "::notice::Espelho não configurado neste repositório (falta TOKEN_ESPELHO ou REPO_ESPELHO). Nada a fazer."
+            exit 0
+          fi
+
+          # Se o destino já estiver neste commit, não há o que empurrar — é o
+          # caso normal de quando alguém empurra para os dois de uma vez.
+          git push "https://x-access-token:${TOKEN}@github.com/${DESTINO}.git" \
+            HEAD:refs/heads/main
