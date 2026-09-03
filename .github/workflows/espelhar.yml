@@ -47,6 +47,16 @@ jobs:
           # `0` = clone completo. Sem isto o checkout traz só o último commit e
           # o push para o espelho seria recusado por falta de ancestral.
           fetch-depth: 0
+          # SEM ISTO O ESPELHO NÃO FUNCIONA, e a mensagem de erro não ajuda.
+          #
+          # O `checkout` guarda a credencial dele num cabeçalho global do git
+          # (`http.https://github.com/.extraheader`) com a identidade do robô
+          # do GitHub. Esse cabeçalho VENCE as credenciais da URL do push — o
+          # nosso token é ignorado, e o erro que aparece é
+          # "Permission to moreiraxy/mimu.git denied to github-actions[bot]",
+          # que faz parecer problema de permissão do token quando o token
+          # sequer foi usado.
+          persist-credentials: false
 
       - name: Espelhar
         env:
