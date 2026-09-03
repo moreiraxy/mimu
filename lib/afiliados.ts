@@ -16,16 +16,24 @@ import { PLANOS, valorDoPlano, type PlanoPago, type Periodicidade } from "@/lib/
  * inscrever no nada. Ligar o programa é virar este booleano e publicar — não
  * escrever a página às pressas no dia.
  *
- * Ligado em 2026-08-26 para que a URL possa ser colada no campo de página de
- * afiliado da Cakto: link cadastrado lá apontando para 404 é pior que campo
- * vazio.
+ * Ligado em 26/08/2026 para que a URL pudesse ser colada no campo de página de
+ * afiliado da Cakto, e DESLIGADO em 03/09/2026 junto com ela.
  *
- * ATENÇÃO: a página estar no ar NÃO é o mesmo que o programa estar aberto. O
- * toggle "Habilitar programa de afiliados" na Cakto continua desligado até o
- * webhook existir — enquanto ele não existe, cada venda de afiliado vira um
- * cadastro manual no painel admin.
+ * O programa era pago pela Cakto — comissão, rastreio de indicação e repasse
+ * eram dela. Sem a plataforma não existe programa, e uma página no ar
+ * prometendo comissão que ninguém vai pagar é pior do que página nenhuma: ela
+ * convida gente a se inscrever no nada.
+ *
+ * O texto e os números seguem aqui, prontos. Se um dia entrar outra plataforma
+ * de afiliados, é revisar os valores e virar este booleano — não reescrever a
+ * página às pressas no dia.
+ *
+ * ANTES DE RELIGAR: a página ainda diz, por escrito, que a inscrição acontece
+ * pela Cakto. Com o programa desligado ela responde 404 e ninguém lê aquilo,
+ * mas religar sem trocar esse trecho anunciaria uma plataforma que não é mais
+ * usada.
  */
-export const PROGRAMA_ATIVO = true;
+export const PROGRAMA_ATIVO = false;
 
 /**
  * Percentual pago ao afiliado. Confirmado pela Rayssa em 2026-08-26.

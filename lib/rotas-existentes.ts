@@ -50,7 +50,6 @@ export const AREAS_DO_APP = [
   "metas",
   "mimu",
   "minha-empresa",
-  "obrigado",
   "onboarding",
   "produtos",
   "recuperar-senha",

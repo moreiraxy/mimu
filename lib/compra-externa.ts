@@ -65,6 +65,13 @@ export type ResultadoCompra =
   | { ok: false; motivo: string };
 
 /*
+ * A CAKTO SAIU EM 03/09/2026 e o mapeamento dela continua aqui de propósito: a
+ * coluna `cakto_payment_id` e o valor 'cakto' do check constraint seguem no
+ * banco, e tirá-los exigiria uma migration que não resolve nada — não há uma
+ * linha sequer com essa origem. Enquanto o banco aceitar, o código que traduz
+ * o banco continua honesto. O que morreu foi a ENTRADA: não existe mais webhook
+ * nem link de checkout dela.
+ *
  * Cada provedor grava o id dele na própria coluna, em vez de dividirem uma
  * coluna genérica. É proposital: o painel do Mercado Pago lê `mp_payment_id`
  * para a pontuação de qualidade da integração, e unificar isso agora mexeria

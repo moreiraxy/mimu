@@ -30,15 +30,6 @@ export type TipoEvento =
   | "push_falhou"
   | "alertas_falharam"
   | "venda_manual"
-  // A Cakto não reenvia notificação: qualquer resposta nossa é lida como
-  // entrega bem sucedida. Sem esta trilha, uma venda que não liberou não
-  // deixaria rastro nenhum de que chegou a existir.
-  | "cakto_webhook"
-  | "cakto_venda"
-  | "cakto_venda_falhou"
-  | "cakto_reversao"
-  | "cakto_reversao_falhou"
-  | "cakto_atencao"
   /*
    * A trilha das compras feitas na App Store.
    *

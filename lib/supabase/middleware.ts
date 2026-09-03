@@ -18,10 +18,6 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 // /auth/confirmar é onde os links dos e-mails aterrissam. Quem chega ali
 // ainda NÃO tem sessão: é justamente a rota que a cria. Exigir login aqui
 // mandaria a pessoa para o login com o link na mão, que era o sintoma.
-// /obrigado é onde a Cakto larga quem acabou de pagar. Quem compra por um
-// link compartilhado não tem conta nem sessão — é justamente a tela que
-// explica como criar a senha. Exigir login aqui mandaria para /login quem
-// acabou de pagar e ainda não tem senha nenhuma, que é o beco sem saída.
 // /conta-excluida é onde cai quem acabou de apagar a própria conta. O usuário
 // do auth já não existe nesse ponto: exigir sessão aqui mandaria pro login
 // exatamente quem não tem mais como fazer login, e a despedida viraria um
@@ -29,7 +25,6 @@ const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
 const ALWAYS_PUBLIC_ROUTES = [
   "/redefinir-senha",
   "/auth/confirmar",
-  "/obrigado",
   "/afiliados",
   "/conta-excluida",
   "/",
@@ -43,12 +38,10 @@ const ROTAS_PUBLICAS_DA_LANDING = ["/historias", "/legal"];
 
 // Chamadas de servidor para servidor: nunca têm sessão de usuário, então
 // ficam de fora até da exigência de login. Cada uma se protege por conta
-// própria — o webhook do Mercado Pago confere a assinatura HMAC, o da Cakto
-// confere o segredo que vem no corpo (é o que eles oferecem), e a tarefa
+// própria — o webhook do Mercado Pago confere a assinatura HMAC e a tarefa
 // diária exige um segredo no cabeçalho.
 const ROTAS_PUBLICAS_SEM_AUTH = [
   "/api/pagamento/webhook",
-  "/api/webhooks/cakto",
   "/api/cron/alertas-diarios",
   "/api/cron/saude",
 ];

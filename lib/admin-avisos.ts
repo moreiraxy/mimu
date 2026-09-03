@@ -65,10 +65,14 @@ export async function avisarAdminsVenda(dados: {
 /**
  * Avisa que chegou dinheiro e o acesso NÃO foi liberado.
  *
- * É o aviso mais importante do arquivo. A Cakto não reenvia notificação: se
- * uma venda não for liberada na primeira tentativa, ela não volta sozinha
- * nunca mais. Sem este push, a descoberta viria pela cliente reclamando que
- * pagou e não entrou.
+ * É o aviso mais importante do arquivo: dinheiro entrou e a pessoa não entrou.
+ * Sem este push, a descoberta viria pela cliente reclamando que pagou e ficou
+ * de fora.
+ *
+ * Nasceu para o webhook da Cakto, que não reenviava notificação — uma venda
+ * não liberada na primeira tentativa nunca voltava sozinha. A Cakto saiu em
+ * 03/09/2026, mas o aviso ficou: a venda manual do painel admin passa pelo
+ * mesmo caminho, e falhar ali tem a mesma consequência.
  */
 export async function avisarAdminsVendaNaoLiberada(
   motivo: string,
