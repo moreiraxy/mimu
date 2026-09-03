@@ -19,11 +19,25 @@ import { execFileSync } from "node:child_process";
  * não existe. É disso que este teste protege.
  */
 
+/*
+ * 8 segundos por consulta, e não 20.
+ *
+ * São DUAS consultas de rede, e o vitest desiste do teste em 30. Com 20 cada,
+ * uma conexão ruim estourava o limite do vitest ANTES de o git desistir — e o
+ * teste morria com "Test timed out", sem chegar ao caminho que trata falta de
+ * rede com um aviso. O resultado era vermelho por causa da internet, três
+ * vezes num dia só, e teste que grita por motivo errado deixa de ser lido.
+ *
+ * `GIT_TERMINAL_PROMPT=0` é o par disso: sem ele, um remote que peça
+ * credencial fica esperando alguém digitar, e nenhum timeout de processo
+ * resolve uma espera por teclado.
+ */
 function git(...args: string[]): string {
   return execFileSync("git", args, {
     encoding: "utf8",
-    timeout: 20_000,
+    timeout: 8_000,
     stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
   }).trim();
 }
 
