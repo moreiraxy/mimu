@@ -5,86 +5,129 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { SpringIn } from "@/components/marketing/SpringIn";
-import { ParallaxFloat } from "@/components/marketing/ParallaxFloat";
 import { EntradaMockup } from "@/components/marketing/EntradaMockup";
+import { PLANOS, MENSAGENS_MIMU_POR_DIA } from "@/lib/planos";
+import { DIAS_TRIAL } from "@/lib/assinatura";
 
-type Periodo = "mensal" | "trimestral" | "semestral" | "anual";
+/*
+ * ESTA SEÇÃO LÊ lib/planos.ts, e não pode voltar a ter preço escrito na mão.
+ *
+ * Ela já teve. Anunciava trimestral por R$ 99 e semestral por R$ 179 —
+ * periodicidades que `Periodicidade` nunca aceitou — e o anual por R$ 299,
+ * cem reais abaixo do que o checkout cobra. Quem clicasse em "Trimestral"
+ * chegava numa tela que só vende mensal ou anual.
+ *
+ * O erro não foi de digitação: foi a seção ter a própria tabela de preços,
+ * paralela à verdadeira. Duas tabelas se parecem no dia em que são escritas e
+ * divergem em silêncio depois, porque só uma é usada para cobrar — e a que
+ * mente é justamente a que a cliente lê antes de decidir.
+ *
+ * Por isso aqui não existe número solto. Preço, teto de mensagens e dias de
+ * teste vêm das constantes; a economia do anual é calculada. Mudar o catálogo
+ * é mexer em lib/planos.ts, e esta página acompanha sozinha.
+ */
 
-const PLANOS: Record<
-  Periodo,
-  {
-    label: string;
-    valor: string;
-    porMes: string;
-    info: string;
-    badge: string | null;
-    badgeCor: "ambar" | "coral" | null;
-    economia: string | null;
+type Periodo = "mensal" | "anual";
+
+/** Reais sem centavos — todos os valores do catálogo são inteiros. */
+function emReais(valor: number): string {
+  return `R$ ${valor.toLocaleString("pt-BR")}`;
+}
+
+interface Cartao {
+  chave: string;
+  nome: string;
+  /** O preço grande. No anual continua sendo o POR MÊS: ver a nota abaixo. */
+  destaque: string;
+  /** A linha logo abaixo do preço. */
+  legenda: string;
+  /** A terceira linha, menor. `null` quando não há o que explicar. */
+  cobranca: string | null;
+  /** Quanto o ano economiza, em reais, ou `null`. */
+  economia: number | null;
+  itens: readonly string[];
+  cta: string;
+  /** O do meio é o destacado — borda, sombra e selo. */
+  emDestaque: boolean;
+}
+
+/*
+ * No anual, o preço grande é o POR MÊS e não o total do ano.
+ *
+ * Mesma decisão da tela de assinatura (app/(marketing)/assinar/page.tsx):
+ * "R$ 399" ao lado de "R$ 39" faz o anual parecer dez vezes mais caro, quando
+ * ele é mais barato por mês. O total do ano vem logo abaixo, por extenso, para
+ * ninguém ser surpreendido pelo valor que vai sair do cartão.
+ */
+function montarCartoes(periodo: Periodo): Cartao[] {
+  const anual = periodo === "anual";
+
+  function pago(chave: "pro" | "premium", emDestaque: boolean): Cartao {
+    const plano = PLANOS[chave];
+    const porMes = anual
+      ? Math.round(plano.valorAnual! / 12)
+      : plano.valorMensal;
+
+    return {
+      chave,
+      nome: plano.nome,
+      destaque: emReais(porMes),
+      legenda: "por mês",
+      cobranca: anual
+        ? `${emReais(plano.valorAnual!)} cobrados uma vez por ano`
+        : "Cobrado mensalmente",
+      economia: anual ? plano.valorMensal * 12 - plano.valorAnual! : null,
+      itens:
+        chave === "pro"
+          ? [
+              "Agenda e clientes ilimitados",
+              "Produtos e estoque",
+              "Faturamento previsto",
+              "Histórico completo, sem corte",
+              `${MENSAGENS_MIMU_POR_DIA.pro} mensagens por dia com a Mimu`,
+              "Funciona offline",
+            ]
+          : [
+              "Tudo o que o Pro tem",
+              `${MENSAGENS_MIMU_POR_DIA.premium} mensagens por dia com a Mimu`,
+              "Para quem usa a Mimu como operação",
+            ],
+      cta: `Começar com ${DIAS_TRIAL} dias grátis`,
+      emDestaque,
+    };
   }
-> = {
-  mensal: {
-    label: "Mensal",
-    valor: "R$ 39",
-    porMes: "por mês",
-    info: "Cobrado mensalmente",
-    badge: null,
-    badgeCor: null,
-    economia: null,
-  },
-  trimestral: {
-    label: "Trimestral",
-    valor: "R$ 99",
-    porMes: "R$ 33/mês",
-    info: "Cobrado a cada 3 meses",
-    badge: "1 mês grátis",
-    badgeCor: "ambar",
-    economia: null,
-  },
-  semestral: {
-    label: "Semestral",
-    valor: "R$ 179",
-    porMes: "R$ 30/mês",
-    info: "Cobrado a cada 6 meses",
-    badge: "Quase 2 meses grátis",
-    badgeCor: "ambar",
-    economia: null,
-  },
-  anual: {
-    label: "Anual",
-    valor: "R$ 299",
-    porMes: "R$ 25/mês",
-    info: "Cobrado uma vez por ano",
-    badge: "Mais popular",
-    badgeCor: "coral",
-    economia: "4 meses grátis",
-  },
-} as const;
 
-const TABELA: Array<{
-  periodo: Periodo;
-  total: string;
-  porMes: string;
-  economia: string | null;
-  economiaCor: "verde" | "coral" | null;
-}> = [
-  { periodo: "mensal", total: "R$ 39", porMes: "R$ 39/mês", economia: null, economiaCor: null },
-  { periodo: "trimestral", total: "R$ 99", porMes: "R$ 33/mês", economia: "R$ 72/ano", economiaCor: "verde" },
-  { periodo: "semestral", total: "R$ 179", porMes: "R$ 30/mês", economia: "R$ 110/ano", economiaCor: "verde" },
-  { periodo: "anual", total: "R$ 299", porMes: "R$ 25/mês", economia: "R$ 169/ano", economiaCor: "coral" },
+  return [
+    {
+      chave: "free",
+      nome: "Gratuito",
+      destaque: "R$ 0",
+      legenda: "para sempre",
+      cobranca: "Sem cartão de crédito",
+      economia: null,
+      itens: [
+        "Registro de vendas e despesas",
+        "Faturamento do mês",
+        `${MENSAGENS_MIMU_POR_DIA.free} mensagens por dia com a Mimu`,
+        "Histórico do mês corrente",
+        "Funciona offline",
+      ],
+      cta: "Começar de graça",
+      emDestaque: false,
+    },
+    pago("pro", true),
+    pago("premium", false),
+  ];
+}
+
+const PERIODOS: ReadonlyArray<{ chave: Periodo; label: string }> = [
+  { chave: "mensal", label: "Mensal" },
+  { chave: "anual", label: "Anual" },
 ];
-
-const ITENS_INCLUIDOS = [
-  "Agenda e clientes ilimitados",
-  "Financeiro completo",
-  "Faturamento previsto",
-  "Assistente Mimu com IA",
-  "Produtos e estoque",
-  "Funciona offline",
-] as const;
 
 export function PrecoSection() {
   const [periodo, setPeriodo] = useState<Periodo>("anual");
-  const plano = PLANOS[periodo];
+  const cartoes = montarCartoes(periodo);
 
   return (
     <section id="preco" className="px-4 py-[48px] sm:px-6 lg:py-[80px]">
@@ -94,133 +137,122 @@ export function PrecoSection() {
         </h2>
       </SpringIn>
       <SpringIn delay={0.05}>
-        <p className="mx-auto mt-3 max-w-sm text-center text-[15px] text-neutro-muted">
-          7 dias grátis em qualquer plano. Sem cartão de crédito.
+        <p className="mx-auto mt-3 max-w-md text-center text-[15px] text-neutro-muted">
+          Comece de graça e fique o tempo que quiser. Nos pagos são{" "}
+          {DIAS_TRIAL} dias grátis, sem cartão de crédito.
         </p>
       </SpringIn>
 
-      {/* Duas colunas a partir do lg: 60% plano + 40% tabela comparativa, visíveis
-          ao mesmo tempo sem precisar rolar. No mobile empilha, coluna única. */}
-      <div className="mx-auto mt-10 flex max-w-[1200px] flex-col items-start gap-10 lg:flex-row lg:gap-8">
-        <div className="w-full lg:w-[60%]">
-          <SpringIn delay={0.1}>
-            <div className="flex w-fit gap-1 rounded-full border border-neutro-border bg-superficie p-1">
-              {(Object.keys(PLANOS) as Periodo[]).map((chave) => (
-                <button
-                  key={chave}
-                  onClick={() => setPeriodo(chave)}
-                  className={`rounded-full px-4 py-2 text-[13px] font-bold transition-colors duration-200 ${
-                    periodo === chave ? "bg-primary text-primary-text" : "text-escuro"
-                  }`}
+      <SpringIn delay={0.1}>
+        <div className="mx-auto mt-8 flex w-fit gap-1 rounded-full border border-neutro-border bg-superficie p-1">
+          {PERIODOS.map(({ chave, label }) => (
+            <button
+              key={chave}
+              onClick={() => setPeriodo(chave)}
+              className={`rounded-full px-5 py-2 text-[13px] font-bold transition-colors duration-200 ${
+                periodo === chave
+                  ? "bg-primary text-primary-text"
+                  : "text-escuro"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </SpringIn>
+
+      {/* Três colunas a partir do lg. No mobile empilha, e o Pro fica no meio —
+          é a ordem que a pessoa lê de cima para baixo: grátis, o que a maioria
+          escolhe, e o maior. */}
+      <div className="mx-auto mt-10 grid max-w-[1100px] grid-cols-1 items-start gap-6 lg:grid-cols-3 lg:gap-5">
+        {cartoes.map((cartao, indice) => (
+          <EntradaMockup key={cartao.chave} delay={0.15 + indice * 0.06}>
+            <div
+              className={`relative flex h-full flex-col rounded-[26px] px-7 py-9 text-center ${
+                cartao.emDestaque
+                  ? "border-[1.5px] border-primary-forte bg-primary-light shadow-2xl shadow-primary/20"
+                  : "border border-neutro-border bg-superficie"
+              }`}
+            >
+              {cartao.emDestaque && (
+                <span className="absolute -top-3.5 left-7 animate-pulse-badge rounded-full bg-primary px-3.5 py-1.5 text-[11px] font-bold text-white">
+                  Mais popular
+                </span>
+              )}
+              {cartao.economia !== null && (
+                <span className="absolute -top-3.5 right-6 whitespace-nowrap rounded-full bg-verde px-3 py-1.5 text-[10px] font-bold text-white">
+                  economiza {emReais(cartao.economia)}
+                </span>
+              )}
+
+              <p className="text-[13px] font-bold uppercase tracking-wide text-neutro-muted">
+                {cartao.nome}
+              </p>
+
+              {/* Só o bloco de preço troca quando o período muda. Animar o cartão
+                  inteiro faria a lista de itens piscar sem ter mudado nada. */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${cartao.chave}-${periodo}`}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
                 >
-                  {PLANOS[chave].label}
-                </button>
-              ))}
-            </div>
-          </SpringIn>
-
-          <ParallaxFloat strength={40} className="mt-6 max-w-md">
-            <EntradaMockup delay={0.15}>
-              <div className="relative rounded-[26px] border-[1.5px] border-primary-forte bg-primary-light px-8 py-11 text-center shadow-2xl shadow-primary/20">
-                {plano.badge && (
-                  <span
-                    className={`absolute -top-3.5 left-8 rounded-full px-3.5 py-1.5 text-[11px] font-bold text-white ${
-                      plano.badgeCor === "coral" ? "animate-pulse-badge bg-primary" : "bg-ambar"
-                    }`}
-                  >
-                    {plano.badge}
-                  </span>
-                )}
-                {plano.economia && (
-                  <span className="absolute -top-3.5 right-6 whitespace-nowrap rounded-full bg-verde px-3 py-1.5 text-[10px] font-bold text-white">
-                    {plano.economia}
-                  </span>
-                )}
-
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={periodo}
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.18 }}
-                  >
-                    <p className="font-display text-5xl font-bold tracking-tight text-escuro">
-                      {plano.valor}
+                  <p className="mt-2 font-display text-5xl font-bold tracking-tight text-escuro">
+                    {cartao.destaque}
+                  </p>
+                  <p className="mt-1.5 text-sm text-neutro-muted">
+                    {cartao.legenda}
+                  </p>
+                  {cartao.cobranca && (
+                    <p className="mt-1 text-[13px] text-neutro-muted">
+                      {cartao.cobranca}
                     </p>
-                    <p className="mt-1.5 text-sm text-neutro-muted">{plano.porMes}</p>
-                    <p className="mt-1 text-[13px] text-neutro-muted">{plano.info}</p>
-                  </motion.div>
-                </AnimatePresence>
+                  )}
+                </motion.div>
+              </AnimatePresence>
 
-                <ul className="mt-8 flex flex-col gap-3 text-left">
-                  {ITENS_INCLUIDOS.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5">
-                      <Check className="h-[17px] w-[17px] flex-shrink-0 text-verde-texto" strokeWidth={2.6} />
-                      <p className="text-sm text-escuro">{item}</p>
-                    </li>
-                  ))}
-                </ul>
+              <ul className="mt-7 flex flex-col gap-3 text-left">
+                {cartao.itens.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <Check
+                      className="mt-[3px] h-[17px] w-[17px] flex-shrink-0 text-verde-texto"
+                      strokeWidth={2.6}
+                    />
+                    <p className="text-sm text-escuro">{item}</p>
+                  </li>
+                ))}
+              </ul>
 
+              {/* O invólucro com mt-auto encosta o botão no rodapé do cartão.
+                  As três listas têm tamanhos diferentes, e sem isto os botões
+                  ficariam em três alturas — a comparação entre planos vira uma
+                  escadinha. O mt-auto vai aqui e não no <Link> porque lá ele
+                  brigaria com o pt-8 pelo mesmo lado da caixa. */}
+              <div className="mt-auto w-full pt-8">
                 <Link
                   href="/cadastro"
-                  className="mt-8 flex w-full items-center justify-center rounded-full bg-primary py-3.5 text-[15px] font-bold text-primary-text shadow-lg shadow-primary/30 transition-transform duration-150 hover:bg-primary-hover active:scale-[0.97]"
+                  className={`flex w-full items-center justify-center rounded-full py-3.5 text-[15px] font-bold transition-transform duration-150 active:scale-[0.97] ${
+                    cartao.emDestaque
+                      ? "bg-primary text-primary-text shadow-lg shadow-primary/30 hover:bg-primary-hover"
+                      : "border border-neutro-border bg-transparent text-escuro hover:bg-primary-light"
+                  }`}
                 >
-                  Começar com 7 dias grátis
+                  {cartao.cta}
                 </Link>
-                <p className="mt-3 text-xs text-neutro-muted">
-                  Sem cartão de crédito. Cancele quando quiser.
-                </p>
               </div>
-            </EntradaMockup>
-          </ParallaxFloat>
-        </div>
-
-        <SpringIn delay={0.2} className="w-full lg:w-[40%]">
-          <div className="overflow-hidden rounded-card border border-neutro-border lg:sticky lg:top-24">
-            <div className="grid grid-cols-4 gap-1 border-b border-neutro-border px-4 py-4">
-              <p className="text-[10px] font-bold text-neutro-muted">PERÍODO</p>
-              <p className="text-[10px] font-bold text-neutro-muted">TOTAL</p>
-              <p className="text-[10px] font-bold text-neutro-muted">MÊS</p>
-              <p className="text-[10px] font-bold text-neutro-muted">ECONOMIA</p>
             </div>
-            {TABELA.map((linha, indice) => {
-              const ativa = linha.periodo === periodo;
-              return (
-                <div
-                  key={linha.periodo}
-                  className={`grid grid-cols-4 gap-1 px-4 py-4 transition-colors duration-200 ${
-                    ativa ? "bg-primary-light" : "bg-transparent"
-                  } ${indice < TABELA.length - 1 ? "border-b border-neutro-border" : ""}`}
-                >
-                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
-                    {PLANOS[linha.periodo].label}
-                  </p>
-                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
-                    {linha.total}
-                  </p>
-                  <p className={`text-[13px] ${ativa ? "font-bold text-primary-forte" : "text-escuro"}`}>
-                    {linha.porMes}
-                  </p>
-                  <p
-                    className={`text-[13px] font-bold ${
-                      linha.economiaCor === "coral"
-                        ? "text-primary-forte"
-                        : linha.economiaCor === "verde"
-                          ? "text-verde-texto"
-                          : ativa
-                            ? "text-primary-forte"
-                            : "text-escuro"
-                    }`}
-                  >
-                    {linha.economia ?? "-"}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </SpringIn>
+          </EntradaMockup>
+        ))}
       </div>
+
+      <SpringIn delay={0.3}>
+        <p className="mx-auto mt-8 max-w-lg text-center text-[13px] text-neutro-muted">
+          Cancele quando quiser. O plano gratuito continua aberto depois, com o
+          registro de vendas e o faturamento do mês.
+        </p>
+      </SpringIn>
     </section>
   );
 }

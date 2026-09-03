@@ -23,6 +23,18 @@ import { Revelar } from "../components/Revelar";
 
 type Periodo = "mensal" | "anual";
 
+/*
+ * OS NÚMEROS AQUI PRECISAM BATER COM lib/planos.ts, do app.
+ *
+ * Este site é um projeto Vite separado e não importa de lá — por isso os
+ * tetos estão escritos à mão, e por isso existe testes/lp-promete-o-que-o-app-
+ * entrega.test.ts, que quebra o build se eles divergirem.
+ *
+ * O teste nasceu de um erro real: estes cartões diziam "Conversas ilimitadas
+ * com a Mimu" no Pro e no Premium enquanto o app cortava em 150 e 500. Era
+ * propaganda que o produto não cumpria, e ninguém ia descobrir lendo o código
+ * do app — a promessa mora aqui, a regra mora lá.
+ */
 const PLANOS = [
   {
     id: "basico",
@@ -31,8 +43,9 @@ const PLANOS = [
     preco: { mensal: "Grátis", anual: "Grátis" },
     sufixo: { mensal: "por 7 dias", anual: "por 7 dias" },
     features: [
-      "Os 5 módulos liberados",
-      "Conversas com a Mimu com limite",
+      "Os 5 módulos liberados nos 7 dias",
+      "Depois segue grátis: caixa e Mimu",
+      "10 mensagens por dia com a Mimu",
       "Alertas inteligentes e novidades",
     ],
     destaque: false,
@@ -48,7 +61,7 @@ const PLANOS = [
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Os 5 módulos liberados",
-      "Conversas ilimitadas com a Mimu",
+      "40 mensagens por dia com a Mimu",
       "Suporte 24 horas por WhatsApp",
       "Grupo VIP com as novidades primeiro",
       "Alertas inteligentes e novidades",
@@ -66,7 +79,7 @@ const PLANOS = [
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Os 5 módulos liberados",
-      "Conversas ilimitadas com a Mimu",
+      "120 mensagens por dia com a Mimu",
       "Fale com a Mimu direto no seu WhatsApp",
       "Suporte 24 horas por WhatsApp",
       "Grupo VIP com as novidades primeiro",
