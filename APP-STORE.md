@@ -23,8 +23,12 @@ outra pessoa que clonasse e desse push atualizaria um repositório e o outro
 ficaria para trás, sem erro nenhum.
 
 Agora existe `.github/workflows/espelhar.yml`, que copia `main` daqui para a
-cópia pessoal a cada push. **Falta ligar**, e são dois campos no painel deste
-repositório (Settings → Secrets and variables → Actions):
+cópia pessoal a cada push. **Está ligado e funcionando** desde 03/09/2026 —
+conferido disparando a ação de verdade e lendo o log, e não só validando o
+arquivo.
+
+Os dois campos que o fazem funcionar, no painel deste repositório
+(Settings → Secrets and variables → Actions):
 
 | Onde          | Nome            | Valor                                                                                                                                                                                             |
 | ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -33,7 +37,14 @@ repositório (Settings → Secrets and variables → Actions):
 
 Duas escolhas dele que valem saber:
 
-- **A direção é daqui para lá.** Se o espelho falhar, o que envelhece é a
+- **A direção é daqui para lá.** Um detalhe que derrubou a primeira tentativa e não estava óbvio: o
+`actions/checkout` guarda a credencial dele num cabeçalho global do git, com a
+identidade do robô do GitHub, e esse cabeçalho VENCE o token da URL do push. O
+erro que aparecia era "Permission denied to github-actions[bot]", que parece
+falta de permissão no token — quando o token nem chegava a ser usado. Resolvido
+com `persist-credentials: false`.
+
+Se o espelho falhar, o que envelhece é a
   cópia de segurança e o site continua publicando. Na direção inversa, a mesma
   falha pararia os deploys.
 - **Não usa `--force`.** Se os dois divergirem, a ação **falha e manda
