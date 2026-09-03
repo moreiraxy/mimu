@@ -13,7 +13,7 @@ import { cotaDaMimu } from "@/lib/mimu/cota";
  *
  * O plano vem do banco, nunca do navegador. Aceitar um plano enviado pelo
  * cliente aqui seria só cosmético (quem decide de verdade é o gate em
- * lib/mimu/acesso.ts), mas mostraria "150 mensagens" para uma conta gratuita
+ * lib/mimu/acesso.ts), mas mostraria "40 mensagens" para uma conta gratuita
  * — e a pessoa cobraria, com razão, uma promessa que a tela fez.
  */
 export async function GET() {

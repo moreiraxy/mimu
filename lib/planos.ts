@@ -158,25 +158,50 @@ export const MODULOS_DO_PLANO: Record<PlanoComAcesso, readonly ModuloAtivo[]> = 
  * seria o mesmo teto duas vezes, e ninguém entenderia por que a conversa
  * continua num lugar e para no outro.
  *
+ * DE ONDE VÊM OS NÚMEROS. Medido nos cabeçalhos da conta em 03/09/2026: o
+ * tier gratuito do Groq dá 1.000 requisições por dia no modelo principal
+ * (openai/gpt-oss-120b), com balde próprio e separado do reserva. A duas
+ * requisições por mensagem, o orçamento do PRODUTO INTEIRO é de 500 mensagens
+ * por dia — somando todas as clientes.
+ *
+ * Esse é o número que estes tetos precisam respeitar, e é a razão de eles
+ * terem encolhido. Os anteriores (150 no Pro, 500 no Premium) foram escritos
+ * pensando só no custo de UMA conta: bastavam três contas Pro no talo, ou uma
+ * Premium sozinha, para zerar o Groq do dia. E quando zera, a Mimu para para
+ * TODO MUNDO — inclusive para quem não gastou nada.
+ *
  * Sobre os valores:
  *
  *   free      10 — dá para registrar as vendas do dia conversando e sentir
  *                  para que serve. Não dá para usar a Mimu como o caderno
  *                  inteiro, que é exatamente a linha onde começa o Pro.
- *   pro      150 — folgado a ponto de não se notar em uso real. Quem atende
- *                  no balcão não manda 150 mensagens num dia; quem manda está
- *                  automatizando alguma coisa.
- *   premium  500 — para quem usa a Mimu como operação, não como consulta.
+ *   pro       40 — folgado para uso real e honesto sobre a capacidade. Quem
+ *                  atende no balcão manda de dez a vinte mensagens por dia;
+ *                  quem manda quarenta está usando a Mimu como o caderno.
+ *   premium  120 — três vezes o Pro, para quem usa a Mimu como operação e não
+ *                  como consulta.
  *
- * Os herdados acompanham o Pro: quem pagou por eles não pode receber menos do
- * que recebia numa mudança de catálogo que não pediu.
+ * Cabem doze contas Pro no talo dentro do orçamento, ou perto de trinta no
+ * uso real. Se passar disso, o conserto NÃO é cortar mais: é ligar o billing
+ * no Groq. Teto de plano protege contra a conta que fala demais; ele não cria
+ * capacidade que a API não tem.
+ *
+ * Os herdados acompanham o Pro, e AQUI ELES PERDERAM: eram 150 e passaram a
+ * 40, como o Pro. A regra de sempre foi que ninguém recebe menos numa mudança
+ * de catálogo que não pediu, e esta mudança a quebra de propósito — o teto
+ * antigo prometia uma capacidade que a API nunca teve. Manter os 150 para eles
+ * seria manter a promessa quebrada e ainda deixar duas contas herdadas capazes
+ * de derrubar a Mimu para todas as outras.
+ *
+ * Se existir alguém nesses planos quando isto for ao ar, a conversa é com a
+ * pessoa, não com o código.
  */
 export const MENSAGENS_MIMU_POR_DIA: Record<PlanoComAcesso, number> = {
   free: 10,
-  pro: 150,
-  premium: 500,
-  basico: 150,
-  completo: 150,
+  pro: 40,
+  premium: 120,
+  basico: 40,
+  completo: 40,
 };
 
 /**

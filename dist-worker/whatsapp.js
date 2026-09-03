@@ -1317,10 +1317,10 @@ var MODULOS_DO_PLANO = {
 };
 var MENSAGENS_MIMU_POR_DIA = {
   free: 10,
-  pro: 150,
-  premium: 500,
-  basico: 150,
-  completo: 150
+  pro: 40,
+  premium: 120,
+  basico: 40,
+  completo: 40
 };
 function limiteDiarioDaMimu(plano) {
   return MENSAGENS_MIMU_POR_DIA[plano] ?? MENSAGENS_MIMU_POR_DIA.free;
