@@ -1,6 +1,6 @@
 {
   "name": "mimu",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Mimu — PWA de gestão para microempreendedores brasileiros",
   "scripts": {

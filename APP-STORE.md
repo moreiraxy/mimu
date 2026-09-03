@@ -10,23 +10,35 @@ repositório — não de intenção.
 **`github.com/zanettizmax-boop/mimu`** — é dele que a Hostinger publica o
 mimu.pro. Mudança que não chega nesse repositório não chega no ar.
 
-### A armadilha que precisa ser resolvida ANTES de mais alguém commitar
+### O espelho entre os dois repositórios
 
-Existe um segundo repositório, `github.com/moreiraxy/mimu`, com o mesmo
-conteúdo. Os dois vivem sincronizados **por uma configuração local na máquina
-da Rayssa** — o `origin` dela tem duas URLs de push, então um `git push` dela
-manda para os dois de uma vez.
+Existe um segundo repositório, `github.com/moreiraxy/mimu`, na conta pessoal da
+Rayssa. Ele é a cópia de segurança: a hospedagem e o repositório principal
+estão na conta do diretor da Fortis, que é quem paga, e a cópia existe para o
+dia em que aquele acesso acabar.
 
-**Isso não é espelhamento.** Não há GitHub Action, webhook, nem nada do lado do
-servidor: conferido, não existe `.github/workflows`. Em qualquer outra máquina,
-um push vai para **um** repositório só, e o outro fica para trás em silêncio.
+Até 02/09/2026 os dois eram sincronizados por uma **configuração local** na
+máquina dela (o `origin` com duas URLs de push). Funcionava só ali: qualquer
+outra pessoa que clonasse e desse push atualizaria um repositório e o outro
+ficaria para trás, sem erro nenhum.
 
-Antes de o time crescer, escolher um caminho:
+Agora existe `.github/workflows/espelhar.yml`, que copia `main` daqui para a
+cópia pessoal a cada push. **Falta ligar**, e são dois campos no painel deste
+repositório (Settings → Secrets and variables → Actions):
 
-- **Um repositório só** (recomendado): apagar ou arquivar o outro.
-- **Espelho de verdade**: uma Action que replica `main` de um para o outro.
+| Onde          | Nome            | Valor                                                                                                                                                                                             |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Secrets**   | `TOKEN_ESPELHO` | Um Personal Access Token da conta que tem escrita em `moreiraxy/mimu`. Criar em github.com/settings/tokens → Fine-grained → repositório `moreiraxy/mimu` → permissão **Contents: Read and write** |
+| **Variables** | `REPO_ESPELHO`  | `moreiraxy/mimu`                                                                                                                                                                                  |
 
-Enquanto isso não for feito, quem commitar precisa saber em qual dos dois está.
+Duas escolhas dele que valem saber:
+
+- **A direção é daqui para lá.** Se o espelho falhar, o que envelhece é a
+  cópia de segurança e o site continua publicando. Na direção inversa, a mesma
+  falha pararia os deploys.
+- **Não usa `--force`.** Se os dois divergirem, a ação **falha e manda
+  e-mail**, em vez de sobrescrever. Espelho que apaga em silêncio um commit que
+  só existe do outro lado não é cópia de segurança.
 
 ---
 
@@ -76,11 +88,12 @@ App Store entra na conta só quando muda o invólucro.
 
 ---
 
-## 4. O que FALTA, e é trabalho de verdade
+## 4. O que falta — e o que já foi feito depois desta lista
 
-### 4.1 O projeto nativo não existe
+### 4.1 O projeto nativo — do dev
 
-Não há pasta `ios/`. O primeiro passo é:
+Não há pasta `ios/`, e ela não podia ser gerada aqui: a máquina da Rayssa não
+tem Xcode nem CocoaPods. É o primeiro passo na máquina de quem for enviar:
 
 ```bash
 npm install
@@ -89,45 +102,65 @@ npx cap sync ios
 npx cap open ios
 ```
 
-### 4.2 A ponte de compra nativa (`MimuIAP`) — o item maior
+### 4.2 O plugin de compra nativa — PRONTO, falta instalar
 
-`lib/iap.ts` define uma interface que **nenhum código nativo implementa
-ainda**. Enquanto `window.MimuIAP` for `undefined`, a tela de plano mostra
-"Assinatura pelo app ainda não está disponível nesta versão" — de propósito,
-para não oferecer um botão que não faz nada.
+`ios-plugin/MimuIAP/` tem os dois arquivos, escritos com **StoreKit 2**:
 
-O plugin Swift precisa expor, em `window.MimuIAP`:
+- `MimuIAP.swift` — comprar, preço formatado, restaurar, abrir gerenciamento
+- `MimuIAP.m` — o registro que o Capacitor lê. **Sem este arquivo o plugin
+  compila e some em tempo de execução**: `window.MimuIAP` fica `undefined` e a
+  tela conclui que não há caminho de compra. É a falha mais silenciosa de um
+  plugin de Capacitor.
 
-| Método                      | O que faz                                                             |
-| --------------------------- | --------------------------------------------------------------------- |
-| `comprar(produtoId)`        | Abre o StoreKit e devolve `{ ok, transactionId?, erro? }`             |
-| `precoFormatado(produtoId)` | O preço **como a Apple formata** — a faixa dela pode não ser R$ 39,90 |
-| `restaurar()`               | Exigido pela 3.1.1 para assinatura                                    |
-| `abrirGerenciamento()`      | Leva a Ajustes → Assinaturas                                          |
+Para instalar, depois do `npx cap add ios`: arraste os dois para o target
+**App** no Xcode (marcando "Copy items if needed"). Quando o Xcode perguntar
+pelo bridging header, aceite.
 
-Os comentários em `lib/iap.ts` explicam o porquê de cada um. Vale ler antes.
+O lado JavaScript já está ligado: `components/providers/PonteIAP.tsx` registra
+o plugin em `window.MimuIAP` — só dentro do app iOS, por import dinâmico, para
+não pesar o bundle de quem abre pelo navegador.
 
-### 4.3 A conferência do recibo no servidor
+**Falta no App Store Connect**: criar os quatro produtos com estes ids exatos
+(`lib/iap.ts`), e uma assinatura precisa de um **grupo de assinatura**:
 
-**Não existe.** Não há rota de API que fale com a App Store Server API.
+```
+br.com.mimu.app.pro.mensal        br.com.mimu.app.pro.anual
+br.com.mimu.app.premium.mensal    br.com.mimu.app.premium.anual
+```
 
-`lib/iap.ts` é explícito sobre a regra: o acesso **nunca** pode ser liberado
-porque o `transactionId` chegou ao navegador — o navegador é território de quem
-usa o aparelho. Quem libera tem que ser o servidor, conferindo contra a Apple.
+### 4.3 A conferência do recibo — PRONTA, faltam as credenciais
 
-Falta escrever essa rota, no mesmo formato das que já existem em
-`app/api/pagamento/`.
+`lib/apple-store-server.ts` fala com a App Store Server API, e
+`app/api/pagamento/apple/route.ts` é a rota que libera o acesso. Pergunta à
+produção e cai para a sandbox se a Apple não conhecer a transação — é o que
+faz a compra de teste da REVISÃO funcionar.
 
-### 4.4 O botão "Restaurar compras" não está na tela
+Nada do que o app manda libera coisa alguma: o `transactionId` é só um
+protocolo para o servidor perguntar à Apple. A data de validade vem da resposta
+dela, não da nossa conta de "mais um mês".
 
-`restaurar()` está no contrato, mas `PlanoSection.tsx` não oferece o botão. A
-Apple reprova assinatura sem caminho de restauração.
+Falta pôr no ambiente da Hostinger (App Store Connect → Usuários e Acesso →
+Integrações → Chaves):
 
-### 4.5 A versão
+```
+APPLE_ISSUER_ID     o "Issuer ID" no topo daquela página
+APPLE_KEY_ID        o id da chave criada ali
+APPLE_PRIVATE_KEY   o conteúdo do .p8 — ele só pode ser baixado UMA vez
+APPLE_BUNDLE_ID     br.com.mimu.app
+```
 
-`package.json` está em `0.1.0`. Um primeiro envio normalmente vai como `1.0.0`.
+Sem elas a rota responde **502** e grava `apple_compra_recusada` com o motivo
+`indisponivel` — de propósito, para "a Apple recusou" não se confundir com
+"não conseguimos perguntar".
 
----
+### 4.4 "Restaurar compras" — PRONTO
+
+`Minha empresa → Plano`. Só aparece dentro do app da Apple; no site não teria o
+que fazer.
+
+### 4.5 A versão — PRONTO
+
+`package.json` em `1.0.0`. Ela aparece no rodapé de Minha Empresa.
 
 ## 5. Duas coisas de ambiente que não são do app
 

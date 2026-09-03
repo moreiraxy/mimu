@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/dashboard/BottomNav";
 import { FundoAmbiente } from "@/components/dashboard/FundoAmbiente";
 import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
 import { TravaBiometrica } from "@/components/TravaBiometrica";
+import { PonteIAP } from "@/components/providers/PonteIAP";
 import { TelaAbertura } from "@/components/TelaAbertura";
 
 // Layout raiz de toda página autenticada (Home, Agenda, Financeiro, Clientes,
@@ -166,6 +167,8 @@ export default async function DashboardGroupLayout({
           o app não deve ver nem a marca carregando antes de se identificar. */}
       <TelaAbertura />
       <TravaBiometrica />
+      {/* Só faz algo dentro do app da App Store — ver components/providers/PonteIAP.tsx. */}
+      <PonteIAP />
     </div>
   );
 }

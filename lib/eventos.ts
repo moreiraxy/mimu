@@ -39,6 +39,22 @@ export type TipoEvento =
   | "cakto_reversao"
   | "cakto_reversao_falhou"
   | "cakto_atencao"
+  /*
+   * A trilha das compras feitas na App Store.
+   *
+   * Existe porque este caminho é CEGO de todos os outros lados: a pessoa
+   * compra dentro do app da Apple, o dinheiro vai para a Apple, e a única
+   * forma de saber que a liberação aqui funcionou (ou não) é isto. Sem a
+   * trilha, "paguei e não liberou" seria investigado no escuro — e é o tipo de
+   * reclamação que não pode esperar.
+   *
+   * `recusada` separa a Apple dizendo não de nós não conseguindo perguntar:
+   * ver o motivo gravado no detalhe.
+   */
+  | "apple_compra_liberada"
+  | "apple_compra_recusada"
+  | "apple_compra_nao_gravou"
+  | "apple_produto_desconhecido"
   // A pessoa apagou a própria conta pela tela de Minha Empresa. Fica como
   // evento porque a linha da empresa some no instante seguinte: sem isto, o
   // painel admin veria uma conta desaparecer sem nenhum rastro de que houve

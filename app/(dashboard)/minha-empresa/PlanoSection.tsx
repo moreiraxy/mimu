@@ -32,6 +32,7 @@ export function PlanoSection() {
   const { plano, assinatura } = useAuth();
   const router = useRouter();
   const [abrindo, setAbrindo] = useState(false);
+  const [restaurando, setRestaurando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
 
   if (!assinatura) return null;
@@ -90,6 +91,53 @@ export function PlanoSection() {
      * App Store. Acreditar no "ok" que voltou do navegador seria liberar
      * Premium para qualquer pessoa capaz de abrir o console.
      */
+    router.refresh();
+  }
+
+  /*
+   * Restaurar compras — a Apple EXIGE este caminho.
+   *
+   * A diretriz 3.1.1 é explícita: app com assinatura precisa oferecer como
+   * recuperar o que já foi pago. Sem isso, quem trocou de aparelho ou
+   * reinstalou perde o acesso, e a revisão reprova o envio.
+   *
+   * Note que o acesso NÃO é liberado pelo que volta daqui, exatamente como na
+   * compra: `restaurar()` só faz a Apple reconhecer a assinatura no aparelho.
+   * Quem libera é o servidor, conferindo o recibo — por isso o `refresh()` no
+   * fim, em vez de mexer no estado da tela.
+   */
+  async function restaurarCompras() {
+    setAviso(null);
+
+    if (!window.MimuIAP) {
+      setAviso(
+        "A restauração só funciona dentro do app da App Store. Se você assinou pelo site, sua conta já está ativa aqui.",
+      );
+      return;
+    }
+
+    setRestaurando(true);
+    const resultado = await window.MimuIAP.restaurar().catch(() => ({
+      ok: false,
+      erro: "falhou",
+    }));
+    setRestaurando(false);
+
+    if (!resultado.ok) {
+      /*
+       * "Não achei nada" e "deu erro" merecem a mesma frase, e é de propósito.
+       *
+       * A Apple não distingue os dois de forma confiável, e para quem está
+       * olhando a diferença não muda o que fazer. Prometer "você não tem
+       * assinatura" com base num erro de rede seria pior: a pessoa acharia que
+       * perdeu o que pagou.
+       */
+      setAviso(
+        "Não encontrei nenhuma assinatura para restaurar nesta conta da App Store.",
+      );
+      return;
+    }
+
     router.refresh();
   }
 
@@ -228,6 +276,24 @@ export function PlanoSection() {
                   */
                   "Fazer upgrade"}
           </Button>
+        )}
+
+        {/*
+          "Restaurar compras" só aparece DENTRO do app da Apple.
+
+          No site ele não teria o que fazer — não existe StoreKit ali —, e um
+          botão que só serve para explicar que não serve é ruído na tela de
+          quem assinou pelo cartão.
+        */}
+        {onde !== "web" && (
+          <button
+            type="button"
+            onClick={restaurarCompras}
+            disabled={restaurando}
+            className="text-[15px] font-bold text-primary-forte disabled:opacity-50"
+          >
+            {restaurando ? "Procurando..." : "Restaurar compras"}
+          </button>
         )}
 
         {pagaAtiva && (
