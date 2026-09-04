@@ -80,7 +80,10 @@ const config: Config = {
         confete: {
           "0%": { transform: "translateY(-6px) rotate(0deg)", opacity: "0" },
           "20%": { opacity: "1" },
-          "100%": { transform: "translateY(26px) rotate(140deg)", opacity: "0" },
+          "100%": {
+            transform: "translateY(26px) rotate(140deg)",
+            opacity: "0",
+          },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
@@ -109,6 +112,23 @@ const config: Config = {
          * Amplitude curta de propósito (4% de escala): mais que isso e o
          * logo pulsa, o que lê como alerta.
          */
+        /*
+         * A abertura, em três tempos.
+         *
+         * A marca assenta com mola e o nome sobe. Duas animações e não uma
+         * porque cada uma tem duração e curva próprias — o assentamento
+         * precisa de `cubic-bezier` com overshoot, que no nome ficaria
+         * saltitante demais.
+         */
+        "assentar-marca": {
+          "0%": { transform: "scale(1)" },
+          "45%": { transform: "scale(1.09)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "subir-nome": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         respirar: {
           "0%, 100%": { transform: "scale(1)", opacity: "0.9" },
           "50%": { transform: "scale(1.04)", opacity: "1" },
@@ -137,6 +157,11 @@ const config: Config = {
         "float-slow": "float-slow 6s ease-in-out infinite",
         "pulse-badge": "pulse-badge 2s ease-in-out infinite",
         "typing-dot": "typing-dot 1.2s infinite",
+        // `both` segura o estado inicial durante o atraso — sem ele, o nome
+        // pisca visível antes de começar a subir.
+        "assentar-marca":
+          "assentar-marca 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        "subir-nome": "subir-nome 0.36s ease-out 0.12s both",
         respirar: "respirar 2.4s ease-in-out infinite",
         balancar: "balancar 0.35s ease-in-out infinite",
         "blink-erro": "blink-erro 1.1s ease-in-out infinite",

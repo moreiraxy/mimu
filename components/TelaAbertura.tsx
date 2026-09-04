@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { LogoMark } from "@/components/Logo";
+import { esconderSplashNativa } from "@/lib/nativo";
 
 /**
  * Já abrimos o app nesta sessão?
@@ -108,6 +109,22 @@ export function TelaAbertura() {
     if (!abrindo) jaAbriu = true;
   }, [abrindo]);
 
+  /*
+   * A troca de bastão com a tela de abertura do sistema.
+   *
+   * Enquanto a WebView carrega, quem está na tela é a splash NATIVA; quem
+   * assume depois é este componente. Esconder a nativa cedo demais mostraria o
+   * fundo vazio no meio, e tarde demais deixaria a marca do sistema por cima
+   * do app já pronto.
+   *
+   * O momento certo é este: assim que a abertura termina. As duas usam o mesmo
+   * `#0A0A0A`, então a troca não pisca.
+   */
+  useEffect(() => {
+    if (abrindo) return;
+    void esconderSplashNativa();
+  }, [abrindo]);
+
   if (!primeira || !abrindo) return null;
 
   return (
@@ -120,10 +137,30 @@ export function TelaAbertura() {
       role="status"
       aria-label="Abrindo a Mimu"
     >
-      <div className="animate-respirar">
+      {/*
+       * Dois tempos: a marca assenta com mola e o nome sobe.
+       *
+       * O TERCEIRO TEMPO — o traço se desenhando — foi tirado, e não por
+       * gosto. A splash NATIVA já mostra a marca inteira (ver
+       * scripts/gerar-assets-nativos.mjs), então redesenhá-la aqui a faria
+       * sumir e voltar no meio da abertura. Ou a marca nasce na web e a nativa
+       * é um retângulo vazio, ou ela vem pronta da nativa e aqui só assenta.
+       * A primeira opção deixava quem abre o app deslogado — que não vê esta
+       * tela, porque ela só é montada em (dashboard)/layout.tsx — encarando
+       * três segundos de preto.
+       *
+       * O `animate-respirar` de antes saiu daqui: ele pulsava para sempre, e
+       * pulsar sem parar é o que uma tela diz quando não sabe se vai
+       * conseguir. Uma abertura que assenta diz o contrário.
+       *
+       * A escala mora numa div POR FORA da marca. Pôr `transform` no mesmo
+       * elemento que anima o traço faria o Safari recalcular o path a cada
+       * quadro do salto.
+       */}
+      <div className="animate-assentar-marca motion-reduce:animate-none">
         <LogoMark size="lg" />
       </div>
-      <p className="text-3xl font-semibold leading-none tracking-[-0.5px] text-primary-forte">
+      <p className="animate-subir-nome text-3xl font-semibold leading-none tracking-[-0.5px] text-primary-forte motion-reduce:animate-none">
         mimu
       </p>
     </div>

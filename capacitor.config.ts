@@ -60,6 +60,33 @@ const config: CapacitorConfig = {
     allowNavigation: [DOMINIO],
   },
 
+  /*
+   * A tela de abertura do sistema, que é a única coisa que existe enquanto a
+   * WebView ainda busca a Mimu. Sem ela o app abre num retângulo vazio.
+   *
+   * `launchAutoHide` FICA LIGADO de propósito, e a tentação é desligá-lo: com
+   * ele desligado a marca ficaria firme até a página avisar que chegou, o que
+   * é mais bonito no caminho feliz. O problema é o caminho infeliz — sem
+   * internet, o Capacitor carrega `app-shell/index.html`, que é HTML puro e
+   * nunca chama `hide()`. A splash cobriria para sempre a tela de "sem
+   * internet", e o app pareceria travado logo em quem está com sinal ruim.
+   *
+   * Então o sistema esconde sozinho em 3 segundos, e `esconderSplashNativa()`
+   * (lib/nativo.ts) antecipa isso assim que a Mimu está pronta — o que no caso
+   * normal acontece bem antes. O teto é rede de segurança, não o padrão.
+   *
+   * Sem roda de carregamento: a marca já diz que algo está acontecendo, e uma
+   * roda ao lado dela diz que está demorando.
+   */
+  plugins: {
+    SplashScreen: {
+      launchAutoHide: true,
+      launchShowDuration: 3000,
+      backgroundColor: "#0A0A0A",
+      showSpinner: false,
+    },
+  },
+
   ios: {
     /*
      * ESTA LINHA É O QUE MANTÉM O APP PUBLICÁVEL.
