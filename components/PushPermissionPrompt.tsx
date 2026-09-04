@@ -5,6 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { LogoMark } from "@/components/Logo";
 import { Button } from "@/components/ui/Button";
 import { inscreverPush } from "@/lib/push-client";
+import { ehAppIOSNoNavegador } from "@/lib/plataforma";
+import { registrarPushNativo } from "@/lib/nativo";
 
 const CHAVE_LOCALSTORAGE = "mimu_push_prompt_respondido";
 
@@ -20,10 +22,24 @@ export function PushPermissionPrompt() {
 
   useEffect(() => {
     if (!user) return;
-    if (typeof window === "undefined" || !("Notification" in window)) return;
-    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) return;
-    if (Notification.permission !== "default") return;
+    if (typeof window === "undefined") return;
     if (localStorage.getItem(CHAVE_LOCALSTORAGE)) return;
+
+    /*
+     * As TRÊS condições abaixo são do Web Push, e nenhuma vale no aplicativo.
+     *
+     * Elas estavam soltas no topo e desligavam este pedido dentro do app por
+     * motivos que não existem lá: a WKWebView não expõe `Notification`, então
+     * a primeira já saía; e a chave VAPID é do protocolo do navegador, que o
+     * APNs não usa. O resultado é que quem usa o aplicativo — justamente quem
+     * mais precisa de aviso, porque não fica com o site aberto — nunca via o
+     * pedido.
+     */
+    if (!ehAppIOSNoNavegador()) {
+      if (!("Notification" in window)) return;
+      if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) return;
+      if (Notification.permission !== "default") return;
+    }
 
     const timer = setTimeout(() => setVisivel(true), 1500);
     return () => clearTimeout(timer);
@@ -37,9 +53,19 @@ export function PushPermissionPrompt() {
   async function aceitar() {
     setEnviando(true);
     try {
-      const permissao = await Notification.requestPermission();
-      if (permissao === "granted") {
-        await inscreverPush();
+      if (ehAppIOSNoNavegador()) {
+        /*
+         * No aplicativo quem pede a permissão é o SISTEMA, não o navegador —
+         * `registrarPushNativo` chama o plugin, espera o token do APNs chegar
+         * por evento e o manda para /api/push/subscribe. Recusar é uma
+         * resposta válida e devolve false, sem erro.
+         */
+        await registrarPushNativo();
+      } else {
+        const permissao = await Notification.requestPermission();
+        if (permissao === "granted") {
+          await inscreverPush();
+        }
       }
     } catch {
       // se a inscrição falhar, a usuária simplesmente não recebe push — sem travar o app.
