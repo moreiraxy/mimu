@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { registrarEvento } from "@/lib/eventos";
+import { enviarApns } from "@/lib/push-apns";
 import type { createClient } from "@/lib/supabase/server";
 
 type Supabase = ReturnType<typeof createClient>;
@@ -17,7 +18,10 @@ function configurarVapid(): boolean {
     // `return` mudo, e descobrir isso exigia adivinhar.
     console.error(
       "Push desativado: falta " +
-        [!publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY", !privateKey && "VAPID_PRIVATE_KEY"]
+        [
+          !publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+          !privateKey && "VAPID_PRIVATE_KEY",
+        ]
           .filter(Boolean)
           .join(" e ") +
         " no ambiente. Nenhuma notificação sai enquanto isso.",
@@ -50,6 +54,54 @@ export async function enviarPushParaEmpresa(
   empresaId: string,
   payload: PushPayload,
 ): Promise<void> {
+  const { data: inscricoes } = await supabase
+    .from("push_subscriptions")
+    .select("*")
+    .eq("empresa_id", empresaId);
+
+  if (!inscricoes || inscricoes.length === 0) return;
+
+  /*
+   * OS DOIS TRANSPORTES SÃO INDEPENDENTES, e a ordem aqui é o que garante
+   * isso.
+   *
+   * A conferência do VAPID morava no topo da função e desistia de tudo. Com o
+   * APNs no mesmo caminho, isso passou a significar que uma chave de push da
+   * WEB faltando calaria as notificações do APLICATIVO — coisas que não têm
+   * relação nenhuma. E não é hipótese: `VAPID_PRIVATE_KEY` não está no
+   * ambiente hoje.
+   *
+   * Agora cada transporte responde por si. Quem está no iPhone recebe mesmo
+   * com o Web Push desligado, e vice-versa.
+   */
+  const paraApns = inscricoes.filter((i) => i.tipo === "apns");
+  const paraWeb = inscricoes.filter((i) => i.tipo !== "apns");
+
+  await Promise.all(
+    paraApns.map(async (inscricao) => {
+      const r = await enviarApns(inscricao.endpoint, {
+        titulo: payload.title,
+        corpo: payload.body,
+        destino: payload.url,
+      });
+      if (r.descartar) {
+        // Aparelho que desinstalou ou trocou de dono. Guardar o token só faria
+        // o próximo disparo gastar uma chamada para receber o mesmo erro.
+        await supabase
+          .from("push_subscriptions")
+          .delete()
+          .eq("id", inscricao.id);
+      } else if (!r.ok && r.motivo !== "indisponivel") {
+        console.error("APNs recusou a notificação.", {
+          empresaId,
+          motivo: r.motivo,
+        });
+      }
+    }),
+  );
+
+  if (paraWeb.length === 0) return;
+
   if (!configurarVapid()) {
     await registrarEvento("push_falhou", {
       empresaId,
@@ -58,15 +110,16 @@ export async function enviarPushParaEmpresa(
     return;
   }
 
-  const { data: inscricoes } = await supabase
-    .from("push_subscriptions")
-    .select("*")
-    .eq("empresa_id", empresaId);
-
-  if (!inscricoes || inscricoes.length === 0) return;
-
   await Promise.all(
-    inscricoes.map(async (inscricao) => {
+    paraWeb.map(async (inscricao) => {
+      /*
+       * A restrição `push_subscriptions_web_exige_chaves` no banco garante que
+       * inscrição web tem o par. O TypeScript não sabe disso — as colunas são
+       * anuláveis por causa do APNs — então a checagem fica aqui em vez de um
+       * `!`: se um dia a restrição cair, isto pula a linha em vez de estourar
+       * no meio do disparo.
+       */
+      if (!inscricao.p256dh || !inscricao.auth) return;
       try {
         await webpush.sendNotification(
           {

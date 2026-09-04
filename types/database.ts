@@ -17,10 +17,7 @@ export type TipoTransacao = "entrada" | "saida";
 export type StatusPagamento = "pendente" | "pago";
 export type FormaPagamento = "dinheiro" | "pix" | "debito" | "credito";
 export type StatusAgendamento =
-  | "confirmado"
-  | "pendente"
-  | "nao_compareceu"
-  | "concluido";
+  "confirmado" | "pendente" | "nao_compareceu" | "concluido";
 export type Tema = "claro" | "escuro";
 export type RoleConversa = "user" | "assistant";
 
@@ -41,23 +38,17 @@ export type TipoMovimentacaoEstoque = "entrada" | "saida" | "ajuste";
 // 20260814030000_assinatura_pendente.sql para o porquê de ser um estado
 // próprio e não um reaproveitamento de "cancelada".
 export type StatusAssinatura =
-  | "trial"
-  | "ativa"
-  | "cancelada"
-  | "vencida"
-  | "pendente";
+  "trial" | "ativa" | "cancelada" | "vencida" | "pendente";
 // Os planos pagos vivem em lib/planos.ts, que é a fonte do preço. "completo"
 // é o nome antigo, mantido porque contas criadas antes desta mudança já
 // gravaram esse valor.
 // "free" é o plano gratuito permanente, onde a conta pousa quando o teste
 // acaba ou a cobrança falha. Ver a migration 20260829120000_plano_gratuito.sql
 // e o teto de módulos em lib/planos.ts.
-export type PlanoAssinatura = "free" | "basico" | "completo" | "pro" | "premium";
+export type PlanoAssinatura =
+  "free" | "basico" | "completo" | "pro" | "premium";
 export type StatusPagamentoMP =
-  | "pendente"
-  | "aprovado"
-  | "recusado"
-  | "reembolsado";
+  "pendente" | "aprovado" | "recusado" | "reembolsado";
 // O nome carrega "MP" por herança de quando o Mercado Pago era a única
 // origem. O "boleto" veio junto e ninguém emite mais: o checkout próprio
 // oferece Pix e cartão. Fica no tipo porque o banco ainda aceita o valor e
@@ -69,6 +60,15 @@ export type FormaPagamentoMP = "pix" | "cartao" | "boleto";
 // quem assinou pela Apple SÓ cancela na Apple, em Ajustes → Assinaturas, e é
 // por esta coluna que a tela sabe disso. Ver 20260830100000_origem_apple.sql.
 export type OrigemPagamento = "mercadopago" | "manual" | "apple";
+
+/**
+ * Por onde a notificação vai.
+ *
+ * "web" é o Web Push do navegador, com par de chaves; "apns" é o aplicativo
+ * iOS, com token de aparelho e sem chaves. A coluna existe porque a WKWebView
+ * não tem `PushManager` — ver a migration 20260904190000_push_apns.sql.
+ */
+export type TransportePush = "web" | "apns";
 
 export interface Database {
   public: {
@@ -194,9 +194,7 @@ export interface Database {
           updated_at?: string;
           revertida_em?: string | null;
         };
-        Update: Partial<
-          Database["public"]["Tables"]["agendamentos"]["Insert"]
-        >;
+        Update: Partial<Database["public"]["Tables"]["agendamentos"]["Insert"]>;
         Relationships: [];
       };
       transacoes: {
@@ -315,9 +313,7 @@ export interface Database {
           lido?: boolean;
           created_at?: string;
         };
-        Update: Partial<
-          Database["public"]["Tables"]["alertas_mimu"]["Insert"]
-        >;
+        Update: Partial<Database["public"]["Tables"]["alertas_mimu"]["Insert"]>;
         Relationships: [];
       };
       categorias: {
@@ -415,9 +411,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<
-          Database["public"]["Tables"]["fornecedores"]["Insert"]
-        >;
+        Update: Partial<Database["public"]["Tables"]["fornecedores"]["Insert"]>;
         Relationships: [];
       };
       compras: {
@@ -485,7 +479,9 @@ export interface Database {
           valor_depois?: Json;
           created_at?: string;
         };
-        Update: Partial<Database["public"]["Tables"]["admin_auditoria"]["Insert"]>;
+        Update: Partial<
+          Database["public"]["Tables"]["admin_auditoria"]["Insert"]
+        >;
         Relationships: [];
       };
       eventos: {
@@ -550,7 +546,9 @@ export interface Database {
           cancelado_em?: string;
           dias_de_casa?: number | null;
         };
-        Update: Partial<Database["public"]["Tables"]["cancelamentos"]["Insert"]>;
+        Update: Partial<
+          Database["public"]["Tables"]["cancelamentos"]["Insert"]
+        >;
         Relationships: [];
       };
       auth_rate_limit: {
@@ -587,17 +585,21 @@ export interface Database {
         Row: {
           id: string;
           empresa_id: string;
+          // No transporte web é a URL do serviço de push do navegador; no
+          // apns, o token do aparelho. Ver a migration 20260904190000.
           endpoint: string;
-          p256dh: string;
-          auth: string;
+          p256dh: string | null;
+          auth: string | null;
+          tipo: TransportePush;
           created_at: string;
         };
         Insert: {
           id?: string;
           empresa_id: string;
           endpoint: string;
-          p256dh: string;
-          auth: string;
+          p256dh?: string | null;
+          auth?: string | null;
+          tipo?: TransportePush;
           created_at?: string;
         };
         Update: Partial<
@@ -642,9 +644,7 @@ export interface Database {
           updated_at?: string;
           periodicidade?: string;
         };
-        Update: Partial<
-          Database["public"]["Tables"]["assinaturas"]["Insert"]
-        >;
+        Update: Partial<Database["public"]["Tables"]["assinaturas"]["Insert"]>;
         Relationships: [];
       };
       /**
@@ -695,7 +695,8 @@ export interface Database {
           empresa_id: string | null;
           recebida_em: string;
           processada_em: string | null;
-          resultado: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+          resultado:
+            "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
           created_at: string;
         };
         Insert: {
@@ -706,13 +707,15 @@ export interface Database {
           empresa_id?: string | null;
           recebida_em: string;
           processada_em?: string | null;
-          resultado?: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+          resultado?:
+            "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
           created_at?: string;
         };
         Update: Partial<{
           empresa_id: string | null;
           processada_em: string | null;
-          resultado: "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
+          resultado:
+            "respondida" | "nao_vinculada" | "ignorada" | "falhou" | null;
         }>;
         Relationships: [];
       };
