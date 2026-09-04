@@ -10,13 +10,17 @@
  * Os documentos do template eram norte-americanos: GDPR, CCPA, foro em
  * Delaware, SOC 2. Nada disso descreve a Mimu, que atende microempreendedor
  * brasileiro. Foram reescritos sobre a LGPD (Lei 13.709/2018) e sobre os fatos
- * que o próprio site afirma — 7 dias grátis sem cartão, R$ 39 a R$ 299,
+ * que o próprio site afirma — 7 dias grátis sem cartão, R$ 39 a R$ 199 por mês,
  * cancelamento sem multa, funcionamento offline, dados no Brasil.
  *
  * Ainda assim isto é minuta, não parecer jurídico: prazos, foro, hipóteses de
  * retenção e a razão social precisam ser confirmados por quem responde pela
- * empresa. Os campos que dependem de dado que não temos estão marcados com
- * CONFIRMAR.
+ * empresa.
+ *
+ * O QUE AINDA FALTA, e que só a Rayssa tem: razão social, CNPJ, endereço e o
+ * nome do encarregado de dados. A pendência vive em comentário no pé de cada
+ * documento, onde os dados entram quando existirem. Até 03/09/2026 ela estava
+ * impressa na própria página, num aviso que a visitante lia.
  */
 
 export type Part = string | { b: string } | { a: string; href: string };
@@ -79,7 +83,17 @@ const PRIVACIDADE_BLOCKS: Block[] = [
   { h: "13. Fale com a gente" },
   { p: ["Dúvida, pedido ou reclamação sobre privacidade, escreva para o nosso encarregado de dados:"] },
   { p: [{ a: "privacidade@mimu.app", href: "mailto:privacidade@mimu.app" }] },
-  { p: ["CONFIRMAR: razão social, CNPJ, endereço e nome do encarregado de dados precisam ser preenchidos aqui antes da publicação."] },
+  /*
+   * FALTA AQUI: razão social, CNPJ, endereço e o nome do encarregado de dados.
+   *
+   * A LGPD exige que o controlador se identifique e diga quem é o encarregado
+   * (art. 41) — é isso que dá a um pedido de titular um lugar para chegar.
+   *
+   * Este aviso estava escrito como parágrafo e SAÍA IMPRESSO no fim da
+   * política, visível para quem lesse: um bilhete interno publicado por
+   * engano. Virou comentário — a pendência continua registrada, e a visitante
+   * não lê mais o nosso recado interno.
+   */
 ];
 
 const TERMOS_BLOCKS: Block[] = [
@@ -124,7 +138,13 @@ const TERMOS_BLOCKS: Block[] = [
   { h: "14. Fale com a gente" },
   { p: ["Dúvidas sobre estes Termos:"] },
   { p: [{ b: "Mimu" }, " ", { a: "oi@mimu.app", href: "mailto:oi@mimu.app" }] },
-  { p: ["CONFIRMAR: razão social, CNPJ e endereço completo precisam ser preenchidos aqui antes da publicação."] },
+  /*
+   * FALTA AQUI: razão social, CNPJ e endereço completo.
+   *
+   * Um contrato de adesão precisa dizer com quem a pessoa está contratando.
+   * Mesmo caso do comentário equivalente na privacidade: o aviso saía impresso
+   * na página e virou comentário.
+   */
 ];
 
 export const LEGAL: Record<string, LegalDoc> = {
