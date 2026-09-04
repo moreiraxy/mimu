@@ -185,3 +185,45 @@ export async function aoTocarNaNotificacao(
     return () => {};
   }
 }
+
+/**
+ * Leva a WebView para onde o link tocado apontava.
+ *
+ * Quando o Universal Link funciona, o iOS abre o aplicativo em vez do Safari —
+ * mas ele NÃO navega sozinho: entrega a URL e para por aí. Sem este ouvinte, o
+ * app abre na tela onde estava, e quem tocou em "confirmar meu e-mail" não vê
+ * nada acontecer. É a metade do conserto que não aparece no entitlement.
+ *
+ * Navega por `location.href`, e não pelo router do Next, porque o app pode
+ * estar em qualquer estado — inclusive na tela de começar, que é uma árvore de
+ * React diferente da que atenderia a rota. Uma navegação de verdade é o que
+ * garante que o servidor veja o `token_hash` e crie a sessão.
+ *
+ * SÓ ACEITA O NOSSO DOMÍNIO. A checagem parece redundante — o iOS só entrega
+ * links que o apple-app-site-association reivindica — mas é ela que impede que
+ * um dia alguém amplie o escopo daquele arquivo e transforme isto num
+ * redirecionador aberto.
+ *
+ * Devolve a função que desliga o ouvinte.
+ */
+export async function aoAbrirPorLink(): Promise<() => void> {
+  if (!ehAppIOSNoNavegador()) return () => {};
+
+  try {
+    const { App } = await import("@capacitor/app");
+    const ouvinte = await App.addListener("appUrlOpen", ({ url }) => {
+      let destino: URL;
+      try {
+        destino = new URL(url);
+      } catch {
+        return;
+      }
+      if (destino.host !== window.location.host) return;
+      window.location.href = destino.pathname + destino.search;
+    });
+    return () => void ouvinte.remove();
+  } catch {
+    // App antigo, sem o plugin embarcado.
+    return () => {};
+  }
+}

@@ -1,6 +1,10 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createServiceClient } from "@/lib/supabase/service";
-import { assinaturaVencida, trialVencido, planoEfetivo } from "@/lib/assinatura";
+import {
+  assinaturaVencida,
+  trialVencido,
+  planoEfetivo,
+} from "@/lib/assinatura";
 import { enderecoExiste } from "@/lib/rotas-existentes";
 import { PLANO_GRATUITO, modulosLiberados } from "@/lib/planos";
 import { moduloExigidoPor } from "@/lib/rotas-modulos";
@@ -34,6 +38,10 @@ const ALWAYS_PUBLIC_ROUTES = [
   "/auth/confirmar",
   "/afiliados",
   "/conta-excluida",
+  // Aterrissagem de quem confirmou o e-mail fora do aplicativo. Pública
+  // porque a pessoa chega com sessão recém-criada e não pode cair no gate de
+  // assinatura antes de ler a instrução.
+  "/email-confirmado",
   "/",
 ];
 
@@ -233,10 +241,7 @@ export async function updateSession(request: NextRequest) {
    * landing pela mesma busca. Voltar para "/" é de graça — quem chegou aqui
    * pelo navegador não perde nada.
    */
-  if (
-    pathname === "/comecar" &&
-    !ehAppIOS(request.headers.get("user-agent"))
-  ) {
+  if (pathname === "/comecar" && !ehAppIOS(request.headers.get("user-agent"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     url.search = "";
@@ -277,8 +282,7 @@ export async function updateSession(request: NextRequest) {
     // pessoa não teria como assinar: ela pediu para pagar, então vai pro
     // checkout. (Trocar de plano com assinatura em dia é outra conversa, e
     // ainda não existe.)
-    const indoPagar =
-      pathname === "/cadastro" && url.searchParams.has("plano");
+    const indoPagar = pathname === "/cadastro" && url.searchParams.has("plano");
     url.pathname = indoPagar ? "/assinar" : "/dashboard";
 
     // O plano SÓ é descartado quando o destino é o painel, onde ele não
@@ -313,7 +317,9 @@ export async function updateSession(request: NextRequest) {
      */
     const { data: empresa } = await supabase
       .from("empresas")
-      .select("id, onboarding_concluido, suspensa_em, modulos_ativos, assinaturas(*)")
+      .select(
+        "id, onboarding_concluido, suspensa_em, modulos_ativos, assinaturas(*)",
+      )
       .eq("user_id", user.id)
       .maybeSingle();
 

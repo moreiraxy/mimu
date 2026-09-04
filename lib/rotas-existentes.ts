@@ -39,6 +39,7 @@ export const AREAS_DO_APP = [
   "conta-excluida",
   "conta-suspensa",
   "dashboard",
+  "email-confirmado",
   "estoque",
   "faturamento",
   "financeiro",

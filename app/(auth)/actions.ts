@@ -108,6 +108,16 @@ export async function signUp(
         nome_completo: nomeCompleto,
         nome_negocio: nomeNegocio,
         plano_escolhido: plano,
+        /*
+         * De onde veio o cadastro, guardado para a CONFIRMAÇÃO saber.
+         *
+         * O link do e-mail abre no navegador, não no aplicativo — e naquele
+         * momento não há como descobrir onde a pessoa se cadastrou. Sem esta
+         * marca, quem se cadastrou pelo app e confirmou no Safari cairia no
+         * site logada, enquanto o aplicativo continua deslogado (os cookies
+         * são separados), sem nenhuma explicação. Ver app/auth/confirmar.
+         */
+        cadastro_no_app: ehAppIOS(headers().get("user-agent")),
       },
       emailRedirectTo: `${origin}/onboarding`,
     },

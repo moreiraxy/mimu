@@ -55,7 +55,9 @@ export async function GET(request: NextRequest) {
    * é a fonte única do endereço público do produto.
    */
   const paraRota = (caminho: string, erro?: string) =>
-    NextResponse.redirect(urlAbsoluta(erro ? `${caminho}?erro=${erro}` : caminho));
+    NextResponse.redirect(
+      urlAbsoluta(erro ? `${caminho}?erro=${erro}` : caminho),
+    );
 
   const paraLogin = (motivo: string) => paraRota("/login", motivo);
 
@@ -83,11 +85,34 @@ export async function GET(request: NextRequest) {
     return paraRota("/redefinir-senha");
   }
 
+  const noApp = ehAppIOS(request.headers.get("user-agent"));
+
+  /*
+   * Cadastrou no aplicativo e confirmou no navegador.
+   *
+   * É o caminho normal hoje, e não a exceção: o link do e-mail é um https
+   * comum, então o iOS o entrega ao navegador padrão. O problema é que a
+   * WKWebView do Capacitor tem cookies SEPARADOS do Safari — a sessão que
+   * acabou de nascer aqui não existe dentro do aplicativo, e voltar para ele
+   * mostra a tela de começar como se o cadastro tivesse falhado.
+   *
+   * Mandar essa pessoa para o produto no navegador seria pior do que parece:
+   * ela usaria a Mimu no Safari achando que é o app, e o app continuaria
+   * inútil no aparelho dela.
+   *
+   * O conserto de verdade é o Universal Link, que faz o toque no e-mail abrir
+   * o aplicativo — e exige versão nova na loja. Até lá, esta tela ao menos
+   * explica.
+   */
+  if (data.user.user_metadata?.cadastro_no_app && !noApp) {
+    return paraRota("/email-confirmado");
+  }
+
   const destino = await destinoAposLogin(
     supabase,
     data.user.id,
     // Dentro do app iOS o destino nunca pode ser o checkout próprio.
-    ehAppIOS(request.headers.get("user-agent")),
+    noApp,
   );
   return paraRota(destino);
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Faz o iOS abrir a Mimu no lugar do Safari nos links de mimu.pro que o
+	  apple-app-site-association reivindica (hoje, só as rotas de autenticação).
+
+	  Sem isto, o link de confirmação de e-mail abre no navegador, a sessão
+	  nasce lá, e o aplicativo continua deslogado — a WKWebView tem cookies
+	  separados do Safari. Era o que impedia concluir um cadastro feito no app.
+
+	  As DUAS pontas precisam existir: esta chave e o arquivo servido em
+	  mimu.pro/.well-known/apple-app-site-association. O iOS o busca na
+	  instalação do app e guarda o resultado.
+	-->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:mimu.pro</string>
+	</array>
+</dict>
+</plist>
