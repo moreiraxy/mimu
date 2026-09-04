@@ -34,6 +34,13 @@ type Periodo = "mensal" | "anual";
  * com a Mimu" no Pro e no Premium enquanto o app cortava em 150 e 500. Era
  * propaganda que o produto não cumpria, e ninguém ia descobrir lendo o código
  * do app — a promessa mora aqui, a regra mora lá.
+ *
+ * Pelo mesmo motivo o WhatsApp aparece nos TRÊS cartões. Era vendido como
+ * exclusivo do Premium e nunca foi: `verificarAcesso` barra suspensão,
+ * assinatura encerrada, módulo de IA desligado e cota do dia — plano nenhum.
+ * Qualquer conta com a assistente ligada, inclusive a gratuita, fala com a
+ * Mimu pelo WhatsApp. Se um dia isso virar exclusivo de verdade, o lugar de
+ * começar é lib/mimu/acesso.ts, não esta lista.
  */
 const PLANOS = [
   {
@@ -46,6 +53,7 @@ const PLANOS = [
       "Os 5 módulos liberados nos 7 dias",
       "Depois segue grátis: caixa e Mimu",
       "10 mensagens por dia com a Mimu",
+      "Fale com a Mimu no seu WhatsApp",
       "Alertas inteligentes e novidades",
     ],
     destaque: false,
@@ -62,6 +70,7 @@ const PLANOS = [
     features: [
       "Os 5 módulos liberados",
       "40 mensagens por dia com a Mimu",
+      "Fale com a Mimu no seu WhatsApp",
       "Suporte 24 horas por WhatsApp",
       "Grupo VIP com as novidades primeiro",
       "Alertas inteligentes e novidades",
@@ -74,13 +83,13 @@ const PLANOS = [
   {
     id: "premium",
     nome: "Premium",
-    subtitulo: "Pra quem quer a Mimu junto o dia inteiro, inclusive no WhatsApp",
+    subtitulo: "Pra quem usa a Mimu como operação, e conversa com ela o dia inteiro",
     preco: { mensal: "R$ 199", anual: "R$ 1.990" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Os 5 módulos liberados",
       "120 mensagens por dia com a Mimu",
-      "Fale com a Mimu direto no seu WhatsApp",
+      "Fale com a Mimu no seu WhatsApp",
       "Suporte 24 horas por WhatsApp",
       "Grupo VIP com as novidades primeiro",
       "Alertas inteligentes e novidades",
