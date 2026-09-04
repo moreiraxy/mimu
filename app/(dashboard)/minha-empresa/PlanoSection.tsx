@@ -72,9 +72,9 @@ export function PlanoSection() {
     }
 
     setAbrindo(true);
-    const resultado = await window.MimuIAP!.comprar(
-      PRODUTO_IAP.pro.mensal,
-    ).catch(() => ({ ok: false, erro: "falhou" }));
+    const resultado = await window.MimuIAP!.comprar({
+      produtoId: PRODUTO_IAP.pro.mensal,
+    }).catch(() => ({ ok: false, erro: "falhou" }));
     setAbrindo(false);
 
     if (!resultado.ok) {

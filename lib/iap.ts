@@ -14,6 +14,13 @@ import type { PlanoPago, Periodicidade } from "@/lib/planos";
  * o botão. Botão que não faz nada é pior do que botão nenhum, e num app de
  * assinatura é pior ainda — a pessoa toca em "assinar", nada acontece, e o que
  * ela conclui é que o produto está quebrado.
+ *
+ * OS ARGUMENTOS VÃO EM OBJETO, e não soltos. O proxy do `registerPlugin` do
+ * Capacitor manda o PRIMEIRO argumento inteiro como o dicionário de options do
+ * plugin, e o Swift lê `call.getString("produtoId")`. Passar a string crua
+ * entrega um options que não é dicionário: `produtoId` chega nulo, o nativo
+ * devolve `produto_ausente` e a tela trata como desistência. A compra nunca
+ * abre, e ninguém vê erro nenhum.
  */
 export interface PonteIAP {
   /**
@@ -23,7 +30,7 @@ export interface PonteIAP {
    * Mandar valor do JavaScript seria a mesma falha que lib/planos.ts já evita
    * no checkout próprio — quem manda o preço manda o preço que quiser.
    */
-  comprar(produtoId: string): Promise<ResultadoCompra>;
+  comprar(opcoes: { produtoId: string }): Promise<ResultadoCompra>;
   /**
    * O preço do produto, JÁ formatado pela Apple ("R$ 39,90", "US$ 7.99").
    *
@@ -35,7 +42,7 @@ export interface PonteIAP {
    * Vem formatado da Apple de propósito, e não como número: ela já sabe a
    * moeda e o formato da região de quem está olhando, e nós não.
    */
-  precoFormatado(produtoId: string): Promise<string | null>;
+  precoFormatado(opcoes: { produtoId: string }): Promise<string | null>;
   /**
    * Recupera uma assinatura que a Apple já conhece.
    *
