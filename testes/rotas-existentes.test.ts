@@ -36,7 +36,16 @@ function areasNoDisco(dir: string = RAIZ): Set<string> {
 
     // `_pasta` e `api` não entram: a primeira é convenção de "não é rota", e a
     // segunda é tratada à parte em `enderecoExiste`.
-    if (nome.startsWith("_") || nome === "api") continue;
+    //
+    // `.well-known` sai pelo mesmo motivo que `api`, e a razão é o matcher do
+    // middleware: ele exclui `.well-known/`, então `enderecoExiste` nunca é
+    // consultado para esse caminho e a lista não tem o que dizer sobre ele.
+    // Quem busca o apple-app-site-association é o iOS, sem sessão — a escolha
+    // entre 404 e desvio para o login, que é a única coisa que AREAS_DO_APP
+    // decide, não se aplica.
+    if (nome.startsWith("_") || nome === "api" || nome === ".well-known") {
+      continue;
+    }
 
     if (ehGrupoDeRota(nome)) {
       for (const area of areasNoDisco(caminho)) achadas.add(area);
