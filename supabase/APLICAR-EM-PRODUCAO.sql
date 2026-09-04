@@ -1,5 +1,5 @@
 -- ============================================================================
--- MIMU — as duas migrations pendentes, num arquivo só
+-- MIMU — a migration pendente: push do aplicativo iOS
 -- ============================================================================
 --
 -- Para rodar SEM instalar nada: abra o SQL Editor do Supabase, cole este
@@ -7,155 +7,103 @@
 --
 --   https://supabase.com/dashboard/project/yzebafhugbctcdomtxry/sql/new
 --
--- RODE ISTO ANTES DE O CÓDIGO NOVO SUBIR. Não é recomendação de ordem: a
--- gravação de toda mensagem da Mimu passa a mandar a coluna `canal`, e num
--- banco sem ela o insert é recusado. Sem esta migration, o chat da Mimu para
--- de responder — no app e no WhatsApp.
+-- Corresponde a supabase/migrations/20260904190000_push_apns.sql, já aplicada
+-- e conferida no banco local.
 --
--- TUDO OU NADA. O arquivo roda dentro de uma transação: se qualquer comando
--- falhar, o Postgres desfaz o resto sozinho e o banco fica exatamente como
--- estava. Não existe meio caminho.
+-- RODE ISTO ANTES DE O CÓDIGO NOVO SUBIR, e desta vez a ordem é menos dramática
+-- do que da última: o `lib/push.ts` novo GRAVA a coluna `tipo` a cada inscrição
+-- de push. Num banco sem ela, quem aceitar receber notificação recebe erro 500
+-- e não fica inscrito. O que já está inscrito continua funcionando — a leitura
+-- degrada sozinha, porque `tipo` ausente cai no caminho web, que é o de hoje.
 --
--- O QUE ELE MEXE EM DADO DE CLIENTE: um único UPDATE, que entrega a assistente
--- às contas gratuitas que já existem. Ele não tira nada de ninguém e não toca
--- em conta paga. Para saber de antemão quantas contas ele alcança:
+-- TUDO OU NADA. Roda dentro de uma transação: se qualquer comando falhar, o
+-- Postgres desfaz o resto sozinho e o banco fica exatamente como estava.
 --
---   select count(*) from public.empresas e
---    where not (e.modulos_ativos @> array['ia'])
---      and exists (select 1 from public.assinaturas a
---                   where a.empresa_id = e.id and a.plano = 'free');
+-- O QUE ELE MEXE EM DADO DE CLIENTE: nada. Nenhum UPDATE, nenhum DELETE. Só
+-- acrescenta uma coluna com valor padrão e afrouxa duas obrigatoriedades.
+--
+-- POR QUE É BARATO MESMO COM A TABELA CHEIA: `add column ... default` não
+-- reescreve a tabela desde o Postgres 11 — o padrão fica no catálogo. O
+-- `drop not null` é instantâneo. Só o `check` novo varre as linhas existentes,
+-- e push_subscriptions tem uma linha por aparelho inscrito.
 --
 -- ============================================================================
 
 begin;
 
 -- ----------------------------------------------------------------------------
--- Trava contra rodar duas vezes
+-- 20260904190000 — dois transportes de push na mesma tabela
 -- ----------------------------------------------------------------------------
 --
--- Rodar de novo já seria seguro (a transação desfaz tudo), mas a mensagem de
--- erro pareceria defeito. Isto troca por um aviso que explica.
-do $ja_rodou$
-begin
-  if exists (
-    select from information_schema.columns
-     where table_schema = 'public'
-       and table_name = 'conversas_mimu'
-       and column_name = 'canal'
-  ) then
-    raise exception
-      'Estas migrations JA foram aplicadas neste banco. Nada foi alterado.'
-      using hint = 'Confira com: select column_name from information_schema.columns where table_name = ''conversas_mimu'';';
-  end if;
-end
-$ja_rodou$;
+-- O Web Push não funciona dentro do aplicativo: a WKWebView não expõe
+-- `PushManager`, e a inscrição nem chega a ser criada. Quem abre pelo Safari
+-- continua no caminho de sempre; quem abre pelo app precisa do APNs, que usa
+-- um token de aparelho e não tem par de chaves.
+--
+-- Uma tabela só, e não duas, porque quem dispara um alerta quer avisar A
+-- EMPRESA — não "os navegadores e depois os iPhones dela". Com tabelas
+-- separadas, cada consumidor precisaria lembrar das duas, e no dia que alguém
+-- esquecesse metade das pessoas não receberia nada, sem erro em lugar nenhum.
 
--- ----------------------------------------------------------------------------
--- Trava contra rodar FORA DE ORDEM
--- ----------------------------------------------------------------------------
---
--- A primeira migration mexe numa constraint de `auth_rate_limit` que só existe
--- depois do lote anterior (o do WhatsApp). Sem esta checagem, o erro seria um
--- "constraint does not exist" que não diz o que fazer.
-do $lote_anterior$
+do $$
 begin
   if not exists (
-    select from pg_tables
-     where schemaname = 'public' and tablename = 'whatsapp_links'
+    select 1 from information_schema.columns
+     where table_schema = 'public'
+       and table_name = 'push_subscriptions'
+       and column_name = 'tipo'
   ) then
-    raise exception
-      'O lote anterior de migrations (o do WhatsApp) ainda nao foi aplicado.'
-      using hint = 'Aplique primeiro aquele arquivo; este depende dele.';
+    alter table public.push_subscriptions
+      add column tipo text not null default 'web'
+      check (tipo in ('web', 'apns'));
   end if;
-end
-$lote_anterior$;
+end $$;
 
--- ============================================================================
--- 20260831210000 — cota diária da Mimu
--- ============================================================================
---
--- `auth_rate_limit.tipo` tem check constraint. Um tipo novo declarado só no
--- TypeScript faz o insert falhar — e falha em SILÊNCIO, porque quem registra a
--- tentativa engole o erro de propósito (o limite não pode derrubar uma resposta
--- da Mimu). O resultado seria a cota nunca subir de zero: toda conta com o dia
--- inteiro livre, para sempre, sem nada no log dizendo isso.
+-- Deixam de ser obrigatórias porque o APNs não tem par de chaves. A coerência
+-- não some: volta abaixo, por transporte.
+alter table public.push_subscriptions alter column p256dh drop not null;
+alter table public.push_subscriptions alter column auth drop not null;
 
-alter table public.auth_rate_limit
-  drop constraint if exists auth_rate_limit_tipo_check;
+-- Inscrição web SEM as chaves é inútil — o envio falharia na hora de cifrar.
+-- Melhor recusar na gravação do que descobrir no alerta que não chegou.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+     where conname = 'push_subscriptions_web_exige_chaves'
+  ) then
+    alter table public.push_subscriptions
+      add constraint push_subscriptions_web_exige_chaves
+      check (tipo <> 'web' or (p256dh is not null and auth is not null));
+  end if;
+end $$;
 
-alter table public.auth_rate_limit
-  add constraint auth_rate_limit_tipo_check
-  check (tipo in ('login', 'cadastro', 'chat_ia', 'recuperar_senha', 'whatsapp_vinculo', 'mimu_dia'));
+comment on column public.push_subscriptions.tipo is
+  'Transporte: web (Web Push + VAPID) ou apns (aplicativo iOS). Define como endpoint é lido.';
 
-comment on column public.auth_rate_limit.tipo is
-  'Qual teto esta linha conta. ''mimu_dia'' é a cota diária de mensagens da Mimu, identificada pela EMPRESA (e não pelo usuário) porque vale somando app e WhatsApp. Os valores por plano vivem em lib/planos.ts.';
-
--- As contas gratuitas que já existem precisam RECEBER a assistente.
---
--- O acesso real é a interseção de duas listas: `modulos_ativos`, que é o que a
--- dona escolheu, e o teto do plano. Abrir o teto sem mexer na escolha não muda
--- nada para quem já está aqui — e não muda porque a escolha nunca aconteceu:
--- para uma conta gratuita a Mimu não aparecia na tela de módulos, então não
--- havia como marcá-la. A lista delas diz "não quero" quando na verdade diz
--- "nunca me perguntaram".
---
--- Por isso só as gratuitas. Uma conta paga que tem 'ia' fora da lista fez uma
--- escolha de verdade, num lugar onde a opção estava visível.
-update public.empresas e
-set modulos_ativos = array_append(e.modulos_ativos, 'ia')
-where not (e.modulos_ativos @> array['ia'])
-  and exists (
-    select 1
-    from public.assinaturas a
-    where a.empresa_id = e.id
-      and a.plano = 'free'
-  );
-
--- ============================================================================
--- 20260901190000 — de onde veio cada mensagem da conversa
--- ============================================================================
---
--- O histórico do chat mistura, na mesma linha do tempo, o que foi digitado no
--- app e o que foi mandado pelo WhatsApp — e é assim que tem que ser: é a mesma
--- Mimu, com a mesma memória. O que faltava era PODER DIZER de onde cada
--- mensagem veio, para a tela de conversas recentes mostrar a origem. A pessoa
--- não lembra de ter falado "com a Mimu"; ela lembra de ter falado no WhatsApp.
---
--- `default 'app'` cobre tudo que já existe: antes desta coluna, o único canal
--- que gravava aqui pelo app era o app.
-
-alter table public.conversas_mimu
-  add column if not exists canal text not null default 'app'
-  check (canal in ('app', 'whatsapp'));
-
-comment on column public.conversas_mimu.canal is
-  'Por onde a mensagem passou. Serve à tela de conversas recentes; a Mimu lê o histórico inteiro independente do canal.';
-
-create index if not exists conversas_mimu_canal_idx
-  on public.conversas_mimu (empresa_id, canal, created_at desc);
-
--- ----------------------------------------------------------------------------
--- Marca as duas como aplicadas, para o CLI não tentar de novo
--- ----------------------------------------------------------------------------
-insert into supabase_migrations.schema_migrations (version, name)
-values
-  ('20260831210000', 'cota_diaria_mimu'),
-  ('20260901190000', 'canal_da_conversa')
-on conflict (version) do nothing;
+comment on table public.push_subscriptions is
+  'Inscrições de push por dispositivo. Web Push (navegador) e APNs (app iOS) na mesma tabela.';
 
 commit;
 
 -- ============================================================================
--- Conferência — rode DEPOIS, separado
+-- CONFERÊNCIA — rode depois, e leia o resultado
 -- ============================================================================
 --
--- select column_name from information_schema.columns
---  where table_name = 'conversas_mimu' and column_name = 'canal';
+-- select column_name, is_nullable, column_default
+--   from information_schema.columns
+--  where table_schema = 'public' and table_name = 'push_subscriptions'
+--    and column_name in ('tipo', 'p256dh', 'auth');
+--
+--   -> tipo    NO   'web'::text
+--   -> p256dh  YES
+--   -> auth    YES
+--
+-- select conname from pg_constraint
+--  where conname = 'push_subscriptions_web_exige_chaves';
+--
 --   -> tem que devolver uma linha
 --
--- select pg_get_constraintdef(oid) from pg_constraint
---  where conname = 'auth_rate_limit_tipo_check';
---   -> tem que incluir 'mimu_dia'
+-- select tipo, count(*) from public.push_subscriptions group by tipo;
 --
--- select count(*) from public.empresas where modulos_ativos @> array['ia'];
---   -> tem que ser >= o número de contas gratuitas
+--   -> tudo que já existia vira 'web', que é o que essas linhas sempre foram
