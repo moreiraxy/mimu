@@ -670,6 +670,121 @@ async function registrarEvento(tipo, dados = {}) {
 
 // lib/push.ts
 var import_web_push = __toESM(require("web-push"));
+
+// lib/push-apns.ts
+var import_node_crypto = require("node:crypto");
+var import_node_http2 = require("node:http2");
+function credenciais() {
+  const keyId = process.env.APNS_KEY_ID;
+  const teamId = process.env.APNS_TEAM_ID;
+  const chave = process.env.APNS_PRIVATE_KEY;
+  const topico = process.env.APNS_TOPIC;
+  if (!keyId || !teamId || !chave || !topico) {
+    console.error(
+      "APNs desativado: falta " + [
+        !keyId && "APNS_KEY_ID",
+        !teamId && "APNS_TEAM_ID",
+        !chave && "APNS_PRIVATE_KEY",
+        !topico && "APNS_TOPIC"
+      ].filter(Boolean).join(", ") + " no ambiente. Nenhuma notifica\xE7\xE3o chega ao aplicativo iOS."
+    );
+    return null;
+  }
+  return { keyId, teamId, chave: chave.replace(/\\n/g, "\n"), topico };
+}
+function base64url(valor) {
+  return Buffer.from(valor).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+var crachaEmCache = null;
+function cracha(c) {
+  const agora = Math.floor(Date.now() / 1e3);
+  if (crachaEmCache && crachaEmCache.expiraEm > agora)
+    return crachaEmCache.valor;
+  const cabecalho = base64url(
+    JSON.stringify({ alg: "ES256", kid: c.keyId, typ: "JWT" })
+  );
+  const corpo = base64url(JSON.stringify({ iss: c.teamId, iat: agora }));
+  const assinatura = (0, import_node_crypto.createSign)("SHA256").update(`${cabecalho}.${corpo}`).sign({ key: c.chave, dsaEncoding: "ieee-p1363" });
+  const valor = `${cabecalho}.${corpo}.${base64url(assinatura)}`;
+  crachaEmCache = { valor, expiraEm: agora + 50 * 60 };
+  return valor;
+}
+async function enviarApns(token, aviso) {
+  const c = credenciais();
+  if (!c) return { ok: false, motivo: "indisponivel" };
+  const carga = JSON.stringify({
+    aps: {
+      alert: { title: aviso.titulo, body: aviso.corpo },
+      sound: "default"
+    },
+    // Lido pelo app ao tocar na notificação. O padrão é o painel, igual ao
+    // que public/sw.js faz no Web Push.
+    destino: aviso.destino ?? "/dashboard"
+  });
+  for (const host of [
+    "https://api.push.apple.com",
+    "https://api.sandbox.push.apple.com"
+  ]) {
+    const r = await enviarPara(host, token, carga, c);
+    if (r.ok) return r;
+    if (r.motivo !== "BadDeviceToken" && r.motivo !== "DeviceTokenNotForTopic") {
+      return r;
+    }
+  }
+  return { ok: false, motivo: "BadDeviceToken", descartar: true };
+}
+function enviarPara(host, token, carga, c) {
+  return new Promise((resolve) => {
+    const cliente = (0, import_node_http2.connect)(host);
+    const relogio = setTimeout(() => {
+      cliente.destroy();
+      resolve({ ok: false, motivo: "timeout" });
+    }, 1e4);
+    const encerrar = (r) => {
+      clearTimeout(relogio);
+      cliente.close();
+      resolve(r);
+    };
+    cliente.on(
+      "error",
+      (erro) => encerrar({ ok: false, motivo: `conexao: ${erro.message}` })
+    );
+    const req = cliente.request({
+      ":method": "POST",
+      ":path": `/3/device/${token}`,
+      authorization: `bearer ${cracha(c)}`,
+      "apns-topic": c.topico,
+      "apns-push-type": "alert",
+      "apns-priority": "10",
+      "content-type": "application/json",
+      "content-length": Buffer.byteLength(carga)
+    });
+    let status = 0;
+    let corpo = "";
+    req.on("response", (cab) => {
+      status = Number(cab[":status"]) || 0;
+    });
+    req.on("data", (p) => corpo += p);
+    req.on(
+      "error",
+      (erro) => encerrar({ ok: false, motivo: `envio: ${erro.message}` })
+    );
+    req.on("end", () => {
+      if (status === 200) return encerrar({ ok: true });
+      const motivo = JSON.parse(corpo || "{}").reason ?? `http ${status}`;
+      encerrar({
+        ok: false,
+        motivo,
+        // 410 é a Apple dizendo que o token morreu. Guardá-lo só faria o
+        // próximo disparo gastar uma chamada para receber o mesmo 410.
+        descartar: status === 410 || motivo === "BadDeviceToken"
+      });
+    });
+    req.end(carga);
+  });
+}
+
+// lib/push.ts
 var vapidConfigurado = false;
 function configurarVapid() {
   if (vapidConfigurado) return true;
@@ -677,7 +792,10 @@ function configurarVapid() {
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   if (!publicKey || !privateKey) {
     console.error(
-      "Push desativado: falta " + [!publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY", !privateKey && "VAPID_PRIVATE_KEY"].filter(Boolean).join(" e ") + " no ambiente. Nenhuma notifica\xE7\xE3o sai enquanto isso."
+      "Push desativado: falta " + [
+        !publicKey && "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+        !privateKey && "VAPID_PRIVATE_KEY"
+      ].filter(Boolean).join(" e ") + " no ambiente. Nenhuma notifica\xE7\xE3o sai enquanto isso."
     );
     return false;
   }
@@ -690,6 +808,28 @@ function configurarVapid() {
   return true;
 }
 async function enviarPushParaEmpresa(supabase, empresaId, payload) {
+  const { data: inscricoes } = await supabase.from("push_subscriptions").select("*").eq("empresa_id", empresaId);
+  if (!inscricoes || inscricoes.length === 0) return;
+  const paraApns = inscricoes.filter((i) => i.tipo === "apns");
+  const paraWeb = inscricoes.filter((i) => i.tipo !== "apns");
+  await Promise.all(
+    paraApns.map(async (inscricao) => {
+      const r = await enviarApns(inscricao.endpoint, {
+        titulo: payload.title,
+        corpo: payload.body,
+        destino: payload.url
+      });
+      if (r.descartar) {
+        await supabase.from("push_subscriptions").delete().eq("id", inscricao.id);
+      } else if (!r.ok && r.motivo !== "indisponivel") {
+        console.error("APNs recusou a notifica\xE7\xE3o.", {
+          empresaId,
+          motivo: r.motivo
+        });
+      }
+    })
+  );
+  if (paraWeb.length === 0) return;
   if (!configurarVapid()) {
     await registrarEvento("push_falhou", {
       empresaId,
@@ -697,10 +837,9 @@ async function enviarPushParaEmpresa(supabase, empresaId, payload) {
     });
     return;
   }
-  const { data: inscricoes } = await supabase.from("push_subscriptions").select("*").eq("empresa_id", empresaId);
-  if (!inscricoes || inscricoes.length === 0) return;
   await Promise.all(
-    inscricoes.map(async (inscricao) => {
+    paraWeb.map(async (inscricao) => {
+      if (!inscricao.p256dh || !inscricao.auth) return;
       try {
         await import_web_push.default.sendNotification(
           {
@@ -763,7 +902,7 @@ async function avisarAdmins(payload) {
 }
 
 // lib/supabase/como-usuario.ts
-var import_node_crypto = require("node:crypto");
+var import_node_crypto2 = require("node:crypto");
 var import_supabase_js2 = require("@supabase/supabase-js");
 
 // lib/supabase/identidade.ts
@@ -773,13 +912,13 @@ function comIdentidade(client) {
 
 // lib/supabase/como-usuario.ts
 var VALIDADE_SEGUNDOS = 60;
-function base64url(dado) {
+function base64url2(dado) {
   return Buffer.from(dado).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 function assinarToken(userId, segredo) {
   const agora = Math.floor(Date.now() / 1e3);
-  const cabecalho = base64url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-  const corpo = base64url(
+  const cabecalho = base64url2(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const corpo = base64url2(
     JSON.stringify({
       // `sub` é o que vira `auth.uid()` no banco. É o campo inteiro.
       sub: userId,
@@ -791,8 +930,8 @@ function assinarToken(userId, segredo) {
       exp: agora + VALIDADE_SEGUNDOS
     })
   );
-  const assinatura = base64url(
-    (0, import_node_crypto.createHmac)("sha256", segredo).update(`${cabecalho}.${corpo}`).digest()
+  const assinatura = base64url2(
+    (0, import_node_crypto2.createHmac)("sha256", segredo).update(`${cabecalho}.${corpo}`).digest()
   );
   return `${cabecalho}.${corpo}.${assinatura}`;
 }

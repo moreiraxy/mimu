@@ -1,4 +1,3 @@
-import "server-only";
 import { createSign } from "node:crypto";
 import { connect } from "node:http2";
 
@@ -9,6 +8,13 @@ import { connect } from "node:http2";
  * a WKWebView não expõe `PushManager`, e a inscrição nem chega a ser criada.
  * Quem abre a Mimu pelo Safari continua no Web Push; quem abre pelo app
  * depende deste arquivo.
+ *
+ * SEM `import \"server-only\"`, e não por descuido: lib/push.ts importa este
+ * arquivo e é alcançado por testes que rodam fora do ambiente de servidor do
+ * Next. A guarda derrubava dois deles na carga, antes de qualquer asserção. O
+ * que impede este código de ir para o navegador é o mesmo que já protege
+ * lib/push.ts: ninguém o importa de componente de cliente, e `node:http2` não
+ * existe lá.
  *
  * HTTP/2 É OBRIGATÓRIO, e é a primeira pedra do caminho. O APNs recusa
  * HTTP/1.1, e o `fetch` do Node só fala 1.1 — a tentação de escrever
