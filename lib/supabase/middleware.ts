@@ -8,7 +8,14 @@ import type { ModuloAtivo } from "@/types";
 import { ehAppIOS } from "@/lib/plataforma";
 import { NextResponse, type NextRequest } from "next/server";
 
-const GUEST_ONLY_ROUTES = ["/login", "/cadastro", "/recuperar-senha"];
+const GUEST_ONLY_ROUTES = [
+  "/login",
+  "/cadastro",
+  "/recuperar-senha",
+  // A tela de abertura do aplicativo. Guest-only porque quem já tem sessão
+  // não tem o que fazer numa tela cujas duas saídas são entrar e cadastrar.
+  "/comecar",
+];
 
 // /redefinir-senha depende de um token de recuperação que chega no #hash da
 // URL — o servidor nunca vê esse hash, então essa rota fica de fora tanto da
@@ -134,6 +141,29 @@ export async function updateSession(request: NextRequest) {
     // landing page (next.config.mjs) e aquela página deixou de ser servida —
     // se ficasse lá, a regra simplesmente sumiria sem ninguém perceber.
     /*
+     * DENTRO DO APLICATIVO, a raiz nunca é a página de vendas.
+     *
+     * Quem baixou o app já foi convencida; abrir num anúncio é pedir que ela se
+     * convença de novo. E a diretriz 4.2 da Apple lê exatamente isso — abrir
+     * numa página de marketing — como "site embrulhado".
+     *
+     * Há um segundo motivo, menos óbvio e mais caro: a landing mostra PREÇOS e
+     * leva ao nosso checkout. Dentro do app iOS isso é caminho de compra fora
+     * do In-App Purchase, que é a diretriz 3.1.1 — a mesma que
+     * ROTAS_DE_PAGAMENTO_PROPRIO já bloqueia mais abaixo. Deixar a landing
+     * aparecer aqui abriria pela porta da frente o que aquele bloqueio fecha.
+     *
+     * Por isso este desvio vem ANTES do `?sair=1`: no aplicativo não existe
+     * "quero ver o site". Na web nada muda.
+     */
+    if (ehAppIOS(request.headers.get("user-agent")) && pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = user ? "/dashboard" : "/comecar";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
+    /*
      * ...MENOS quem pediu explicitamente para ver o site.
      *
      * Quem está com o teste vencido ou a conta suspensa era mandada daqui para
@@ -188,6 +218,29 @@ export async function updateSession(request: NextRequest) {
       url.search = "";
       return NextResponse.redirect(url);
     }
+  }
+
+  /*
+   * /comecar só existe dentro do aplicativo.
+   *
+   * Ela é a tela de abertura de quem abriu o app sem sessão — na web, esse
+   * papel é da landing, que tem o que a visitante ainda precisa: preço, prova
+   * social, o que o produto faz. Servir a versão enxuta para quem chega pelo
+   * navegador seria oferecer menos a quem ainda não decidiu.
+   *
+   * Sem isto a rota fica pública por acidente: existiria um endereço do site
+   * que ninguém linka, o buscador acabaria achando, e ele competiria com a
+   * landing pela mesma busca. Voltar para "/" é de graça — quem chegou aqui
+   * pelo navegador não perde nada.
+   */
+  if (
+    pathname === "/comecar" &&
+    !ehAppIOS(request.headers.get("user-agent"))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   const isGuestOnlyRoute = GUEST_ONLY_ROUTES.includes(pathname);

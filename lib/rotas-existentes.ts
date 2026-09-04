@@ -34,6 +34,7 @@ export const AREAS_DO_APP = [
   "bem-vindo",
   "cadastro",
   "clientes",
+  "comecar",
   "compras",
   "conta-excluida",
   "conta-suspensa",
