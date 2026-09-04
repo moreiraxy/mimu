@@ -19,7 +19,12 @@
   },
   "dependencies": {
     "@capacitor/core": "^6.2.1",
+    "@capacitor/haptics": "^6.0.3",
     "@capacitor/ios": "^6.2.1",
+    "@capacitor/keyboard": "^6.0.4",
+    "@capacitor/push-notifications": "^6.0.5",
+    "@capacitor/splash-screen": "^6.0.4",
+    "@capacitor/status-bar": "^6.0.3",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.47.10",
     "baileys": "~6.7.24",
@@ -41,6 +46,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^6.2.1",
     "@types/node": "^20.17.9",
     "@types/qrcode-terminal": "^0.12.2",

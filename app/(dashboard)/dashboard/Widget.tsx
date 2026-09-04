@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { vibrar } from "@/lib/nativo";
 
 const TEMPO_DE_SEGURAR = 450;
 
@@ -61,8 +62,11 @@ export function Widget({
         timer.current = window.setTimeout(() => {
           aoSegurar({ x: e.clientX, y: e.clientY });
           // Vibra ao abrir, como o sistema faz: é o sinal de que o gesto
-          // pegou, sem precisar olhar.
-          navigator.vibrate?.(12);
+          // pegou, sem precisar olhar. Passa por lib/nativo.ts porque
+          // `navigator.vibrate` NÃO EXISTE no iOS — a chamada não dava erro,
+          // simplesmente não fazia nada, e no aplicativo o menu abria sem
+          // nenhuma confirmação no dedo.
+          void vibrar();
           cancelar();
         }, TEMPO_DE_SEGURAR);
       }}
