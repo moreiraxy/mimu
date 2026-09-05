@@ -80,7 +80,7 @@ export function PainelDeWidgets({
           longa — sem isso, quem rolar até o fim perde o "Concluído" de vista e
           fica sem saber como sair.
         */
-        <div className="sticky top-0 z-20 -mx-4 mb-1 flex items-center justify-between px-4 py-3">
+        <div className="gruda-no-topo z-20 -mx-4 mb-1 flex items-center justify-between px-4 py-3">
           <p className="text-[22px] font-bold text-escuro">Editar widgets</p>
           <button
             type="button"
@@ -114,7 +114,6 @@ export function PainelDeWidgets({
             {conteudo(w.id, w.tamanho)}
           </Widget>
         ))}
-
       </div>
 
       {/*

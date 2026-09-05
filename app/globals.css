@@ -65,7 +65,7 @@
     --vidro-fundo-alpha: 0.62;
     /* No claro a quina se desenha com sombra, não com luz. */
     --vidro-linha: 15 15 15;
-    --vidro-linha-alpha: 0.10;
+    --vidro-linha-alpha: 0.1;
   }
 
   /*
@@ -271,7 +271,9 @@ html.trancado body::before {
    * propósito: translucidez SEM desfoque deixa o texto de trás atravessar o de
    * cima, e ler duas frases sobrepostas é o pior dos dois mundos.
    */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
     .vidro,
     .vidro-card,
     .vidro-pilula {
@@ -400,14 +402,34 @@ html.trancado body::before {
      * e ao monitor sem um segundo conjunto de valores para `md`.
      */
     background-image:
-      radial-gradient(87% 40% at 76% 9%,
-        rgb(204 255 0 / 0.24), rgb(204 255 0 / 0.11) 40%, rgb(204 255 0 / 0.03) 70%, rgb(204 255 0 / 0) 100%),
-      radial-gradient(79% 37% at 12% 14%,
-        rgb(45 190 140 / 0.20), rgb(45 190 140 / 0.09) 40%, rgb(45 190 140 / 0.025) 70%, rgb(45 190 140 / 0) 100%),
-      radial-gradient(77% 36% at 78% 44%,
-        rgb(204 255 0 / 0.16), rgb(204 255 0 / 0.07) 40%, rgb(204 255 0 / 0.02) 70%, rgb(204 255 0 / 0) 100%),
-      radial-gradient(78% 36% at 22% 94%,
-        rgb(45 190 140 / 0.12), rgb(45 190 140 / 0.05) 40%, rgb(45 190 140 / 0.015) 70%, rgb(45 190 140 / 0) 100%);
+      radial-gradient(
+        87% 40% at 76% 9%,
+        rgb(204 255 0 / 0.24),
+        rgb(204 255 0 / 0.11) 40%,
+        rgb(204 255 0 / 0.03) 70%,
+        rgb(204 255 0 / 0) 100%
+      ),
+      radial-gradient(
+        79% 37% at 12% 14%,
+        rgb(45 190 140 / 0.2),
+        rgb(45 190 140 / 0.09) 40%,
+        rgb(45 190 140 / 0.025) 70%,
+        rgb(45 190 140 / 0) 100%
+      ),
+      radial-gradient(
+        77% 36% at 78% 44%,
+        rgb(204 255 0 / 0.16),
+        rgb(204 255 0 / 0.07) 40%,
+        rgb(204 255 0 / 0.02) 70%,
+        rgb(204 255 0 / 0) 100%
+      ),
+      radial-gradient(
+        78% 36% at 22% 94%,
+        rgb(45 190 140 / 0.12),
+        rgb(45 190 140 / 0.05) 40%,
+        rgb(45 190 140 / 0.015) 70%,
+        rgb(45 190 140 / 0) 100%
+      );
   }
 
   /* No tema escuro a mesma luz vale menos: o preto por trás faz o néon render
@@ -426,7 +448,7 @@ html.trancado body::before {
   .horizonte-ambiente {
     background-image: radial-gradient(
       140% 46% at 50% -18%,
-      rgb(204 255 0 / 0.10),
+      rgb(204 255 0 / 0.1),
       rgb(204 255 0 / 0.035) 46%,
       rgb(204 255 0 / 0) 100%
     );
@@ -461,18 +483,52 @@ html.trancado body::before {
 
   :root.dark .luz-ambiente {
     background-image:
-      radial-gradient(87% 40% at 76% 9%,
-        rgb(204 255 0 / 0.17), rgb(204 255 0 / 0.08) 40%, rgb(204 255 0 / 0.022) 70%, rgb(204 255 0 / 0) 100%),
-      radial-gradient(79% 37% at 12% 14%,
-        rgb(45 190 140 / 0.13), rgb(45 190 140 / 0.06) 40%, rgb(45 190 140 / 0.016) 70%, rgb(45 190 140 / 0) 100%),
-      radial-gradient(77% 36% at 78% 44%,
-        rgb(204 255 0 / 0.10), rgb(204 255 0 / 0.045) 40%, rgb(204 255 0 / 0.012) 70%, rgb(204 255 0 / 0) 100%),
-      radial-gradient(78% 36% at 22% 94%,
-        rgb(45 190 140 / 0.07), rgb(45 190 140 / 0.03) 40%, rgb(45 190 140 / 0.008) 70%, rgb(45 190 140 / 0) 100%);
+      radial-gradient(
+        87% 40% at 76% 9%,
+        rgb(204 255 0 / 0.17),
+        rgb(204 255 0 / 0.08) 40%,
+        rgb(204 255 0 / 0.022) 70%,
+        rgb(204 255 0 / 0) 100%
+      ),
+      radial-gradient(
+        79% 37% at 12% 14%,
+        rgb(45 190 140 / 0.13),
+        rgb(45 190 140 / 0.06) 40%,
+        rgb(45 190 140 / 0.016) 70%,
+        rgb(45 190 140 / 0) 100%
+      ),
+      radial-gradient(
+        77% 36% at 78% 44%,
+        rgb(204 255 0 / 0.1),
+        rgb(204 255 0 / 0.045) 40%,
+        rgb(204 255 0 / 0.012) 70%,
+        rgb(204 255 0 / 0) 100%
+      ),
+      radial-gradient(
+        78% 36% at 22% 94%,
+        rgb(45 190 140 / 0.07),
+        rgb(45 190 140 / 0.03) 40%,
+        rgb(45 190 140 / 0.008) 70%,
+        rgb(45 190 140 / 0) 100%
+      );
   }
 
   .respiro-barra {
     padding-bottom: calc(env(safe-area-inset-bottom) + 158px);
+  }
+
+  /*
+   * Cabeçalho que gruda ABAIXO da barra de status, e não sob ela.
+   *
+   * `sticky top-0` gruda no topo do VIEWPORT, e o viewport começa atrás do
+   * relógio e da bateria. O `.respiro-topo` do container não salva: ele é
+   * padding do pai, e o elemento sticky sai do fluxo dele ao grudar. No
+   * aparelho o resultado era o nome da pessoa, o botão de esconder valores e o
+   * selo do plano passando por baixo da barra de status durante a rolagem.
+   */
+  .gruda-no-topo {
+    position: sticky;
+    top: env(safe-area-inset-top);
   }
 
   /*
@@ -507,5 +563,61 @@ html.trancado body::before {
       black calc(100% - 20px),
       transparent
     );
+  }
+}
+
+/*
+ * O que denuncia que por baixo existe um navegador.
+ *
+ * Cada uma destas some com um detalhe que só existe na web e que, dentro do
+ * aplicativo, lê como defeito.
+ */
+@layer base {
+  /*
+   * A BARRA DE ROLAGEM. Aplicativo de iOS não mostra barra parada na lateral —
+   * o sistema desenha a dele por cima do conteúdo e ela some sozinha. A nossa
+   * ficava visível ao lado do conteúdo, e era a coisa mais "site" da tela.
+   */
+  * {
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  html {
+    /*
+     * O retângulo cinza que pisca ao tocar. Nenhum app nativo faz isso, e a
+     * Mimu já responde ao toque com o `active:scale` dos botões.
+     */
+    -webkit-tap-highlight-color: transparent;
+    /*
+     * O menu de "Copiar / Consultar" que o iOS abre ao segurar o dedo sobre
+     * texto. Ele ROUBA o toque longo do painel de widgets, que é o gesto de
+     * editar — segurar um widget abria o menu do sistema em vez do nosso.
+     */
+    -webkit-touch-callout: none;
+  }
+
+  /*
+   * O ZOOM AO TOCAR NUM CAMPO.
+   *
+   * O Safari amplia a página inteira quando o campo tem fonte menor que 16px.
+   * No aplicativo isso é pior que na web: não há barra de endereço com o "aA"
+   * para desfazer, então a tela fica ampliada até a pessoa sair dela. Não
+   * existe jeito de voltar por código.
+   *
+   * A regra vale só no tamanho de celular; no computador cada campo mantém a
+   * fonte que o desenho pede. Está aqui, e não em cada componente, porque um
+   * campo novo com `text-sm` traria o problema de volta sem ninguém perceber —
+   * foi assim que ele apareceu em ObservacoesCard, ConfirmDialog e na pílula
+   * da Mimu.
+   */
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
   }
 }

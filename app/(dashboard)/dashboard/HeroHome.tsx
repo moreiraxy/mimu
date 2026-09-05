@@ -93,7 +93,7 @@ export function HeroHome({
         duas coisas que não pertencem a widget nenhum: quem você é (a conta) e
         o que você pode esconder da tela (o olho).
       */}
-      <div className="sticky top-0 z-30 -mx-4 flex items-start justify-between gap-3 px-4 py-2">
+      <div className="gruda-no-topo z-30 -mx-4 flex items-start justify-between gap-3 px-4 py-2">
         <Link
           href="/minha-empresa"
           aria-label="Sua conta"
@@ -128,7 +128,11 @@ export function HeroHome({
             meio do caminho — a mesma escolha do banner do perfil.
           */}
           <Link
-            href={gratuito ? "/minha-empresa/assinatura" : "/minha-empresa/assinatura"}
+            href={
+              gratuito
+                ? "/minha-empresa/assinatura"
+                : "/minha-empresa/assinatura"
+            }
             className="flex h-10 items-center gap-1.5 rounded-full bg-primary px-3.5 text-[13px] font-bold text-primary-text"
           >
             Mimu Pro
@@ -149,7 +153,7 @@ export function HeroHome({
         em 390px. `scroll-fade-x` avisa que tem mais para o lado.
       */}
       {atalhos.length > 0 && (
-        <div className="scroll-fade-x relative mt-7 -mr-4 flex gap-2 overflow-x-auto pb-1 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="scroll-fade-x relative -mr-4 mt-7 flex gap-2 overflow-x-auto pb-1 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {atalhos.map((acao) => (
             <Link
               key={acao.href}

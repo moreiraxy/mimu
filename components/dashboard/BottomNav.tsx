@@ -7,7 +7,10 @@ import { ArrowUp, MoreHorizontal } from "lucide-react";
 import { dividirNavegacao } from "@/components/dashboard/navItems";
 import { MenuLateral } from "@/components/dashboard/MenuLateral";
 import { FolhaAcoes } from "@/components/dashboard/FolhaAcoes";
-import { acoesLiberadas, ROTAS_SEM_ACOES } from "@/components/dashboard/acoesRapidas";
+import {
+  acoesLiberadas,
+  ROTAS_SEM_ACOES,
+} from "@/components/dashboard/acoesRapidas";
 import { MarcaTraco } from "@/components/Logo";
 import { PlusIcon } from "@/components/icons/NavIcons";
 import { useAuth } from "@/hooks/useAuth";
@@ -250,7 +253,9 @@ export function BottomNav({
                       >
                         <Icon
                           size={23}
-                          className={ativo ? "text-primary-forte" : "text-neutro-icon"}
+                          className={
+                            ativo ? "text-primary-forte" : "text-neutro-icon"
+                          }
                         />
                       </span>
                     </Link>
@@ -289,7 +294,9 @@ export function BottomNav({
                       <MoreHorizontal
                         size={23}
                         className={
-                          atualEstaNoMenu ? "text-primary-forte" : "text-neutro-icon"
+                          atualEstaNoMenu
+                            ? "text-primary-forte"
+                            : "text-neutro-icon"
                         }
                       />
                     </span>
@@ -405,7 +412,7 @@ function PilulaMimu({
         placeholder="Pergunte à Mimu"
         aria-label="Pergunte à Mimu"
         enterKeyHint="send"
-        className="min-w-0 flex-1 bg-transparent text-[15px] text-escuro outline-none placeholder:text-neutro-muted"
+        className="min-w-0 flex-1 bg-transparent text-base text-escuro outline-none placeholder:text-neutro-muted"
       />
       {texto.trim() ? (
         <button
