@@ -22,10 +22,7 @@ import {
   calcularProgressoMeta,
   calcularStatusNegocio,
 } from "@/lib/calculations";
-import {
-  formatDataComDiaSemana,
-  saudacaoPorHorario,
-} from "@/lib/formatters";
+import { formatDataComDiaSemana, saudacaoPorHorario } from "@/lib/formatters";
 import { HeroHome } from "./HeroHome";
 import { CartaoDeHoje } from "./CartaoDeHoje";
 import { AgendaHojeCard } from "./AgendaHojeCard";
@@ -49,10 +46,30 @@ import { PainelDeWidgets } from "./PainelDeWidgets";
  * lugar nenhum é pior que atalho ausente.
  */
 const ACOES_RAPIDAS = [
-  { label: "Nova venda", icone: Plus, href: "/financeiro/nova-entrada", modulo: "financeiro" },
-  { label: "Nova despesa", icone: Minus, href: "/financeiro/nova-saida", modulo: "financeiro" },
-  { label: "Agendamento", icone: Calendar, href: "/agenda/novo", modulo: "agenda" },
-  { label: "Novo cliente", icone: UserPlus, href: "/clientes/novo", modulo: "clientes" },
+  {
+    label: "Nova venda",
+    icone: Plus,
+    href: "/financeiro/nova-entrada",
+    modulo: "financeiro",
+  },
+  {
+    label: "Nova despesa",
+    icone: Minus,
+    href: "/financeiro/nova-saida",
+    modulo: "financeiro",
+  },
+  {
+    label: "Agendamento",
+    icone: Calendar,
+    href: "/agenda/novo",
+    modulo: "agenda",
+  },
+  {
+    label: "Novo cliente",
+    icone: UserPlus,
+    href: "/clientes/novo",
+    modulo: "clientes",
+  },
 ] as const;
 
 // Auth e onboarding já são garantidos pelo layout do grupo (dashboard).
@@ -70,14 +87,24 @@ export default function DashboardPage() {
   // primeira tela de toda abertura, e é ele que define "o app carregou".
   useSeguraAbertura(carregandoAuth || carregandoDashboard || !dados);
 
-  if (carregandoAuth || carregandoDashboard || !dados) {
-    /*
-     * O esqueleto continua existindo para as VOLTAS a esta tela; na primeira
-     * abertura quem está por cima dele é a marca — ver `useSeguraAbertura`
-     * logo acima e components/TelaAbertura.tsx.
-     */
-    return <DashboardSkeleton />;
-  }
+  /*
+   * O ESQUELETO NÃO COBRE MAIS A TELA INTEIRA, e cobria.
+   *
+   * Era um `return <DashboardSkeleton />` aqui, que trocava tudo por cinza:
+   * a saudação, o nome de quem entrou, o selo do plano, os atalhos. Nada disso
+   * vem do banco — `HeroHome` se monta com `useAuth`, que desde a semeadura do
+   * servidor já chega preenchido. Eles esperavam por números que não têm
+   * relação com eles.
+   *
+   * Duas consequências além do desperdício. A tela pulava de layout na troca,
+   * porque a geometria do esqueleto nunca é a do conteúdo. E a animação de
+   * entrada tocava no ESQUELETO: quando os dados chegavam, o React trocava os
+   * filhos sob a mesma chave, sem reanimar — o conteúdo real entrava em corte
+   * seco.
+   *
+   * Agora o topo desenha na hora e o cinza fica só onde há número esperando.
+   */
+  const carregando = carregandoAuth || carregandoDashboard || !dados;
 
   if (error) {
     return (
@@ -99,14 +126,17 @@ export default function DashboardPage() {
     "por aqui";
   const metaDiaria = empresa?.meta_diaria ?? 0;
   const progressoDiario = calcularProgressoMeta(
-    dados.faturamentoHoje,
+    dados?.faturamentoHoje ?? 0,
     metaDiaria,
   );
   const statusDiario = calcularStatusNegocio(progressoDiario);
 
-  const atalhos = ACOES_RAPIDAS.filter((acao) => modulos.includes(acao.modulo as ModuloAtivo));
+  const atalhos = ACOES_RAPIDAS.filter((acao) =>
+    modulos.includes(acao.modulo as ModuloAtivo),
+  );
 
   const primeiroAcesso =
+    !!dados &&
     dados.faturamentoHoje === 0 &&
     dados.faturamentoMes === 0 &&
     dados.agendamentosHoje.length === 0 &&
@@ -135,7 +165,9 @@ export default function DashboardPage() {
         atalhos={atalhos}
       />
 
-      {primeiroAcesso ? (
+      {carregando ? (
+        <NumerosSkeleton />
+      ) : primeiroAcesso ? (
         /* Também sai do néon chapado: um cartão de vidro com a marca em traço
            fino, na mesma linguagem do resto. */
         <div className="vidro-card rounded-[20px] p-5">
@@ -233,7 +265,9 @@ export default function DashboardPage() {
               case "agenda":
                 return <AgendaHojeCard agendamentos={dados.agendamentosHoje} />;
               case "alertas":
-                return <AlertasCard alertas={alertas} onDispensar={dispensar} />;
+                return (
+                  <AlertasCard alertas={alertas} onDispensar={dispensar} />
+                );
               case "mimu":
                 return <CartaoMensagensMimu />;
               default:
@@ -242,21 +276,23 @@ export default function DashboardPage() {
           }}
         />
       )}
-
     </div>
   );
 }
 
-function DashboardSkeleton() {
+/**
+ * O cinza que sobrou depois que o topo passou a desenhar de verdade.
+ *
+ * Não tem mais a fileira do cabeçalho: aquela parte é o `HeroHome`, que se
+ * monta com `useAuth` e não espera consulta nenhuma. Um esqueleto para ela era
+ * cinza no lugar de informação que já estava na mão.
+ *
+ * O que ficou corresponde ao que de fato vem do banco: os quatro cartões de
+ * número, o cartão de hoje, os dois de faturamento e o painel de widgets.
+ */
+function NumerosSkeleton() {
   return (
-    <div className="flex flex-col gap-5 lg:mx-auto lg:max-w-6xl lg:gap-6">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1.5">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-3 w-24" />
-        </div>
-        <Skeleton className="h-9 w-9 rounded-2xl" />
-      </div>
+    <>
       <div className="grid grid-cols-4 gap-2 lg:gap-3">
         <Skeleton className="h-[74px] rounded-card" />
         <Skeleton className="h-[74px] rounded-card" />
@@ -273,6 +309,6 @@ function DashboardSkeleton() {
         <Skeleton className="h-32 w-full rounded-card" />
       </div>
       <Skeleton className="h-24 w-full rounded-card" />
-    </div>
+    </>
   );
 }
