@@ -41,9 +41,17 @@ export default function ClientesPage() {
     return resultado;
   }, [clientes, filtro, busca]);
 
-  if (loading) {
-    return <ClientesSkeleton />;
-  }
+  /*
+   * O esqueleto cobre A LISTA, e não a tela.
+   *
+   * Era um `return <ClientesSkeleton />` aqui, que virava cinza também o
+   * título, o campo de busca e os chips de filtro — nenhum dos três vem do
+   * banco. Pior: o campo e os chips ficavam INERTES enquanto isso, então quem
+   * abria a tela para procurar um nome tinha de esperar a lista inteira
+   * chegar antes de poder digitar.
+   *
+   * Ver o mesmo raciocínio em dashboard/page.tsx.
+   */
 
   /*
    * O cabeçalho envolve TODOS os estados, e não só o da lista cheia.
@@ -97,7 +105,7 @@ export default function ClientesPage() {
           desfoque por 150ms a cada navegação — a tela entra chapada e só
           então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
       <PageHeader title="Clientes" voltar={false} />
-      <div className="flex items-center gap-2 vidro-card rounded-button px-3.5 py-2.5">
+      <div className="vidro-card flex items-center gap-2 rounded-button px-3.5 py-2.5">
         <SearchIcon size={16} className="text-neutro-muted" />
         <input
           value={busca}
@@ -107,7 +115,7 @@ export default function ClientesPage() {
         />
       </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto scroll-fade-x px-4 pb-1">
+      <div className="scroll-fade-x -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         {FILTROS.map((opcao) => (
           <button
             key={opcao}
@@ -125,7 +133,9 @@ export default function ClientesPage() {
         ))}
       </div>
 
-      {filtrados.length === 0 ? (
+      {loading ? (
+        <ListaSkeleton />
+      ) : filtrados.length === 0 ? (
         <p className="py-8 text-center text-sm text-neutro-muted">
           Nenhum cliente encontrado.
         </p>
@@ -144,16 +154,16 @@ export default function ClientesPage() {
   );
 }
 
-function ClientesSkeleton() {
+/**
+ * Só as linhas da lista. O cabeçalho, a busca e os filtros desenham de
+ * verdade — eles não esperam consulta nenhuma.
+ */
+function ListaSkeleton() {
   return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-11 w-full rounded-button" />
-      <Skeleton className="h-8 w-full rounded-full" />
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-16 w-full rounded-card" />
-        <Skeleton className="h-16 w-full rounded-card" />
-        <Skeleton className="h-16 w-full rounded-card" />
-      </div>
+    <div className="flex flex-col gap-2">
+      <Skeleton className="h-16 w-full rounded-card" />
+      <Skeleton className="h-16 w-full rounded-card" />
+      <Skeleton className="h-16 w-full rounded-card" />
     </div>
   );
 }

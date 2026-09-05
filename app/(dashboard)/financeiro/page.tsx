@@ -29,9 +29,21 @@ export default function FinanceiroPage() {
   const [categoriaFiltro, setCategoriaFiltro] = useState<string | null>(null);
   const [idParaExcluir, setIdParaExcluir] = useState<string | null>(null);
 
-  if (loading) {
-    return <FinanceiroSkeleton />;
-  }
+  /*
+   * O esqueleto cobre os NÚMEROS, e não a tela.
+   *
+   * Era um `return <FinanceiroSkeleton />` aqui. O caso mais grave não era o
+   * cinza no título: era o `AcoesFinanceiro` — os botões de nova entrada e
+   * nova saída — ficar indisponível junto. Quem abre o financeiro para
+   * registrar uma venda tinha de esperar a lista inteira de transações chegar
+   * antes de poder tocar em "nova entrada". A ação principal da tela esperava
+   * por dados que ela não usa.
+   *
+   * Os chips de filtro também não dependem de consulta: eles mexem em estado
+   * local.
+   *
+   * Ver o mesmo raciocínio em dashboard/page.tsx e clientes/page.tsx.
+   */
 
   if (error) {
     return (
@@ -59,7 +71,10 @@ export default function FinanceiroPage() {
     .filter((t) => t.tipo === "saida")
     .reduce((soma, t) => soma + Number(t.valor), 0);
   const filtradasPorTipoData = aplicarFiltro(transacoes, filtro);
-  const filtradas = aplicarFiltroCategoria(filtradasPorTipoData, categoriaFiltro);
+  const filtradas = aplicarFiltroCategoria(
+    filtradasPorTipoData,
+    categoriaFiltro,
+  );
   const grupos = agruparPorData(filtradas);
   const categorias = categoriasDisponiveis(transacoes);
 
@@ -82,21 +97,35 @@ export default function FinanceiroPage() {
           então vira vidro. É o mesmo motivo comentado em dashboard/page.tsx. */}
       <PageHeader title="Financeiro" voltar={false} />
 
-      <SaldoHeader saldo={saldo} entradas={entradas} saidas={saidas} />
+      {loading ? (
+        <SaldoSkeleton />
+      ) : (
+        <SaldoHeader saldo={saldo} entradas={entradas} saidas={saidas} />
+      )}
 
       <AcoesFinanceiro />
 
-      <GraficoMovimentacao transacoes={transacoes} />
+      {loading ? (
+        <Skeleton className="h-32 w-full rounded-card" />
+      ) : (
+        <GraficoMovimentacao transacoes={transacoes} />
+      )}
 
       <FiltrosChips ativo={filtro} onChange={setFiltro} />
 
-      <CategoriaChips
-        categorias={categorias}
-        ativa={categoriaFiltro}
-        onChange={setCategoriaFiltro}
-      />
+      {!loading && (
+        <CategoriaChips
+          categorias={categorias}
+          ativa={categoriaFiltro}
+          onChange={setCategoriaFiltro}
+        />
+      )}
 
-      <ListaTransacoes grupos={grupos} onExcluir={setIdParaExcluir} />
+      {loading ? (
+        <ListaSkeleton />
+      ) : (
+        <ListaTransacoes grupos={grupos} onExcluir={setIdParaExcluir} />
+      )}
 
       <ConfirmDialog
         open={idParaExcluir !== null}
@@ -110,24 +139,23 @@ export default function FinanceiroPage() {
   );
 }
 
-function FinanceiroSkeleton() {
+/** O saldo e os dois totais, que vêm da soma das transações. */
+function SaldoSkeleton() {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col items-center gap-2 py-2">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="h-8 w-36" />
-      </div>
-      <div className="flex gap-3">
-        <Skeleton className="h-11 flex-1 rounded-button" />
-        <Skeleton className="h-11 flex-1 rounded-button" />
-      </div>
-      <Skeleton className="h-32 w-full rounded-card" />
-      <Skeleton className="h-8 w-full rounded-full" />
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-14 w-full rounded-card" />
-        <Skeleton className="h-14 w-full rounded-card" />
-        <Skeleton className="h-14 w-full rounded-card" />
-      </div>
+    <div className="flex flex-col items-center gap-2 py-2">
+      <Skeleton className="h-3 w-24" />
+      <Skeleton className="h-8 w-36" />
+    </div>
+  );
+}
+
+/** As linhas da lista de transações. */
+function ListaSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      <Skeleton className="h-14 w-full rounded-card" />
+      <Skeleton className="h-14 w-full rounded-card" />
+      <Skeleton className="h-14 w-full rounded-card" />
     </div>
   );
 }
