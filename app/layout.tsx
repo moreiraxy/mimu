@@ -136,6 +136,25 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
+  /*
+   * SEM ISTO, `env(safe-area-inset-*)` VALE ZERO — em todo lugar.
+   *
+   * E o app está configurado para precisar dela: `appleWebApp.statusBarStyle`
+   * é "black-translucent", que manda o conteúdo passar POR BAIXO da barra de
+   * status de propósito, para o app não ter uma faixa morta no topo. A
+   * compensação é o `env()`, e o `env()` só reporta valor de verdade quando o
+   * viewport cobre a tela inteira.
+   *
+   * Faltando as duas metades, sobrava só a primeira: o conteúdo subia até o
+   * topo e nada o empurrava de volta. O `.respiro-topo` virava 14px em vez de
+   * "a barra de status mais 14px", e o nome da pessoa ficava atrás do relógio.
+   *
+   * Quem lê isto e pensa em tirar: repare que `.respiro-topo`,
+   * `.gruda-no-topo`, `.respiro-barra`, as folhas de baixo e a BottomNav todas
+   * dependem de `env()`. Tirar esta linha desliga a área segura do app
+   * inteiro, sem erro em lugar nenhum.
+   */
+  viewportFit: "cover",
   // Sem isso, o Chrome Android por padrão NÃO encolhe a viewport quando o
   // teclado virtual abre — qualquer altura em `vh` (ex.: o chat da Mimu)
   // continua medindo o tamanho da tela inteira, empurrando o input pra fora
