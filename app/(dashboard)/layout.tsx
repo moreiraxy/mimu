@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getEmpresaAtual } from "@/lib/supabase";
+import { SementeDaSessao } from "@/components/providers/SementeDaSessao";
 import { modulosLiberados } from "@/lib/planos";
 import type { ModuloAtivo } from "@/types";
 import { ehAdmin } from "@/lib/admin";
@@ -23,7 +24,7 @@ export default async function DashboardGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, empresa, plano } = await getEmpresaAtual();
+  const { user, empresa, plano, assinatura } = await getEmpresaAtual();
 
   if (!user) {
     redirect("/login");
@@ -165,6 +166,17 @@ export default async function DashboardGroupLayout({
       {/* Os dois cobrem a tela inteira, barra inclusa, e nesta ordem: o
           cadeado (z-100) vem por cima da abertura (z-80), porque quem trancou
           o app não deve ver nem a marca carregando antes de se identificar. */}
+      {/*
+        Entrega ao AuthProvider o que já foi buscado aqui no servidor. Sem
+        isto, o navegador refazia a mesma consulta depois de hidratar, e o
+        painel só começava a buscar os próprios dados depois dela.
+      */}
+      <SementeDaSessao
+        user={user}
+        empresa={empresa}
+        plano={plano}
+        assinatura={assinatura}
+      />
       <TelaAbertura />
       <TravaBiometrica />
       {/* Só faz algo dentro do app da App Store — ver components/providers/PonteIAP.tsx. */}

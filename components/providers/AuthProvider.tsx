@@ -21,22 +21,9 @@ import type {
   PlanoAssinatura,
   StatusAssinatura,
 } from "@/types/database";
+import type { AssinaturaResumo } from "@/types";
 
-/** O que a tela de plano precisa saber da assinatura. */
-export interface AssinaturaResumo {
-  status: StatusAssinatura;
-  plano: PlanoAssinatura;
-  trial_fim: string | null;
-  proxima_cobranca: string | null;
-  /**
-   * Por onde a assinatura foi comprada.
-   *
-   * Decide para onde vai o cancelamento: quem assinou pela Apple só cancela
-   * na Apple, em Ajustes → Assinaturas, e oferecer aqui um botão que não
-   * funcionaria seria pior do que não oferecer nada.
-   */
-  origem: OrigemPagamento | null;
-}
+export type { AssinaturaResumo };
 
 export interface AuthContextValue {
   user: User | null;
@@ -55,6 +42,16 @@ export interface AuthContextValue {
    * ids de provedor não têm o que fazer no navegador.
    */
   assinatura: AssinaturaResumo | null;
+  /**
+   * Recebe do SERVIDOR o que ele já sabe, para o navegador não perguntar de
+   * novo. Ver components/providers/SementeDaSessao.tsx.
+   */
+  semear: (semente: {
+    user: User;
+    empresa: Empresa;
+    plano: string | null;
+    assinatura: AssinaturaResumo | null;
+  }) => void;
   /**
    * Os módulos que a conta pode usar DE VERDADE: o que ela escolheu no
    * onboarding, limitado ao teto do plano dela.
@@ -162,6 +159,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [supabase],
   );
+
+  /**
+   * A mesma informação, vinda de graça do servidor.
+   *
+   * O `empresas` era buscado TRÊS vezes por abertura: o middleware para o
+   * gate, o layout do painel para os redirecionamentos, e aqui de novo — e
+   * esta terceira é a única que custa tempo de tela, porque só começa depois
+   * do JavaScript baixar e hidratar. Pior, `useDashboard` espera por ela para
+   * disparar as consultas dele: duas ondas de rede em sequência onde cabia
+   * uma.
+   *
+   * Marcar `donoCarregado` é o que faz o `loadEmpresa` abaixo sair cedo. Sem
+   * isso a semeadura pouparia zero — a busca aconteceria do mesmo jeito.
+   *
+   * NÃO SOBRESCREVE o que já foi carregado: se a busca do cliente chegou
+   * primeiro (recarga, troca de conta), o dado dela é mais novo que o do HTML.
+   */
+  const semear = useCallback<AuthContextValue["semear"]>((semente) => {
+    if (donoCarregado.current) return;
+    donoCarregado.current = semente.user.id;
+    setUser(semente.user);
+    setEmpresa(semente.empresa);
+    setPlano(semente.plano);
+    setAssinatura(semente.assinatura);
+    setLoading(false);
+  }, []);
 
   /*
    * `getSession()` E NÃO `getUser()`. Esta linha é a diferença entre o painel
@@ -295,6 +318,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         signOut,
+        semear,
         atualizarEmpresa: setEmpresa,
       }}
     >

@@ -1,4 +1,9 @@
-import type { Database } from "@/types/database";
+import type {
+  Database,
+  OrigemPagamento,
+  PlanoAssinatura,
+  StatusAssinatura,
+} from "@/types/database";
 
 // ---------------------------------------------------------------------------
 // Tabelas
@@ -76,20 +81,11 @@ export type CompraItemComProduto = CompraItem & {
  * conhecidos, não é a validação da coluna.
  */
 export type TipoNegocio =
-  | "salao"
-  | "mercado"
-  | "restaurante"
-  | "servico"
-  | "oficina"
-  | "outro";
+  "salao" | "mercado" | "restaurante" | "servico" | "oficina" | "outro";
 
 /** Chaves possíveis em `empresas.modulos_ativos`. */
 export type ModuloAtivo =
-  | "financeiro"
-  | "agenda"
-  | "clientes"
-  | "estoque"
-  | "ia";
+  "financeiro" | "agenda" | "clientes" | "estoque" | "ia";
 
 export interface ConfigAlertaHorario {
   ativo: boolean;
@@ -116,3 +112,19 @@ export type ApiError = {
 };
 
 export type ApiResponse<T = undefined> = ApiSuccess<T> | ApiError;
+
+/** O que a tela de plano precisa saber da assinatura. */
+export interface AssinaturaResumo {
+  status: StatusAssinatura;
+  plano: PlanoAssinatura;
+  trial_fim: string | null;
+  proxima_cobranca: string | null;
+  /**
+   * Por onde a assinatura foi comprada.
+   *
+   * Decide para onde vai o cancelamento: quem assinou pela Apple só cancela
+   * na Apple, em Ajustes → Assinaturas, e oferecer aqui um botão que não
+   * funcionaria seria pior do que não oferecer nada.
+   */
+  origem: OrigemPagamento | null;
+}

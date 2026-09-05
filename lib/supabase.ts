@@ -12,7 +12,7 @@ import type { User } from "@supabase/supabase-js";
 import { createClient as createBrowserClientImpl } from "@/lib/supabase/client";
 import { createClient as createServerClientImpl } from "@/lib/supabase/server";
 import { planoEfetivo } from "@/lib/assinatura";
-import type { Empresa } from "@/types";
+import type { AssinaturaResumo, Empresa } from "@/types";
 
 /** Client do Supabase para uso em Client Components. */
 export const createBrowserSupabaseClient = createBrowserClientImpl;
@@ -40,6 +40,15 @@ export const getEmpresaAtual = cache(
      * tocar num item.
      */
     plano: string | null;
+    /**
+     * A assinatura, que esta função já extraía e descartava.
+     *
+     * Passou a ser devolvida para o layout do painel poder SEMEAR o
+     * AuthProvider — ver components/providers/SementeDaSessao.tsx. Sem ela no
+     * retorno, semear deixaria `assinatura` nula no contexto para sempre,
+     * porque semear também impede a busca do cliente.
+     */
+    assinatura: AssinaturaResumo | null;
   }> => {
     const supabase = createServerClientImpl();
     const {
@@ -47,17 +56,19 @@ export const getEmpresaAtual = cache(
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return { user: null, empresa: null, plano: null };
+      return { user: null, empresa: null, plano: null, assinatura: null };
     }
 
     const { data } = await supabase
       .from("empresas")
-      .select("*, assinaturas(status, plano, trial_fim, proxima_cobranca)")
+      .select(
+        "*, assinaturas(status, plano, trial_fim, proxima_cobranca, origem)",
+      )
       .eq("user_id", user.id)
       .single();
 
     if (!data) {
-      return { user, empresa: null, plano: null };
+      return { user, empresa: null, plano: null, assinatura: null };
     }
 
     // O join sai de dentro da empresa: quem consome `empresa` continua
@@ -79,6 +90,7 @@ export const getEmpresaAtual = cache(
       user,
       empresa: empresa as Empresa,
       plano: planoEfetivo(assinatura),
+      assinatura: (assinatura as AssinaturaResumo | null) ?? null,
     };
   },
 );
