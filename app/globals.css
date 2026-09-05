@@ -675,3 +675,58 @@ html.trancado body::before {
     }
   }
 }
+
+/*
+ * A entrada escalonada, bloco a bloco.
+ *
+ * Animar o container inteiro entrega menos pelo mesmo custo: a tela toda sobe
+ * junto e o olho não tem para onde ir. Escalonado, a sequência conta a
+ * hierarquia — cabeçalho, depois números, depois lista — e é isso que dá a
+ * sensação de app em vez de página.
+ *
+ * O ALVO É `> * > *`, e não `> *`, porque entre o EntradaDeTela e os blocos há
+ * o `<div>` raiz da página. Todas as telas do painel devolvem exatamente um
+ * elemento raiz — conferido uma a uma. Se alguma passar a devolver um
+ * fragmento com vários filhos, a animação alcança fundo demais e o conteúdo
+ * dentro de cada bloco é que vai escalonar. O sintoma seria uma tela entrando
+ * "por dentro".
+ *
+ * 55ms entre blocos, e não os ~100ms que se usa em entrada rara: trocar de
+ * tela é gesto frequente, e a soma dos atrasos vira espera. Com teto no sexto
+ * bloco, o último começa a 275ms — uma cascata que se percebe sem se esperar.
+ *
+ * `both` segura o estado inicial durante o atraso: sem ele, o bloco piscaria
+ * visível antes da própria vez. E a animação termina em valores neutros pelo
+ * mesmo motivo do keyframe: o vidro precisa voltar.
+ */
+@layer utilities {
+  .entrada-escalonada > * > * {
+    animation: entrar-tela 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .entrada-escalonada > * > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .entrada-escalonada > * > *:nth-child(2) {
+    animation-delay: 55ms;
+  }
+  .entrada-escalonada > * > *:nth-child(3) {
+    animation-delay: 110ms;
+  }
+  .entrada-escalonada > * > *:nth-child(4) {
+    animation-delay: 165ms;
+  }
+  .entrada-escalonada > * > *:nth-child(5) {
+    animation-delay: 220ms;
+  }
+  /* Do sexto em diante todos entram juntos: uma lista longa não deve virar
+     uma cascata de dois segundos. */
+  .entrada-escalonada > * > *:nth-child(n + 6) {
+    animation-delay: 275ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .entrada-escalonada > * > * {
+      animation: none;
+    }
+  }
+}
