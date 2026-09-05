@@ -17,9 +17,11 @@ import {
   formatDateShort,
   formatRelativeDate,
   formatTempoCliente,
+  formatarTelefoneBR,
 } from "@/lib/formatters";
 import { ClienteForm, type DadosFormularioCliente } from "../ClienteForm";
 import { ObservacoesCard } from "./ObservacoesCard";
+import { ValorCopiavel } from "@/components/ValorCopiavel";
 import { RegistrarPagamentoDialog } from "./RegistrarPagamentoDialog";
 import type { Agendamento, Cliente } from "@/types";
 
@@ -34,9 +36,7 @@ export default function PerfilClientePage() {
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [visitas, setVisitas] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erroCarregamento, setErroCarregamento] = useState<string | null>(
-    null,
-  );
+  const [erroCarregamento, setErroCarregamento] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
   const [enviandoEdicao, setEnviandoEdicao] = useState(false);
   const [erroFormulario, setErroFormulario] = useState<string | null>(null);
@@ -249,9 +249,30 @@ export default function PerfilClientePage() {
             </span>
           )}
         </div>
+
+        {/*
+          O TELEFONE FICA VISÍVEL, e antes ele só existia dentro do formulário
+          de edição — para ver o número da cliente era preciso entrar em
+          "editar", que é um lugar perigoso para se estar quando a intenção era
+          só olhar.
+
+          Copiável por toque porque a seleção de texto está desligada no
+          celular (ver app/globals.css: ela disputava o toque longo do painel
+          de widgets). Aqui o toque copia e confirma — que é o que uma pessoa
+          faz com um número: manda mensagem em outro lugar.
+        */}
+        {cliente.telefone && (
+          <ValorCopiavel
+            valor={cliente.telefone}
+            rotulo="telefone"
+            className="-mt-1 text-[15px] text-neutro-muted"
+          >
+            {formatarTelefoneBR(cliente.telefone)}
+          </ValorCopiavel>
+        )}
       </div>
 
-      <div className="mt-4 flex divide-x divide-neutro-border vidro-card rounded-[20px] py-3">
+      <div className="vidro-card mt-4 flex divide-x divide-neutro-border rounded-[20px] py-3">
         <Estatistica
           label="cliente há"
           valor={formatTempoCliente(cliente.created_at)}
@@ -263,7 +284,7 @@ export default function PerfilClientePage() {
         />
       </div>
 
-      <div className="mt-4 vidro-card rounded-[20px] p-4">
+      <div className="vidro-card mt-4 rounded-[20px] p-4">
         <p className="text-sm font-semibold text-escuro">Frequência</p>
         <p className="mt-2 text-sm text-neutro-muted">
           Último atendimento:{" "}
@@ -298,7 +319,7 @@ export default function PerfilClientePage() {
         </div>
       )}
 
-      <div className="mt-4 vidro-card rounded-[20px] p-4">
+      <div className="vidro-card mt-4 rounded-[20px] p-4">
         <p className="text-sm font-semibold text-escuro">
           Histórico de visitas
         </p>
@@ -350,7 +371,11 @@ export default function PerfilClientePage() {
         >
           Agendar novamente
         </Link>
-        <Button variant="secondary" className="w-full" onClick={() => setEditando(true)}>
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => setEditando(true)}
+        >
           Editar cliente
         </Button>
       </div>
