@@ -655,7 +655,23 @@ html.trancado body::before {
     input,
     textarea,
     select {
-      font-size: 16px;
+      /*
+       * `!important` AQUI É NECESSÁRIO, e a primeira versão desta regra não
+       * tinha — por isso ela não funcionou.
+       *
+       * `input` tem especificidade (0,0,1) e `text-sm` tem (0,1,0): a classe
+       * vence o elemento sempre, não importa a ordem no arquivo. Ou seja, a
+       * regra valia exatamente nos campos que já estavam certos, e não valia
+       * nos que dão zoom.
+       *
+       * Não é preferência de estilo: 16px é o limiar do iOS, e abaixo dele a
+       * página inteira é ampliada ao tocar no campo. Dentro do aplicativo não
+       * há barra de endereço com o "aA" para desfazer — a tela fica ampliada
+       * até a pessoa sair dela, e não existe jeito de voltar por código.
+       * Nenhum tamanho de fonte no celular vale esse preço, então esta regra
+       * ganha de qualquer classe, hoje e nas que vierem.
+       */
+      font-size: 16px !important;
     }
   }
 }
