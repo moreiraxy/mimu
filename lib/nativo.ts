@@ -118,42 +118,69 @@ export async function registrarPushNativo(): Promise<boolean> {
     const permissao = await PushNotifications.requestPermissions();
     if (permissao.receive !== "granted") return false;
 
-    return await new Promise<boolean>((resolve) => {
-      /*
-       * O token chega por EVENTO, não como retorno de `register()`.
-       *
-       * `register()` devolve void assim que pede; quem traz o token é o
-       * ouvinte, milissegundos depois. Esperar o retorno dele — que é o
-       * caminho intuitivo — devolve sempre "deu certo" sem token nenhum.
-       *
-       * O prazo existe porque o evento pode não vir: sem sinal, ou com o APNs
-       * fora do ar, a promessa ficaria pendurada e a tela que a espera
-       * também.
-       */
-      const prazo = setTimeout(() => resolve(false), 15_000);
-
-      void PushNotifications.addListener("registration", (token) => {
-        clearTimeout(prazo);
-        void fetch("/api/push/subscribe", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ tipo: "apns", token: token.value }),
-        })
-          .then((r) => resolve(r.ok))
-          .catch(() => resolve(false));
-      });
-
-      void PushNotifications.addListener("registrationError", () => {
-        clearTimeout(prazo);
-        resolve(false);
-      });
-
-      void PushNotifications.register();
-    });
+    /*
+     * A ESPERA PELO TOKEN NÃO PRENDE A TELA, e prendia.
+     *
+     * A permissão já foi decidida na linha acima — é ela que a pessoa
+     * respondeu. O que vem depois é conversa entre o aparelho e a Apple, e
+     * pode simplesmente não acontecer: sem o entitlement `aps-environment`,
+     * ou sem sinal, o evento de registro nunca chega. O prompt esperava por
+     * ele para fechar, e o botão ficava em "aguarde" até o prazo estourar.
+     *
+     * Agora a inscrição segue por fora. Se der certo, o aparelho passa a
+     * receber; se não, ninguém fica olhando para um botão girando por causa
+     * de algo que não depende dela.
+     */
+    void inscreverNoApns(PushNotifications);
+    return true;
   } catch {
     // App antigo, sem o plugin embarcado.
     return false;
   }
+}
+
+type PluginDePush = Awaited<
+  typeof import("@capacitor/push-notifications")
+>["PushNotifications"];
+
+/**
+ * Pede o token ao APNs e o manda para o servidor. Sem pressa e sem plateia.
+ */
+function inscreverNoApns(PushNotifications: PluginDePush): Promise<boolean> {
+  return new Promise<boolean>((resolve) => {
+    /*
+     * O token chega por EVENTO, não como retorno de `register()`.
+     *
+     * `register()` devolve void assim que pede; quem traz o token é o
+     * ouvinte, milissegundos depois. Esperar o retorno dele — que é o
+     * caminho intuitivo — devolve sempre "deu certo" sem token nenhum.
+     *
+     * O prazo existe porque o evento pode não vir: sem sinal, sem o
+     * entitlement `aps-environment`, ou com o APNs fora do ar. Ninguém mais
+     * espera por ele na tela, mas uma promessa pendurada para sempre segura o
+     * ouvinte e o import junto — e num app que fica aberto o dia inteiro isso
+     * se acumula a cada tentativa.
+     */
+    const prazo = setTimeout(() => resolve(false), 15_000);
+
+    void PushNotifications.addListener("registration", (token) => {
+      clearTimeout(prazo);
+      void fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ tipo: "apns", token: token.value }),
+      })
+        .then((r) => resolve(r.ok))
+        .catch(() => resolve(false));
+    });
+
+    void PushNotifications.addListener("registrationError", () => {
+      clearTimeout(prazo);
+      resolve(false);
+    });
+
+    void PushNotifications.register();
+  });
 }
 
 /**
