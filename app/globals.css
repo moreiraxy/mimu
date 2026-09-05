@@ -600,6 +600,44 @@ html.trancado body::before {
   }
 
   /*
+   * A SELEÇÃO DE TEXTO NO TOQUE LONGO.
+   *
+   * Segurar o dedo e ver a palavra ficar azul com as alcinhas é gesto de
+   * navegador. Aplicativo de iOS não faz isso — e aqui era pior que estranho:
+   * disputava o toque longo do painel de widgets, que é o gesto de editar. A
+   * pessoa segurava um widget, sentia a vibração do nosso gesto E via o texto
+   * ser selecionado por baixo.
+   *
+   * `-webkit-touch-callout: none` acima resolve só metade: ele tira o MENU de
+   * copiar, não a seleção. São propriedades diferentes, e é fácil achar que
+   * uma cobre a outra.
+   *
+   * SÓ EM TELA DE TOQUE. No computador, impedir seleção é hostil — lá segurar
+   * e arrastar para copiar é o comportamento esperado, e ninguém confunde a
+   * Mimu com um app nativo naquele contexto. `pointer: coarse` é o dedo.
+   *
+   * Os campos ficam de fora, obviamente: sem seleção não dá para corrigir o
+   * meio de uma palavra digitada. E `.selecionavel` existe para o dia em que
+   * alguma tela precisar oferecer um valor copiável — a chave do PIX, por
+   * exemplo — em vez de alguém desfazer esta regra inteira por causa de um
+   * caso.
+   */
+  @media (hover: none) and (pointer: coarse) {
+    html {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    input,
+    textarea,
+    [contenteditable="true"],
+    .selecionavel {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+  }
+
+  /*
    * O ZOOM AO TOCAR NUM CAMPO.
    *
    * O Safari amplia a página inteira quando o campo tem fonte menor que 16px.
