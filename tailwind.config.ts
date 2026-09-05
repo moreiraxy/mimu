@@ -120,6 +120,27 @@ const config: Config = {
          * precisa de `cubic-bezier` com overshoot, que no nome ficaria
          * saltitante demais.
          */
+        /*
+         * A entrada de uma tela.
+         *
+         * TERMINA EM `none` E `1` DE PROPÓSITO, e isso é o que a torna
+         * possível aqui. `transform` ou `opacity < 1` num ancestral de um
+         * elemento `.vidro` cria um backdrop root e achata o `backdrop-filter`
+         * de tudo abaixo — é a razão de a `motion` estar instalada e não ser
+         * usada dentro do app.
+         *
+         * Ao fechar em valores neutros, o navegador desfaz a camada e o vidro
+         * volta ao normal. O achatamento existe, mas dura os 280ms da entrada,
+         * enquanto o conteúdo ainda está surgindo — que é exatamente quando
+         * ninguém olha para o desfoque do fundo.
+         *
+         * Por isso também NÃO tem `will-change`: ele manteria a camada viva
+         * depois do fim, e aí o vidro ficaria achatado para sempre.
+         */
+        "entrar-tela": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "none" },
+        },
         "assentar-marca": {
           "0%": { transform: "scale(1)" },
           "45%": { transform: "scale(1.09)" },
@@ -159,6 +180,7 @@ const config: Config = {
         "typing-dot": "typing-dot 1.2s infinite",
         // `both` segura o estado inicial durante o atraso — sem ele, o nome
         // pisca visível antes de começar a subir.
+        "entrar-tela": "entrar-tela 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
         "assentar-marca":
           "assentar-marca 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both",
         "subir-nome": "subir-nome 0.36s ease-out 0.12s both",

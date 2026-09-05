@@ -48,7 +48,7 @@ export default function ComecarPage() {
        * uma vez para todas as suas telas.
        */}
       <div
-        className="relative flex flex-1 flex-col"
+        className="relative flex flex-1 animate-entrar-tela flex-col motion-reduce:animate-none"
         style={{
           paddingTop: "calc(env(safe-area-inset-top) + 24px)",
           paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)",
