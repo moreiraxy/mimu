@@ -300,9 +300,30 @@ dentro de um grupo de assinatura. Sem eles `comprar()` devolve
 
 ### 5.2 O material da loja, que ninguém tinha listado
 
-App Privacy (a "nutrition label"), capturas de tela, **conta de demonstração
-para o revisor** e a nota de revisão explicando que a assinatura é vendida por
-In-App Purchase. Nenhum destes existe hoje.
+App Privacy (a "nutrition label"), capturas de tela e a nota de revisão
+explicando que a assinatura é vendida por In-App Purchase.
+
+**Conta de demonstração — PRONTA em 10/09/2026.** Criada em produção:
+
+    e-mail    apple.review@mimu.pro
+    senha     em ~/Desktop/mimu-conta-apple.txt (fora do repositório)
+    empresa   Studio Bia — 58d6b9c4-49e2-4fec-89b3-4abdc3851b88
+    usuária   1b45d571-6b6b-48a8-8995-38c85778e9f2
+
+Nasceu pelo caminho real, não por atalho: a usuária foi criada pela Admin API
+e o gatilho `on_auth_user_created` criou a empresa, como em qualquer cadastro.
+Os passos seguintes repetem `app/onboarding/actions.ts` na mesma ordem.
+
+Está em **teste de 7 dias**, de propósito. Uma conta já `ativa` esconderia a
+tela de assinatura, e é justamente ali que o revisor precisa chegar para testar
+o In-App Purchase.
+
+Tem 8 clientes, 6 produtos (2 abaixo do mínimo, para o alerta de estoque
+aparecer), 170 transações cobrindo 59 dias, 27 agendamentos (8 concluídos, 19
+à frente) e uma conta a pagar em aberto. Conferido pela sessão da própria
+usuária, passando pelo RLS — não pela service role.
+
+Para apagar: remova a usuária no painel do Supabase; o resto cai em cascata.
 
 ### 5.3 Push por APNs — código pronto, faltam as chaves
 
