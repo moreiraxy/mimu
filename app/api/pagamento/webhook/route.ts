@@ -5,10 +5,22 @@ import {
 } from "mercadopago";
 import { createServiceClient } from "@/lib/supabase/service";
 import { ativarAssinatura } from "@/lib/assinatura";
-import { PLANO_GRATUITO } from "@/lib/planos";
+import { PLANO_GRATUITO, periodicidadeValida, type Periodicidade } from "@/lib/planos";
 import { registrarEvento } from "@/lib/eventos";
 import { mpPayment, mpPreApproval } from "@/lib/mercadopago";
 import type { StatusPagamentoMP } from "@/types";
+
+/**
+ * O período que um Pix pagou, lido da própria cobrança no Mercado Pago.
+ *
+ * Quem grava é a rota do Pix (app/api/pagamento/pix/route.ts), e o motivo de
+ * ler daqui e não da assinatura está lá. Pix gerado antes de a rota gravar o
+ * período não tem o campo, e todos eles eram mensais: é esse o padrão.
+ */
+function periodoCobrado(pagamentoMP: { metadata?: unknown }): Periodicidade {
+  const metadata = pagamentoMP.metadata as { periodicidade?: unknown } | undefined;
+  return periodicidadeValida(metadata?.periodicidade) ?? "mensal";
+}
 
 function mapearStatus(statusMP: string | undefined): StatusPagamentoMP {
   if (statusMP === "approved") return "aprovado";
@@ -227,7 +239,11 @@ export async function POST(request: Request) {
     }
 
     if (statusAtual === "aprovado") {
-      await ativarAssinatura(supabase, pagamento.assinatura_id);
+      await ativarAssinatura(
+        supabase,
+        pagamento.assinatura_id,
+        periodoCobrado(pagamentoMP),
+      );
     }
 
     return NextResponse.json({ success: true });

@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/hooks/useToast";
+import { formatCurrency } from "@/lib/formatters";
 
 const POLL_MS = 5000;
 
@@ -15,6 +16,9 @@ interface DadosPix {
   qrCode: string;
   qrCodeBase64: string;
   expiraEm: string;
+  valor: number;
+  periodicidade: "mensal" | "anual";
+  plano: string;
 }
 
 function formatarContagem(segundos: number): string {
@@ -222,6 +226,19 @@ export default function AssinarPixPage() {
 
         {!carregando && dados && !expirado && !recusado && (
           <div className="mt-6 flex flex-col items-center gap-4">
+            {/* O valor antes do QR Code: sem isto, a pessoa só descobria quanto
+                ia pagar quando o app do banco mostrava. */}
+            <div className="text-center">
+              <p className="font-display text-[32px] font-bold leading-none text-escuro">
+                {formatCurrency(dados.valor)}
+              </p>
+              <p className="mt-1.5 text-sm text-neutro-muted">
+                Plano {dados.plano} ·{" "}
+                {dados.periodicidade === "anual"
+                  ? "12 meses de acesso"
+                  : "1 mês de acesso"}
+              </p>
+            </div>
             {/* eslint-disable-next-line @next/next/no-img-element -- data URI dinâmico, next/image não otimiza base64 */}
             <img
               src={`data:image/png;base64,${dados.qrCodeBase64}`}
