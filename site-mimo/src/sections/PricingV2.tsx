@@ -65,7 +65,7 @@ const PLANOS = [
     id: "pro",
     nome: "Pro",
     subtitulo: "Pra quem quer o negócio organizado todo dia, sem pensar nisso",
-    preco: { mensal: "R$ 39", anual: "R$ 399" },
+    preco: { mensal: "R$ 39,90", anual: "R$ 399,90" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Os 5 módulos liberados",
@@ -84,7 +84,7 @@ const PLANOS = [
     id: "premium",
     nome: "Premium",
     subtitulo: "Pra quem usa a Mimu como operação, e conversa com ela o dia inteiro",
-    preco: { mensal: "R$ 199", anual: "R$ 1.990" },
+    preco: { mensal: "R$ 199,90", anual: "R$ 1.989,90" },
     sufixo: { mensal: "/mês", anual: "/ano" },
     features: [
       "Os 5 módulos liberados",

@@ -70,24 +70,39 @@ describe("a landing promete o que o app entrega", () => {
     ).toBe(false);
   });
 
+  /**
+   * Como o mesmo valor pode aparecer escrito na landing.
+   *
+   * O código guarda número; a landing escreve dinheiro. `1989.9` vira
+   * "R$ 1.989,90" em português — com ponto de milhar e vírgula decimal —,
+   * enquanto o JavaScript cru diria "R$ 1989.9". Comparar a forma crua
+   * funcionou enquanto todo preço era inteiro e redondo, e quebrou no dia em
+   * que os centavos entraram (eles vêm das faixas da App Store; ver
+   * lib/planos.ts).
+   *
+   * Devolve as duas grafias aceitáveis porque um preço redondo pode ser
+   * escrito "R$ 39" ou "R$ 39,00", e as duas estão certas. O que o teste
+   * garante é o VALOR, não a pontuação.
+   */
+  function grafias(valor: number): string[] {
+    return [
+      `R$ ${valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      `R$ ${valor.toLocaleString("pt-BR")}`,
+    ];
+  }
+
   it("cobra o preço que o checkout cobra", () => {
     for (const chave of ["pro", "premium"] as const) {
       const { valorMensal, valorAnual } = PLANOS[chave];
-      expect(
-        BLOCO_PLANOS,
-        `A landing não mostra o mensal de ${chave} (R$ ${valorMensal}).`,
-      ).toContain(`R$ ${valorMensal}`);
 
-      /*
-       * O anual passa dos mil e a landing escreve com ponto ("R$ 1.990"),
-       * como se lê em português. O código guarda 1990. Aceita as duas grafias
-       * em vez de exigir uma: o que importa é o valor, não a pontuação.
-       */
-      const semPonto = `R$ ${valorAnual}`;
-      const comPonto = `R$ ${valorAnual!.toLocaleString("pt-BR")}`;
       expect(
-        BLOCO_PLANOS.includes(semPonto) || BLOCO_PLANOS.includes(comPonto),
-        `A landing não mostra o anual de ${chave} (${comPonto}).`,
+        grafias(valorMensal).some((g) => BLOCO_PLANOS.includes(g)),
+        `A landing não mostra o mensal de ${chave} (${grafias(valorMensal)[0]}).`,
+      ).toBe(true);
+
+      expect(
+        grafias(valorAnual!).some((g) => BLOCO_PLANOS.includes(g)),
+        `A landing não mostra o anual de ${chave} (${grafias(valorAnual!)[0]}).`,
       ).toBe(true);
     }
   });

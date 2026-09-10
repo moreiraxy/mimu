@@ -50,8 +50,20 @@ export const PLANOS: Record<
     valorAnual: number | null;
   }
 > = {
-  pro: { nome: "Pro", valorMensal: 39, valorAnual: 399 },
-  premium: { nome: "Premium", valorMensal: 199, valorAnual: 1990 },
+  /*
+   * OS CENTAVOS VÊM DAS FAIXAS DA APPLE, e não de estratégia de preço.
+   *
+   * A App Store não vende por valor livre: escolhe-se uma faixa, e R$ 39,00
+   * exato não é uma delas. Enquanto o site cobrava R$ 39 e a loja R$ 39,90, o
+   * mesmo plano tinha dois preços dependendo de onde a pessoa assinasse — e
+   * `lib/iap.ts` já alerta que anunciar um número e cobrar outro é quebra de
+   * confiança com a cliente e reprovação na revisão.
+   *
+   * Estes valores agora são os mesmos configurados no App Store Connect.
+   * Mudar um lado sem o outro traz a divergência de volta.
+   */
+  pro: { nome: "Pro", valorMensal: 39.9, valorAnual: 399.9 },
+  premium: { nome: "Premium", valorMensal: 199.9, valorAnual: 1989.9 },
 };
 
 /**
