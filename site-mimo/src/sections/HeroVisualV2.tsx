@@ -252,7 +252,9 @@ function CartaoPequeno({
  * lugares e o do meio é a ação.
  */
 function IconeNav({ forma, ativo }: { forma: "casa" | "agenda" | "grafico" | "mais"; ativo?: boolean }) {
-  const cor = ativo ? "text-ink" : "text-muted";
+  // O item ativo é da COR DA MARCA, não branco: no app é `text-primary-forte`
+  // contra `text-neutro-icon` (components/dashboard/BottomNav.tsx).
+  const cor = ativo ? "text-coral" : "text-muted";
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" className={cor} aria-hidden="true">
       {forma === "casa" && <path d="M7 1.5 1.5 6v6.5h4V9h3v3.5h4V6L7 1.5Z" fill="currentColor" />}
