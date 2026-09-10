@@ -193,6 +193,94 @@ function AvatarBubble({
 }
 
 /** Tela do celular — o dashboard oficial da Mimu (app/(marketing)/HeroSection.tsx), com os tokens de cor traduzidos pro tema do site-mimo. */
+/**
+ * O cartão pequeno do painel, com o anel.
+ *
+ * O anel é grosso e ocupa perto de um terço da largura de propósito: é o que
+ * o olho encontra primeiro, e o número embaixo é a legenda dele. Um ícone de
+ * traço nesse lugar some dentro do cartão. Mesma decisão de
+ * components/CartaoDado.tsx e components/graficos/Anel.tsx no app.
+ */
+// aspect-[169/196] é a proporção real do widget pequeno no app
+// (CLASSES_TAMANHO em lib/widgets.ts): mais alto que largo. Sem ela o cartão
+// fica achatado e o anel perde o peso que deveria ter.
+function CartaoPequeno({
+  rotulo,
+  valor,
+  progresso,
+  cor,
+}: {
+  rotulo: string;
+  valor: string;
+  progresso: number;
+  cor: string;
+}) {
+  // 2πr com r=14: o traço é desenhado como fração desta volta.
+  const volta = 2 * Math.PI * 14;
+
+  return (
+    <div className="flex aspect-[169/196] flex-col justify-between rounded-[14px] border border-white/10 bg-white/[0.06] p-3">
+      <svg width="46" height="46" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="4.5" />
+        <circle
+          cx="16"
+          cy="16"
+          r="14"
+          fill="none"
+          stroke={cor}
+          strokeWidth="4.5"
+          strokeLinecap="round"
+          strokeDasharray={`${(progresso / 100) * volta} ${volta}`}
+          transform="rotate(-90 16 16)"
+        />
+      </svg>
+      <div>
+        <p className="text-[10px] leading-tight text-muted">{rotulo}</p>
+        {/* Sem cor no número: quem carrega a cor é o anel. */}
+        <p className="text-[13px] font-extrabold leading-tight text-ink">{valor}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Um ícone da barra inferior, desenhado como silhueta.
+ *
+ * Não são os ícones do lucide que o app usa: a 12px o traço de 1,5px some, e
+ * o que sobra é uma mancha cinza. Formas cheias leem melhor nesse tamanho e
+ * dão a mesma informação — que ali existe uma barra de navegação com cinco
+ * lugares e o do meio é a ação.
+ */
+function IconeNav({ forma, ativo }: { forma: "casa" | "agenda" | "grafico" | "mais"; ativo?: boolean }) {
+  const cor = ativo ? "text-ink" : "text-muted";
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" className={cor} aria-hidden="true">
+      {forma === "casa" && <path d="M7 1.5 1.5 6v6.5h4V9h3v3.5h4V6L7 1.5Z" fill="currentColor" />}
+      {forma === "agenda" && (
+        <>
+          <rect x="1.5" y="3" width="11" height="9.5" rx="1.8" fill="currentColor" />
+          <rect x="4" y="1" width="1.5" height="3" rx="0.7" fill="currentColor" />
+          <rect x="8.5" y="1" width="1.5" height="3" rx="0.7" fill="currentColor" />
+        </>
+      )}
+      {forma === "grafico" && (
+        <>
+          <rect x="1.5" y="7" width="2.6" height="5.5" rx="1" fill="currentColor" />
+          <rect x="5.7" y="4" width="2.6" height="8.5" rx="1" fill="currentColor" />
+          <rect x="9.9" y="1.5" width="2.6" height="11" rx="1" fill="currentColor" />
+        </>
+      )}
+      {forma === "mais" && (
+        <>
+          <circle cx="2.5" cy="7" r="1.4" fill="currentColor" />
+          <circle cx="7" cy="7" r="1.4" fill="currentColor" />
+          <circle cx="11.5" cy="7" r="1.4" fill="currentColor" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function TelaDoCelular() {
   return (
     <div
@@ -211,13 +299,10 @@ function TelaDoCelular() {
         borderRadius: "10.09% / 4.68%",
       }}
     >
-      {/* barra de status: altura fixa em % da tela, não em flex-grow, o
-          bloco de conteúdo abaixo ancora nela com `top`/`bottom` (mesma
-          técnica do celular real em app/(marketing)/HeroSection.tsx). Um
-          `flex-1` dentro de um `flex-col` cujo próprio pai também depende
-          de altura percentual encadeada (aspect-ratio → h-full → h-full)
-          não resolve de forma confiável em todo navegador; ancorar por
-          `inset` dá altura definida sem depender dessa cadeia. */}
+      {/* barra de status: altura fixa em % da tela, ancorada por `inset`. Um
+          `flex-1` dentro de uma cadeia de alturas percentuais
+          (aspect-ratio → h-full → h-full) não resolve igual em todo
+          navegador. */}
       <div className="absolute inset-x-0 top-0 flex h-[8%] items-center justify-between px-5">
         <p className="text-[11px] font-bold text-ink">9:41</p>
         <div className="flex items-center gap-[4px]">
@@ -232,57 +317,139 @@ function TelaDoCelular() {
         </div>
       </div>
 
-      <div className="absolute inset-x-0 top-[8%] flex flex-col gap-2.5 px-4 pt-2">
+      {/*
+        O PAINEL AQUI ESPELHA app/(dashboard)/dashboard/, e precisa ser
+        conferido contra ele quando o app mudar.
+
+        Esta tela é desenhada à mão, não é screenshot — e por isso envelhece
+        sem avisar. Ficou três semanas mostrando a interface anterior: o painel
+        virou grade de widgets em vidro no commit 3c10b20 (01/09/2026, 155
+        arquivos) e a landing seguiu desenhando o layout de 10/08, com um
+        cartão coral cheio e os números pintados de verde e âmbar.
+
+        O que se espelha, e de onde:
+
+          grade      2 colunas; widget "médio" ocupa as duas
+                     (CLASSES_TAMANHO em lib/widgets.ts)
+          ordem      hoje · a-receber · a-pagar · faturamento · agenda ·
+                     avisos (PAINEL_PADRAO — o que uma conta nova vê)
+          "hoje"     rótulo miúdo, valor grande, barra fina, linha de apoio
+                     (CartaoDeHoje.tsx)
+          pequenos   anel grosso no topo, rótulo, valor
+                     (components/CartaoDado.tsx)
+          cor        só no anel e na barra. O NÚMERO NUNCA É COLORIDO — está
+                     escrito em page.tsx por quê: pintar anel e número diz a
+                     mesma coisa duas vezes.
+
+        O vidro do app é branco translúcido sobre fundo escuro
+        (--vidro-fundo: 255 255 255 nos dois temas). Aqui vira white/[0.06]
+        com borda white/10 — mesma leitura, com os tokens desta landing.
+      */}
+      <div className="absolute inset-x-0 bottom-[9%] top-[8%] flex flex-col gap-3 overflow-hidden px-4 pt-3">
+        {/* Cabeçalho: retrato, saudação e a marca — como em HeroHome.tsx. */}
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[10px] text-muted">Bom dia,</p>
-            <p className="text-[13px] font-extrabold text-ink">Andréia</p>
+          <div className="flex items-center gap-2">
+            <span className="flex size-[22px] items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-ink">
+              A
+            </span>
+            <div>
+              <p className="text-[10px] leading-tight text-muted">Bom dia,</p>
+              <p className="text-[13px] font-extrabold leading-tight text-ink">
+                Andréia
+              </p>
+            </div>
           </div>
           <span className="flex size-[26px] items-center justify-center rounded-[9px] bg-coral">
             <MimuMark className="size-3 text-primary-text" />
           </span>
         </div>
 
-        <div className="rounded-2xl bg-coral p-3">
-          <p className="mb-0.5 text-[9px] text-primary-text/80">Ótimo dia!</p>
-          <p className="mb-2.5 text-[11px] text-primary-text">82% da meta de hoje.</p>
-          <div className="mb-2 flex justify-between">
-            <div>
-              <p className="text-[8px] text-primary-text/70">Realizado</p>
-              <p className="text-[13px] font-extrabold text-primary-text">R$ 410</p>
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* "Hoje" — médio. */}
+          <div className="col-span-2 rounded-[14px] border border-white/10 bg-white/[0.06] p-3">
+            <p className="text-[10px] leading-tight text-muted">
+              Faturamento de hoje
+            </p>
+            <p className="mt-0.5 text-[24px] font-bold leading-none tracking-tight text-ink">
+              R$ 410
+            </p>
+            {/* A barra fina é onde a cor da marca aparece neste widget —
+                traço, não área. */}
+            <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-[82%] rounded-full bg-coral" />
             </div>
-            <div>
-              <p className="text-[8px] text-primary-text/70">Meta</p>
-              <p className="text-[13px] font-extrabold text-primary-text">R$ 500</p>
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-[10px] text-muted">Meta do dia</span>
+              <span className="text-[10px] font-bold text-ink">R$ 500</span>
             </div>
           </div>
-          <div className="h-[4px] w-full rounded-md bg-primary-text/25">
-            <div className="h-full w-[82%] rounded-md bg-primary-text" />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-xl border border-borda bg-superficie p-2.5">
-            <p className="mb-0.5 text-[9px] text-muted">A receber</p>
-            <p className="text-[12px] font-extrabold text-verde">R$ 240</p>
-          </div>
-          <div className="rounded-xl border border-borda bg-superficie p-2.5">
-            <p className="mb-0.5 text-[9px] text-muted">A pagar</p>
-            <p className="text-[12px] font-extrabold text-ambar">R$ 180</p>
-          </div>
-        </div>
+          {/* Os dois pequenos, com o anel carregando a cor. */}
+          <CartaoPequeno rotulo="A receber" valor="R$ 240" progresso={57} cor="var(--color-verde)" />
+          <CartaoPequeno rotulo="A pagar" valor="R$ 180" progresso={43} cor="var(--color-ambar)" />
 
-        <div className="rounded-xl border border-borda bg-superficie p-2.5">
-          <p className="mb-1.5 text-[10px] font-bold text-ink">Agenda de hoje</p>
-          <div className="mb-1 flex justify-between">
-            <p className="text-[9px] text-ink">Maria · Escova</p>
-            <p className="text-[9px] text-muted">14h</p>
+          {/* "Faturamento" — médio. No app é o gráfico da semana
+              (CartaoResumoFaturamento.tsx); aqui, sete barras, que é o que se
+              lê num celular deste tamanho. */}
+          <div className="col-span-2 rounded-[14px] border border-white/10 bg-white/[0.06] p-3">
+            <p className="text-[10px] leading-tight text-muted">
+              Faturamento na semana
+            </p>
+            <div className="mt-1.5 flex h-[40px] items-end gap-1.5">
+              {[38, 52, 44, 70, 58, 88, 64].map((altura, i) => (
+                <div
+                  key={i}
+                  className={`flex-1 rounded-[2px] ${i === 5 ? "bg-coral" : "bg-white/20"}`}
+                  style={{ height: `${altura}%` }}
+                />
+              ))}
+            </div>
           </div>
-          <div className="flex justify-between">
-            <p className="text-[9px] text-ink">Carol · Manicure</p>
-            <p className="text-[9px] text-muted">16h</p>
+
+          {/* Agenda — médio. */}
+          <div className="col-span-2 rounded-[14px] border border-white/10 bg-white/[0.06] p-3">
+            <p className="mb-1.5 text-[10px] text-muted">Agenda de hoje</p>
+            <div className="mb-1 flex justify-between">
+              <p className="text-[10px] text-ink">Maria · Escova</p>
+              <p className="text-[10px] text-muted">14h</p>
+            </div>
+            <div className="flex justify-between">
+              <p className="text-[10px] text-ink">Carol · Manicure</p>
+              <p className="text-[10px] text-muted">16h</p>
+            </div>
+          </div>
+
+          {/* "Avisos da Mimu" — médio, o último do painel padrão. */}
+          <div className="col-span-2 rounded-[14px] border border-white/10 bg-white/[0.06] p-3">
+            <div className="flex items-center gap-1.5">
+              <span className="flex size-[14px] items-center justify-center rounded-[5px] bg-coral">
+                <MimuMark className="size-2 text-primary-text" />
+              </span>
+              <p className="text-[10px] leading-tight text-muted">Avisos da Mimu</p>
+            </div>
+            <p className="mt-1.5 text-[10px] leading-snug text-ink">
+              Maria te deve R$ 80 desde o dia 2.
+            </p>
           </div>
         </div>
+      </div>
+
+      {/*
+        A BARRA INFERIOR, que faltava aqui.
+
+        O app tem navegação fixa no pé (components/dashboard/BottomNav.tsx):
+        Home, Agenda, o botão de ação no centro, Financeiro e Mais. Sem ela o
+        mockup mostrava um painel solto no vazio — e era o vazio que denunciava
+        que aquilo não era o app.
+      */}
+      <div className="absolute inset-x-0 bottom-0 flex h-[9%] items-center justify-between border-t border-white/10 bg-white/[0.04] px-5 pb-1">
+        <IconeNav forma="casa" ativo />
+        <IconeNav forma="agenda" />
+        <span className="flex size-[26px] items-center justify-center rounded-full bg-coral">
+          <span className="mt-[-1px] text-[15px] font-bold leading-none text-primary-text">+</span>
+        </span>
+        <IconeNav forma="grafico" />
+        <IconeNav forma="mais" />
       </div>
     </div>
   );
