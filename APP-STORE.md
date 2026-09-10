@@ -342,17 +342,16 @@ Funciona quando as duas metades existem:
 **O iOS busca esse arquivo na INSTALAÇÃO do app.** Configurar a variável depois
 não conserta quem já instalou — é preciso reinstalar.
 
-### 5.5 Banco
+### 5.5 Banco — APLICADO em 10/09/2026
 
-`supabase/APLICAR-EM-PRODUCAO.sql` está pronto para colar no SQL Editor.
+`supabase/APLICAR-EM-PRODUCAO.sql` já foi rodado em produção. Fica aqui porque
+é idempotente e serve de referência do que mudou.
 Acrescenta a coluna `tipo` em `push_subscriptions`, que separa Web Push de
 APNs. É idempotente — verificado rodando contra um banco que já a tinha.
 
-Enquanto não rodar, quem aceitar a permissão de notificação toma 500 e não fica
-inscrito. Quem já está inscrito continua recebendo.
-
-Depois de aplicar, regere `types/database.ts` pelo Supabase: ele foi editado à
-mão para acompanhar a migration.
+PENDENTE AINDA: regerar `types/database.ts` pelo Supabase. Ele foi editado à
+mão para acompanhar a migration, e o conteúdo confere — mas o arquivo é gerado,
+e um arquivo gerado editado à mão envelhece na próxima geração de alguém.
 
 ### 5.6 Uma coisa que não é do app
 
