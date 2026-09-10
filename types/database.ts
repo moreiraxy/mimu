@@ -1,9 +1,22 @@
 /**
  * Tipos do schema do Supabase, escritos a partir das migrations em
- * supabase/migrations/. Depois de aplicar mudanças de schema, prefira
- * regerar via CLI para manter tudo em sincronia:
+ * supabase/migrations/.
  *
- *   npx supabase gen types typescript --project-id <PROJECT_ID> > types/database.ts
+ * NÃO substitua este arquivo pela saída do gerador. O gerador não enxerga
+ * restrições CHECK, então ele achata para `string` as 21 uniões nomeadas
+ * daqui — StatusAssinatura, TipoTransacao, OrigemPagamento, TransportePush
+ * e as demais. Trocar um pelo outro perde tipagem de que o código depende.
+ *
+ * Use o gerador como CONFERÊNCIA, comparando coluna a coluna:
+ *
+ *   supabase gen types typescript --project-id <PROJECT_ID> > /tmp/gerado.ts
+ *
+ * Ao comparar, três diferenças são esperadas e não indicam erro: uniões
+ * nomeadas contra `string`; colunas de view sempre anuláveis no gerado
+ * (o Postgres não prova não-nulidade através de uma view); e `Json` contra
+ * `Json | null`, que são o mesmo tipo porque `Json` já inclui `null`.
+ *
+ * Conferido contra o banco de produção em 10/09/2026.
  */
 export type Json =
   | string
@@ -774,6 +787,11 @@ export interface Database {
           // transactionId do StoreKit. Chave de idempotência do IAP, mesmo
           // papel do mp_payment_id.
           apple_transaction_id: string | null;
+          // A Cakto foi um meio de pagamento avaliado e abandonado. As colunas
+          // continuam no banco e nenhum código as lê — estão aqui só para o
+          // tipo não mentir sobre o formato da linha.
+          cakto_payment_id: string | null;
+          cakto_status: string | null;
         };
         Insert: {
           id?: string;
@@ -788,6 +806,11 @@ export interface Database {
           created_at?: string;
           manual_referencia?: string | null;
           apple_transaction_id?: string | null;
+          // A Cakto foi um meio de pagamento avaliado e abandonado. As colunas
+          // continuam no banco e nenhum código as lê — estão aqui só para o
+          // tipo não mentir sobre o formato da linha.
+          cakto_payment_id?: string | null;
+          cakto_status?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["pagamentos"]["Insert"]>;
         Relationships: [];
