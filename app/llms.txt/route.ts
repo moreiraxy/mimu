@@ -1,5 +1,17 @@
 import { urlAbsoluta } from "@/lib/site";
-import { VALOR_MENSAL_MIMU } from "@/lib/planos";
+import { PLANOS } from "@/lib/planos";
+
+/**
+ * "R$ 1.989,90" com espaço comum.
+ *
+ * Não é o formatCurrency do app: aquele usa o Intl, que põe um espaço
+ * não-separável entre "R$" e o número. Numa tela isso impede a quebra de
+ * linha no lugar errado; num arquivo de texto lido por máquina é um caractere
+ * estranho no meio do preço.
+ */
+function reais(valor: number): string {
+  return `R$ ${valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+}
 
 /**
  * llms.txt — o que um modelo de linguagem precisa saber sobre a Mimu.
@@ -36,7 +48,9 @@ Cada uma dessas áreas é um módulo que pode ser ligado ou desligado. Quem só 
 ## Preço
 
 - Teste grátis de 7 dias, sem cartão de crédito.
-- Depois, R$ ${VALOR_MENSAL_MIMU.toFixed(2).replace(".", ",")} por mês, plano único com tudo incluído.
+- Depois do teste a conta continua aberta no plano gratuito, com o caixa e a assistente.
+- Pro: ${reais(PLANOS.pro.valorMensal)} por mês ou ${reais(PLANOS.pro.valorAnual!)} por ano.
+- Premium: ${reais(PLANOS.premium.valorMensal)} por mês ou ${reais(PLANOS.premium.valorAnual!)} por ano.
 - Pagamento por Pix ou cartão. Sem fidelidade, cancela quando quiser.
 
 ## Links

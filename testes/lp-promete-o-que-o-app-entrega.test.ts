@@ -106,4 +106,43 @@ describe("a landing promete o que o app entrega", () => {
       ).toBe(true);
     }
   });
+
+  /*
+   * OS PREÇOS MORAM EM MAIS LUGARES QUE OS CARTÕES.
+   *
+   * Quando a mensalidade ganhou centavos (faixas da App Store), os cartões
+   * foram atualizados e dois lugares ficaram para trás sem nada acusar: o
+   * número do hero, que seguiu anunciando "R$ 39", e a cláusula 5.1 dos Termos
+   * de Uso, que seguiu dizendo "R$ 1.990" num contrato — valor que o checkout
+   * já não cobrava. Este teste só olhava os cartões.
+   */
+  it("o hero anuncia a mensalidade do Pro", () => {
+    const stats = readFileSync(
+      join(process.cwd(), "site-mimo/src/sections/Stats.tsx"),
+      "utf8",
+    );
+    // Ponto decimal, porque é o que o <Counter> recebe; ele escreve vírgula.
+    const esperado = `value: "${PLANOS.pro.valorMensal.toFixed(2)}"`;
+    expect(
+      stats,
+      `O hero (site-mimo/src/sections/Stats.tsx) não traz ${esperado}, ` +
+        `que é a mensalidade do Pro em lib/planos.ts.`,
+    ).toContain(esperado);
+  });
+
+  it("os Termos de Uso citam os preços que o checkout cobra", () => {
+    const legal = readFileSync(
+      join(process.cwd(), "site-mimo/src/data/legal.ts"),
+      "utf8",
+    );
+    for (const chave of ["pro", "premium"] as const) {
+      for (const valor of [PLANOS[chave].valorMensal, PLANOS[chave].valorAnual!]) {
+        expect(
+          grafias(valor).some((g) => legal.includes(g)),
+          `Os Termos de Uso não citam ${grafias(valor)[0]} (${chave}). ` +
+            `É contrato: o preço escrito ali precisa ser o cobrado.`,
+        ).toBe(true);
+      }
+    }
+  });
 });

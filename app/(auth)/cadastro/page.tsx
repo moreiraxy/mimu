@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BotoesSociais } from "@/components/auth/BotoesSociais";
 import { PLANOS, planoValido } from "@/lib/planos";
+import { formatCurrency } from "@/lib/formatters";
 
 const initialState: AuthFormState = undefined;
 
@@ -47,7 +48,7 @@ function FormularioCadastro() {
       {escolhido ? (
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1 text-xs font-bold text-primary-forte">
-            Plano {escolhido.nome} · R$ {escolhido.valorMensal}/mês
+            Plano {escolhido.nome} · {formatCurrency(escolhido.valorMensal)}/mês
           </span>
           <h1 className="mt-3 text-[24px] font-bold leading-tight tracking-tight text-escuro">
             Crie sua conta para assinar

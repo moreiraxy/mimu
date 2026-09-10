@@ -112,6 +112,42 @@ export function planoValido(valor: unknown): PlanoPago | null {
 export const VALOR_MENSAL_MIMU = PLANOS.pro.valorMensal;
 
 /**
+ * Reais para centavos inteiros. Toda conta de dinheiro derivada do catálogo
+ * acontece em centavos, e só volta a reais no fim.
+ *
+ * Os preços têm centavos desde que seguem as faixas da App Store, e conta com
+ * centavo em ponto flutuante não fecha: 39,90 × 12 − 399,90 dá
+ * 78,89999999999998 em JavaScript — foi exatamente isso que a tela de
+ * assinatura teria mostrado em "você economiza". Arredondar o resultado no fim
+ * não basta: 399,90 ÷ 12 é 33,325, que o ponto flutuante guarda como
+ * 33,32499… e arredonda para BAIXO. Em centavos inteiros, 39990 ÷ 12 =
+ * 3332,5, que arredonda para 3333 — R$ 33,33, como na conta de papel.
+ */
+function centavos(reais: number): number {
+  return Math.round(reais * 100);
+}
+
+/** Quanto o anual economiza em relação a doze mensalidades, ou 0. */
+export function economiaNoAnual(plano: PlanoPago): number {
+  const { valorMensal, valorAnual } = PLANOS[plano];
+  if (valorAnual === null) return 0;
+  return (centavos(valorMensal) * 12 - centavos(valorAnual)) / 100;
+}
+
+/**
+ * O anual dividido em doze — o "por mês" que a tela mostra grande.
+ *
+ * Era `Math.round`, que arredondava para o real inteiro: com os preços
+ * redondos de antes não se notava, e com centavos a tela mostraria "R$ 33"
+ * logo abaixo de um "R$ 39,90". Os centavos sumiriam só ali.
+ */
+export function porMesNoAnual(plano: PlanoPago): number | null {
+  const { valorAnual } = PLANOS[plano];
+  if (valorAnual === null) return null;
+  return Math.round(centavos(valorAnual) / 12) / 100;
+}
+
+/**
  * O TETO de cada plano: quais módulos ele deixa ligar.
  *
  * É teto e não lista: o que a empresa realmente usa é a interseção disto com

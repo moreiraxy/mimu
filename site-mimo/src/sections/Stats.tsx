@@ -30,7 +30,10 @@ const APPEAR_SPRING =
  */
 const STATS = [
   { value: "7", suffix: " dias", label: "grátis para começar" },
-  { prefix: "R$ ", value: "39", label: "por mês depois" },
+  // Tem que bater com PLANOS.pro.valorMensal em lib/planos.ts, do app — este
+  // projeto não importa de lá. testes/lp-promete-o-que-o-app-entrega.test.ts
+  // quebra se divergir. Ponto decimal aqui, vírgula na tela: ver Counter.tsx.
+  { prefix: "R$ ", value: "39.90", label: "por mês depois" },
   { value: "2", suffix: " min", label: "para configurar tudo" },
   { prefix: "+", value: "400", label: "negócios de bairro" },
 ];

@@ -12,12 +12,15 @@ import {
   WifiOff,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { formatCurrency } from "@/lib/formatters";
 import {
   PLANOS,
   PLANO_PADRAO,
   planoValido,
   periodicidadeValida,
   valorDoPlano,
+  economiaNoAnual,
+  porMesNoAnual,
   type PlanoPago,
   type Periodicidade,
 } from "@/lib/planos";
@@ -220,7 +223,7 @@ function seletorDePlanos(planoAtual: PlanoPago, periodicidade: Periodicidade) {
               {nome}
             </span>
             <span className="mt-1 font-display text-xl font-bold leading-none text-escuro">
-              R$ {valorMensal}
+              {formatCurrency(valorMensal)}
             </span>
             <span className="mt-0.5 text-[11px] text-neutro-muted">por mês</span>
           </Link>
@@ -248,8 +251,8 @@ function conteudo(
    * mais caro num relance. O que a pessoa compara é o mês; o total do ano vem
    * embaixo, junto com quanto ela economiza — que é a razão de existir a opção.
    */
-  const porMes = noAnual ? Math.round(valorAnual! / 12) : valorMensal;
-  const economia = noAnual ? valorMensal * 12 - valorAnual! : 0;
+  const porMes = noAnual ? porMesNoAnual(plano)! : valorMensal;
+  const economia = noAnual ? economiaNoAnual(plano) : 0;
   return (
     // `dark` pelo mesmo motivo do cadastro e do onboarding: esta tela é a
     // continuação de uma landing preta, e quem chega aqui está no meio de uma
@@ -288,19 +291,19 @@ function conteudo(
             </p>
             <p className="mt-1.5 flex items-baseline gap-1.5">
               <span className="font-display text-[44px] font-bold leading-none text-escuro">
-                R$ {porMes}
+                {formatCurrency(porMes)}
               </span>
               <span className="text-sm text-neutro-muted">/mês</span>
             </p>
 
             {noAnual && (
               <p className="mt-2 text-[13px] text-neutro-muted">
-                R$ {valorAnual} cobrados uma vez por ano
+                {formatCurrency(valorAnual!)} cobrados uma vez por ano
                 {economia > 0 && (
                   <>
                     {" — "}
                     <span className="font-semibold text-verde-texto">
-                      você economiza R$ {economia}
+                      você economiza {formatCurrency(economia)}
                     </span>
                   </>
                 )}

@@ -137,7 +137,7 @@ export function PricingV2() {
         />
         <Revelar atraso={140}>
           <p className="mt-3 max-w-[480px] text-center text-base text-muted-strong md:text-lg">
-            Comece grátis. Evolua quando quiser. Economize 17% no plano anual.
+            Comece grátis. Evolua quando quiser. Economize até 17% no plano anual.
           </p>
         </Revelar>
 
@@ -153,7 +153,7 @@ export function PricingV2() {
             >
               {opcao === "mensal" ? "Mensal" : "Anual"}
               {opcao === "anual" && (
-                <span className={periodo === "anual" ? "text-verde" : "text-verde/70"}>-17%</span>
+                <span className={periodo === "anual" ? "text-verde" : "text-verde/70"}>até 17%</span>
               )}
             </button>
           ))}

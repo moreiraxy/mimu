@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Clock, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { PLANOS } from "@/lib/planos";
+import { formatCurrency } from "@/lib/formatters";
 import { linkWhatsApp } from "@/lib/contato";
 
 /**
@@ -28,7 +29,7 @@ export default function TrialVencidoPage() {
       </h1>
       <p className="mt-2 max-w-sm text-sm text-neutro-muted">
         Seus dados continuam aqui, guardados. É só escolher um plano para voltar
-        a usar. A partir de R$ {PLANOS.pro.valorMensal} por mês.
+        a usar. A partir de {formatCurrency(PLANOS.pro.valorMensal)} por mês.
       </p>
 
       <Link

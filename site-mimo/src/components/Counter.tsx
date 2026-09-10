@@ -4,6 +4,12 @@ import { useInView } from "../hooks/useInView";
 /**
  * Counts up to `value` once the stat scrolls into view.
  * `value` carries its own formatting — "3.2" keeps one decimal, "98" stays whole.
+ *
+ * `value` vem com PONTO decimal ("39.90"), porque é o que `Number()` entende,
+ * e sai com VÍRGULA ("39,90"), porque é o que a leitora entende. Antes a saída
+ * era `toFixed`, que devolve ponto: enquanto todo número do site era inteiro
+ * não fazia diferença, e no dia em que a mensalidade ganhou centavos o hero
+ * passaria a anunciar "R$ 39.90".
  */
 export function Counter({
   prefix = "",
@@ -46,7 +52,7 @@ export function Counter({
   return (
     <p ref={ref} className={className}>
       {prefix}
-      {shown.toFixed(decimals)}
+      {shown.toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
       {suffix}
     </p>
   );

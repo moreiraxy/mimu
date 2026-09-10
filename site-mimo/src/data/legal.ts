@@ -10,7 +10,7 @@
  * Os documentos do template eram norte-americanos: GDPR, CCPA, foro em
  * Delaware, SOC 2. Nada disso descreve a Mimu, que atende microempreendedor
  * brasileiro. Foram reescritos sobre a LGPD (Lei 13.709/2018) e sobre os fatos
- * que o próprio site afirma — 7 dias grátis sem cartão, R$ 39 a R$ 199 por mês,
+ * que o próprio site afirma — 7 dias grátis sem cartão, R$ 39,90 a R$ 199,90 por mês,
  * cancelamento sem multa, funcionamento offline, dados no Brasil.
  *
  * Ainda assim isto é minuta, não parecer jurídico: prazos, foro, hipóteses de
@@ -110,7 +110,7 @@ const TERMOS_BLOCKS: Block[] = [
   { h: "4. Teste grátis" },
   { p: ["Você tem 7 dias para usar a Mimu inteira sem pagar nada e sem informar cartão de crédito. Ao fim do teste, o acesso aos recursos pagos é interrompido até você escolher um plano. A gente não cobra automaticamente quem só testou."] },
   { h: "5. Planos e cobrança" },
-  { p: [{ b: "5.1 Planos" }, " A Mimu tem dois planos pagos. O Pro custa R$ 39 por mês ou R$ 399 por ano, e o Premium custa R$ 199 por mês ou R$ 1.990 por ano. A diferença entre eles está no que cada um inclui, e a página de preços mostra a lista completa. Em qualquer um deles os cinco módulos ficam liberados."] },
+  { p: [{ b: "5.1 Planos" }, " A Mimu tem dois planos pagos. O Pro custa R$ 39,90 por mês ou R$ 399,90 por ano, e o Premium custa R$ 199,90 por mês ou R$ 1.989,90 por ano. A diferença entre eles está no que cada um inclui, e a página de preços mostra a lista completa. Em qualquer um deles os cinco módulos ficam liberados."] },
   { p: [{ b: "5.2 Renovação" }, " A assinatura se renova automaticamente ao fim de cada período, pelo mesmo prazo, até você cancelar. Ao informar uma forma de pagamento, você autoriza essa cobrança recorrente."] },
   { p: [{ b: "5.3 Mudança de preço" }, " Se os valores mudarem, avisamos com pelo menos 30 dias de antecedência. Quem já é assinante mantém o preço até o fim do período contratado, e pode cancelar antes da renovação se não concordar com o valor novo."] },
   { p: [{ b: "5.4 Arrependimento e reembolso" }, " Você pode desistir em até 7 dias corridos após a contratação e receber o valor de volta integralmente, como garante o Código de Defesa do Consumidor. Passado esse prazo, planos de mais de um mês podem ser reembolsados proporcionalmente ao tempo não usado. Peça em ", { a: "oi@mimu.app", href: "mailto:oi@mimu.app" }, "."] },
@@ -157,8 +157,11 @@ export const LEGAL: Record<string, LegalDoc> = {
   },
   termos: {
     title: "Termos de Uso",
-    updated: "20 de maio de 2026",
-    datetime: "2026-05-20T00:00:00.000Z",
+    // Revisados em 10/09/2026: os preços da cláusula 5.1 ganharam centavos
+    // (faixas da App Store). A data é o que marca a partir de quando a regra
+    // nova vale — cláusula 5.3 promete aviso de 30 dias a quem já assina.
+    updated: "10 de setembro de 2026",
+    datetime: "2026-09-10T00:00:00.000Z",
     heading: "h2",
     blocks: TERMOS_BLOCKS,
   },
