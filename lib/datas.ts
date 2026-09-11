@@ -66,6 +66,32 @@ export function inicioDoDiaNoBrasil(agora: Date = new Date()): Date {
   return new Date(agora.getTime() - decorrido);
 }
 
+/**
+ * A data de hoje no Brasil, como "AAAA-MM-DD".
+ *
+ * Existe porque `new Date().toISOString().slice(0, 10)` parece fazer isso e
+ * não faz: ele devolve a data em UTC. Num servidor que roda em UTC — o caso
+ * normal — as três horas entre 21h e a meia-noite de Brasília já pertencem ao
+ * dia seguinte, e uma pergunta feita nesse intervalo é respondida sobre
+ * amanhã. "Quanto vendi hoje?" às 22h devolvia R$ 0,00 num dia com vendas.
+ *
+ * `getTimezoneOffset()` também não serve: num servidor em UTC ele é zero, e o
+ * resultado é exatamente o mesmo UTC com mais passos.
+ *
+ * Comparar com colunas `date` exige o texto da data, e não um instante — por
+ * isso esta função existe ao lado de `inicioDoDiaNoBrasil`, que devolve o
+ * instante para as colunas `timestamptz`.
+ */
+export function dataDeHojeNoBrasil(agora: Date = new Date()): string {
+  // "en-CA" formata como AAAA-MM-DD, que é exatamente o formato da coluna.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSO_BRASIL,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(agora);
+}
+
 /** Meia-noite de hoje e meia-noite de amanhã, no relógio de quem está usando. */
 export function janelaDeHoje(): { inicio: string; fim: string } {
   const inicio = new Date();

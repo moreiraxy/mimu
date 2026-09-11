@@ -438,6 +438,14 @@ function inicioDoDiaNoBrasil(agora = /* @__PURE__ */ new Date()) {
   const decorrido = ler2("hour") * 36e5 + ler2("minute") * 6e4 + ler2("second") * 1e3 + agora.getMilliseconds();
   return new Date(agora.getTime() - decorrido);
 }
+function dataDeHojeNoBrasil(agora = /* @__PURE__ */ new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSO_BRASIL,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(agora);
+}
 function janelaDosUltimosDias(dias) {
   const fim = /* @__PURE__ */ new Date();
   fim.setHours(0, 0, 0, 0);
@@ -1295,10 +1303,10 @@ function extrairCard(texto) {
 }
 async function reunirDadosDoNegocio(supabase, empresa) {
   const hoje = /* @__PURE__ */ new Date();
-  const hojeISO2 = hoje.toISOString().slice(0, 10);
+  const hojeISO2 = dataDeHojeNoBrasil(hoje);
   const amanha = new Date(hoje);
   amanha.setDate(amanha.getDate() + 1);
-  const amanhaISO = amanha.toISOString().slice(0, 10);
+  const amanhaISO = dataDeHojeNoBrasil(amanha);
   const fimJanelaAgenda = new Date(hoje);
   fimJanelaAgenda.setDate(fimJanelaAgenda.getDate() + 7);
   const [transacoesResult, agendamentosResult, clientesResult] = await Promise.all([
@@ -1644,9 +1652,7 @@ function identificarPendenciaRegistro(classificacao) {
 
 // lib/mimu/registro.ts
 function hojeISO() {
-  const agora = /* @__PURE__ */ new Date();
-  const local = new Date(agora.getTime() - agora.getTimezoneOffset() * 6e4);
-  return local.toISOString().slice(0, 10);
+  return dataDeHojeNoBrasil();
 }
 async function clientesQueBatem(supabase, empresaId, nome) {
   const { data } = await supabase.from("clientes").select("id, nome").eq("empresa_id", empresaId).ilike("nome", `%${nome}%`).limit(5);
@@ -1667,7 +1673,11 @@ async function registrar(supabase, empresaId, canal, mensagemId, classificacao) 
   let clienteId = null;
   let clienteNome = null;
   if (dados.cliente) {
-    const candidatos = await clientesQueBatem(supabase, empresaId, dados.cliente);
+    const candidatos = await clientesQueBatem(
+      supabase,
+      empresaId,
+      dados.cliente
+    );
     if (candidatos.length > 1) {
       const nomes = candidatos.map((c) => c.nome).join(", ");
       return {

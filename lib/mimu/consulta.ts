@@ -23,6 +23,7 @@ import {
 import { formatTime } from "@/lib/formatters";
 import type { Agendamento, Empresa } from "@/types";
 import type { Database, Json } from "@/types/database";
+import { dataDeHojeNoBrasil } from "@/lib/datas";
 
 /**
  * A Mimu respondendo uma pergunta sobre o negócio, sem saber por onde a
@@ -151,10 +152,12 @@ async function reunirDadosDoNegocio(
   empresa: Empresa,
 ): Promise<DadosNegocioMimu | null> {
   const hoje = new Date();
-  const hojeISO = hoje.toISOString().slice(0, 10);
+  // Pelo fuso do Brasil, e não em UTC: às 22h de Brasília o UTC já virou, e a
+  // pergunta "quanto vendi hoje?" era respondida sobre amanhã. Ver datas.ts.
+  const hojeISO = dataDeHojeNoBrasil(hoje);
   const amanha = new Date(hoje);
   amanha.setDate(amanha.getDate() + 1);
-  const amanhaISO = amanha.toISOString().slice(0, 10);
+  const amanhaISO = dataDeHojeNoBrasil(amanha);
   const fimJanelaAgenda = new Date(hoje);
   fimJanelaAgenda.setDate(fimJanelaAgenda.getDate() + 7);
 

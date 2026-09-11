@@ -2,6 +2,7 @@ import { formatCurrency } from "@/lib/formatters";
 import type { ClientComIdentidade } from "@/lib/supabase/identidade";
 import type { ClassificacaoMimu } from "@/lib/mimu-prompts";
 import type { Canal } from "@/lib/canais/tipos";
+import { dataDeHojeNoBrasil } from "@/lib/datas";
 
 /**
  * Registrar venda, despesa e agendamento a partir de uma mensagem.
@@ -24,11 +25,15 @@ export type ResultadoRegistro =
   | { ok: false; motivo: "ambiguo"; pergunta: string }
   | { ok: false; motivo: "falhou" };
 
-/** Hoje, no fuso de quem está usando, e não em UTC. */
+/**
+ * Hoje no Brasil.
+ *
+ * Era `getTimezoneOffset()`, que prometia o fuso de quem usa e entregava o do
+ * SERVIDOR — zero num servidor em UTC, ou seja, o mesmo UTC com mais passos.
+ * Uma venda registrada às 22h de Brasília era gravada com a data de amanhã.
+ */
 function hojeISO(): string {
-  const agora = new Date();
-  const local = new Date(agora.getTime() - agora.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 10);
+  return dataDeHojeNoBrasil();
 }
 
 /**
@@ -66,7 +71,9 @@ function reciboDeTransacao(
 ): string {
   const partes = [descricao, cliente ? `de ${cliente}` : null].filter(Boolean);
   const oQue = partes.length > 0 ? partes.join(" ") : null;
-  const quando = ehHoje ? "hoje" : data.split("-").reverse().slice(0, 2).join("/");
+  const quando = ehHoje
+    ? "hoje"
+    : data.split("-").reverse().slice(0, 2).join("/");
   const verbo = tipo === "entrada" ? "Registrei" : "Anotei a saída";
 
   return (
@@ -96,7 +103,11 @@ export async function registrar(
   let clienteNome: string | null = null;
 
   if (dados.cliente) {
-    const candidatos = await clientesQueBatem(supabase, empresaId, dados.cliente);
+    const candidatos = await clientesQueBatem(
+      supabase,
+      empresaId,
+      dados.cliente,
+    );
 
     if (candidatos.length > 1) {
       const nomes = candidatos.map((c) => c.nome).join(", ");
@@ -137,13 +148,21 @@ export async function registrar(
 
     if (error || !criado) return { ok: false, motivo: "falhou" };
 
-    const quem = clienteNome ?? dados.cliente ?? dados.descricao ?? "Agendamento";
+    const quem =
+      clienteNome ?? dados.cliente ?? dados.descricao ?? "Agendamento";
     const recibo =
       `Marquei: ${quem}, ${ehHoje ? "hoje" : data.split("-").reverse().slice(0, 2).join("/")} às ${horario}.\n\n` +
       "Se estiver errado, responda *desfazer*.";
 
     return (await anotarOperacao(
-      supabase, empresaId, canal, mensagemId, tipo, "agendamentos", criado.id, recibo,
+      supabase,
+      empresaId,
+      canal,
+      mensagemId,
+      tipo,
+      "agendamentos",
+      criado.id,
+      recibo,
     ))
       ? { ok: true, recibo }
       : { ok: false, motivo: "falhou" };
@@ -169,11 +188,23 @@ export async function registrar(
   if (error || !criada) return { ok: false, motivo: "falhou" };
 
   const recibo = reciboDeTransacao(
-    tipo, dados.valor!, dados.descricao, clienteNome, data, ehHoje,
+    tipo,
+    dados.valor!,
+    dados.descricao,
+    clienteNome,
+    data,
+    ehHoje,
   );
 
   return (await anotarOperacao(
-    supabase, empresaId, canal, mensagemId, tipo, "transacoes", criada.id, recibo,
+    supabase,
+    empresaId,
+    canal,
+    mensagemId,
+    tipo,
+    "transacoes",
+    criada.id,
+    recibo,
   ))
     ? { ok: true, recibo }
     : { ok: false, motivo: "falhou" };
