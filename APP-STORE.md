@@ -325,6 +325,19 @@ usuária, passando pelo RLS — não pela service role.
 
 Para apagar: remova a usuária no painel do Supabase; o resto cai em cascata.
 
+### 5.2.1 Prazo do iOS 15 — anotado, não urgente
+
+O envio do primeiro build passou com este aviso:
+
+    MinimumOSVersion too low. This app has a MinimumOSVersion of 13.0.
+    Starting in Spring 2027, all iOS apps must have a MinimumOSVersion
+    of 15.0 or later.
+
+Não foi corrigido de propósito. Hoje 13.0 é legal e alcança mais aparelhos;
+subir o mínimo agora só encolheria o público. O ajuste
+(`IPHONEOS_DEPLOYMENT_TARGET`) precisa entrar em algum envio antes da primavera
+de 2027 — depois disso a Apple recusa o upload.
+
 ### 5.3 Push por APNs — código pronto, faltam as chaves
 
 `lib/push-apns.ts` fala com o APNs reaproveitando o assinador ES256 de

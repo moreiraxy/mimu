@@ -14,6 +14,18 @@
 	  mimu.pro/.well-known/apple-app-site-association. O iOS o busca na
 	  instalação do app e guarda o resultado.
 	-->
+	<!--
+	  O APNs. Sem esta chave o registro de push falha em silêncio: o app pede a
+	  permissão, a pessoa aceita, e nenhum token chega — lib/nativo.ts espera um
+	  token que o sistema nunca entrega, e components/PushPermissionPrompt.tsx
+	  oferece um recurso que não existe.
+
+	  O valor é trocado para "production" no export da App Store; aqui fica
+	  "development" para o build de aparelho continuar funcionando.
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
+
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:mimu.pro</string>
