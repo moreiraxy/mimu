@@ -37,8 +37,16 @@ const ENDERECOS = {
 } as const;
 
 export type ResultadoVerificacao =
-  | { ok: true; produtoId: string; expiraEm: Date; ambiente: "producao" | "sandbox" }
-  | { ok: false; motivo: "nao_encontrada" | "expirada" | "invalida" | "indisponivel" };
+  | {
+      ok: true;
+      produtoId: string;
+      expiraEm: Date;
+      ambiente: "producao" | "sandbox";
+    }
+  | {
+      ok: false;
+      motivo: "nao_encontrada" | "expirada" | "invalida" | "indisponivel";
+    };
 
 interface Credenciais {
   issuerId: string;
@@ -177,6 +185,21 @@ export async function verificarTransacao(
     return { ok: false, motivo: "indisponivel" };
   }
 
+  /*
+   * Um ambiente falhar NÃO encerra a busca, e isso não é zelo teórico.
+   *
+   * Enquanto o app não está publicado, a produção responde 401 a tudo: ela não
+   * conhece o bundle ainda. O revisor da Apple, porém, compra em SANDBOX — e
+   * produção é consultada primeiro. Desistir no primeiro tropeço significava
+   * nunca chegar ao sandbox, e a compra do revisor morria em "não consegui
+   * falar com a App Store". Ou seja: a checagem reprovava justamente a revisão
+   * que precisava passar.
+   *
+   * Guardamos a falha e seguimos. Só vira "indisponivel" se NENHUM ambiente
+   * respondeu — aí a ignorância é real e dizer "não encontrada" seria mentira.
+   */
+  let algumFalhou = false;
+
   for (const [ambiente, base] of [
     ["producao", ENDERECOS.producao],
     ["sandbox", ENDERECOS.sandbox],
@@ -186,7 +209,8 @@ export async function verificarTransacao(
       resposta = await consultar(base, transactionId, token);
     } catch (erro) {
       console.error(`Falha de rede falando com a Apple (${ambiente}).`, erro);
-      return { ok: false, motivo: "indisponivel" };
+      algumFalhou = true;
+      continue;
     }
 
     // 404 aqui significa "esta transação não é deste ambiente", e não erro.
@@ -196,14 +220,16 @@ export async function verificarTransacao(
       console.error(
         `App Store Server API devolveu ${resposta.status} (${ambiente}).`,
       );
-      return { ok: false, motivo: "indisponivel" };
+      algumFalhou = true;
+      continue;
     }
 
     const corpo = (await resposta.json()) as {
       data?: { lastTransactions?: { signedTransactionInfo?: string }[] }[];
     };
 
-    const assinado = corpo.data?.[0]?.lastTransactions?.[0]?.signedTransactionInfo;
+    const assinado =
+      corpo.data?.[0]?.lastTransactions?.[0]?.signedTransactionInfo;
     if (!assinado) return { ok: false, motivo: "nao_encontrada" };
 
     const info = abrirPayload(assinado);
@@ -230,5 +256,5 @@ export async function verificarTransacao(
     };
   }
 
-  return { ok: false, motivo: "nao_encontrada" };
+  return { ok: false, motivo: algumFalhou ? "indisponivel" : "nao_encontrada" };
 }
