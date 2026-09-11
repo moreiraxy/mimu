@@ -32,6 +32,30 @@ import { SectionCard } from "./SectionCard";
  * Nada aqui decide acesso. Quem decide é o servidor — o middleware e o teto
  * de lib/planos.ts. Esta tela conta o que já é verdade e oferece os caminhos.
  */
+/**
+ * O que dizer para cada recusa do plugin nativo.
+ *
+ * Os códigos vêm de ios-plugin/MimuIAP/MimuIAP.swift. `cancelada` não está
+ * aqui de propósito: quem desiste não vê aviso nenhum.
+ */
+const RECADO_DA_COMPRA: Record<string, string> = {
+  produto_desconhecido:
+    "A App Store ainda não está oferecendo este plano neste aparelho. Se a assinatura foi criada há pouco, pode levar algumas horas até ficar disponível.",
+  produto_ausente:
+    "Não consegui identificar o plano para comprar. Atualize o app e tente de novo.",
+  ios_antigo:
+    "A compra pelo app precisa de uma versão mais nova do iOS neste aparelho.",
+  pendente:
+    "A compra ficou aguardando aprovação. Assim que for liberada, o acesso entra sozinho.",
+};
+
+function recadoDaCompra(erro?: string): string {
+  if (erro && RECADO_DA_COMPRA[erro]) return RECADO_DA_COMPRA[erro];
+  // O código cru entra na mensagem de propósito: sem ele, "não deu certo" é
+  // tudo o que sobra para quem for investigar, e foi o que custou caro aqui.
+  return `Não consegui concluir a compra${erro ? ` (${erro})` : ""}. Tente de novo em instantes.`;
+}
+
 export function PlanoSection() {
   const { plano, assinatura } = useAuth();
   const router = useRouter();
@@ -84,9 +108,22 @@ export function PlanoSection() {
     setAbrindo(false);
 
     if (!resultado.ok) {
-      // Desistir da compra é normal e não é erro: a Apple devolve o mesmo
-      // "não ok" para quem fechou a folha de pagamento e para quem teve o
-      // cartão recusado. Tratar como falha assustaria quem só mudou de ideia.
+      /*
+       * Só a DESISTÊNCIA é silêncio.
+       *
+       * Antes este `return` era incondicional, com a justificativa de não
+       * assustar quem só mudou de ideia. Mas ele engolia junto o plugin
+       * ausente, o produto que a App Store não encontra, a rede caída e a
+       * recusa do servidor — e o sintoma de todos era o mesmo: tocar em
+       * "Fazer upgrade" e NADA acontecer. Foi exatamente assim que o botão
+       * apareceu quebrado no TestFlight em 11/09/2026, sem deixar rastro.
+       *
+       * A desistência tem código próprio (`cancelada`, de MimuIAP.swift).
+       * Tudo o que não for ela é defeito e precisa aparecer — inclusive para
+       * quem for depurar isto depois, que hoje não tem por onde começar.
+       */
+      if (resultado.erro === "cancelada") return;
+      setAviso(recadoDaCompra(resultado.erro));
       return;
     }
 
