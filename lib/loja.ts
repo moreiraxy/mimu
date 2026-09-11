@@ -11,8 +11,15 @@
  * não oferecer o caminho. As telas perguntam antes de mostrar.
  */
 
-/** O id numérico que a App Store dá ao app. Preencher no dia do primeiro envio. */
-export const ID_APP_STORE: string | null = null;
+/**
+ * O id numérico que a App Store dá ao app.
+ *
+ * Preenchido em 10/09/2026, no envio da versão 1.0. O link só funciona depois
+ * que o app estiver PUBLICADO — enquanto a revisão não termina, ele leva a uma
+ * página de erro da Apple. As telas que usam `linkAvaliacaoAppStore()` já
+ * perguntam antes de mostrar, mas quem mexer aqui precisa saber disso.
+ */
+export const ID_APP_STORE: string | null = "6809525205";
 
 /** O nome do pacote na Play Store — o mesmo `appId` do capacitor.config.ts. */
 export const PACOTE_PLAY_STORE: string | null = null;
