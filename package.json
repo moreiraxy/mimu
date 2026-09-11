@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "whatsapp": "tsx --env-file-if-exists=.env.local worker/whatsapp/index.ts",
-    "build:worker": "node scripts/construir-worker.mjs"
+    "build:worker": "node scripts/construir-worker.mjs",
+    "sync:ios": "npx cap sync ios && node scripts/registrar-mimuiap-ios.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^6.0.3",
