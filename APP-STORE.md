@@ -14,7 +14,42 @@ Store Connect permite transferir depois, com condições.
 
 ---
 
-## 0. Estado: ENVIADO para revisão em 11/09/2026, 00h11
+## 0. Estado: ENVIADO para revisão em 11/09/2026, 16h16 — build 2
+
+O build 1 foi enviado e REPROVADO pela 3.1.2, corrigido, reenviado — e depois
+retirado por um defeito pior, que só apareceu no TestFlight: **ele não
+conseguia comprar nada**. Ver §0.1.
+
+## 0.1 O plugin de compra que não era carregado
+
+Sintoma: tocar em "Fazer upgrade" no TestFlight e nada acontecer. O motivo
+estava sendo engolido por um `return` silencioso em PlanoSection.tsx, que
+tratava QUALQUER falha como desistência da pessoa. Corrigido isso, a mensagem
+apareceu:
+
+    "MimuIAP" plugin is not implemented on iOS
+
+A classe ESTAVA no binário — conferido com `otool -ov` dentro do próprio IPA
+enviado, conformando com CAPBridgedPlugin e expondo `comprar:`. O que faltava
+era o registro: o Capacitor 6 instancia apenas as classes de
+`packageClassList`, e essa lista é GERADA pelo `cap sync` a partir dos pacotes
+npm. O MimuIAP entra por referência de arquivos, não como pacote — então o
+sync o descartava toda vez.
+
+O engano é bem montado: `registerPlugin` cria `window.MimuIAP` do lado JS sem
+consultar o nativo, então `caminhoDeCompra()` respondia "iap" e o botão
+aparecia normalmente.
+
+Declarar a lista em capacitor.config.ts NÃO resolve — testado, o CLI
+sobrescreve. `scripts/registrar-mimuiap-ios.mjs` a repõe depois do sync,
+`npm run sync:ios` encadeia os dois, e
+`testes/plugin-iap-registrado.test.ts` falha se o plugin sumir da lista.
+
+**Nenhuma compra foi exercitada de ponta a ponta ainda.** O build 2 corrige a
+causa, mas a confirmação depende de instalar pelo TestFlight e comprar em
+sandbox num aparelho físico.
+
+## 0.2 Envio atual
 
 Seis itens foram enviados juntos e estão **Aguardando revisão** (até 48h):
 o app iOS 1.0 (build 1), o grupo "Planos Mimu" e as quatro assinaturas.
