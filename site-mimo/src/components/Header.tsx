@@ -82,10 +82,20 @@ export function Header() {
 
   return (
     <header
-      className="fixed inset-x-0 top-3 z-50 flex flex-col items-center px-6 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:px-10 lg:px-0"
+      className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-6 pt-3 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none md:px-10 lg:px-0"
       style={{
         opacity: entrou ? 1 : 0,
         transform: entrou ? "translateY(0)" : "translateY(-14px)",
+        /*
+          Dentro do app iOS esta página abre em tela cheia, e o cabeçalho era
+          desenhado POR CIMA do relógio e da bateria. `top-3` virou `top-0` com
+          este preenchimento porque o recuo agora tem que somar a faixa do
+          sistema, que é zero no navegador de computador e ~59px no iPhone.
+
+          Depende de `viewport-fit=cover` no index.html: sem ele o inset é zero
+          e esta linha não faz nada.
+        */
+        paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
       }}
     >
       <div

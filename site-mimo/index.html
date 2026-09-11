@@ -2,7 +2,17 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      `viewport-fit=cover` é o que faz `env(safe-area-inset-*)` valer alguma
+      coisa: sem ele os insets são SEMPRE zero, e o preenchimento do cabeçalho
+      não teria efeito nenhum. Os dois andam juntos — ver Header.tsx.
+
+      Importa aqui porque o app iOS abre estas páginas dentro da WKWebView: os
+      Termos de Uso são linkados da tela de assinatura, e a diretriz 3.1.2 da
+      Apple exige esse link. Sem isto, o cabeçalho é desenhado por cima do
+      relógio e da bateria.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <!--
       PNG antes do SVG de propósito. Navegador guarda favicon de forma
       agressiva: mudar o conteúdo do /icon.svg mantendo o mesmo caminho não
