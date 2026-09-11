@@ -160,6 +160,9 @@ async function reunirDadosDoNegocio(
   const amanhaISO = dataDeHojeNoBrasil(amanha);
   const fimJanelaAgenda = new Date(hoje);
   fimJanelaAgenda.setDate(fimJanelaAgenda.getDate() + 7);
+  // A Mimu só enxerga as transações desta janela. O número que ela calcula
+  // sobre elas é o fluxo do período, e não o saldo da conta — ver abaixo.
+  const inicioJanelaISO = dataDeHojeNoBrasil(inicioDaJanela());
 
   const [transacoesResult, agendamentosResult, clientesResult] =
     await Promise.all([
@@ -167,7 +170,7 @@ async function reunirDadosDoNegocio(
         .from("transacoes")
         .select("*")
         .eq("empresa_id", empresa.id)
-        .gte("data", inicioDaJanela().toISOString().slice(0, 10)),
+        .gte("data", inicioJanelaISO),
       supabase
         .from("agendamentos")
         .select("*, cliente:clientes(nome)")
@@ -205,7 +208,17 @@ async function reunirDadosDoNegocio(
   const faturamentoMes = calcularFaturamentoRealizado(transacoes, "mes");
 
   return {
-    saldoCaixa: calcularSaldoCaixa(transacoes),
+    /*
+     * Entradas menos saídas DESTA JANELA, que não é o saldo do caixa.
+     *
+     * `calcularSaldoCaixa` é a mesma função que o Financeiro usa — só que lá
+     * ela recebe o histórico inteiro e aqui recebe o mês corrente. O prompt
+     * chamava o resultado de "Saldo do caixa", e a Mimu repetia: dizia
+     * R$ 1.056,00 enquanto o Financeiro, na tela ao lado, mostrava
+     * R$ 20.531,00. Os dois números estavam certos; o rótulo é que mentia.
+     */
+    saldoDoPeriodo: calcularSaldoCaixa(transacoes),
+    inicioDoPeriodo: inicioJanelaISO,
     faturamentoHojeRealizado: calcularFaturamentoRealizado(transacoes, "dia"),
     faturamentoHojePrevisto: calcularFaturamentoPrevisto(agendamentosHoje),
     metaMensal: empresa.meta_mensal,

@@ -23,7 +23,10 @@ export interface AgendamentoResumo {
 }
 
 export interface DadosNegocioMimu {
-  saldoCaixa: number;
+  /** Entradas menos saídas do período visível — NÃO é o saldo do caixa. */
+  saldoDoPeriodo: number;
+  /** Desde quando o número acima conta, como "AAAA-MM-DD". */
+  inicioDoPeriodo: string;
   faturamentoHojeRealizado: number;
   faturamentoHojePrevisto: number;
   metaMensal: number | null;
@@ -94,7 +97,7 @@ que entende do negócio. Nunca fala como sistema ou ERP.
 
 Dados atuais do negócio:
 
-Saldo do caixa: ${formatCurrency(dados.saldoCaixa)}
+Entradas menos saídas desde ${dados.inicioDoPeriodo}: ${formatCurrency(dados.saldoDoPeriodo)} (é o fluxo DESTE PERÍODO, não o saldo total do caixa — nunca chame de "saldo do caixa")
 Faturamento hoje: ${formatCurrency(dados.faturamentoHojeRealizado)} (realizado) + ${formatCurrency(dados.faturamentoHojePrevisto)} (previsto)
 Meta do mês: ${meta}
 Agendamentos hoje: ${dados.agendamentosHoje}
@@ -299,7 +302,10 @@ export interface AlertaMetadata {
 }
 
 /** Mesmo destino usado pelos botões de ação do AlertasCard — reaproveitado na push notification. */
-export function urlParaAlerta(tipo: TipoAlerta, metadata: AlertaMetadata): string {
+export function urlParaAlerta(
+  tipo: TipoAlerta,
+  metadata: AlertaMetadata,
+): string {
   switch (tipo) {
     case "sem_venda":
       return "/financeiro/nova-entrada";
@@ -312,9 +318,13 @@ export function urlParaAlerta(tipo: TipoAlerta, metadata: AlertaMetadata): strin
     case "meta_risco":
       return "/faturamento";
     case "cliente_sumiu":
-      return metadata.clienteId ? `/clientes/${metadata.clienteId}` : "/clientes";
+      return metadata.clienteId
+        ? `/clientes/${metadata.clienteId}`
+        : "/clientes";
     case "estoque_baixo":
-      return metadata.produtoId ? `/produtos/${metadata.produtoId}` : "/produtos";
+      return metadata.produtoId
+        ? `/produtos/${metadata.produtoId}`
+        : "/produtos";
     case "recorde":
       return "/dashboard";
     case "tentativa_prompt_injection":

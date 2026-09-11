@@ -17,7 +17,14 @@ import { cn } from "@/lib/utils";
  * defeito. Aqui, quando a cota não vem, o plano ocupa a linha inteira e
  * ninguém percebe que faltou alguma coisa.
  */
-export function CartoesDaConta({ plano }: { plano: string | null }) {
+export function CartoesDaConta({
+  plano,
+  status,
+}: {
+  plano: string | null;
+  /** O estado da assinatura. Em teste, ele manda no rótulo — ver abaixo. */
+  status: string | null;
+}) {
   /*
    * Três estados, e não dois — é a diferença entre a tela pular e não pular.
    *
@@ -30,7 +37,9 @@ export function CartoesDaConta({ plano }: { plano: string | null }) {
    * FALHA é que o plano toma a linha toda — e aí não há pulo, porque nada
    * chega depois.
    */
-  const [cota, setCota] = useState<Cota | "carregando" | "falhou">("carregando");
+  const [cota, setCota] = useState<Cota | "carregando" | "falhou">(
+    "carregando",
+  );
 
   useEffect(() => {
     let cancelado = false;
@@ -40,7 +49,9 @@ export function CartoesDaConta({ plano }: { plano: string | null }) {
       .then((dados) => {
         if (cancelado) return;
         setCota(
-          dados && typeof dados.limite === "number" ? (dados as Cota) : "falhou",
+          dados && typeof dados.limite === "number"
+            ? (dados as Cota)
+            : "falhou",
         );
       })
       .catch(() => {
@@ -66,10 +77,17 @@ export function CartoesDaConta({ plano }: { plano: string | null }) {
         referência usa cartões com corpo, e é o corpo que faz o número parecer
         o assunto.
       */}
+      {/*
+        Em teste, o cartão mostra o teste — não o plano da coluna.
+        `criarAssinaturaTrial` não define `plano`, então o banco aplica o
+        padrão antigo 'completo' e a conta nova anunciava "Plano Completo":
+        um nome que saiu da tabela de preços e que ninguém pode comprar. Quem
+        está nos 7 dias precisa ler que está nos 7 dias.
+      */}
       <CartaoDado
         icone={Wallet}
         rotulo="Plano"
-        texto={nomeDoPlano(plano)}
+        texto={status === "trial" ? "Teste grátis" : nomeDoPlano(plano)}
         href="/minha-empresa/assinatura"
         className={cn(falhou && "col-span-2")}
       />

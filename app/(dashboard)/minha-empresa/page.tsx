@@ -40,7 +40,7 @@ import { CartoesDaConta } from "./CartoesDaConta";
  * sempre a mesma — a pessoa chega aqui procurando UMA coisa.
  */
 export default function PerfilPage() {
-  const { user, empresa, plano, loading, signOut } = useAuth();
+  const { user, empresa, plano, assinatura, loading, signOut } = useAuth();
   const router = useRouter();
 
   if (loading || !empresa) {
@@ -151,11 +151,15 @@ export default function PerfilPage() {
       {/* Os dois cartões da referência: um diz o que a conta É, o outro diz
           quanto ela ainda tem. Lado a lado porque é a mesma pergunta vista de
           dois ângulos — e é assim que o teto do plano deixa de ser surpresa. */}
-      <CartoesDaConta plano={plano} />
+      <CartoesDaConta plano={plano} status={assinatura?.status ?? null} />
 
       <div className="mt-4">
         <Grupo>
-          <Linha icone={Star} label="Avalie a Mimu" href="/minha-empresa/avaliar" />
+          <Linha
+            icone={Star}
+            label="Avalie a Mimu"
+            href="/minha-empresa/avaliar"
+          />
         </Grupo>
       </div>
 
@@ -181,7 +185,11 @@ export default function PerfilPage() {
 
       <TituloGrupo>Segurança</TituloGrupo>
       <Grupo>
-        <Linha icone={KeyRound} label="Alterar senha" href="/minha-empresa/senha" />
+        <Linha
+          icone={KeyRound}
+          label="Alterar senha"
+          href="/minha-empresa/senha"
+        />
         <Linha
           icone={Fingerprint}
           label="Biometria"

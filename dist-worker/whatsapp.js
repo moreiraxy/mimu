@@ -1072,7 +1072,7 @@ que entende do neg\xF3cio. Nunca fala como sistema ou ERP.
 
 Dados atuais do neg\xF3cio:
 
-Saldo do caixa: ${formatCurrency(dados.saldoCaixa)}
+Entradas menos sa\xEDdas desde ${dados.inicioDoPeriodo}: ${formatCurrency(dados.saldoDoPeriodo)} (\xE9 o fluxo DESTE PER\xCDODO, n\xE3o o saldo total do caixa \u2014 nunca chame de "saldo do caixa")
 Faturamento hoje: ${formatCurrency(dados.faturamentoHojeRealizado)} (realizado) + ${formatCurrency(dados.faturamentoHojePrevisto)} (previsto)
 Meta do m\xEAs: ${meta}
 Agendamentos hoje: ${dados.agendamentosHoje}
@@ -1309,8 +1309,9 @@ async function reunirDadosDoNegocio(supabase, empresa) {
   const amanhaISO = dataDeHojeNoBrasil(amanha);
   const fimJanelaAgenda = new Date(hoje);
   fimJanelaAgenda.setDate(fimJanelaAgenda.getDate() + 7);
+  const inicioJanelaISO = dataDeHojeNoBrasil(inicioDaJanela2());
   const [transacoesResult, agendamentosResult, clientesResult] = await Promise.all([
-    supabase.from("transacoes").select("*").eq("empresa_id", empresa.id).gte("data", inicioDaJanela2().toISOString().slice(0, 10)),
+    supabase.from("transacoes").select("*").eq("empresa_id", empresa.id).gte("data", inicioJanelaISO),
     supabase.from("agendamentos").select("*, cliente:clientes(nome)").eq("empresa_id", empresa.id).gte("data_hora", `${hojeISO2}T00:00:00`).lte("data_hora", fimJanelaAgenda.toISOString()),
     supabase.from("clientes").select("nome, saldo_fiado").eq("empresa_id", empresa.id).gt("saldo_fiado", 0)
   ]);
@@ -1328,7 +1329,17 @@ async function reunirDadosDoNegocio(supabase, empresa) {
   );
   const faturamentoMes = calcularFaturamentoRealizado(transacoes, "mes");
   return {
-    saldoCaixa: calcularSaldoCaixa(transacoes),
+    /*
+     * Entradas menos saídas DESTA JANELA, que não é o saldo do caixa.
+     *
+     * `calcularSaldoCaixa` é a mesma função que o Financeiro usa — só que lá
+     * ela recebe o histórico inteiro e aqui recebe o mês corrente. O prompt
+     * chamava o resultado de "Saldo do caixa", e a Mimu repetia: dizia
+     * R$ 1.056,00 enquanto o Financeiro, na tela ao lado, mostrava
+     * R$ 20.531,00. Os dois números estavam certos; o rótulo é que mentia.
+     */
+    saldoDoPeriodo: calcularSaldoCaixa(transacoes),
+    inicioDoPeriodo: inicioJanelaISO,
     faturamentoHojeRealizado: calcularFaturamentoRealizado(transacoes, "dia"),
     faturamentoHojePrevisto: calcularFaturamentoPrevisto(agendamentosHoje),
     metaMensal: empresa.meta_mensal,
