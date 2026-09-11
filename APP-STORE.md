@@ -14,7 +14,7 @@ Store Connect permite transferir depois, com condições.
 
 ---
 
-## 0. Estado: ENVIADO para revisão em 10/09/2026, 23h23
+## 0. Estado: ENVIADO para revisão em 11/09/2026, 00h11
 
 Seis itens foram enviados juntos e estão **Aguardando revisão** (até 48h):
 o app iOS 1.0 (build 1), o grupo "Planos Mimu" e as quatro assinaturas.
@@ -23,14 +23,20 @@ o app iOS 1.0 (build 1), o grupo "Planos Mimu" e as quatro assinaturas.
     Bundle            br.com.mimu.app
     Time              J9WLAKA2FM
 
+Houve um primeiro envio às 23h23 de 10/09, retirado pouco depois para trocar
+as capturas. Detalhe que custa uma hora a quem não souber: **a Apple TRAVA a
+lista de capturas no instante do envio** — some o campo de arquivo, somem os
+controles de apagar, e arrastar deixa de funcionar, inclusive à mão. Só o
+texto (descrição, palavras-chave, URLs) continua editável. Para mexer numa
+imagem é preciso remover a versão da revisão, e isso desvincula o grupo e as
+assinaturas: as cinco precisam ser readicionadas ao rascunho antes de reenviar.
+
+A ordem das capturas também não se resolve arrastando: a lista ignora entrada
+sintética E manual. O que funciona é apagar todas e subir UMA DE CADA VEZ,
+esperando cada upload concluir — a ordem final é a ordem de conclusão.
+
 O que ficou fora, de propósito ou por limite:
 
-- **A ordem das capturas** na loja não é a numeração da Rayssa (01..05). O
-  arrastar da página não responde a evento sintético; corrigir é arrastar à
-  mão no App Store Connect.
-- **A alegação "+400 negócios de bairro já usam a Mimu"**, na primeira arte,
-  não foi verificada por ninguém aqui. Se o número não se sustenta, sai antes
-  de a revisão olhar.
 - **A compra pelo StoreKit nunca foi exercitada de ponta a ponta.** O
   simulador não carrega produtos sem um arquivo de configuração do StoreKit, e
   o sandbox exige aparelho físico com conta de teste. O caminho do servidor
