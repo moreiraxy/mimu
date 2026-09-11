@@ -3,6 +3,21 @@ import { Link } from "react-router";
 import { Button } from "./Button";
 import { Logo } from "./Logo";
 
+/**
+ * A mesma marca que `lib/plataforma.ts` injeta no User-Agent pelo
+ * `appendUserAgent` do capacitor.config.ts. Repetida aqui porque o site-mimo
+ * é um projeto Vite separado e não importa do app Next — se ela mudar lá,
+ * precisa mudar aqui.
+ */
+const MARCA_APP_IOS = "MimuApp/iOS";
+
+function dentroDoAppIOS(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.includes(MARCA_APP_IOS)
+  );
+}
+
 const NAV = [
   { label: "Produto", to: "/#produto" },
   { label: "Como funciona", to: "/#como-funciona" },
@@ -79,6 +94,37 @@ export function Header() {
       window.removeEventListener("scroll", onScroll);
     };
   }, []);
+
+  /*
+   * Dentro do app iOS este cabeçalho vira só um "Voltar".
+   *
+   * A tela de assinatura linka os Termos de Uso e a Política de Privacidade —
+   * a diretriz 3.1.2 EXIGE esses links —, e eles abrem aqui, na mesma
+   * WKWebView. Com o menu de marketing no lugar, quem tocasse em "Preços"
+   * veria a tabela de preços e o caminho de compra do SITE dentro do
+   * aplicativo: é exatamente a exposição que a diretriz 3.1.1 proíbe, e a
+   * mesma que o middleware já fecha redirecionando a raiz.
+   *
+   * Também resolve o outro lado: não há barra de navegação nem gesto de
+   * voltar na WKWebView (testado no simulador — o gesto de borda não faz
+   * nada), então sem isto o revisor ficava preso na página legal.
+   */
+  if (dentroDoAppIOS()) {
+    return (
+      <header
+        className="fixed inset-x-0 top-0 z-50 px-6"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+      >
+        <button
+          type="button"
+          onClick={() => window.history.back()}
+          className="flex h-11 items-center gap-2 rounded-[100px] border border-white/10 bg-ink/75 px-4 text-sm font-semibold text-white backdrop-blur-xl"
+        >
+          <span aria-hidden="true">&lsaquo;</span> Voltar
+        </button>
+      </header>
+    );
+  }
 
   return (
     <header
