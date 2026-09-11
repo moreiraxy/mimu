@@ -35,6 +35,27 @@ A ordem das capturas também não se resolve arrastando: a lista ignora entrada
 sintética E manual. O que funciona é apagar todas e subir UMA DE CADA VEZ,
 esperando cada upload concluir — a ordem final é a ordem de conclusão.
 
+### Reprovado uma vez, pela 3.1.2 — corrigido em 11/09/2026
+
+A primeira revisão recusou com **3.1.2 Business: Payments - Subscriptions**.
+A mensagem foi automática e específica:
+
+> The submission offers auto-renewable subscriptions (...) but does not include
+> a functional link to the Terms of Use (EULA) in the app metadata that appears
+> on the app's App Store product page.
+
+Não era sobre o app: faltava, NA DESCRIÇÃO da loja, um link para os Termos de
+Uso. A descrição ganhou um bloco ASSINATURA com nome, duração, preço dos quatro
+planos, as condições de renovação e três links — os termos da Mimu, a política
+de privacidade e o EULA padrão da Apple. Os três, e não um, porque o app está
+configurado com o contrato padrão da Apple enquanto a Mimu tem termos próprios;
+linkar só um dos dois deixaria margem para outra recusa.
+
+Aproveitando: a mesma diretriz exige as condições DENTRO do app, antes da
+compra, e a tela de assinatura não as mostrava. Isso foi corrigido em
+`PlanoSection.tsx` — e, por ser tela web e não nativa, subiu por deploy, sem
+build novo e sem mexer no envio em andamento.
+
 O que ficou fora, de propósito ou por limite:
 
 - **A compra pelo StoreKit nunca foi exercitada de ponta a ponta.** O

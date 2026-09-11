@@ -12,7 +12,11 @@ import {
   ehPlanoGratuito,
   MENSAGENS_MIMU_POR_DIA,
 } from "@/lib/planos";
-import { caminhoDeCompra, abrirGerenciamentoDaApple, PRODUTO_IAP } from "@/lib/iap";
+import {
+  caminhoDeCompra,
+  abrirGerenciamentoDaApple,
+  PRODUTO_IAP,
+} from "@/lib/iap";
 import { linkWhatsApp } from "@/lib/contato";
 import { SectionCard } from "./SectionCard";
 
@@ -72,9 +76,11 @@ export function PlanoSection() {
     }
 
     setAbrindo(true);
-    const resultado = await window.MimuIAP!.comprar({
-      produtoId: PRODUTO_IAP.pro.mensal,
-    }).catch(() => ({ ok: false, erro: "falhou" }));
+    const resultado = await window
+      .MimuIAP!.comprar({
+        produtoId: PRODUTO_IAP.pro.mensal,
+      })
+      .catch(() => ({ ok: false, erro: "falhou" }));
     setAbrindo(false);
 
     if (!resultado.ok) {
@@ -217,8 +223,8 @@ export function PlanoSection() {
               Se você não fizer nada, em {formatDate(assinatura.trial_fim)} sua
               conta passa sozinha para o plano gratuito. Você continua
               registrando vendas, vendo seu faturamento e falando com a Mimu
-              (até {MENSAGENS_MIMU_POR_DIA.free} mensagens por dia), e não
-              perde nada do que já cadastrou.
+              (até {MENSAGENS_MIMU_POR_DIA.free} mensagens por dia), e não perde
+              nada do que já cadastrou.
             </p>
           </div>
         )}
@@ -239,8 +245,7 @@ export function PlanoSection() {
               Dá para registrar vendas, acompanhar o faturamento e falar com a
               Mimu pra sempre, sem pagar nada — são{" "}
               {MENSAGENS_MIMU_POR_DIA.free} mensagens por dia. No Pro são{" "}
-              {MENSAGENS_MIMU_POR_DIA.pro}, e entram agenda, clientes e
-              estoque.
+              {MENSAGENS_MIMU_POR_DIA.pro}, e entram agenda, clientes e estoque.
             </p>
           </div>
         )}
@@ -296,13 +301,50 @@ export function PlanoSection() {
           </button>
         )}
 
+        {/*
+          As condições da assinatura e os dois links, ANTES da compra.
+          
+          A diretriz 3.1.2 da Apple exige isto no app, e não só na página da
+          loja: duração, renovação automática, como desligar, e links
+          funcionais para os Termos de Uso e a Política de Privacidade. O
+          envio de 11/09/2026 foi reprovado por faltar o link na descrição da
+          loja; isto fecha o outro lado da mesma exigência.
+
+          Fica visível nos dois lugares — app e site — porque a regra vale
+          para quem compra pela Apple, e a informação não atrapalha quem
+          compra pelo cartão.
+        */}
+        <p className="text-[13px] leading-relaxed text-neutro-muted">
+          A assinatura se renova automaticamente pelo mesmo período, e a
+          cobrança acontece na sua conta da Apple na confirmação da compra. Você
+          pode desligar a renovação até 24 horas antes do fim do período em
+          curso, em Ajustes &rsaquo; seu nome &rsaquo; Assinaturas — o período
+          já pago não é interrompido.{" "}
+          <a
+            href="https://mimu.pro/legal/termos"
+            className="font-semibold text-primary-forte underline underline-offset-2"
+          >
+            Termos de Uso
+          </a>{" "}
+          e{" "}
+          <a
+            href="https://mimu.pro/legal/privacidade"
+            className="font-semibold text-primary-forte underline underline-offset-2"
+          >
+            Política de Privacidade
+          </a>
+          .
+        </p>
+
         {pagaAtiva && (
           <button
             type="button"
             onClick={cancelar}
             className="flex items-center justify-center gap-1.5 rounded-button border border-neutro-border py-3 text-sm font-semibold text-neutro-muted transition-colors hover:bg-fundo"
           >
-            {compradaNaApple && <ExternalLink className="h-3.5 w-3.5" strokeWidth={2.25} />}
+            {compradaNaApple && (
+              <ExternalLink className="h-3.5 w-3.5" strokeWidth={2.25} />
+            )}
             {compradaNaApple ? "Gerenciar na App Store" : "Cancelar assinatura"}
           </button>
         )}
