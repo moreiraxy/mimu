@@ -104,7 +104,23 @@ export function PlanoSection() {
       .MimuIAP!.comprar({
         produtoId: PRODUTO_IAP.pro.mensal,
       })
-      .catch(() => ({ ok: false, erro: "falhou" }));
+      /*
+       * O motivo da REJEIÇÃO entra no resultado, e não um "falhou" seco.
+       *
+       * Quando a ponte do Capacitor recusa a chamada — plugin sem
+       * implementação nativa, método com nome diferente, erro na ponte —, ela
+       * rejeita a promessa em vez de responder. O Swift nunca rejeita: todos
+       * os desfechos dele chamam `resolve`. Então rejeição aqui significa que
+       * a chamada NÃO CHEGOU ao nativo, e a mensagem da rejeição é a única
+       * coisa que diz por quê.
+       *
+       * Sem isto o sintoma era "falhou", que não distingue ponte quebrada de
+       * compra recusada — e foi o que travou a investigação em 11/09/2026.
+       */
+      .catch((e: unknown) => ({
+        ok: false,
+        erro: `ponte: ${e instanceof Error ? e.message : String(e)}`,
+      }));
     setAbrindo(false);
 
     if (!resultado.ok) {
