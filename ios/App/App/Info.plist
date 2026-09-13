@@ -24,6 +24,24 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!--
+	  A CÂMERA E AS FOTOS.
+	
+	  O envio do logo da empresa é um <input type="file" accept="image/*">
+	  (DadosNegocioSection.tsx). No iOS isso abre uma folha com "Tirar foto ou
+	  vídeo", e ao tocar nela o sistema ENCERRA o app se estas chaves não
+	  existirem — não há erro em JavaScript, não há aviso: o processo morre.
+	
+	  Foi assim que a revisão reprovou o build 2 pela diretriz 2.1(a), num iPad:
+	  "your app crashed when we tapped on 'take photo or video' button".
+	
+	  É a MESMA falha do microfone, que já tinha derrubado o app pelo ditado.
+	  O teste testes/permissoes-declaradas.test.ts existe para não haver terceira.
+	-->
+	<key>NSCameraUsageDescription</key>
+	<string>Para você tirar uma foto do logo do seu negócio na hora de personalizar a Mimu.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para você escolher o logo do seu negócio entre as suas fotos.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>O Face ID destrava a Mimu sem senha, para os seus números não ficarem à vista de quem pegar o seu celular.</string>
 	<key>NSMicrophoneUsageDescription</key>
