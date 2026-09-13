@@ -43,7 +43,29 @@ compatibilidade. A queda aconteceria no iPhone igualmente.
 build 2 não conseguia comprar (§0.1) e o 3 corrige a causa, mas a prova exige
 TestFlight e sandbox num aparelho físico.
 
-## 0.1 O plugin de compra que não era carregado
+## 0.0 BLOQUEIO ATUAL: o contrato de apps pagos não foi assinado
+
+Descoberto em 13/09/2026, testando a compra no TestFlight com o build 3. O app
+respondeu `produto_desconhecido` — o StoreKit não encontra os quatro produtos.
+
+A causa está em App Store Connect → Negócios → Contratos:
+
+    Acordo de apps gratuitos   Ativo
+    Acordo de apps pagos       Novo — "Visualizar e concordar com os termos"
+
+E o aviso da própria página: "Para oferecer apps ou outras compras dentro de
+apps, você deve assinar o contrato de apps pagos."
+
+Sem esse contrato ATIVO a Apple não vende em nome da conta, e
+`Product.products(for:)` devolve lista vazia. Nenhuma mudança de código
+resolve: o plugin funciona, não há produto para encontrar.
+
+Só o titular da conta pode assinar, e a ativação exige ainda os dados
+bancários e fiscais. Depois de ativo, a propagação dos produtos leva horas.
+
+**Isto também reprovaria a revisão.** A queda pela câmera veio antes; se ela
+estiver corrigida e o contrato continuar pendente, o revisor não consegue
+comprar.
 
 ## 0.1 O plugin de compra que não era carregado
 
