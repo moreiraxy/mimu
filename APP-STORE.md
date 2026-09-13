@@ -14,11 +14,36 @@ Store Connect permite transferir depois, com condições.
 
 ---
 
-## 0. Estado: ENVIADO para revisão em 11/09/2026, 16h16 — build 2
+## 0. Estado: ENVIADO para revisão em 13/09/2026 — build 3
 
-O build 1 foi enviado e REPROVADO pela 3.1.2, corrigido, reenviado — e depois
-retirado por um defeito pior, que só apareceu no TestFlight: **ele não
-conseguia comprar nada**. Ver §0.1.
+Terceiro envio. Os dois anteriores foram reprovados, e os motivos valem mais
+que o histórico:
+
+**Build 1 — diretriz 3.1.2.** Faltava, na DESCRIÇÃO da App Store, um link para
+os Termos de Uso. Metadado, não código. Ver §0.2.
+
+**Build 2 — diretriz 2.1(a), o app CAIU na revisão.**
+
+    your app crashed when we tapped on "take photo or video" button
+
+O envio do logo é um `<input type="file" accept="image/*">`. No iOS isso abre
+"Tirar foto ou vídeo", e sem `NSCameraUsageDescription` o sistema ENCERRA o
+processo — sem exceção em JavaScript, sem aviso: o app some da tela.
+
+É a MESMA falha que o ditado já tinha causado pelo microfone, neste mesmo
+projeto, num lugar onde ninguém voltou a olhar. `testes/permissoes-declaradas.test.ts`
+agora procura no CÓDIGO as APIs que o iOS protege e cobra a chave, além de
+recusar descrição vazia — que passa na checagem e reprova na 5.1.1.
+
+A revisão rodou num iPad Air. Isso NÃO é defeito de configuração: o projeto já
+está em `TARGETED_DEVICE_FAMILY = 1`, e app de iPhone roda em iPad no modo
+compatibilidade. A queda aconteceria no iPhone igualmente.
+
+**Ainda sem verificação: nenhuma compra foi exercitada de ponta a ponta.** O
+build 2 não conseguia comprar (§0.1) e o 3 corrige a causa, mas a prova exige
+TestFlight e sandbox num aparelho físico.
+
+## 0.1 O plugin de compra que não era carregado
 
 ## 0.1 O plugin de compra que não era carregado
 
