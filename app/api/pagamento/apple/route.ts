@@ -56,7 +56,7 @@ const RECADO: Record<string, string> = {
    * configuração, e que tentar de novo não adianta.
    */
   nao_configurado:
-    "A compra não pode ser confirmada: falta configurar as credenciais da App Store no servidor. Avise o suporte — sua assinatura está registrada na Apple e não se perde.",
+    "A compra não pode ser confirmada: as credenciais da App Store no servidor estão ausentes ou inválidas. Avise o suporte — sua assinatura está registrada na Apple e não se perde.",
 };
 
 export async function POST(request: Request) {

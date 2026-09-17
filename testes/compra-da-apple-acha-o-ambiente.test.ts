@@ -106,6 +106,30 @@ describe("a verificação não desiste no primeiro ambiente", () => {
     expect(r).toEqual({ ok: false, motivo: "nao_configurado" });
   });
 
+  it("chave ilegível também é configuração, e não indisponibilidade", async () => {
+    /*
+     * O caso real: APPLE_PRIVATE_KEY colada no painel da hospedagem com as
+     * quebras de linha perdidas. A variável EXISTE, então a checagem de
+     * presença passa, e a falha só aparece na hora de assinar o JWT.
+     *
+     * Isso devolvia "indisponivel" — mandando tentar de novo para um problema
+     * que nunca passa sozinho.
+     */
+    const guardada = process.env.APPLE_PRIVATE_KEY;
+    process.env.APPLE_PRIVATE_KEY =
+      "-----BEGIN PRIVATE KEY----- nao sou uma chave";
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 200 })),
+    );
+
+    const r = await verificarTransacao("2000000000000000");
+    process.env.APPLE_PRIVATE_KEY = guardada;
+
+    expect(r).toEqual({ ok: false, motivo: "nao_configurado" });
+  });
+
   it("os dois ambientes tropeçando vira indisponível, não 'não encontrada'", async () => {
     // A diferença importa: "não encontrada" manda a pessoa restaurar compras,
     // e não há o que restaurar quando o problema é nosso.

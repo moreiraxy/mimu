@@ -197,8 +197,21 @@ export async function verificarTransacao(
   try {
     token = cracha(c);
   } catch (erro) {
+    /*
+     * Chave presente mas ilegível é CONFIGURAÇÃO, não indisponibilidade.
+     *
+     * O caso concreto: `APPLE_PRIVATE_KEY` colada no painel da hospedagem com
+     * as quebras de linha perdidas, ou com aspas em volta, ou sem as linhas
+     * BEGIN/END. A variável existe — `credenciais()` passa —, e é aqui que o
+     * PKCS#8 falha.
+     *
+     * Devolver "indisponivel" aqui mandava a pessoa "tentar de novo em
+     * instantes" para um problema que nunca passa sozinho, e escondia de quem
+     * cuida do app a única coisa que resolveria. Em 17/09/2026 isso custou um
+     * ciclo de deploy para descobrir.
+     */
     console.error("Não consegui assinar o token da App Store.", erro);
-    return { ok: false, motivo: "indisponivel" };
+    return { ok: false, motivo: "nao_configurado" };
   }
 
   /*
