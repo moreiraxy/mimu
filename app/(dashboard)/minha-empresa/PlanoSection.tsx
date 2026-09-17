@@ -16,6 +16,7 @@ import {
   caminhoDeCompra,
   abrirGerenciamentoDaApple,
   PRODUTO_IAP,
+  type ResultadoCompra,
 } from "@/lib/iap";
 import { linkWhatsApp } from "@/lib/contato";
 import { SectionCard } from "./SectionCard";
@@ -54,6 +55,50 @@ function recadoDaCompra(erro?: string): string {
   // O código cru entra na mensagem de propósito: sem ele, "não deu certo" é
   // tudo o que sobra para quem for investigar, e foi o que custou caro aqui.
   return `Não consegui concluir a compra${erro ? ` (${erro})` : ""}. Tente de novo em instantes.`;
+}
+
+/**
+ * Manda o recibo da Apple para o servidor, que é QUEM LIBERA O ACESSO.
+ *
+ * Isto não existia. `comprar()` e `restaurar()` devolvem o `transactionId`, e
+ * a tela o descartava: chamava `router.refresh()` e pronto. O resultado, medido
+ * em 17/09/2026 com uma compra real em sandbox, foi a Apple registrar a
+ * assinatura e o nosso banco não ter linha nenhuma — nem em `pagamentos`, nem
+ * em `assinaturas`. Em produção isso é cliente pagando e não recebendo nada.
+ *
+ * A rota /api/pagamento/apple já existia inteira, com credenciais
+ * configuradas. Era código morto: nada no cliente a chamava.
+ *
+ * Devolve `null` quando deu certo, ou a frase a mostrar quando não deu. O erro
+ * aqui é diferente de todos os outros desta tela: A COMPRA JÁ ACONTECEU e o
+ * dinheiro já saiu. Dizer só "não deu certo" faria a pessoa tentar comprar de
+ * novo — por isso toda mensagem daqui confirma a cobrança e aponta o
+ * "Restaurar compras".
+ */
+async function confirmarNoServidor(
+  transactionId?: string,
+): Promise<string | null> {
+  if (!transactionId) {
+    return "A compra foi concluída na App Store, mas não consegui ler o recibo. Toque em Restaurar compras para liberar o acesso.";
+  }
+
+  let resposta: Response;
+  try {
+    resposta = await fetch("/api/pagamento/apple", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ transactionId }),
+    });
+  } catch {
+    return "A compra foi concluída na App Store, mas não consegui falar com a Mimu para liberar o acesso. Confira sua internet e toque em Restaurar compras.";
+  }
+
+  if (resposta.ok) return null;
+
+  const corpo = (await resposta.json().catch(() => ({}))) as { error?: string };
+  return corpo.error
+    ? `${corpo.error} A cobrança na App Store já foi feita — toque em Restaurar compras quando resolver.`
+    : "A compra foi concluída na App Store, mas não consegui liberar o acesso agora. Toque em Restaurar compras em instantes.";
 }
 
 export function PlanoSection() {
@@ -117,7 +162,7 @@ export function PlanoSection() {
        * Sem isto o sintoma era "falhou", que não distingue ponte quebrada de
        * compra recusada — e foi o que travou a investigação em 11/09/2026.
        */
-      .catch((e: unknown) => ({
+      .catch((e: unknown): ResultadoCompra => ({
         ok: false,
         erro: `ponte: ${e instanceof Error ? e.message : String(e)}`,
       }));
@@ -144,12 +189,22 @@ export function PlanoSection() {
     }
 
     /*
-     * Recarrega em vez de liberar aqui.
+     * O recibo vai para o servidor, e é ELE quem libera.
      *
-     * Quem libera o acesso é o servidor, depois de conferir o recibo com a
-     * App Store. Acreditar no "ok" que voltou do navegador seria liberar
-     * Premium para qualquer pessoa capaz de abrir o console.
+     * O comentário antigo aqui já dizia a coisa certa — "quem libera o acesso
+     * é o servidor, depois de conferir o recibo com a App Store" —, mas o
+     * código só chamava `router.refresh()`. Recarregar uma tela cujo servidor
+     * nunca soube da compra não muda nada: ela volta idêntica.
      */
+    setAbrindo(true);
+    const problema = await confirmarNoServidor(resultado.transactionId);
+    setAbrindo(false);
+
+    if (problema) {
+      setAviso(problema);
+      return;
+    }
+
     router.refresh();
   }
 
@@ -176,10 +231,12 @@ export function PlanoSection() {
     }
 
     setRestaurando(true);
-    const resultado = await window.MimuIAP.restaurar().catch(() => ({
-      ok: false,
-      erro: "falhou",
-    }));
+    const resultado = await window.MimuIAP.restaurar().catch(
+      (e: unknown): ResultadoCompra => ({
+        ok: false,
+        erro: `ponte: ${e instanceof Error ? e.message : String(e)}`,
+      }),
+    );
     setRestaurando(false);
 
     if (!resultado.ok) {
@@ -194,6 +251,24 @@ export function PlanoSection() {
       setAviso(
         "Não encontrei nenhuma assinatura para restaurar nesta conta da App Store.",
       );
+      return;
+    }
+
+    /*
+     * Restaurar sem avisar o servidor não restaura nada.
+     *
+     * A Apple devolve o `transactionId` de quem já tem direito, e era ele que
+     * faltava chegar aqui: a tela só chamava `router.refresh()`. Este é o
+     * ÚNICO caminho de recuperação de quem trocou de aparelho, reinstalou, ou
+     * comprou num momento em que o nosso servidor falhou — sem ele, "Restaurar
+     * compras" era um botão que não restaurava.
+     */
+    setRestaurando(true);
+    const problema = await confirmarNoServidor(resultado.transactionId);
+    setRestaurando(false);
+
+    if (problema) {
+      setAviso(problema);
       return;
     }
 
