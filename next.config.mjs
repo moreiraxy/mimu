@@ -101,6 +101,19 @@ const pkg = JSON.parse(
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  /**
+   * O otimizador de imagens (`/_next/image`) fica DESLIGADO.
+   *
+   * GHSA-2xp9-vwfh-vxw4: no Next < 15.5.24, uma AVIF mandada a esse endereço,
+   * sem login, chega ao libheif do sharp e pode executar código no servidor.
+   * A Hostinger avisou em 17/09/2026.
+   *
+   * Custa zero: nada aqui importa `next/image`. Com isto o Next responde 404
+   * antes de ler a imagem. Não religar sem estar no 15.5.24 ou posterior.
+   */
+  images: {
+    unoptimized: true,
+  },
   env: {
     NEXT_PUBLIC_VERSAO: pkg.version,
   },
