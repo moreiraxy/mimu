@@ -43,7 +43,33 @@ compatibilidade. A queda aconteceria no iPhone igualmente.
 build 2 não conseguia comprar (§0.1) e o 3 corrige a causa, mas a prova exige
 TestFlight e sandbox num aparelho físico.
 
-## 0.0 BLOQUEIO ATUAL: o contrato de apps pagos não foi assinado
+## 0.0 BLOQUEIO ATUAL: o contrato de apps pagos não está em vigor
+
+**A Apple confirmou este diagnóstico.** Em 15/09/2026 o build 3 foi reprovado
+pela diretriz **2.1(b)**, e a mensagem nomeia a causa:
+
+> an error occurred when loading in-app products (...) the Account Holder must
+> also accept the Paid Apps Agreement in the Business section of App Store
+> Connect. Confirm you have a Paid Apps Agreement in effect.
+
+A queda pela câmera FOI corrigida: não houve mais 2.1(a), e o revisor chegou
+até a tela de compra. O que resta é o contrato.
+
+**Regra que essa reprovação ensinou: não reenviar antes de a compra funcionar
+no TestFlight.** Três reprovações seguidas custaram uma semana. O contrato
+ativo e uma compra concluída em sandbox são pré-requisito do próximo envio,
+não coisas para descobrir durante ele.
+
+### O que falta, em ordem
+
+1. **Formulários fiscais** — pendentes. É o único passo que depende de ação.
+2. **Banco** — processando, até 24h, automático.
+3. Contrato vira **Ativo**.
+4. Produtos propagam — algumas horas.
+5. Compra funciona no TestFlight.
+6. Só então reenviar.
+
+### O diagnóstico original
 
 Descoberto em 13/09/2026, testando a compra no TestFlight com o build 3. O app
 respondeu `produto_desconhecido` — o StoreKit não encontra os quatro produtos.
