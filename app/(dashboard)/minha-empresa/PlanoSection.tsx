@@ -111,7 +111,14 @@ async function confirmarNoServidor(
   const corpo = (await resposta.json().catch(() => ({}))) as { error?: string };
   const motivo =
     corpo.error ?? "Não consegui confirmar a compra com a App Store agora.";
-  return `${motivo} A cobrança já foi feita e não se perde.${comoResolver}`;
+  /*
+   * O conselho da rota já vem pronto em alguns casos, e emendar o nosso em
+   * cima produzia "Tente de novo em instantes." duas vezes na mesma frase —
+   * apareceu no teste de 17/09/2026. Se o motivo já termina em conselho, fica
+   * só o motivo.
+   */
+  const jaAconselha = /tente de novo|avise o suporte|renove em/i.test(motivo);
+  return `${motivo} A cobrança já foi feita e não se perde.${jaAconselha ? "" : comoResolver}`;
 }
 
 export function PlanoSection() {

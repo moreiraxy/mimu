@@ -46,6 +46,17 @@ const RECADO: Record<string, string> = {
   invalida: "Não consegui validar essa compra.",
   indisponivel:
     "Não consegui falar com a App Store agora. Tente de novo em instantes.",
+  /*
+   * Esta frase é para QUEM CUIDA do app, não para quem usa — e é proposital.
+   *
+   * Falta de credencial no ambiente não é coisa que a pessoa resolva tentando
+   * de novo, e esconder isso atrás de "tente mais tarde" foi o que fez a
+   * investigação de 17/09/2026 precisar de um deploy só para descobrir de qual
+   * das duas falhas se tratava. Quem vir isto na tela precisa saber que é
+   * configuração, e que tentar de novo não adianta.
+   */
+  nao_configurado:
+    "A compra não pode ser confirmada: falta configurar as credenciais da App Store no servidor. Avise o suporte — sua assinatura está registrada na Apple e não se perde.",
 };
 
 export async function POST(request: Request) {
@@ -79,9 +90,20 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(
       { error: RECADO[verificacao.motivo] ?? RECADO.invalida },
-      // "indisponivel" é problema NOSSO, e merece 502: quem monitora precisa
-      // distinguir a Apple recusando de nós não conseguindo perguntar.
-      { status: verificacao.motivo === "indisponivel" ? 502 : 402 },
+      /*
+       * 502 quando o problema é NOSSO, 402 quando a Apple recusou.
+       *
+       * "nao_configurado" entra no 502 junto com "indisponivel" porque as duas
+       * são falhas nossas — mas agora com frases diferentes, que é o que
+       * permite saber de fora qual delas aconteceu.
+       */
+      {
+        status:
+          verificacao.motivo === "indisponivel" ||
+          verificacao.motivo === "nao_configurado"
+            ? 502
+            : 402,
+      },
     );
   }
 
@@ -143,7 +165,10 @@ export async function POST(request: Request) {
       detalhe: { motivo: error.message },
     });
     return NextResponse.json(
-      { error: "Sua compra foi aprovada, mas não consegui liberar aqui. Tente Restaurar compras em instantes." },
+      {
+        error:
+          "Sua compra foi aprovada, mas não consegui liberar aqui. Tente Restaurar compras em instantes.",
+      },
       { status: 500 },
     );
   }

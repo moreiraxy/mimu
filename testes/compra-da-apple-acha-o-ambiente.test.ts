@@ -85,6 +85,27 @@ describe("a verificação não desiste no primeiro ambiente", () => {
     }
   });
 
+  it("sem credenciais no ambiente, o motivo é próprio e não 'indisponivel'", async () => {
+    /*
+     * Os dois já produziram a MESMA frase, e isso custou um ciclo de deploy em
+     * 17/09/2026: a compra falhava e não dava para saber, de fora, se faltava
+     * variável no servidor ou se a Apple tinha recusado.
+     */
+    const guardado = process.env.APPLE_PRIVATE_KEY;
+    delete process.env.APPLE_PRIVATE_KEY;
+
+    // Sem rede: a falta de credencial é decidida antes de qualquer fetch.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 200 })),
+    );
+
+    const r = await verificarTransacao("2000000000000000");
+    process.env.APPLE_PRIVATE_KEY = guardado;
+
+    expect(r).toEqual({ ok: false, motivo: "nao_configurado" });
+  });
+
   it("os dois ambientes tropeçando vira indisponível, não 'não encontrada'", async () => {
     // A diferença importa: "não encontrada" manda a pessoa restaurar compras,
     // e não há o que restaurar quando o problema é nosso.

@@ -45,7 +45,23 @@ export type ResultadoVerificacao =
     }
   | {
       ok: false;
-      motivo: "nao_encontrada" | "expirada" | "invalida" | "indisponivel";
+      motivo:
+        | "nao_encontrada"
+        | "expirada"
+        | "invalida"
+        /*
+         * A Apple não respondeu, ou respondeu recusando. Problema NOSSO ou
+         * dela, e a pessoa não tem o que fazer além de tentar de novo.
+         */
+        | "indisponivel"
+        /*
+         * As credenciais não estão no ambiente. Separado de "indisponivel" de
+         * propósito: os dois produziam a mesma frase, e quando a compra falhou
+         * em 17/09/2026 não havia como saber, de fora, se faltava variável na
+         * Hostinger ou se a Apple tinha recusado. Uma hipótese por deploy é
+         * caro demais.
+         */
+        | "nao_configurado";
     };
 
 interface Credenciais {
@@ -175,7 +191,7 @@ export async function verificarTransacao(
   transactionId: string,
 ): Promise<ResultadoVerificacao> {
   const c = credenciais();
-  if (!c) return { ok: false, motivo: "indisponivel" };
+  if (!c) return { ok: false, motivo: "nao_configurado" };
 
   let token: string;
   try {
