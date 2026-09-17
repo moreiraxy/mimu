@@ -94,6 +94,23 @@ const ROTAS_DE_PAGAMENTO_PROPRIO = [
   "/api/pagamento",
 ];
 
+/**
+ * A rota do IAP, que precisa atravessar o bloqueio acima.
+ *
+ * `/api/pagamento` pega tudo por prefixo — inclusive `/api/pagamento/apple`,
+ * que é EXATAMENTE o oposto do que o bloqueio quer impedir: ela recebe o
+ * recibo da App Store e é o que faz a compra pelo IAP virar acesso. Só é
+ * chamada de dentro do app.
+ *
+ * Sem esta exceção a guarda que faz cumprir a diretriz 3.1.1 bloqueia a rota
+ * que IMPLEMENTA a 3.1.1: a pessoa paga na App Store, o recibo bate em 403, e
+ * o acesso nunca é liberado. Medido em 17/09/2026 com uma compra real.
+ *
+ * As outras — /cartao, /pix, /status — seguem bloqueadas: são o checkout
+ * próprio, e é por elas que se pagaria por fora do IAP.
+ */
+const ROTA_DO_IAP = "/api/pagamento/apple";
+
 function comecaCom(pathname: string, rotas: string[]): boolean {
   return rotas.some(
     (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
@@ -214,7 +231,10 @@ export async function updateSession(request: NextRequest) {
    * jeito.
    */
   if (ehAppIOS(request.headers.get("user-agent"))) {
-    if (comecaCom(pathname, ROTAS_DE_PAGAMENTO_PROPRIO)) {
+    if (
+      pathname !== ROTA_DO_IAP &&
+      comecaCom(pathname, ROTAS_DE_PAGAMENTO_PROPRIO)
+    ) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json(
           { error: "Assinatura pelo app é feita pela App Store." },

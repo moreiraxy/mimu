@@ -76,10 +76,23 @@ function recadoDaCompra(erro?: string): string {
  * "Restaurar compras".
  */
 async function confirmarNoServidor(
-  transactionId?: string,
+  transactionId: string | undefined,
+  /*
+   * De onde veio a chamada, só para o conselho final fazer sentido.
+   *
+   * Mandar "toque em Restaurar compras" para quem ACABOU de tocar em
+   * Restaurar compras é conselho circular. Foi o que a primeira versão fez, e
+   * apareceu no teste de 17/09/2026.
+   */
+  origem: "compra" | "restauracao",
 ): Promise<string | null> {
+  const comoResolver =
+    origem === "compra"
+      ? " Toque em Restaurar compras para liberar o acesso."
+      : " Tente de novo em instantes; a assinatura continua sua na App Store.";
+
   if (!transactionId) {
-    return "A compra foi concluída na App Store, mas não consegui ler o recibo. Toque em Restaurar compras para liberar o acesso.";
+    return `A compra foi concluída na App Store, mas não consegui ler o recibo.${comoResolver}`;
   }
 
   let resposta: Response;
@@ -90,15 +103,15 @@ async function confirmarNoServidor(
       body: JSON.stringify({ transactionId }),
     });
   } catch {
-    return "A compra foi concluída na App Store, mas não consegui falar com a Mimu para liberar o acesso. Confira sua internet e toque em Restaurar compras.";
+    return `A compra foi concluída na App Store, mas não consegui falar com a Mimu para liberar o acesso. Confira sua internet.${comoResolver}`;
   }
 
   if (resposta.ok) return null;
 
   const corpo = (await resposta.json().catch(() => ({}))) as { error?: string };
-  return corpo.error
-    ? `${corpo.error} A cobrança na App Store já foi feita — toque em Restaurar compras quando resolver.`
-    : "A compra foi concluída na App Store, mas não consegui liberar o acesso agora. Toque em Restaurar compras em instantes.";
+  const motivo =
+    corpo.error ?? "Não consegui confirmar a compra com a App Store agora.";
+  return `${motivo} A cobrança já foi feita e não se perde.${comoResolver}`;
 }
 
 export function PlanoSection() {
@@ -197,7 +210,10 @@ export function PlanoSection() {
      * nunca soube da compra não muda nada: ela volta idêntica.
      */
     setAbrindo(true);
-    const problema = await confirmarNoServidor(resultado.transactionId);
+    const problema = await confirmarNoServidor(
+      resultado.transactionId,
+      "compra",
+    );
     setAbrindo(false);
 
     if (problema) {
@@ -264,7 +280,10 @@ export function PlanoSection() {
      * compras" era um botão que não restaurava.
      */
     setRestaurando(true);
-    const problema = await confirmarNoServidor(resultado.transactionId);
+    const problema = await confirmarNoServidor(
+      resultado.transactionId,
+      "restauracao",
+    );
     setRestaurando(false);
 
     if (problema) {
