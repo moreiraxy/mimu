@@ -30,10 +30,11 @@ export type AuthFormState =
   | undefined;
 
 /** IP do cliente a partir dos headers de proxy — "desconhecido" só acontece em ambientes sem proxy (ex.: dev local sem Vercel). */
-function obterIP(): string {
-  const encaminhadoPor = headers().get("x-forwarded-for");
+async function obterIP(): Promise<string> {
+  const cabecalhos = await headers();
+  const encaminhadoPor = cabecalhos.get("x-forwarded-for");
   if (encaminhadoPor) return encaminhadoPor.split(",")[0]!.trim();
-  return headers().get("x-real-ip") ?? "desconhecido";
+  return cabecalhos.get("x-real-ip") ?? "desconhecido";
 }
 
 function traduzErroSupabase(message: string): string {
@@ -89,7 +90,7 @@ export async function signUp(
   // dias de teste, e escolher o grátis é uma opção aberta a qualquer pessoa.
   const plano = planoValido(formData.get("plano"));
 
-  const ip = obterIP();
+  const ip = await obterIP();
   if (await excedeuLimite("cadastro", ip)) {
     return {
       error: "Muitos cadastros tentados por aqui. Tente novamente em uma hora.",
@@ -97,8 +98,8 @@ export async function signUp(
   }
   await registrarTentativa("cadastro", ip);
 
-  const origin = headers().get("origin");
-  const supabase = createClient();
+  const origin = (await headers()).get("origin");
+  const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -117,7 +118,7 @@ export async function signUp(
          * site logada, enquanto o aplicativo continua deslogado (os cookies
          * são separados), sem nenhuma explicação. Ver app/auth/confirmar.
          */
-        cadastro_no_app: ehAppIOS(headers().get("user-agent")),
+        cadastro_no_app: ehAppIOS((await headers()).get("user-agent")),
       },
       emailRedirectTo: `${origin}/onboarding`,
     },
@@ -182,7 +183,7 @@ export async function signIn(
   }
   await registrarTentativa("login", email);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -220,7 +221,7 @@ export async function signIn(
           supabase,
           entrou.user.id,
           // Dentro do app iOS o destino nunca pode ser o checkout próprio.
-          ehAppIOS(headers().get("user-agent")),
+          ehAppIOS((await headers()).get("user-agent")),
         )
       : "/dashboard",
   );
@@ -261,8 +262,8 @@ export async function requestPasswordReset(
   }
   await registrarTentativa("recuperar_senha", email);
 
-  const origin = headers().get("origin");
-  const supabase = createClient();
+  const origin = (await headers()).get("origin");
+  const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/redefinir-senha`,
   });
@@ -302,8 +303,8 @@ export async function reenviarConfirmacao(
   }
   await registrarTentativa("login", email);
 
-  const origin = headers().get("origin");
-  const supabase = createClient();
+  const origin = (await headers()).get("origin");
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.resend({
     type: "signup",

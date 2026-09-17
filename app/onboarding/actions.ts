@@ -15,7 +15,7 @@ import { planoValido } from "@/lib/planos";
 type ActionState = { error?: string } | undefined;
 
 async function getUsuarioAutenticado() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

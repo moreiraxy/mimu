@@ -3,7 +3,7 @@ import { registrarEvento } from "@/lib/eventos";
 import { enviarApns } from "@/lib/push-apns";
 import type { createClient } from "@/lib/supabase/server";
 
-type Supabase = ReturnType<typeof createClient>;
+type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 let vapidConfigurado = false;
 

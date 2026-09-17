@@ -18,11 +18,9 @@ import { ehAdmin } from "@/lib/admin";
  * O que sobrevive é o registro em `cancelamentos`, gravado pelo trigger
  * antes da linha da empresa sumir: sem contato, só métrica de saída.
  */
-export async function DELETE(
-  request: Request,
-  { params }: { params: { empresaId: string } },
-) {
-  const supabase = createClient();
+export async function DELETE(request: Request, props: { params: Promise<{ empresaId: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     return paraLogin("link-invalido");
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.verifyOtp({
     type: tipo,
     token_hash: tokenHash,

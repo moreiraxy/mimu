@@ -27,11 +27,9 @@ const MODULOS_VALIDOS: ModuloAtivo[] = [
   "ia",
 ];
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { empresaId: string } },
-) {
-  const supabase = createClient();
+export async function PATCH(request: Request, props: { params: Promise<{ empresaId: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

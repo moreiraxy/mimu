@@ -33,7 +33,7 @@ import { consumirMensagemDaMimu } from "@/lib/mimu/cota";
 import type { Empresa } from "@/types";
 import type { Json } from "@/types/database";
 
-type Supabase = ReturnType<typeof createClient>;
+type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 const MAX_MENSAGENS_HISTORICO = 20;
 
@@ -209,7 +209,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

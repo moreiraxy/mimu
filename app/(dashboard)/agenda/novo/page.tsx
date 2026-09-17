@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -21,11 +21,12 @@ import {
 // valor financeiro nenhum ali. valor/descricao/data/horario, que vêm do
 // "Corrigir" do chat da Mimu, chegam por sessionStorage (ver corrigirRegistro
 // em app/(dashboard)/mimu/page.tsx) — nunca pela URL.
-export default function NovoAgendamentoPage({
-  searchParams,
-}: {
-  searchParams: { clienteId?: string; clienteNome?: string };
-}) {
+export default function NovoAgendamentoPage(
+  props: {
+    searchParams: Promise<{ clienteId?: string; clienteNome?: string }>;
+  }
+) {
+  const searchParams = use(props.searchParams);
   const { empresa } = useEmpresa();
   const router = useRouter();
   const { showToast } = useToast();

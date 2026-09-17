@@ -3,7 +3,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { signUp, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -23,7 +24,7 @@ function SubmitButton() {
 }
 
 function FormularioCadastro() {
-  const [state, formAction] = useFormState(signUp, initialState);
+  const [state, formAction] = useActionState(signUp, initialState);
   // Plano escolhido lá na landing. Vem por query e segue num campo oculto —
   // é o que decide, no fim do onboarding, entre ganhar os 7 dias de teste ou
   // ir direto pro pagamento. Quem chega aqui sem plano nenhum é tratado como

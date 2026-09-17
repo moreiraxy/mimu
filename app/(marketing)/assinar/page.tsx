@@ -45,12 +45,13 @@ const ITENS_INCLUIDOS = [
  * da URL: quem chega aqui já decidiu, e deixar o preço vir do endereço
  * permitiria assinar o Premium pagando o valor do Pro.
  */
-export default async function AssinarPage({
-  searchParams,
-}: {
-  searchParams: { plano?: string; periodicidade?: string };
-}) {
-  const supabase = createClient();
+export default async function AssinarPage(
+  props: {
+    searchParams: Promise<{ plano?: string; periodicidade?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

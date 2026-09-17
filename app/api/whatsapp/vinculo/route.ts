@@ -20,7 +20,7 @@ import { mascararRemetente } from "@/lib/canais/tipos";
 
 /** O estado atual do vínculo, para a tela saber o que desenhar. */
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -48,7 +48,7 @@ export async function GET() {
 
 /** Gera um código novo. Os pendentes anteriores são revogados dentro. */
 export async function POST() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -91,7 +91,7 @@ export async function POST() {
  * apagável — nem por quem usa o app.
  */
 export async function DELETE() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

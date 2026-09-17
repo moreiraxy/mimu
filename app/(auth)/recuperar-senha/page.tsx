@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { requestPasswordReset, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -18,7 +19,7 @@ function SubmitButton() {
 }
 
 export default function RecuperarSenhaPage() {
-  const [state, formAction] = useFormState(requestPasswordReset, initialState);
+  const [state, formAction] = useActionState(requestPasswordReset, initialState);
 
   if (state?.success) {
     return (

@@ -19,7 +19,7 @@ import { MODULOS } from "@/lib/modulos";
 const CHAVES_VALIDAS = new Set(MODULOS.flatMap((m) => m.chaves));
 
 export async function PATCH(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

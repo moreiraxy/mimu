@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -27,11 +27,12 @@ function centavosParaReais(centavos: number) {
   return formatCurrency(centavos / 100);
 }
 
-export default function ComprasPage({
-  searchParams,
-}: {
-  searchParams: { fornecedorId?: string };
-}) {
+export default function ComprasPage(
+  props: {
+    searchParams: Promise<{ fornecedorId?: string }>;
+  }
+) {
+  const searchParams = use(props.searchParams);
   const { empresa } = useEmpresa();
   const { fornecedores, loading: carregandoFornecedores } = useFornecedores();
   const { produtos, loading: carregandoProdutos } = useProdutos();

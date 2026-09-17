@@ -12,7 +12,7 @@ interface SubscriptionPayload {
 
 /** Recebe a PushSubscription do browser (subscription.toJSON()) e salva pra empresa do usuário logado. */
 export async function POST(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

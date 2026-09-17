@@ -1,15 +1,16 @@
 import { LoginForm } from "./login-form";
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: {
-    confirmacao?: string;
-    redefinida?: string;
-    plano?: string;
-    erro?: string;
-  };
-}) {
+export default async function LoginPage(
+  props: {
+    searchParams: Promise<{
+      confirmacao?: string;
+      redefinida?: string;
+      plano?: string;
+      erro?: string;
+    }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <LoginForm
       confirmacaoPendente={searchParams.confirmacao === "pendente"}

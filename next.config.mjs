@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 /*
  * O Supabase local, liberado SÓ no desenvolvimento.
@@ -101,15 +102,27 @@ const pkg = JSON.parse(
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  /*
+   * A raiz do projeto, dita em voz alta.
+   *
+   * O Next 15 procura sozinho a pasta raiz subindo atrás de package-lock.json,
+   * e numa máquina que tenha um lockfile solto em $HOME ele elege $HOME — o
+   * aviso apareceu neste Mac. Quem depende disso é o rastreamento de arquivos
+   * do build; raiz errada significa empacotar a árvore errada.
+   */
+  outputFileTracingRoot: fileURLToPath(new URL(".", import.meta.url)),
   /**
-   * O otimizador de imagens (`/_next/image`) fica DESLIGADO.
+   * O otimizador de imagens (`/_next/image`) fica DESLIGADO — e continua
+   * desligado mesmo agora que o Next 15.5.24 corrigiu a falha.
    *
-   * GHSA-2xp9-vwfh-vxw4: no Next < 15.5.24, uma AVIF mandada a esse endereço,
-   * sem login, chega ao libheif do sharp e pode executar código no servidor.
-   * A Hostinger avisou em 17/09/2026.
+   * Foi assim que a GHSA-2xp9-vwfh-vxw4 se fechou em 17/09/2026, horas antes
+   * da subida de versão: uma AVIF mandada àquele endereço, SEM LOGIN, chegava
+   * ao libheif de dentro do sharp e podia executar código no servidor.
    *
-   * Custa zero: nada aqui importa `next/image`. Com isto o Next responde 404
-   * antes de ler a imagem. Não religar sem estar no 15.5.24 ou posterior.
+   * Religar não traz nada: nenhum arquivo deste projeto importa `next/image`.
+   * Enquanto isso for verdade, a rota devolve 404 antes de ler a imagem e a
+   * próxima falha de decodificador não encontra porta aberta. Quem for usar
+   * `next/image` um dia tira esta linha — e assume a superfície de volta.
    */
   images: {
     unoptimized: true,
@@ -117,14 +130,11 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_VERSAO: pkg.version,
   },
-  experimental: {
-    /**
-     * Liga o instrumentation.ts, que roda uma vez quando o servidor sobe.
-     * No Next 14 este gancho ainda é experimental e precisa ser pedido; sem
-     * esta linha o arquivo é simplesmente ignorado, sem erro nenhum.
-     */
-    instrumentationHook: true,
-  },
+  /*
+   * O instrumentation.ts não precisa mais ser pedido: no Next 15 o gancho é
+   * estável e roda sozinho. `experimental.instrumentationHook` saiu daqui na
+   * subida de versão — mantê-lo só geraria aviso de opção desconhecida.
+   */
   /**
    * A landing page é um projeto Vite separado (site-mimo), compilado a cada
    * build para dentro do public/ daqui. Estas reescritas fazem o Next servir

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { reenviarConfirmacao, signIn, type AuthFormState } from "../actions";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -81,8 +82,8 @@ export function LoginForm({
   /** Motivo pelo qual o link do e-mail não funcionou, vindo da URL. */
   erroDoLink?: string | null;
 }) {
-  const [state, formAction] = useFormState(signIn, initialState);
-  const [reenvio, reenviarAction] = useFormState(
+  const [state, formAction] = useActionState(signIn, initialState);
+  const [reenvio, reenviarAction] = useActionState(
     reenviarConfirmacao,
     initialState,
   );

@@ -20,7 +20,7 @@ import { ehAdmin } from "@/lib/admin";
 const HORAS_PADRAO = 24;
 
 export async function GET(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

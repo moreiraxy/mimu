@@ -15,11 +15,9 @@ function mapearStatus(statusMP: string | undefined): StatusPagamentoMP {
   return "pendente";
 }
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
-  const supabase = createClient();
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
 
   const {
     data: { user },

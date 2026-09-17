@@ -17,7 +17,7 @@ import { cotaDaMimu } from "@/lib/mimu/cota";
  * — e a pessoa cobraria, com razão, uma promessa que a tela fez.
  */
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

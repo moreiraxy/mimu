@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { gerarAlertasDaEmpresa } from "@/lib/alertas-proativos";
 
 export async function POST() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

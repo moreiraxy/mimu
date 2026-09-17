@@ -25,7 +25,7 @@ function dividirNome(nomeCompleto: string | undefined) {
 }
 
 export async function POST() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },

@@ -22,7 +22,7 @@ import { registrarEvento } from "@/lib/eventos";
  * num onboarding em branco.
  */
 export async function DELETE(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

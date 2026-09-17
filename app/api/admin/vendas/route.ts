@@ -36,7 +36,7 @@ import type { FormaPagamentoMP } from "@/types";
 const FORMAS: FormaPagamentoMP[] = ["pix", "cartao", "boleto"];
 
 export async function POST(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

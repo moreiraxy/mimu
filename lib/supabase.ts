@@ -50,7 +50,7 @@ export const getEmpresaAtual = cache(
      */
     assinatura: AssinaturaResumo | null;
   }> => {
-    const supabase = createServerClientImpl();
+    const supabase = await createServerClientImpl();
     const {
       data: { user },
     } = await supabase.auth.getUser();
