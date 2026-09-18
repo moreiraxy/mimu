@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { buscarEmpresaEAssinatura } from "@/lib/assinatura";
-import { verificarTransacao } from "@/lib/apple-store-server";
+import {
+  verificarTransacao,
+  diagnosticoDasCredenciais,
+} from "@/lib/apple-store-server";
 import { registrarEvento } from "@/lib/eventos";
 import { PRODUTO_IAP } from "@/lib/iap";
 import type { Periodicidade, PlanoPago } from "@/lib/planos";
@@ -89,7 +92,20 @@ export async function POST(request: Request) {
       detalhe: { motivo: verificacao.motivo },
     });
     return NextResponse.json(
-      { error: RECADO[verificacao.motivo] ?? RECADO.invalida },
+      {
+        error: RECADO[verificacao.motivo] ?? RECADO.invalida,
+        /*
+         * Só no caso de configuração, e só FORMATO — nunca o conteúdo.
+         *
+         * Serve para comparar o que está no servidor com o valor esperado sem
+         * gastar outro deploy para descobrir. Tamanho e presença de BEGIN/END
+         * não são segredo, e foram o que faltou nos três ciclos anteriores. O
+         * app ignora este campo.
+         */
+        ...(verificacao.motivo === "nao_configurado"
+          ? { diagnostico: diagnosticoDasCredenciais() }
+          : {}),
+      },
       /*
        * 502 quando o problema é NOSSO, 402 quando a Apple recusou.
        *

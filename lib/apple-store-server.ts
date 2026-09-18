@@ -71,6 +71,36 @@ interface Credenciais {
   bundleId: string;
 }
 
+/**
+ * O que o servidor TEM, sem revelar o que ele tem.
+ *
+ * Só formato: quais variáveis existem, o tamanho da chave e se ela tem as
+ * linhas BEGIN/END. Nada disso é segredo, e é o suficiente para comparar com
+ * o valor esperado — 262 caracteres na forma de uma linha com `\n` escapado.
+ *
+ * Existe porque descobrir que a chave estava malformada custou três ciclos de
+ * deploy: de fora, "não assina" e "não está lá" produziam a mesma tela, e
+ * ninguém conseguia ver o que havia no ambiente. Comparar um NÚMERO acaba com
+ * a dúvida em um toque.
+ */
+export function diagnosticoDasCredenciais(): Record<
+  string,
+  string | number | boolean
+> {
+  const chave = process.env.APPLE_PRIVATE_KEY ?? "";
+  return {
+    temIssuerId: Boolean(process.env.APPLE_ISSUER_ID),
+    temKeyId: Boolean(process.env.APPLE_KEY_ID),
+    temBundleId: Boolean(process.env.APPLE_BUNDLE_ID),
+    tamanhoDaChave: chave.length,
+    chaveTemBegin: chave.includes("BEGIN PRIVATE KEY"),
+    chaveTemEnd: chave.includes("END PRIVATE KEY"),
+    // Qual dos dois formatos chegou: `\n` escapado ou quebras de verdade.
+    chaveTemBarraN: chave.includes("\\n"),
+    chaveTemQuebraReal: chave.includes("\n"),
+  };
+}
+
 function credenciais(): Credenciais | null {
   const issuerId = process.env.APPLE_ISSUER_ID;
   const keyId = process.env.APPLE_KEY_ID;
