@@ -62,6 +62,17 @@ export type ResultadoVerificacao =
          * caro demais.
          */
         | "nao_configurado";
+      /**
+       * O que cada ambiente respondeu, quando o motivo é `indisponivel`.
+       *
+       * Sem isto, "não consegui falar com a Apple" é o fim da linha para quem
+       * investiga: não dá para saber se foi 401 nos dois, 404 no sandbox, ou
+       * rede caindo. Cada um aponta para um conserto diferente, e descobrir
+       * qual custava um ciclo de deploy.
+       *
+       * São códigos HTTP, não têm nada de sigiloso.
+       */
+      porAmbiente?: Record<string, string>;
     };
 
 interface Credenciais {
@@ -258,6 +269,7 @@ export async function verificarTransacao(
    * respondeu — aí a ignorância é real e dizer "não encontrada" seria mentira.
    */
   let algumFalhou = false;
+  const porAmbiente: Record<string, string> = {};
 
   for (const [ambiente, base] of [
     ["producao", ENDERECOS.producao],
@@ -268,17 +280,27 @@ export async function verificarTransacao(
       resposta = await consultar(base, transactionId, token);
     } catch (erro) {
       console.error(`Falha de rede falando com a Apple (${ambiente}).`, erro);
+      porAmbiente[ambiente] =
+        `rede: ${erro instanceof Error ? erro.message : String(erro)}`;
       algumFalhou = true;
       continue;
     }
 
     // 404 aqui significa "esta transação não é deste ambiente", e não erro.
-    if (resposta.status === 404) continue;
+    if (resposta.status === 404) {
+      porAmbiente[ambiente] = "404 (não é deste ambiente)";
+      continue;
+    }
 
     if (!resposta.ok) {
       console.error(
         `App Store Server API devolveu ${resposta.status} (${ambiente}).`,
       );
+      // O corpo da Apple traz um errorCode que nomeia a recusa. Ele não é
+      // sigiloso e é a diferença entre adivinhar e saber.
+      const detalhe = await resposta.text().catch(() => "");
+      porAmbiente[ambiente] =
+        `${resposta.status} ${detalhe.slice(0, 160)}`.trim();
       algumFalhou = true;
       continue;
     }
@@ -315,5 +337,7 @@ export async function verificarTransacao(
     };
   }
 
-  return { ok: false, motivo: algumFalhou ? "indisponivel" : "nao_encontrada" };
+  return algumFalhou
+    ? { ok: false, motivo: "indisponivel", porAmbiente }
+    : { ok: false, motivo: "nao_encontrada" };
 }

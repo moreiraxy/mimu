@@ -105,6 +105,14 @@ export async function POST(request: Request) {
         ...(verificacao.motivo === "nao_configurado"
           ? { diagnostico: diagnosticoDasCredenciais() }
           : {}),
+        /*
+         * O que cada ambiente da Apple respondeu, quando ela é que recusou.
+         * Códigos HTTP e a mensagem de erro dela — nada sigiloso, e é o que
+         * separa "401 nos dois" de "404 no sandbox". O app ignora o campo.
+         */
+        ...(verificacao.motivo === "indisponivel" && verificacao.porAmbiente
+          ? { porAmbiente: verificacao.porAmbiente }
+          : {}),
       },
       /*
        * 502 quando o problema é NOSSO, 402 quando a Apple recusou.

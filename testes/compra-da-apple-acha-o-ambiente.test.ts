@@ -139,7 +139,14 @@ describe("a verificação não desiste no primeiro ambiente", () => {
     );
 
     const r = await verificarTransacao("2000000000000000");
-    expect(r).toEqual({ ok: false, motivo: "indisponivel" });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.motivo).toBe("indisponivel");
+
+    // O que cada ambiente respondeu viaja junto: é o que separa "401 nos
+    // dois" de "404 no sandbox", e cada um aponta para um conserto diferente.
+    expect(r.porAmbiente?.producao).toContain("500");
+    expect(r.porAmbiente?.sandbox).toContain("500");
   });
 
   it("404 nos dois é resposta, não falha: a transação não existe mesmo", async () => {
