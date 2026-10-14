@@ -21,6 +21,9 @@ import type { ModuloAtivo } from "@/types";
 export const MODULO_POR_ROTA: Record<string, ModuloAtivo> = {
   "/agenda": "agenda",
   "/clientes": "clientes",
+  // /leads é a mesma tabela de /clientes, com a pergunta certa — e por isso o
+  // mesmo módulo. Entra aqui no mesmo commit em que nasce.
+  "/leads": "clientes",
 
   // O financeiro inteiro anda junto: caixa, faturamento e metas são leituras
   // do mesmo dado, e o plano gratuito inclui os três. É o que sobra de graça

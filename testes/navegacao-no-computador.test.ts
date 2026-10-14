@@ -66,8 +66,28 @@ describe("o que não é do posto sai da navegação", () => {
   it("Metas e a Home de salão saem para quem tem o posto", () => {
     // "metas?? para que? eu por acaso tenho?? tire" — as metas dela são os
     // seis indicadores do cargo, que vivem no posto.
-    expect(NAV).toContain('const FORA_DO_POSTO = ["/dashboard", "/metas"]');
+    // A lista cresce conforme ela aponta o que não é dela; o teste cobra os
+    // dois primeiros itens, que são decisão fechada.
+    expect(NAV).toContain('const FORA_DO_POSTO = ["/dashboard", "/metas"');
     expect(NAV).toContain("FORA_DO_POSTO.includes(item.href)");
+  });
+
+  it("Clientes vira Leads, e os dois nunca aparecem juntos", () => {
+    // "clientes fiados?? clientes?? (…) muda para leads". /leads é a mesma
+    // tabela com a pergunta certa; /clientes continua existindo para as contas
+    // de salão, que têm fiado e cliente fiel de verdade.
+    expect(NAV).toContain('"/clientes"');
+    expect(NAV).toContain('const SO_COM_POSTO = ["/leads"]');
+    expect(NAV).toContain("SO_COM_POSTO.includes(item.href)");
+    // A porta também precisa estar trancada pelo módulo, não só escondida.
+    expect(ler("lib/rotas-modulos.ts")).toContain('"/leads": "clientes"');
+  });
+
+  it("dá para apagar uma pessoa — não dava", () => {
+    // "e eu n posso APAGAR?? loucura isso". Não havia exclusão em lugar
+    // nenhum: nem no hook, nem na tela de detalhe.
+    expect(ler("hooks/useClientes.ts")).toContain("const excluir = useCallback");
+    expect(ler("app/(dashboard)/leads/page.tsx")).toContain("ConfirmDialog");
   });
 
   it("a paleta sem cor é ligada por quem tem o posto", () => {

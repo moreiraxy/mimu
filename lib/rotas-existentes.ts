@@ -47,6 +47,7 @@ export const AREAS_DO_APP = [
   "historias",
   "legal",
   "llms.txt",
+  "leads",
   "login",
   "manifest.webmanifest",
   "metas",

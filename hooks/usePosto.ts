@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { guardaNoCache, leDoCache } from "@/lib/cache-de-tela";
+import { guardaNoCache, leDoCache, limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { dataDeHojeNoBrasil } from "@/lib/datas";
 import { estadoDaRotina, type EstadoDaRotina } from "@/lib/posto/rotina";
@@ -207,6 +207,7 @@ export function usePosto() {
         }));
         return false;
       }
+      limpaCache(chaveCache);
       carregar();
       return true;
     },
@@ -227,10 +228,11 @@ export function usePosto() {
         detalhe: nova.detalhe ?? null,
       });
       if (erro) return false;
+      limpaCache(chaveCache);
       await carregar();
       return true;
     },
-    [empresa, supabase, carregar],
+    [empresa, supabase, carregar, chaveCache],
   );
 
   const fecharPendencia = useCallback(
@@ -249,9 +251,10 @@ export function usePosto() {
         await carregar();
         return false;
       }
+      limpaCache(chaveCache);
       return true;
     },
-    [empresa, supabase, carregar],
+    [empresa, supabase, carregar, chaveCache],
   );
 
   const anotarNumero = useCallback(
@@ -269,9 +272,10 @@ export function usePosto() {
         await carregar();
         return false;
       }
+      limpaCache(chaveCache);
       return true;
     },
-    [empresa, supabase, hoje, carregar],
+    [empresa, supabase, hoje, carregar, chaveCache],
   );
 
   const salvarResumo = useCallback(
@@ -287,10 +291,11 @@ export function usePosto() {
         { onConflict: "empresa_id,dia" },
       );
       if (erro) return false;
+      limpaCache(chaveCache);
       await carregar();
       return true;
     },
-    [empresa, supabase, hoje, carregar],
+    [empresa, supabase, hoje, carregar, chaveCache],
   );
 
   return {

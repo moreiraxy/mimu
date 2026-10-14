@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "build:lp": "npm --prefix site-mimo ci && npm --prefix site-mimo run build && node scripts/copiar-lp.mjs",
     "test": "vitest run",
+    "test:unidade": "vitest run --config vitest.unidade.config.ts",
     "test:watch": "vitest",
     "whatsapp": "tsx --env-file-if-exists=.env.local worker/whatsapp/index.ts",
     "build:worker": "node scripts/construir-worker.mjs",

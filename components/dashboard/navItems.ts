@@ -24,6 +24,18 @@ export const NAV_ITEMS = [
     Icon: FinanceiroIcon,
     modulo: "financeiro" as ModuloAtivo,
   },
+  /*
+   * Leads e Clientes dividem a prioridade 5 de propósito: eles NUNCA aparecem
+   * juntos. Quem tem o posto vê Leads (e /clientes está em FORA_DO_POSTO);
+   * quem não tem vê Clientes (e /leads está em SO_COM_POSTO).
+   */
+  {
+    href: "/leads",
+    prioridade: 5,
+    label: "Leads",
+    Icon: ClientesIcon,
+    modulo: "clientes" as ModuloAtivo,
+  },
   {
     href: "/clientes",
     prioridade: 5,
@@ -108,6 +120,9 @@ export const NAV_ITEMS = [
  *   /metas      — meta de faturamento mensal de salão. Ela não tem essa meta;
  *                 as metas DELA são os seis indicadores do cargo, que vivem no
  *                 posto (lib/posto/numeros.ts)
+ *   /clientes   — "clientes fiados?? clientes??". Filtro de cliente fiel, selo
+ *                 por dez visitas, saldo de fiado. Quem aparece na vida dela é
+ *                 LEAD, e /leads é a mesma tabela com a pergunta certa
  *
  * Perfil (/minha-empresa) NÃO entra nesta lista, e por um motivo prático: é
  * onde fica o "Sair" e onde se liga e desliga módulo — some daqui e a porta de
@@ -117,12 +132,21 @@ export const NAV_ITEMS = [
  * As rotas continuam existindo e alcançáveis por URL: o que muda é o que a
  * navegação oferece.
  */
-const FORA_DO_POSTO = ["/dashboard", "/metas"];
+const FORA_DO_POSTO = ["/dashboard", "/metas", "/clientes"];
+
+/**
+ * E o inverso: o que só existe para quem TEM o posto.
+ *
+ * Sem isto, "Leads" apareceria no menu de uma conta de salão — que tem
+ * clientes, fiado e cliente fiel, e para quem "lead" não quer dizer nada.
+ */
+const SO_COM_POSTO = ["/leads"];
 
 export function navItemsVisiveis(modulosAtivos: string[]) {
   const temPosto = modulosAtivos.includes("posto");
   return NAV_ITEMS.filter((item) => {
     if (temPosto && FORA_DO_POSTO.includes(item.href)) return false;
+    if (!temPosto && SO_COM_POSTO.includes(item.href)) return false;
     return item.modulo === null || modulosAtivos.includes(item.modulo);
   });
 }
