@@ -53,6 +53,7 @@ export const AREAS_DO_APP = [
   "mimu",
   "minha-empresa",
   "onboarding",
+  "posto",
   "produtos",
   "recuperar-senha",
   "redefinir-senha",

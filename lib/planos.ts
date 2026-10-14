@@ -179,17 +179,23 @@ export const MODULOS_DO_PLANO: Record<PlanoComAcesso, readonly ModuloAtivo[]> = 
    * produto. Quem nunca conversou com a Mimu não tem por que assinar para
    * conversar mais.
    */
-  free: ["financeiro", "ia"],
+  /*
+   * "posto" entra em TODOS os tetos, inclusive no gratuito, e isso não é
+   * generosidade: o Posto de Comando não custa API nem servidor a mais — são
+   * quatro tabelas da própria conta. Quem decide se ele aparece é
+   * `modulos_ativos`, e a migration ligou isso em uma conta só.
+   */
+  free: ["financeiro", "ia", "posto"],
 
   // Os pagos liberam tudo. A diferença entre Pro e Premium hoje é de preço e
   // de limites, não de módulo — quando passar a ser de módulo, é aqui que muda.
-  pro: ["financeiro", "agenda", "clientes", "estoque", "ia"],
-  premium: ["financeiro", "agenda", "clientes", "estoque", "ia"],
+  pro: ["financeiro", "agenda", "clientes", "estoque", "ia", "posto"],
+  premium: ["financeiro", "agenda", "clientes", "estoque", "ia", "posto"],
 
   // Herdados. Quem pagou por eles não pode perder nada numa mudança de
   // catálogo que não pediu.
-  basico: ["financeiro", "agenda", "clientes", "estoque", "ia"],
-  completo: ["financeiro", "agenda", "clientes", "estoque", "ia"],
+  basico: ["financeiro", "agenda", "clientes", "estoque", "ia", "posto"],
+  completo: ["financeiro", "agenda", "clientes", "estoque", "ia", "posto"],
 };
 
 /**

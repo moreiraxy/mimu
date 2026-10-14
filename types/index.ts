@@ -85,7 +85,15 @@ export type TipoNegocio =
 
 /** Chaves possíveis em `empresas.modulos_ativos`. */
 export type ModuloAtivo =
-  "financeiro" | "agenda" | "clientes" | "estoque" | "ia";
+  | "financeiro"
+  | "agenda"
+  | "clientes"
+  | "estoque"
+  | "ia"
+  // O Posto de Comando (migration 20261014190000). Ligado só na conta dela:
+  // é a tela dos cinco cargos, da rotina acordada com o gerente e dos seis
+  // indicadores — nada disso significa coisa alguma em outra conta.
+  | "posto";
 
 export interface ConfigAlertaHorario {
   ativo: boolean;

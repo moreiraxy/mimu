@@ -16,7 +16,9 @@
  * (o Postgres não prova não-nulidade através de uma view); e `Json` contra
  * `Json | null`, que são o mesmo tipo porque `Json` já inclui `null`.
  *
- * Conferido contra o banco de produção em 10/09/2026.
+ * Conferido contra o banco de produção em 10/09/2026. As quatro tabelas do
+ * Posto de Comando foram escritas em 14/10/2026 conferindo coluna a coluna
+ * contra a saída do gerador, depois de aplicar a migration 20261014190000.
  */
 export type Json =
   | string
@@ -47,6 +49,20 @@ export type TipoAlerta =
   | "tentativa_prompt_injection";
 export type TipoCategoria = "entrada" | "saida";
 export type TipoMovimentacaoEstoque = "entrada" | "saida" | "ajuste";
+// As cinco frentes do Posto de Comando, na ordem em que aparecem no documento
+// de funções. "operacao" é a quinta — o suporte diário que não está em lista
+// nenhuma. Ver lib/posto/cargos.ts e a migration 20261014190000.
+export type FrentePosto =
+  | "produto"
+  | "comercial"
+  | "assistencia"
+  | "marketing"
+  | "operacao";
+// "cobranca" é ela cobrando alguém; "espera" é ela sendo devedora de resposta
+// de outra pessoa. A distinção existe porque as duas listas se cobram de
+// maneiras opostas.
+export type TipoPendencia = "tarefa" | "cobranca" | "espera" | "aprovacao";
+export type StatusPendencia = "aberta" | "feita" | "descartada";
 // "pendente": escolheu um plano pago e ainda não pagou. Ver a migration
 // 20260814030000_assinatura_pendente.sql para o porquê de ser um estado
 // próprio e não um reaproveitamento de "cancelada".
@@ -813,6 +829,115 @@ export interface Database {
           cakto_status?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["pagamentos"]["Insert"]>;
+        Relationships: [];
+      };
+      // ---- Posto de Comando (migration 20261014190000) --------------------
+      // O que o dia produz. A rotina, as cinco frentes e os seis indicadores
+      // NÃO estão no banco: são a descrição do cargo e vivem em lib/posto/.
+      posto_pendencias: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          titulo: string;
+          detalhe: string | null;
+          frente: FrentePosto;
+          tipo: TipoPendencia;
+          com_quem: string | null;
+          prazo: string | null;
+          urgente: boolean;
+          status: StatusPendencia;
+          concluida_em: string | null;
+          criada_em: string;
+          atualizada_em: string;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          titulo: string;
+          detalhe?: string | null;
+          frente: FrentePosto;
+          tipo?: TipoPendencia;
+          com_quem?: string | null;
+          prazo?: string | null;
+          urgente?: boolean;
+          status?: StatusPendencia;
+          concluida_em?: string | null;
+          criada_em?: string;
+          atualizada_em?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["posto_pendencias"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      // Só existe linha para bloco FEITO — a ausência é o pendente.
+      posto_rotina_feita: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          dia: string;
+          bloco: string;
+          nota: string | null;
+          feito_em: string;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          dia: string;
+          bloco: string;
+          nota?: string | null;
+          feito_em?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["posto_rotina_feita"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      // `chave` é texto livre de propósito: a lista dos seis indicadores é
+      // acordo com o gerente e muda sem migration. Ver lib/posto/numeros.ts.
+      posto_numeros: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          dia: string;
+          chave: string;
+          valor: number;
+          anotado_em: string;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          dia: string;
+          chave: string;
+          valor: number;
+          anotado_em?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["posto_numeros"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      // `enviado_em` nulo é rascunho: a tela montou e ela ainda não mandou.
+      posto_resumos: {
+        Row: {
+          id: string;
+          empresa_id: string;
+          dia: string;
+          texto: string;
+          enviado_em: string | null;
+          criado_em: string;
+        };
+        Insert: {
+          id?: string;
+          empresa_id: string;
+          dia: string;
+          texto: string;
+          enviado_em?: string | null;
+          criado_em?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["posto_resumos"]["Insert"]
+        >;
         Relationships: [];
       };
     };

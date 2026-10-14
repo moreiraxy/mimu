@@ -1,4 +1,4 @@
-import { Package, Target, UserRound } from "lucide-react";
+import { LayoutDashboard, Package, Target, UserRound } from "lucide-react";
 import {
   AgendaIcon,
   ClientesIcon,
@@ -12,36 +12,50 @@ export const NAV_ITEMS = [
   { href: "/dashboard", prioridade: 0, label: "Home", Icon: HomeIcon, modulo: null },
   {
     href: "/agenda",
-    prioridade: 3,
+    prioridade: 4,
     label: "Agenda",
     Icon: AgendaIcon,
     modulo: "agenda" as ModuloAtivo,
   },
   {
     href: "/financeiro",
-    prioridade: 2,
+    prioridade: 3,
     label: "Financeiro",
     Icon: FinanceiroIcon,
     modulo: "financeiro" as ModuloAtivo,
   },
   {
     href: "/clientes",
-    prioridade: 4,
+    prioridade: 5,
     label: "Clientes",
     Icon: ClientesIcon,
     modulo: "clientes" as ModuloAtivo,
   },
   { href: "/mimu", prioridade: 1, label: "Mimu", Icon: MimuIcon, modulo: "ia" as ModuloAtivo },
+  /*
+   * O Posto de Comando vem antes de tudo que não seja a Home e a Mimu.
+   *
+   * `prioridade` ordena a barra de baixo, onde cabem poucos itens. Para quem
+   * tem o posto ligado, ele é a tela do dia — deixá-lo na cauda significaria
+   * que a tela mais usada vive atrás do "mais".
+   */
+  {
+    href: "/posto",
+    prioridade: 2,
+    label: "Posto",
+    Icon: LayoutDashboard,
+    modulo: "posto" as ModuloAtivo,
+  },
   {
     href: "/metas",
-    prioridade: 5,
+    prioridade: 6,
     label: "Metas",
     Icon: Target,
     modulo: "financeiro" as ModuloAtivo,
   },
   {
     href: "/produtos",
-    prioridade: 6,
+    prioridade: 7,
     label: "Produtos",
     Icon: Package,
     modulo: "estoque" as ModuloAtivo,
@@ -56,7 +70,7 @@ export const NAV_ITEMS = [
    */
   {
     href: "/minha-empresa",
-    prioridade: 7,
+    prioridade: 8,
     label: "Perfil",
     Icon: UserRound,
     modulo: null,

@@ -38,6 +38,11 @@ export const MODULO_POR_ROTA: Record<string, ModuloAtivo> = {
 
   "/mimu": "ia",
 
+  // O Posto de Comando. Entra aqui no mesmo commit em que nasce, como o
+  // comentário no alto deste arquivo cobra: esconder o item do menu não fecha
+  // a porta de quem digita a URL.
+  "/posto": "posto",
+
   /*
    * A rota de API da Mimu entra na lista, e não é detalhe.
    *
