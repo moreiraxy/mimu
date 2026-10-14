@@ -8,7 +8,7 @@ import { CalendarioInline } from "@/components/ui/CalendarioInline";
 import { BackIcon } from "@/components/icons/NavIcons";
 import { formatDataComDiaSemana } from "@/lib/formatters";
 import { paraISOLocal } from "@/lib/utils";
-import { AgendamentoCard } from "./AgendamentoCard";
+import { GradeDeHorario } from "./GradeDeHorario";
 
 export function DiaView({
   data,
@@ -94,27 +94,22 @@ export function DiaView({
             Tentar de novo
           </button>
         </div>
-      ) : agendamentos.length === 0 ? (
-        <div className="rounded-card border border-dashed border-neutro-border p-6 text-center">
-          <p className="text-sm text-neutro-muted">
-            {ehHoje
-              ? "Nenhum agendamento hoje."
-              : "Nenhum agendamento nesse dia."}{" "}
-            Que tal criar um?
-          </p>
-          <Link
-            href="/agenda/novo"
-            className="mt-2 inline-block text-sm font-semibold text-primary-forte"
-          >
-            Criar agendamento →
-          </Link>
-        </div>
       ) : (
-        <div className="flex flex-col gap-2">
-          {agendamentos.map((agendamento) => (
-            <AgendamentoCard key={agendamento.id} agendamento={agendamento} />
-          ))}
-        </div>
+        <>
+          {/* A GRADE SUBSTITUIU A LISTA DE CARTÕES.
+              Lista responde "o que tem hoje"; a pergunta dela é "às 15h estou
+              livre?", e essa só a grade responde — porque nela o vazio tem
+              altura. Tocar num espaço livre abre o formulário com data e hora
+              já preenchidas. */}
+          <GradeDeHorario dias={[dataObj]} agendamentos={agendamentos} />
+
+          {agendamentos.length === 0 && (
+            <p className="text-center text-[13px] text-neutro-muted">
+              {ehHoje ? "Nada marcado hoje." : "Nada marcado nesse dia."} Toque
+              num horário para marcar.
+            </p>
+          )}
+        </>
       )}
     </div>
   );
