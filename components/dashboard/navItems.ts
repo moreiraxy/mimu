@@ -12,14 +12,14 @@ export const NAV_ITEMS = [
   { href: "/dashboard", prioridade: 0, label: "Home", Icon: HomeIcon, modulo: null },
   {
     href: "/agenda",
-    prioridade: 4,
+    prioridade: 3,
     label: "Agenda",
     Icon: AgendaIcon,
     modulo: "agenda" as ModuloAtivo,
   },
   {
     href: "/financeiro",
-    prioridade: 3,
+    prioridade: 4,
     label: "Financeiro",
     Icon: FinanceiroIcon,
     modulo: "financeiro" as ModuloAtivo,
@@ -38,6 +38,16 @@ export const NAV_ITEMS = [
    * `prioridade` ordena a barra de baixo, onde cabem poucos itens. Para quem
    * tem o posto ligado, ele é a tela do dia — deixá-lo na cauda significaria
    * que a tela mais usada vive atrás do "mais".
+   *
+   * MAS A BARRA SÓ TEM TRÊS DESTINOS (ver DESTINOS_NA_BARRA em BottomNav: a
+   * Mimu é o botão da marca e não conta). Quando o posto entrou com
+   * prioridade 2, ele empurrou a AGENDA para dentro do "Mais" — e o primeiro
+   * retorno dela foi exatamente "quero o calendário de volta".
+   *
+   * A ordem agora é Home, Posto, Agenda. O Financeiro saiu da barra porque é
+   * o único dos quatro que tem outra porta à mão: os botões "Entrou dinheiro"
+   * e "Gastei" ficam no cartão de dinheiro do próprio posto. Tirar o
+   * calendário não tem compensação nenhuma — ele é consulta, não lançamento.
    */
   {
     href: "/posto",
