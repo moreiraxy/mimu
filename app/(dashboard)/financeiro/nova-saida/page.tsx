@@ -7,6 +7,7 @@ import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
 import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
 import { paraISOLocal } from "@/lib/utils";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu } from "@/lib/mimu-correcao";
@@ -17,6 +18,16 @@ export default function NovaSaidaPage() {
   const { empresa } = useEmpresa();
   const { showToast } = useToast();
   const voltar = useVoltarAposCriar("/financeiro");
+  /*
+   * O título e o formato mudam para quem tem o Posto de Comando.
+   *
+   * "Nova entrada" é nome de livro-caixa; o que ela faz é anotar que entrou
+   * dinheiro. E o formulário perde cliente e parcelamento — ver a prop
+   * `simples` em TransacaoForm.
+   */
+  const { modulos } = useAuth();
+  const temPosto = modulos.includes("posto");
+
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -145,8 +156,10 @@ export default function NovaSaidaPage() {
 
   return (
     <div className="lg:mx-auto lg:max-w-[560px]">
-      <PageHeader title="Nova saída" />
+      <PageHeader title={temPosto ? "Gastei" : "Nova saída"} />
       <TransacaoForm
+        simples={temPosto}
+        rotuloCategoria={temPosto ? "Com o quê" : undefined}
         key={`${chaveFormulario}-${prefillPronto}`}
         tipo="saida"
         valoresIniciais={valoresIniciais}

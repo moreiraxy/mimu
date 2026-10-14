@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/useToast";
 import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu } from "@/lib/mimu-correcao";
 import { primeiroErroZod, schemaTransacao } from "@/lib/validacao/negocio";
@@ -18,6 +19,16 @@ export default function NovaEntradaPage() {
   const { showToast } = useToast();
   const voltar = useVoltarAposCriar("/financeiro");
   const { verificarAgora } = useAlertasProativos();
+  /*
+   * O título e o formato mudam para quem tem o Posto de Comando.
+   *
+   * "Nova entrada" é nome de livro-caixa; o que ela faz é anotar que entrou
+   * dinheiro. E o formulário perde cliente e parcelamento — ver a prop
+   * `simples` em TransacaoForm.
+   */
+  const { modulos } = useAuth();
+  const temPosto = modulos.includes("posto");
+
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -110,8 +121,10 @@ export default function NovaEntradaPage() {
 
   return (
     <div className="lg:mx-auto lg:max-w-[560px]">
-      <PageHeader title="Nova entrada" />
+      <PageHeader title={temPosto ? "Entrou dinheiro" : "Nova entrada"} />
       <TransacaoForm
+        simples={temPosto}
+        rotuloCategoria={temPosto ? "De onde veio" : undefined}
         key={`${chaveFormulario}-${prefillPronto}`}
         tipo="entrada"
         valoresIniciais={valoresIniciais}

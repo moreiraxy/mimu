@@ -39,6 +39,8 @@ export function TransacaoForm({
   enviando = false,
   erro,
   onSubmit,
+  simples = false,
+  rotuloCategoria,
 }: {
   tipo: TipoTransacao;
   valoresIniciais?: Partial<DadosFormularioTransacao>;
@@ -47,6 +49,18 @@ export function TransacaoForm({
   enviando?: boolean;
   erro?: string | null;
   onSubmit: (dados: DadosFormularioTransacao) => void | Promise<void>;
+  /**
+   * O formulário sem o que é de comércio: sem CLIENTE e sem PARCELAMENTO.
+   *
+   * Ligado por quem tem o Posto de Comando, e a razão é o que ela lança: a
+   * participação do CRM, o salário do Dyego, uma comissão, a conta do servidor.
+   * Nenhum desses tem cliente — "de quem veio" já é a categoria — e nenhum é
+   * parcelado em 3x. Pedir os dois é pedir que ela pule dois campos em cada
+   * lançamento, todos os dias.
+   */
+  simples?: boolean;
+  /** "De onde veio" / "Com o quê" no lugar de "Categoria". */
+  rotuloCategoria?: string;
 }) {
   const { empresa } = useEmpresa();
   const [supabase] = useState(() => createClient());
@@ -78,7 +92,8 @@ export function TransacaoForm({
   const [sugestoes, setSugestoes] = useState<string[]>([]);
 
   const { categorias } = useCategorias(tipo);
-  const mostrarParcelamento = tipo === "saida" && podeParcelar;
+  // `simples` também corta o parcelamento: ver o comentário da prop.
+  const mostrarParcelamento = tipo === "saida" && podeParcelar && !simples;
   const mostrarContaPendente = tipo === "saida";
   const valor = centavos / 100;
 
@@ -173,7 +188,7 @@ export function TransacaoForm({
 
       <div>
         <p className="mb-2 text-[13px] text-neutro-muted">
-          Categoria
+          {rotuloCategoria ?? "Categoria"}
         </p>
         <div className="flex flex-wrap gap-2">
           {categorias.map((opcao) => (
@@ -193,7 +208,9 @@ export function TransacaoForm({
         </div>
       </div>
 
-      <ClienteSearchInput value={cliente} onChange={setCliente} />
+      {!simples && (
+        <ClienteSearchInput value={cliente} onChange={setCliente} />
+      )}
 
       <div>
         <p className="mb-2 text-[13px] text-neutro-muted">
