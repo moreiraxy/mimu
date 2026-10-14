@@ -8,6 +8,7 @@ import { limpaCache } from "@/lib/cache-de-tela";
 import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -23,6 +24,9 @@ export default function DetalheAgendamentoPage() {
   const router = useRouter();
   const { empresa } = useEmpresa();
   const { showToast } = useToast();
+  const { modulos } = useAuth();
+  const temPosto = modulos.includes("posto");
+
   const [supabase] = useState(() => createClient());
 
   const [agendamento, setAgendamento] = useState<AgendamentoComCliente | null>(
@@ -244,6 +248,7 @@ export default function DetalheAgendamentoPage() {
           onBack={() => setEditando(false)}
         />
         <AgendamentoForm
+          empresarial={temPosto}
           textoBotao="Salvar alterações"
           enviando={enviandoEdicao}
           erro={erroFormulario}
@@ -305,7 +310,10 @@ export default function DetalheAgendamentoPage() {
             ? ` · ${formatarDuracao(agendamento.duracao_minutos)}`
             : ""}
         </p>
-        {agendamento.valor_previsto ? (
+        {/* O valor só aparece quando existe E quando faz sentido: numa reunião
+            de apresentação não há valor, e mostrar "R$ 0,00" ou o campo vazio
+            sugeriria que faltou preencher algo. */}
+        {!temPosto && agendamento.valor_previsto ? (
           <p className="mt-2 text-xl font-semibold text-primary-forte">
             {formatCurrency(agendamento.valor_previsto)}
           </p>
@@ -368,14 +376,23 @@ export default function DetalheAgendamentoPage() {
             <p className="text-sm font-semibold text-escuro">
               {agendamento.cliente.nome}
             </p>
-            {agendamento.cliente.cliente_fiel && (
+            {!temPosto && agendamento.cliente.cliente_fiel && (
               <span className="flex items-center gap-1 rounded-full bg-ambar-soft px-2 py-0.5 text-[10px] font-semibold text-ambar-texto">
                 <Star className="h-2.5 w-2.5" fill="currentColor" strokeWidth={0} />
                 Cliente Fiel
               </span>
             )}
           </div>
-          <div className="mt-3 flex divide-x divide-neutro-border">
+          {/* Visitas, total gasto e faltas são medidas de balcão. Numa
+              operação comercial quem está do outro lado é lead ou parceiro, e
+              esses três números não dizem nada sobre ele. */}
+          <div
+            className={
+              temPosto
+                ? "hidden"
+                : "mt-3 flex divide-x divide-neutro-border"
+            }
+          >
             <EstatCliente
               label="visitas"
               valor={String(agendamento.cliente.total_visitas)}

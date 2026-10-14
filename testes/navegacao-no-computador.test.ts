@@ -129,6 +129,38 @@ describe("o que não é do posto sai da navegação", () => {
   });
 });
 
+describe("o compromisso é de empresa, não de balcão", () => {
+  const FORM = ler("app/(dashboard)/agenda/AgendamentoForm.tsx");
+
+  it("os exemplos são reunião, ligação, apresentação", () => {
+    // "é algo empresárial é reunião, é ligação, é apresentação e coisas assim"
+    expect(FORM).toContain('"Reunião"');
+    expect(FORM).toContain('"Ligação"');
+    expect(FORM).toContain('"Apresentação"');
+    expect(FORM).toContain("Ex.: Reunião com a incorporadora");
+  });
+
+  it("o valor previsto desaparece em compromisso de empresa", () => {
+    // "nem sempre um agendamnto vai ter um valor previsto, arruma ISSSOOOO!!!"
+    expect(FORM).toContain("empresarial");
+    expect(FORM).toMatch(/empresarial \? "hidden"/);
+  });
+
+  it("e não é preenchido por baixo pelo histórico", () => {
+    // O autopreenchimento gravaria um valor que ela não viu nem escolheu.
+    expect(FORM).toContain("if (empresarial) return;");
+  });
+
+  it("as duas telas de agendamento ligam o modo", () => {
+    expect(ler("app/(dashboard)/agenda/novo/page.tsx")).toContain(
+      "empresarial={temPosto}",
+    );
+    expect(ler("app/(dashboard)/agenda/[id]/page.tsx")).toContain(
+      "empresarial={temPosto}",
+    );
+  });
+});
+
 describe("a porta de sair da conta", () => {
   it("o Sair continua na tela de Perfil", () => {
     expect(PERFIL).toContain('label="Sair"');

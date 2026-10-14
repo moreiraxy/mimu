@@ -34,18 +34,53 @@ function formatarCentavos(centavos: number) {
   return formatCurrency(centavos / 100);
 }
 
+/**
+ * Os compromissos de uma operação comercial.
+ *
+ * Nas palavras dela: "nem sempre um agendamnto vai ter um valor previsto,
+ * arruma ISSSOOOO!!! é algo empresárial é reunião, é ligação, é apresentação e
+ * coisas assim".
+ *
+ * Eles aparecem como ATALHO, e não como lista fechada, porque o campo continua
+ * sendo texto livre: "Reunião" é o começo da frase, e o que vem depois ("com a
+ * incorporadora do Jardins") é o que diferencia um compromisso do outro na
+ * grade da semana.
+ */
+const COMPROMISSOS_DE_EMPRESA = [
+  "Reunião",
+  "Ligação",
+  "Apresentação",
+  "Visita",
+  "Alinhamento",
+  "Treinamento",
+];
+
 export function AgendamentoForm({
   valoresIniciais,
   textoBotao = "Salvar agendamento",
   enviando = false,
   erro,
   onSubmit,
+  empresarial = false,
 }: {
   valoresIniciais?: Partial<DadosFormularioAgendamento>;
   textoBotao?: string;
   enviando?: boolean;
   erro?: string | null;
   onSubmit: (dados: DadosFormularioAgendamento) => void | Promise<void>;
+  /**
+   * Compromisso de empresa, e não atendimento de balcão.
+   *
+   * Muda três coisas: os exemplos (reunião, ligação, apresentação em vez de
+   * "Corte + escova"), o rótulo do campo, e o VALOR PREVISTO, que desaparece.
+   *
+   * O valor sai porque mentia sobre o que é obrigatório: um campo de dinheiro
+   * em corpo 24, centralizado no meio do formulário, é a coisa mais visível da
+   * tela — e numa reunião de apresentação não existe valor nenhum para
+   * escrever. A coluna `valor_previsto` continua aceitando nulo no banco; o
+   * que muda é parar de pedir.
+   */
+  empresarial?: boolean;
 }) {
   const { empresa } = useEmpresa();
   const [supabase] = useState(() => createClient());
@@ -103,13 +138,16 @@ export function AgendamentoForm({
     const correspondencia = historicoCliente.find(
       (h) => h.titulo.toLowerCase() === titulo.trim().toLowerCase(),
     );
+    // Em compromisso de empresa o campo está escondido: preencher por baixo
+    // gravaria um valor que ela não viu nem escolheu.
+    if (empresarial) return;
     if (!correspondencia?.valor_previsto) return;
     setCentavos((atual) =>
       atual === 0
         ? Math.round(Number(correspondencia.valor_previsto) * 100)
         : atual,
     );
-  }, [titulo, historicoCliente]);
+  }, [titulo, historicoCliente, empresarial]);
 
   function handleDigitarValor(event: React.ChangeEvent<HTMLInputElement>) {
     const somenteDigitos = event.target.value.replace(/\D/g, "");
@@ -137,7 +175,11 @@ export function AgendamentoForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div>
-        <ClienteSearchInput value={cliente} onChange={setCliente} />
+        <ClienteSearchInput
+          value={cliente}
+          onChange={setCliente}
+          label={empresarial ? "Com quem (opcional)" : undefined}
+        />
         {cliente?.cliente_fiel && (
           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-ambar-soft px-2.5 py-1 text-xs font-semibold text-ambar-texto">
             <Star className="h-3 w-3" fill="currentColor" strokeWidth={0} />
@@ -148,12 +190,36 @@ export function AgendamentoForm({
 
       <div>
         <Input
-          label="Serviço / título"
-          placeholder="Ex.: Corte + escova"
+          label={empresarial ? "Compromisso" : "Serviço / título"}
+          placeholder={
+            empresarial
+              ? "Ex.: Reunião com a incorporadora"
+              : "Ex.: Corte + escova"
+          }
           value={titulo}
           onChange={(event) => setTitulo(event.target.value)}
           list="sugestoes-titulo"
         />
+        {/* Os atalhos escrevem o começo do título e deixam o cursor seguir:
+            tocar em "Reunião" não fecha a frase, abre ela. */}
+        {empresarial && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {COMPROMISSOS_DE_EMPRESA.map((opcao) => (
+              <button
+                key={opcao}
+                type="button"
+                onClick={() =>
+                  setTitulo((atual) =>
+                    atual.startsWith(opcao) ? atual : `${opcao} `,
+                  )
+                }
+                className="rounded-full border border-neutro-border px-2.5 py-1 text-[12px] font-semibold text-escuro"
+              >
+                {opcao}
+              </button>
+            ))}
+          </div>
+        )}
         {sugestoesTitulo.length > 0 && (
           <datalist id="sugestoes-titulo">
             {sugestoesTitulo.map((s) => (
@@ -163,7 +229,11 @@ export function AgendamentoForm({
         )}
       </div>
 
-      <div className="flex flex-col items-center">
+      <div
+        className={
+          empresarial ? "hidden" : "flex flex-col items-center"
+        }
+      >
         <p className="mb-2 self-start text-xs font-semibold text-neutro-muted">
           Valor previsto
         </p>
@@ -255,7 +325,11 @@ export function AgendamentoForm({
 
       <Input
         label="Observações (opcional)"
-        placeholder="Alguma observação sobre o atendimento"
+        placeholder={
+          empresarial
+            ? "Pauta, link da chamada, o que levar"
+            : "Alguma observação sobre o atendimento"
+        }
         value={observacoes}
         onChange={(event) => setObservacoes(event.target.value)}
       />

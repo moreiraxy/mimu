@@ -8,6 +8,7 @@ import { useEmpresa } from "@/hooks/useEmpresa";
 import { useToast } from "@/hooks/useToast";
 import { useVoltarAposCriar } from "@/hooks/useVoltarAposCriar";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/hooks/useAuth";
 import { executarComSuporteOffline } from "@/lib/offline/sync";
 import { consumirCorrecaoMimu, type CorrecaoMimu } from "@/lib/mimu-correcao";
 import { primeiroErroZod, schemaAgendamento } from "@/lib/validacao/negocio";
@@ -31,6 +32,11 @@ export default function NovoAgendamentoPage(
   const router = useRouter();
   const { showToast } = useToast();
   const voltar = useVoltarAposCriar("/agenda");
+  // Compromisso de empresa para quem tem o posto: reunião, ligação,
+  // apresentação — e sem campo de valor previsto. Ver AgendamentoForm.
+  const { modulos } = useAuth();
+  const temPosto = modulos.includes("posto");
+
   const [supabase] = useState(() => createClient());
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -120,8 +126,10 @@ export default function NovoAgendamentoPage(
 
   return (
     <div className="lg:mx-auto lg:max-w-[560px]">
-      <PageHeader title="Novo agendamento" />
+      <PageHeader title={temPosto ? "Novo compromisso" : "Novo agendamento"} />
       <AgendamentoForm
+        empresarial={temPosto}
+        textoBotao={temPosto ? "Salvar compromisso" : undefined}
         key={prefillPronto ? "pronto" : "carregando"}
         valoresIniciais={valoresIniciais}
         onSubmit={handleSubmit}
