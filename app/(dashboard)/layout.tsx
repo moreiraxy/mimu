@@ -146,7 +146,13 @@ export default async function DashboardGroupLayout({
           pelas telas — que ficariam por baixo da barra de baixo, com o botão
           principal deles sem receber toque. O fundo é quem desce para `-z-10`.
           Ver components/dashboard/FundoAmbiente.tsx. */}
-      <div className="relative">
+      {/* A FAIXA DA RÉGUA LATERAL É RESERVADA AQUI, com padding no elemento de
+          FORA — e não no que centraliza o conteúdo. Posto no de dentro, o
+          padding empurraria o texto para a direita dentro da própria caixa e
+          estreitaria a leitura; aqui ele desloca a caixa inteira, que continua
+          centralizada no espaço que sobrou. 72px de régua + 12px de folga de
+          cada lado (ver components/dashboard/NavLateral.tsx). */}
+      <div className="relative md:pl-[96px] lg:pl-[244px]">
         <div className="respiro-barra respiro-topo mx-auto max-w-[430px] px-4 md:max-w-3xl md:px-6 lg:max-w-5xl lg:px-8">
           <EntradaDeTela>{children}</EntradaDeTela>
           {/*

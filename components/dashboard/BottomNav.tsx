@@ -12,6 +12,7 @@ import {
   ROTAS_SEM_ACOES,
 } from "@/components/dashboard/acoesRapidas";
 import { MarcaTraco } from "@/components/Logo";
+import { NavLateral } from "@/components/dashboard/NavLateral";
 import { PlusIcon } from "@/components/icons/NavIcons";
 import { useAuth } from "@/hooks/useAuth";
 import { useAlertasProativos } from "@/hooks/useAlertasProativos";
@@ -184,16 +185,29 @@ export function BottomNav({
    * passava por cima dele. Aquele contexto não existe mais (o fundo desceu
    * para `-z-10`), então esta linha virou o que ela deveria ter sido desde o
    * começo: uma escolha, e não um remendo.
+   *
+   * A RÉGUA LATERAL NÃO SEGUE ESSA REGRA. O motivo da barra sumir é o teclado
+   * do celular tomando a tela; num computador não há teclado por cima de nada,
+   * e esconder a navegação deixaria a conversa sem porta de saída além do
+   * botão de voltar do navegador.
    */
-  if (pathname === "/mimu") return null;
+  const naConversa = pathname === "/mimu";
 
   return (
     <>
       {/* A barra flutua: descolada das bordas, cantos totalmente redondos e
           sombra, em vez de colada no fim da tela. A margem de baixo soma o
           safe-area do iPhone, senão ela encosta no indicador de gestos. */}
+      {/* A BARRA DE BAIXO É DO CELULAR. No computador quem navega é a
+          NavLateral, logo abaixo — ela pediu isso com estas palavras: "o menu
+          pode ser jogado para a lateral". Numa tela larga, uma pílula de 430px
+          centralizada no rodapé deixa o resto da largura vazio e obriga a mão a
+          atravessar a tela inteira para trocar de seção. */}
       <div
-        className="fixed inset-x-0 z-40 px-3"
+        className={cn(
+          "fixed inset-x-0 z-40 px-3 md:hidden",
+          naConversa && "hidden",
+        )}
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
       >
         <div className="mx-auto flex max-w-[430px] flex-col items-stretch gap-2.5">
@@ -330,6 +344,18 @@ export function BottomNav({
           </div>
         </div>
       </div>
+
+      <NavLateral
+        destinos={menu}
+        pathname={pathname}
+        tocado={tocado}
+        aoTocar={setTocado}
+        alertas={alertas.length}
+        admin={admin}
+        temAcoes={temAcoes}
+        aoAbrirAcoes={() => setAcoesAbertas(true)}
+        aoAbrirMenu={() => setMenuAberto(true)}
+      />
 
       <MenuLateral
         aberto={menuAberto}
