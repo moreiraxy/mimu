@@ -76,6 +76,29 @@ describe("o que não é do posto sai da navegação", () => {
     expect(ler("app/globals.css")).toContain('[data-paleta="grafite"]');
   });
 
+  it("o papel de parede não pinta de néon quem pediu grafite", () => {
+    // O primeiro corte da paleta deixou "uns resquícios de verde" — palavras
+    // dela. Não eram os cartões: era o FUNDO. `rgb(204 255 0)` e
+    // `rgb(45 190 140)` estavam escritos à mão em 38 lugares do globals.css,
+    // pintando as manchas de luz de toda tela do app.
+    // Sem os comentários: o de cima cita os dois valores de propósito, para
+    // o próximo leitor saber o que estava aqui. Comentário não pinta nada.
+    const CSS = ler("app/globals.css").replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(CSS).not.toMatch(/rgb\(204 255 0/);
+    expect(CSS).not.toMatch(/rgb\(45 190 140/);
+    expect(CSS).toContain("--luz-a");
+    expect(CSS).toContain("--luz-b");
+  });
+
+  it("o traço do logo acompanha o preenchimento", () => {
+    // Era `#0A0A0A` cravado, por uma razão correta (branco sobre néon não se
+    // lê). Na paleta grafite o preenchimento é quase preto, e aí preto sobre
+    // preto desaparece do mesmo jeito.
+    expect(ler("components/Logo.tsx")).toContain(
+      'stroke="rgb(var(--primary-text))"',
+    );
+  });
+
   it("as cores de preenchimento são variáveis, senão a paleta não alcança", () => {
     // Enquanto #CCFF00 estava cravado no tailwind.config, nenhuma paleta
     // conseguia trocá-lo: era hex dentro do CSS gerado.

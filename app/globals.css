@@ -18,6 +18,16 @@
      * para quem não pede outra paleta. Quem pede é a conta com o Posto de
      * Comando, via `[data-paleta="grafite"]` mais abaixo.
      */
+    /*
+     * As duas luzes do papel de parede (ver components/dashboard/
+     * FundoAmbiente.tsx). Eram `rgb(204 255 0)` e `rgb(45 190 140)` escritos à
+     * mão em 22 lugares deste arquivo — e era por isso que a paleta grafite
+     * deixava "uns resquícios de verde": o néon tinha saído dos cartões e
+     * continuava pintando o fundo de toda tela.
+     */
+    --luz-a: 204 255 0;
+    --luz-b: 45 190 140;
+
     --primary: 204 255 0;
     --primary-hover: 184 230 0;
     --primary-text: 10 10 10;
@@ -103,6 +113,9 @@
    * "aceso" é o próprio texto em preto sobre cinza claro, e não um véu de cor.
    */
   [data-paleta="grafite"] {
+    /* O brilho do fundo também perde a cor: cinza quente, quase branco. */
+    --luz-a: 150 148 144;
+    --luz-b: 120 118 114;
     --primary: 26 26 26;
     --primary-hover: 10 10 10;
     --primary-text: 255 255 255;
@@ -127,6 +140,8 @@
    */
   .dark [data-paleta="grafite"],
   [data-paleta="grafite"].dark {
+    --luz-a: 190 190 190;
+    --luz-b: 150 150 150;
     --primary: 240 240 240;
     --primary-hover: 255 255 255;
     --primary-text: 10 10 10;
@@ -481,31 +496,31 @@ html.trancado body::before {
     background-image:
       radial-gradient(
         87% 40% at 76% 9%,
-        rgb(204 255 0 / 0.24),
-        rgb(204 255 0 / 0.11) 40%,
-        rgb(204 255 0 / 0.03) 70%,
-        rgb(204 255 0 / 0) 100%
+        rgb(var(--luz-a) / 0.24),
+        rgb(var(--luz-a) / 0.11) 40%,
+        rgb(var(--luz-a) / 0.03) 70%,
+        rgb(var(--luz-a) / 0) 100%
       ),
       radial-gradient(
         79% 37% at 12% 14%,
-        rgb(45 190 140 / 0.2),
-        rgb(45 190 140 / 0.09) 40%,
-        rgb(45 190 140 / 0.025) 70%,
-        rgb(45 190 140 / 0) 100%
+        rgb(var(--luz-b) / 0.2),
+        rgb(var(--luz-b) / 0.09) 40%,
+        rgb(var(--luz-b) / 0.025) 70%,
+        rgb(var(--luz-b) / 0) 100%
       ),
       radial-gradient(
         77% 36% at 78% 44%,
-        rgb(204 255 0 / 0.16),
-        rgb(204 255 0 / 0.07) 40%,
-        rgb(204 255 0 / 0.02) 70%,
-        rgb(204 255 0 / 0) 100%
+        rgb(var(--luz-a) / 0.16),
+        rgb(var(--luz-a) / 0.07) 40%,
+        rgb(var(--luz-a) / 0.02) 70%,
+        rgb(var(--luz-a) / 0) 100%
       ),
       radial-gradient(
         78% 36% at 22% 94%,
-        rgb(45 190 140 / 0.12),
-        rgb(45 190 140 / 0.05) 40%,
-        rgb(45 190 140 / 0.015) 70%,
-        rgb(45 190 140 / 0) 100%
+        rgb(var(--luz-b) / 0.12),
+        rgb(var(--luz-b) / 0.05) 40%,
+        rgb(var(--luz-b) / 0.015) 70%,
+        rgb(var(--luz-b) / 0) 100%
       );
   }
 
@@ -525,18 +540,18 @@ html.trancado body::before {
   .horizonte-ambiente {
     background-image: radial-gradient(
       140% 46% at 50% -18%,
-      rgb(204 255 0 / 0.1),
-      rgb(204 255 0 / 0.035) 46%,
-      rgb(204 255 0 / 0) 100%
+      rgb(var(--luz-a) / 0.1),
+      rgb(var(--luz-a) / 0.035) 46%,
+      rgb(var(--luz-a) / 0) 100%
     );
   }
 
   :root.dark .horizonte-ambiente {
     background-image: radial-gradient(
       140% 46% at 50% -18%,
-      rgb(204 255 0 / 0.07),
-      rgb(204 255 0 / 0.025) 46%,
-      rgb(204 255 0 / 0) 100%
+      rgb(var(--luz-a) / 0.07),
+      rgb(var(--luz-a) / 0.025) 46%,
+      rgb(var(--luz-a) / 0) 100%
     );
   }
 
@@ -562,31 +577,31 @@ html.trancado body::before {
     background-image:
       radial-gradient(
         87% 40% at 76% 9%,
-        rgb(204 255 0 / 0.17),
-        rgb(204 255 0 / 0.08) 40%,
-        rgb(204 255 0 / 0.022) 70%,
-        rgb(204 255 0 / 0) 100%
+        rgb(var(--luz-a) / 0.17),
+        rgb(var(--luz-a) / 0.08) 40%,
+        rgb(var(--luz-a) / 0.022) 70%,
+        rgb(var(--luz-a) / 0) 100%
       ),
       radial-gradient(
         79% 37% at 12% 14%,
-        rgb(45 190 140 / 0.13),
-        rgb(45 190 140 / 0.06) 40%,
-        rgb(45 190 140 / 0.016) 70%,
-        rgb(45 190 140 / 0) 100%
+        rgb(var(--luz-b) / 0.13),
+        rgb(var(--luz-b) / 0.06) 40%,
+        rgb(var(--luz-b) / 0.016) 70%,
+        rgb(var(--luz-b) / 0) 100%
       ),
       radial-gradient(
         77% 36% at 78% 44%,
-        rgb(204 255 0 / 0.1),
-        rgb(204 255 0 / 0.045) 40%,
-        rgb(204 255 0 / 0.012) 70%,
-        rgb(204 255 0 / 0) 100%
+        rgb(var(--luz-a) / 0.1),
+        rgb(var(--luz-a) / 0.045) 40%,
+        rgb(var(--luz-a) / 0.012) 70%,
+        rgb(var(--luz-a) / 0) 100%
       ),
       radial-gradient(
         78% 36% at 22% 94%,
-        rgb(45 190 140 / 0.07),
-        rgb(45 190 140 / 0.03) 40%,
-        rgb(45 190 140 / 0.008) 70%,
-        rgb(45 190 140 / 0) 100%
+        rgb(var(--luz-b) / 0.07),
+        rgb(var(--luz-b) / 0.03) 40%,
+        rgb(var(--luz-b) / 0.008) 70%,
+        rgb(var(--luz-b) / 0) 100%
       );
   }
 

@@ -35,9 +35,17 @@ export function LogoMark({
       >
         <path
           d={MARK_PATH}
-          // Preto, não branco: o "M" fica sobre o néon da marca, e branco
-          // sobre #CCFF00 dá 1.18:1 de contraste — o traço some.
-          stroke="#0A0A0A"
+          /*
+           * O traço usa `--primary-text`, que é por definição "o que vai EM
+           * CIMA do preenchimento" (ver tailwind.config.ts).
+           *
+           * Era `#0A0A0A` cravado, com uma razão correta: o "M" fica sobre o
+           * néon da marca, e branco sobre #CCFF00 dá 1.18:1 — o traço some.
+           * Só que na paleta grafite o preenchimento é QUASE PRETO, e aí preto
+           * sobre preto some do mesmo jeito. No valor de fábrica a variável é
+           * exatamente #0A0A0A, então nada muda para quem não trocou de paleta.
+           */
+          stroke="rgb(var(--primary-text))"
           strokeWidth={5}
           strokeLinecap="round"
           strokeLinejoin="round"
