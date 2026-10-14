@@ -29,12 +29,9 @@ export function DinheiroCard({ resumo }: { resumo: ResumoDoDinheiro }) {
 
   return (
     <section className="vidro-card rounded-[20px] p-5">
-      <header className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-lg font-bold text-escuro">Seu dinheiro no mês</h2>
-        <p className="text-[13px] text-neutro-muted">
-          {resumo.lancamentos}{" "}
-          {resumo.lancamentos === 1 ? "lançamento" : "lançamentos"}
-        </p>
+      <header className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-lg font-bold text-escuro">Dinheiro no mês</h2>
+        <p className="text-[13px] text-neutro-muted">{resumo.lancamentos} lanç.</p>
       </header>
 
       <div className="grid grid-cols-3 gap-2">

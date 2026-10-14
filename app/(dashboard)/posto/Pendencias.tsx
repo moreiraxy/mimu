@@ -215,8 +215,8 @@ export function Pendencias({
       )}
 
       {pendencias.length === 0 ? (
-        <p className="mt-4 text-sm text-neutro-muted">
-          Nada em aberto. O que você lembrar no meio de outra coisa, joga aqui.
+        <p className="mt-4 text-[13px] text-neutro-muted">
+          Nada em aberto.
         </p>
       ) : (
         <ul className="mt-4 space-y-1">

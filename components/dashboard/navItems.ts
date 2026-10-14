@@ -87,11 +87,23 @@ export const NAV_ITEMS = [
   },
 ] as const;
 
-/** Home e Minha Empresa sempre aparecem; os demais só se o módulo estiver ativo. */
+/**
+ * A HOME SOME PARA QUEM TEM O POSTO.
+ *
+ * Ela é o painel do produto antigo, e o posto é a casa de quem acumula cinco
+ * cargos — ter as duas na barra é decidir, toda manhã, por qual das duas casas
+ * entrar. A rota /dashboard continua existindo e alcançável pelo "Mais"; o que
+ * sai é o item fixo da barra.
+ *
+ * Minha Empresa continua sempre: é onde se liga e desliga módulo, e tirá-la
+ * trancaria a porta de desfazer esta decisão.
+ */
 export function navItemsVisiveis(modulosAtivos: string[]) {
-  return NAV_ITEMS.filter(
-    (item) => item.modulo === null || modulosAtivos.includes(item.modulo),
-  );
+  const temPosto = modulosAtivos.includes("posto");
+  return NAV_ITEMS.filter((item) => {
+    if (temPosto && item.href === "/dashboard") return false;
+    return item.modulo === null || modulosAtivos.includes(item.modulo);
+  });
 }
 
 /**

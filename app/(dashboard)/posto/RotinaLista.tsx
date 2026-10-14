@@ -19,6 +19,12 @@ import { cn } from "@/lib/utils";
  * As quatro CONFERÊNCIAS de fila (9:45, 12:00, 14:45, 17:00) ganham marca
  * própria. Elas são o tipo de tarefa que não reclama quando falta: o preço
  * aparece dias depois, num lead parado na fila de alguém que já foi cortado.
+ *
+ * O DETALHE DE CADA BLOCO SAIU DA TELA. Ele estava embaixo de cada uma das dez
+ * linhas, e dez parágrafos empilhados é o que ela chamou de "texto demais" —
+ * numa lista que ela conhece de cor, porque é a rotina dela. O texto continua
+ * em lib/posto/rotina.ts, que é a fonte do acordo com o gerente, e aparece no
+ * cartão de "agora" quando é a vez daquele bloco.
  */
 
 const SELO: Record<TipoBloco, { texto: string; classe: string } | null> = {
@@ -102,11 +108,6 @@ export function RotinaLista({
                   >
                     {bloco.label}
                   </span>
-                  {!feito && (
-                    <span className="mt-0.5 block text-[13px] leading-snug text-neutro-muted">
-                      {bloco.detalhe}
-                    </span>
-                  )}
                 </span>
               </button>
             </li>

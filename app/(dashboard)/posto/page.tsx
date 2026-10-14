@@ -1,12 +1,18 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { usePosto } from "@/hooks/usePosto";
+import { useAgendamentos } from "@/hooks/useAgendamentos";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
+import { SeletorSegmentado } from "@/components/SeletorSegmentado";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDataComDiaSemana } from "@/lib/formatters";
+import { dataDeHojeNoBrasil } from "@/lib/datas";
 import { ehFimDeSemanaNoBrasil } from "@/lib/posto/rotina";
 import { AgoraCard } from "./AgoraCard";
+import { CompromissosCard } from "./CompromissosCard";
 import { RotinaLista } from "./RotinaLista";
 import { Pendencias } from "./Pendencias";
 import { NumerosDoDia } from "./NumerosDoDia";
@@ -17,25 +23,32 @@ import { ResumoDoDia } from "./ResumoDoDia";
 /**
  * O Posto de Comando.
  *
- * A Mimu era um caixa de salão e ninguém assinou. O que existe de verdade é
- * uma pessoa com cinco frentes — sócia do produto, sócia comercial, assistente
- * da gerência de vendas, marca Fortis 360 e o suporte diário de 44 pessoas e
- * 33 números —, e três delas não estão em documento nenhum. Esta tela existe
- * para ela não precisar carregar tudo isso de cabeça.
+ * SEGUNDA VERSÃO, e o motivo está nas palavras dela sobre a primeira: "longa
+ * demais, muito rolar", "texto demais", "feia, sem cara de painel", "tira tudo
+ * que não faz parte do meu posto".
  *
- * A ORDEM DAS SEÇÕES É A ORDEM DA URGÊNCIA, e não a ordem do documento:
+ * O que mudou de estrutura:
  *
- *   1. Agora          — o que fazer neste minuto, e o que já passou da hora
- *   2. Em aberto      — a memória: cobrança, espera, aprovação do gerente
- *   3. Rotina         — os dez blocos, para marcar
- *   4. Números        — os seis indicadores do cargo que é medido
- *   5. Dinheiro       — o mês dela por fonte e por destino
- *   6. Resumo         — o texto das 17:45 montado
- *   7. Cargos         — a consulta de fundo: o que é meu, o que é do Dyego
+ * ABAS, E NÃO SETE SEÇÕES EMPILHADAS. Eram sete cartões um debaixo do outro, e
+ * o que ela usa de minuto em minuto (o agora, o que está em aberto) dividia
+ * rolagem com o que ela consulta uma vez por mês (os cinco cargos). Agora
+ * "Hoje" cabe quase numa tela, e Dinheiro e Cargos são destinos.
  *
- * Por que "em aberto" vem ANTES da rotina: a rotina é previsível e está sempre
- * no mesmo lugar; o que ela esquece é o que alguém pediu no meio de um disparo.
+ * O CALENDÁRIO ENTROU. Hoje e amanhã, dentro de "Hoje", porque confirmar a
+ * reunião da véspera é trabalho de hoje.
+ *
+ * O RESUMO NASCE FECHADO. Ele é das 17:45; aparecer aberto o dia inteiro é uma
+ * caixa de texto vazia ocupando meia tela desde as 9:30.
  */
+
+type Aba = "hoje" | "dinheiro" | "cargos";
+
+const ABAS: { id: Aba; label: string }[] = [
+  { id: "hoje", label: "Hoje" },
+  { id: "dinheiro", label: "Dinheiro" },
+  { id: "cargos", label: "Cargos" },
+];
+
 export default function PostoPage() {
   const {
     dados,
@@ -49,15 +62,35 @@ export default function PostoPage() {
     salvarResumo,
   } = usePosto();
   const { showToast } = useToast();
+  const [aba, setAba] = useState<Aba>("hoje");
+  const [verResumo, setVerResumo] = useState(false);
+
+  /*
+   * Hoje e amanhã numa busca só.
+   *
+   * O intervalo vai pelo dia de BRASÍLIA, não por `toISOString()`: às 21h o
+   * servidor em UTC já está em amanhã, e a agenda mostraria o dia errado
+   * justamente no fim do expediente.
+   */
+  const { hojeISO, amanhaISO } = useMemo(() => {
+    const hoje = dataDeHojeNoBrasil(agora);
+    const amanha = new Date(`${hoje}T12:00:00Z`);
+    amanha.setUTCDate(amanha.getUTCDate() + 1);
+    return { hojeISO: hoje, amanhaISO: dataDeHojeNoBrasil(amanha) };
+  }, [agora]);
+
+  const { agendamentos } = useAgendamentos(hojeISO, amanhaISO);
+  const deHoje = agendamentos.filter((a) => a.data_hora.startsWith(hojeISO));
+  const deAmanha = agendamentos.filter((a) => a.data_hora.startsWith(amanhaISO));
 
   if (loading) {
     return (
       <div className="lg:mx-auto lg:max-w-5xl">
-        <PageHeader title="Posto de comando" voltar={false} />
+        <PageHeader title="Posto" voltar={false} />
         <div className="flex flex-col gap-4">
-          <Skeleton className="h-44 w-full rounded-[20px]" />
-          <Skeleton className="h-36 w-full rounded-[20px]" />
-          <Skeleton className="h-72 w-full rounded-[20px]" />
+          <Skeleton className="h-28 w-full rounded-[20px]" />
+          <Skeleton className="h-40 w-full rounded-[20px]" />
+          <Skeleton className="h-56 w-full rounded-[20px]" />
         </div>
       </div>
     );
@@ -66,7 +99,7 @@ export default function PostoPage() {
   if (error) {
     return (
       <div className="lg:mx-auto lg:max-w-5xl">
-        <PageHeader title="Posto de comando" voltar={false} />
+        <PageHeader title="Posto" voltar={false} />
         <p className="vidro-card rounded-[20px] p-5 text-sm text-escuro">
           {error}
         </p>
@@ -74,74 +107,95 @@ export default function PostoPage() {
     );
   }
 
-  const fimDeSemana = ehFimDeSemanaNoBrasil(agora);
-
   return (
     <div className="lg:mx-auto lg:max-w-5xl">
-      <PageHeader title="Posto de comando" voltar={false} />
+      <PageHeader title="Posto" voltar={false} />
 
-      <p className="mb-4 text-[13px] text-neutro-muted">
+      <p className="mb-3 text-[13px] text-neutro-muted">
         {formatDataComDiaSemana(agora)}
-        {/* Sábado e domingo são "de casa, quando houver necessidade" — a tela
-            diz isso em vez de cobrar a rotina de um dia que não é de trabalho. */}
-        {fimDeSemana && " · fim de semana: só se houver necessidade"}
+        {ehFimDeSemanaNoBrasil(agora) && " · fim de semana"}
       </p>
 
-      <div className="flex flex-col gap-4">
-        <AgoraCard
-          rotina={dados.rotina}
-          onMarcar={async (bloco) => {
-            const ok = await marcarBloco(bloco, true);
-            if (!ok) showToast("Não consegui marcar agora.");
-          }}
-        />
+      <SeletorSegmentado
+        opcoes={ABAS}
+        valor={aba}
+        onChange={setAba}
+        className="mb-4"
+      />
 
-        <Pendencias
-          pendencias={dados.pendencias}
-          onCriar={async (nova) => {
-            const ok = await criarPendencia(nova);
-            showToast(ok ? "Anotado." : "Não consegui anotar.");
-            return ok;
-          }}
-          onFechar={async (id) => {
-            const ok = await fecharPendencia(id);
-            if (!ok) showToast("Não consegui concluir.");
-          }}
-        />
+      {aba === "hoje" && (
+        <div className="flex flex-col gap-4">
+          <AgoraCard
+            rotina={dados.rotina}
+            onMarcar={async (bloco) => {
+              const ok = await marcarBloco(bloco, true);
+              if (!ok) showToast("Não consegui marcar agora.");
+            }}
+          />
 
-        <RotinaLista
-          rotina={dados.rotina}
-          onAlternar={async (bloco, feito) => {
-            const ok = await marcarBloco(bloco, feito);
-            if (!ok) showToast("Não consegui salvar.");
-          }}
-        />
+          <Pendencias
+            pendencias={dados.pendencias}
+            onCriar={async (nova) => {
+              const ok = await criarPendencia(nova);
+              showToast(ok ? "Anotado." : "Não consegui anotar.");
+              return ok;
+            }}
+            onFechar={async (id) => {
+              const ok = await fecharPendencia(id);
+              if (!ok) showToast("Não consegui concluir.");
+            }}
+          />
 
-        <NumerosDoDia
-          valores={dados.numeros}
-          onAnotar={async (chave, valor) => {
-            const ok = await anotarNumero(chave, valor);
-            if (!ok) showToast("Não consegui anotar o número.");
-          }}
-        />
+          <CompromissosCard hoje={deHoje} amanha={deAmanha} />
 
-        <DinheiroCard resumo={dados.dinheiroDoMes} />
+          <RotinaLista
+            rotina={dados.rotina}
+            onAlternar={async (bloco, feito) => {
+              const ok = await marcarBloco(bloco, feito);
+              if (!ok) showToast("Não consegui salvar.");
+            }}
+          />
 
-        <ResumoDoDia
-          rotina={dados.rotina}
-          numeros={dados.numeros}
-          pendencias={dados.pendencias}
-          dataTexto={formatDataComDiaSemana(agora)}
-          salvo={dados.resumoDoDia}
-          onSalvar={async (texto, enviado) => {
-            const ok = await salvarResumo(texto, enviado);
-            showToast(ok ? "Guardado." : "Não consegui guardar.");
-            return ok;
-          }}
-        />
+          <NumerosDoDia
+            valores={dados.numeros}
+            onAnotar={async (chave, valor) => {
+              const ok = await anotarNumero(chave, valor);
+              if (!ok) showToast("Não consegui anotar o número.");
+            }}
+          />
 
-        <FrentesCard pendencias={dados.pendencias} />
-      </div>
+          {/* Fechado até ela querer: é tarefa das 17:45. */}
+          {verResumo || dados.resumoDoDia ? (
+            <ResumoDoDia
+              rotina={dados.rotina}
+              numeros={dados.numeros}
+              pendencias={dados.pendencias}
+              dataTexto={formatDataComDiaSemana(agora)}
+              salvo={dados.resumoDoDia}
+              onSalvar={async (texto, enviado) => {
+                const ok = await salvarResumo(texto, enviado);
+                showToast(ok ? "Guardado." : "Não consegui guardar.");
+                return ok;
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setVerResumo(true)}
+              className="vidro-card flex items-center justify-between rounded-[20px] px-5 py-4 text-left"
+            >
+              <span className="text-[15px] font-bold text-escuro">
+                Resumo para o Dyego
+              </span>
+              <ChevronDown className="size-4 text-neutro-muted" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {aba === "dinheiro" && <DinheiroCard resumo={dados.dinheiroDoMes} />}
+
+      {aba === "cargos" && <FrentesCard pendencias={dados.pendencias} />}
     </div>
   );
 }

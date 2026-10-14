@@ -26,7 +26,7 @@ export async function destinoAposLogin(
 ): Promise<string> {
   const { data: empresa } = await supabase
     .from("empresas")
-    .select("id, onboarding_concluido, suspensa_em")
+    .select("id, onboarding_concluido, suspensa_em, modulos_ativos")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -67,6 +67,16 @@ export async function destinoAposLogin(
    * depois deixaria entrar, que é a pior das duas mensagens.
    */
   if (assinatura.status === "cancelada") return destinoDeCobranca;
+
+  /*
+   * Quem tem o Posto de Comando cai NELE, e não na Home.
+   *
+   * A Home é o painel do produto antigo — faturamento do salão, agenda do dia,
+   * widgets. Para quem usa o posto, ela é uma parada no caminho: a tela que
+   * responde "o que eu faço agora" é outra, e passar pela Home primeiro custa
+   * um toque todas as vezes.
+   */
+  if ((empresa.modulos_ativos ?? []).includes("posto")) return "/posto";
 
   return "/dashboard";
 }

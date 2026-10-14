@@ -1,21 +1,29 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, Check, Clock, Zap } from "lucide-react";
+import { Check, ChevronDown, Zap } from "lucide-react";
+import { useState } from "react";
+import { Anel } from "@/components/graficos/Anel";
 import {
   paraHora,
   REGRA_DE_PRIORIDADE,
+  ROTINA,
   type EstadoDaRotina,
 } from "@/lib/posto/rotina";
 import { JORNADA_ACORDADA } from "@/lib/posto/cargos";
 import { cn } from "@/lib/utils";
 
 /**
- * O cartão de "agora" — a única coisa desta tela que responde à pergunta que
- * ela faz dez vezes por dia: o que eu deveria estar fazendo neste minuto.
+ * O "agora" — o herói da tela.
  *
- * Fica sozinho no alto e grande de propósito. Enfiado numa grade com os
- * outros, ele viraria mais um cartão para procurar; e a hora em que ela mais
- * precisa dele é justamente a hora em que não sobra atenção para procurar.
+ * A PRIMEIRA VERSÃO ERA UM MURO DE TEXTO e ela disse isso com essas palavras:
+ * "texto demais", "feia, sem cara de painel". Cada bloco vinha com o detalhe
+ * completo embaixo, a regra de prioridade em caixa própria, os atrasados
+ * listados por extenso — quatro parágrafos antes de responder a única pergunta
+ * que o cartão existe para responder.
+ *
+ * Agora responde em uma linha, com a anatomia que o resto do app usa (ver
+ * components/CartaoDado.tsx): gráfico à esquerda, rótulo miúdo, valor grande.
+ * O detalhe do bloco e a lista de atrasados existem, mas atrás de um toque.
  */
 export function AgoraCard({
   rotina,
@@ -24,121 +32,110 @@ export function AgoraCard({
   rotina: EstadoDaRotina;
   onMarcar: (bloco: string) => void;
 }) {
-  const atrasados = rotina.atrasados;
-
-  if (rotina.antesDaJornada || rotina.depoisDaJornada) {
-    return (
-      <section className="vidro-card rounded-[20px] p-5">
-        <p className="text-[13px] font-semibold uppercase tracking-wide text-neutro-muted">
-          {rotina.antesDaJornada ? "Antes da jornada" : "Jornada encerrada"}
-        </p>
-        <p className="mt-2 text-xl font-bold text-escuro">
-          {rotina.antesDaJornada
-            ? `O dia acordado começa às ${JORNADA_ACORDADA.inicio}`
-            : `O dia acordado terminou às ${JORNADA_ACORDADA.fim}`}
-        </p>
-        <p className="mt-1 text-sm text-neutro-muted">
-          {rotina.depoisDaJornada
-            ? "O corte das 19h é de outro executivo. O que sobrou aqui embaixo fica para amanhã."
-            : "Leads que entraram fora do horário são o primeiro bloco: chegaram sem ninguém para atender."}
-        </p>
-        {atrasados.length > 0 && (
-          <p className="mt-3 text-sm font-semibold text-ambar-texto">
-            {atrasados.length}{" "}
-            {atrasados.length === 1 ? "bloco não marcado" : "blocos não marcados"}{" "}
-            no dia.
-          </p>
-        )}
-      </section>
-    );
-  }
-
+  const [verAtrasados, setVerAtrasados] = useState(false);
+  const feitos = rotina.feitos.length;
+  const progresso = Math.round((feitos / ROTINA.length) * 100);
   const agora = rotina.agora;
+  const foraDaJornada = rotina.antesDaJornada || rotina.depoisDaJornada;
 
   return (
     <section className="vidro-card rounded-[20px] p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wide text-primary-forte">
-            <Clock className="size-3.5" /> Agora
-          </p>
-          <h2 className="mt-2 text-2xl font-bold leading-tight text-escuro">
-            {agora ? agora.label : "Nada marcado para este horário"}
-          </h2>
-          {agora && (
-            <p className="mt-1 text-sm text-neutro-muted">
-              {paraHora(agora.inicio)} às {paraHora(agora.fim)} · {agora.detalhe}
-            </p>
-          )}
-          {!agora && rotina.proximo && (
-            <p className="mt-1 text-sm text-neutro-muted">
-              Próximo: {rotina.proximo.label}, às{" "}
-              {paraHora(rotina.proximo.inicio)}.
-            </p>
-          )}
+      <div className="flex items-center gap-4">
+        <div className="relative shrink-0">
+          <Anel progresso={progresso} tamanho={64} />
+          <span className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-escuro">
+            {feitos}/{ROTINA.length}
+          </span>
         </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-[12px] font-bold uppercase tracking-wide text-primary-forte">
+            {foraDaJornada
+              ? rotina.antesDaJornada
+                ? `Começa ${JORNADA_ACORDADA.inicio}`
+                : "Dia encerrado"
+              : "Agora"}
+          </p>
+          <h2 className="truncate text-xl font-bold leading-tight text-escuro">
+            {agora
+              ? agora.label
+              : rotina.proximo
+                ? rotina.proximo.label
+                : "Nada pendente"}
+          </h2>
+          <p className="truncate text-[13px] text-neutro-muted">
+            {agora
+              ? `até ${paraHora(agora.fim)}`
+              : rotina.proximo
+                ? `às ${paraHora(rotina.proximo.inicio)}`
+                : "Rotina do dia fechada"}
+          </p>
+        </div>
+
         {agora && (
           <button
             type="button"
             onClick={() => onMarcar(agora.chave)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-text transition active:scale-95"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-text transition active:scale-95"
             aria-label={`Marcar "${agora.label}" como feito`}
           >
-            <Check className="size-5" />
+            <Check className="size-5" strokeWidth={2.5} />
           </button>
         )}
       </div>
 
-      {/* Dois blocos ao mesmo tempo acontece de verdade às 12:00: o corte e a
-          ativação começam juntos, e o documento não resolve o empate. A tela
-          mostra os dois em vez de escolher por ela. */}
-      {rotina.tambemAgora.length > 0 && (
-        <div className="mt-3 space-y-1.5 border-t border-neutro-border pt-3">
-          {rotina.tambemAgora.map((bloco) => (
-            <button
-              key={bloco.chave}
-              type="button"
-              onClick={() => onMarcar(bloco.chave)}
-              className="flex w-full items-center gap-2 text-left text-sm text-escuro"
-            >
-              <span className="flex size-5 items-center justify-center rounded-full border border-neutro-border" />
-              <span>
-                Ao mesmo tempo: <strong>{bloco.label}</strong>
-              </span>
-            </button>
+      {/* Dois blocos começam às 12:00 — o corte e a ativação. Uma linha, sem
+          explicação: tocar marca. */}
+      {rotina.tambemAgora.map((bloco) => (
+        <button
+          key={bloco.chave}
+          type="button"
+          onClick={() => onMarcar(bloco.chave)}
+          className="mt-2 flex w-full items-center gap-2 rounded-card px-2 py-1.5 text-left text-[13px] text-escuro"
+        >
+          <span className="size-4 shrink-0 rounded-full border border-neutro-border" />
+          <span className="truncate">também: {bloco.label}</span>
+        </button>
+      ))}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="flex items-center gap-1.5 rounded-full bg-primary-light px-2.5 py-1 text-[12px] font-bold text-primary-forte">
+          <Zap className="size-3.5" /> {REGRA_DE_PRIORIDADE}
+        </span>
+
+        {rotina.atrasados.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setVerAtrasados((v) => !v)}
+            aria-expanded={verAtrasados}
+            className="flex items-center gap-1 rounded-full bg-ambar-light px-2.5 py-1 text-[12px] font-bold text-ambar-texto"
+          >
+            {rotina.atrasados.length} passou da hora
+            <ChevronDown
+              className={cn("size-3.5 transition", verAtrasados && "rotate-180")}
+            />
+          </button>
+        )}
+      </div>
+
+      {verAtrasados && (
+        <ul className="mt-2 space-y-0.5">
+          {rotina.atrasados.map((bloco) => (
+            <li key={bloco.chave}>
+              <button
+                type="button"
+                onClick={() => onMarcar(bloco.chave)}
+                className="flex w-full items-center gap-2 rounded-card px-2 py-1.5 text-left text-[13px] text-escuro"
+              >
+                <span className="size-4 shrink-0 rounded-full border border-ambar-soft" />
+                <span className="font-mono text-neutro-muted">
+                  {paraHora(bloco.inicio)}
+                </span>
+                <span className="truncate">{bloco.label}</span>
+              </button>
+            </li>
           ))}
-        </div>
-      )}
-
-      <p className="mt-4 flex items-center gap-2 rounded-card bg-primary-light px-3 py-2 text-[13px] font-semibold text-primary-forte">
-        <Zap className="size-4 shrink-0" /> {REGRA_DE_PRIORIDADE}
-      </p>
-
-      {atrasados.length > 0 && (
-        <div className="mt-3 rounded-card border border-ambar-soft bg-ambar-light p-3">
-          <p className="flex items-center gap-1.5 text-[13px] font-bold text-ambar-texto">
-            <AlertTriangle className="size-4" /> Passou da hora e não foi marcado
-          </p>
-          <ul className="mt-2 space-y-1">
-            {atrasados.map((bloco) => (
-              <li key={bloco.chave}>
-                <button
-                  type="button"
-                  onClick={() => onMarcar(bloco.chave)}
-                  className={cn(
-                    "flex w-full items-center justify-between gap-2 text-left text-sm text-escuro",
-                    "hover:text-primary-forte",
-                  )}
-                >
-                  <span>
-                    {paraHora(bloco.inicio)} · {bloco.label}
-                  </span>
-                  <ArrowRight className="size-4 shrink-0 opacity-60" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        </ul>
       )}
     </section>
   );

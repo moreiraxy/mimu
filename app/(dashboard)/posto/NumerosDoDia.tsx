@@ -31,14 +31,9 @@ export function NumerosDoDia({
 }) {
   return (
     <section className="vidro-card rounded-[20px] p-5">
-      <header className="mb-1">
-        <h2 className="text-lg font-bold text-escuro">Os seus números</h2>
-        <p className="text-[13px] text-neutro-muted">
-          Do documento de funções — é por eles que a gerência te mede.
-        </p>
-      </header>
+      <h2 className="mb-3 text-lg font-bold text-escuro">Os seus números</h2>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2">
         {NUMEROS.map((numero) => (
           <LinhaDoNumero
             key={numero.chave}
@@ -87,10 +82,8 @@ function LinhaDoNumero({
       <p className="text-[13px] font-semibold leading-snug text-escuro">
         {numero.label}
       </p>
-      <p className="mt-0.5 text-[12px] text-neutro-muted">
-        meta: {numero.metaTexto}
-        {numero.periodicidade === "semanal" && " · na semana"}
-        {numero.periodicidade === "por_disparo" && " · por disparo"}
+      <p className="mt-0.5 text-[11px] text-neutro-muted">
+        {numero.metaTexto}
       </p>
 
       {editando ? (
@@ -144,11 +137,6 @@ function LinhaDoNumero({
         </button>
       )}
 
-      {valor === undefined && (
-        <p className="mt-1 text-[12px] text-neutro-muted">
-          Ainda não anotado hoje.
-        </p>
-      )}
     </div>
   );
 }

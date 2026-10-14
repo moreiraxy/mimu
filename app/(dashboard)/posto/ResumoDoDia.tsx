@@ -78,12 +78,9 @@ export function ResumoDoDia({
   return (
     <section className="vidro-card rounded-[20px] p-5">
       <header className="mb-3 flex items-baseline justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-bold text-escuro">Resumo para o Dyego</h2>
-          <p className="text-[13px] text-neutro-muted">
-            O bloco das 17:45. A tela monta, você lê e manda.
-          </p>
-        </div>
+        <h2 className="text-lg font-bold text-escuro">
+          Resumo para o Dyego
+        </h2>
         {salvo?.enviadoEm && (
           <span className="flex shrink-0 items-center gap-1 rounded-full bg-verde-light px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-verde-texto">
             <Check className="size-3" /> enviado
