@@ -5,6 +5,7 @@ import { ArrowDownRight, ArrowUpRight, Plus } from "lucide-react";
 import { Valor } from "@/components/Valor";
 import { fontesComZeros, type ResumoDoDinheiro } from "@/lib/posto/financas";
 import { cn } from "@/lib/utils";
+import { BLOCO, ROTULO } from "./estilos";
 
 /**
  * O dinheiro dela no mês, por fonte e por destino.
@@ -28,20 +29,20 @@ export function DinheiroCard({ resumo }: { resumo: ResumoDoDinheiro }) {
   const destinos = resumo.porDestino.slice(0, 6);
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-bold text-escuro">Dinheiro no mês</h2>
+        <h2 className={cn("", ROTULO)}>Dinheiro no mês</h2>
         <p className="text-[13px] text-neutro-muted">{resumo.lancamentos} lanç.</p>
       </header>
 
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-card border border-neutro-border p-3">
           <p className="text-[12px] font-semibold text-neutro-muted">Entrou</p>
-          <Valor valor={resumo.entrou} className="text-lg font-bold text-escuro" />
+          <Valor valor={resumo.entrou} className={cn("", ROTULO)} />
         </div>
         <div className="rounded-card border border-neutro-border p-3">
           <p className="text-[12px] font-semibold text-neutro-muted">Saiu</p>
-          <Valor valor={resumo.saiu} className="text-lg font-bold text-escuro" />
+          <Valor valor={resumo.saiu} className={cn("", ROTULO)} />
         </div>
         <div
           className={cn(

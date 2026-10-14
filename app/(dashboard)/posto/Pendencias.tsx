@@ -19,6 +19,7 @@ import type {
   TipoPendencia,
 } from "@/types/database";
 import { cn } from "@/lib/utils";
+import { BLOCO, ROTULO } from "./estilos";
 
 /*
  * A mesma pintura de campo do components/ui/Input.tsx, aplicada a um <input>
@@ -99,9 +100,9 @@ export function Pendencias({
   }
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-bold text-escuro">O que está em aberto</h2>
+        <h2 className={cn("", ROTULO)}>O que está em aberto</h2>
         <p className="text-[13px] text-neutro-muted">{pendencias.length}</p>
       </header>
 

@@ -8,6 +8,7 @@ import {
   type TipoBloco,
 } from "@/lib/posto/rotina";
 import { cn } from "@/lib/utils";
+import { BLOCO, HORA, ROTULO } from "./estilos";
 
 /**
  * Os dez blocos do dia, em ordem, marcáveis.
@@ -27,13 +28,14 @@ import { cn } from "@/lib/utils";
  * cartão de "agora" quando é a vez daquele bloco.
  */
 
-const SELO: Record<TipoBloco, { texto: string; classe: string } | null> = {
+const SELO_DO_BLOCO: Record<TipoBloco, { texto: string; classe: string } | null> = {
   bloco: null,
+  // Sem cor: o que distingue é o fundo cinza e o peso. Ver ./estilos.ts.
   conferencia: {
     texto: "conferência",
-    classe: "bg-primary-light text-primary-forte",
+    classe: "bg-escuro/[0.07] text-neutro-muted-strong",
   },
-  entrega: { texto: "entrega", classe: "bg-ambar-light text-ambar-texto" },
+  entrega: { texto: "entrega", classe: "bg-escuro/[0.07] text-neutro-muted-strong" },
 };
 
 export function RotinaLista({
@@ -48,9 +50,9 @@ export function RotinaLista({
   const agoraChave = rotina.agora?.chave;
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-lg font-bold text-escuro">Rotina do dia</h2>
+        <h2 className={cn("", ROTULO)}>Rotina do dia</h2>
         <p className="text-[13px] text-neutro-muted">
           {feitos.size} de {ROTINA.length}
         </p>
@@ -59,7 +61,7 @@ export function RotinaLista({
       <ol className="space-y-1">
         {ROTINA.map((bloco) => {
           const feito = feitos.has(bloco.chave);
-          const selo = SELO[bloco.tipo];
+          const selo = SELO_DO_BLOCO[bloco.tipo];
           return (
             <li key={bloco.chave}>
               <button
@@ -85,7 +87,7 @@ export function RotinaLista({
 
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="font-mono text-[13px] text-neutro-muted">
+                    <span className={HORA}>
                       {paraHora(bloco.inicio)}
                       {bloco.tipo === "bloco" && `–${paraHora(bloco.fim)}`}
                     </span>

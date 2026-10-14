@@ -11,6 +11,7 @@ import {
 } from "@/lib/posto/rotina";
 import { JORNADA_ACORDADA } from "@/lib/posto/cargos";
 import { cn } from "@/lib/utils";
+import { BLOCO } from "./estilos";
 
 /**
  * O "agora" — o herói da tela.
@@ -39,7 +40,7 @@ export function AgoraCard({
   const foraDaJornada = rotina.antesDaJornada || rotina.depoisDaJornada;
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <div className="flex items-center gap-4">
         <div className="relative shrink-0">
           <Anel progresso={progresso} tamanho={64} />

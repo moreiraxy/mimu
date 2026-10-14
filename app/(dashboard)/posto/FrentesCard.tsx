@@ -10,6 +10,7 @@ import {
 } from "@/lib/posto/cargos";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/types/database";
+import { BLOCO, ROTULO } from "./estilos";
 
 type Pendencia = Database["public"]["Tables"]["posto_pendencias"]["Row"];
 
@@ -34,9 +35,9 @@ export function FrentesCard({ pendencias }: { pendencias: Pendencia[] }) {
   );
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-1">
-        <h2 className="text-lg font-bold text-escuro">Os seus cinco cargos</h2>
+        <h2 className={cn("", ROTULO)}>Os seus cinco cargos</h2>
         <p className="text-[13px] text-neutro-muted">
           {JORNADA_ACORDADA.dias}, {JORNADA_ACORDADA.inicio} às{" "}
           {JORNADA_ACORDADA.fim} — o horário que o papel prevê para um deles.

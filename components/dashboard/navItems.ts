@@ -98,10 +98,31 @@ export const NAV_ITEMS = [
  * Minha Empresa continua sempre: é onde se liga e desliga módulo, e tirá-la
  * trancaria a porta de desfazer esta decisão.
  */
+/**
+ * O QUE NÃO É DO POSTO SAI DA NAVEGAÇÃO DE QUEM TEM O POSTO.
+ *
+ * Palavras dela: "metas?? para que? eu por acaso tenho?? tire" e "perfil
+ * assinaturas relatar problemas tudo q seja da mimu NAO FAZ PARTE DO MEU DASH".
+ *
+ *   /dashboard  — a Home do produto de salão; o posto é a casa agora
+ *   /metas      — meta de faturamento mensal de salão. Ela não tem essa meta;
+ *                 as metas DELA são os seis indicadores do cargo, que vivem no
+ *                 posto (lib/posto/numeros.ts)
+ *
+ * Perfil (/minha-empresa) NÃO entra nesta lista, e por um motivo prático: é
+ * onde fica o "Sair" e onde se liga e desliga módulo — some daqui e a porta de
+ * desfazer tudo isto fecha. Ele sai dos DESTINOS e vai para o pé da régua, como
+ * conta, não como seção do trabalho dela (ver NavLateral).
+ *
+ * As rotas continuam existindo e alcançáveis por URL: o que muda é o que a
+ * navegação oferece.
+ */
+const FORA_DO_POSTO = ["/dashboard", "/metas"];
+
 export function navItemsVisiveis(modulosAtivos: string[]) {
   const temPosto = modulosAtivos.includes("posto");
   return NAV_ITEMS.filter((item) => {
-    if (temPosto && item.href === "/dashboard") return false;
+    if (temPosto && FORA_DO_POSTO.includes(item.href)) return false;
     return item.modulo === null || modulosAtivos.includes(item.modulo);
   });
 }

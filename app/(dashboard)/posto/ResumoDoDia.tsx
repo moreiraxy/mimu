@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { montarResumoDoDia } from "@/lib/posto/resumo";
 import type { Database } from "@/types/database";
 import type { EstadoDaRotina } from "@/lib/posto/rotina";
+import { BLOCO, ROTULO } from "./estilos";
+import { cn } from "@/lib/utils";
 
 type Pendencia = Database["public"]["Tables"]["posto_pendencias"]["Row"];
 
@@ -76,9 +78,9 @@ export function ResumoDoDia({
   }
 
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-3 flex items-baseline justify-between gap-2">
-        <h2 className="text-lg font-bold text-escuro">
+        <h2 className={cn("", ROTULO)}>
           Resumo para o Dyego
         </h2>
         {salvo?.enviadoEm && (

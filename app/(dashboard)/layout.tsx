@@ -84,7 +84,18 @@ export default async function DashboardGroupLayout({
       cartões de baixo. Com `relative` aqui, `inset-0` passa a valer a altura
       inteira do conteúdo.
     */
-    <div className="relative min-h-screen">
+    /*
+      A PALETA GRAFITE, ligada por quem tem o Posto de Comando.
+      "pode ser no preto e branco e tirar essas cores q eu ODIEI" — a
+      referência que ela deu foi o Notion. O atributo redefine as variáveis de
+      cor para toda a árvore (ver `[data-paleta="grafite"]` em globals.css),
+      inclusive para a régua lateral e as folhas, que ficam fora do conteúdo.
+      Nenhuma tela precisou mudar de classe, e desligar é apagar este atributo.
+    */
+    <div
+      className="relative min-h-screen"
+      data-paleta={modulos.includes("posto") ? "grafite" : undefined}
+    >
       {/*
         O cadeado biométrico, pintado antes de tudo.
 
@@ -123,17 +134,25 @@ export default async function DashboardGroupLayout({
       <FundoAmbiente />
 
       {/*
-        A BARRA FLUTUANTE VALE NO COMPUTADOR TAMBÉM, e a lateral acabou.
+        A LATERAL VOLTOU — pedido dela, em 14/10/2026: "cade a porra do navbar
+        na lateral??", e depois "gostei do navbar ao lado, isso vc pode manter".
 
+        O histórico importa, porque ela já tinha sido REMOVIDA de propósito.
         Havia dois aplicativos aqui: no celular, a barra de vidro flutuando
         embaixo; no computador, uma lista preta comprida colada na esquerda,
         mais uma lupa e um botão "Nova ação" soltos no alto — que ainda por
-        cima caíam em cima do selo Pro do cabeçalho.
+        cima caíam em cima do selo Pro do cabeçalho. A barra única resolveu
+        isso, e o argumento era bom: quem aprende no celular não reaprende no
+        computador.
 
-        Agora é a mesma barra nos dois, com o mesmo material e os mesmos
-        destinos. Não é só coerência visual: quem aprende a usar a Mimu no
-        celular não precisa reaprender no computador, e cada coisa passa a
-        existir num lugar só.
+        O que mudou foi o uso. O posto de comando é uma tela de TRABALHO, aberta
+        o dia inteiro num MacBook — e ali a pílula de 430px centralizada no
+        rodapé deixa 1000px de largura vazios e obriga a mão a atravessar a tela.
+        A régua nova (components/dashboard/NavLateral.tsx) evita os defeitos da
+        antiga: é do mesmo vidro da barra, não tem lupa nem botão solto no alto,
+        e o "Novo" mora no pé dela em vez de flutuar sobre o cabeçalho.
+
+        A barra de baixo continua intocada abaixo de `md`.
 
         A busca saiu inteira. Ela flutuava no canto de toda tela, atropelava o
         cabeçalho, e o que ela resolve — achar uma cliente, uma venda — já se

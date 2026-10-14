@@ -22,9 +22,12 @@ const config: Config = {
         //                 um verde escurecido da mesma família (5.37:1 sobre
         //                 branco), no escuro é o próprio néon
         primary: {
-          DEFAULT: "#CCFF00",
-          hover: "#B8E600",
-          text: "#0A0A0A",
+          // Viraram VARIÁVEL para existir uma paleta sem cor (ver
+          // `[data-paleta="grafite"]` em globals.css). O valor de fábrica é o
+          // mesmo néon de sempre: ninguém que não peça a outra paleta muda.
+          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+          hover: "rgb(var(--primary-hover) / <alpha-value>)",
+          text: "rgb(var(--primary-text) / <alpha-value>)",
           forte: "rgb(var(--primary-forte) / <alpha-value>)",
           light: "rgb(var(--primary-light) / <alpha-value>)",
           border: "rgb(var(--primary-border) / <alpha-value>)",
@@ -33,13 +36,13 @@ const config: Config = {
         // dois temas, é identidade), `texto` é a versão legível que troca de
         // claridade com o tema.
         verde: {
-          DEFAULT: "#2DBE8C", // entradas, sucesso, faturamento positivo
+          DEFAULT: "rgb(var(--verde) / <alpha-value>)", // entradas, sucesso
           light: "rgb(var(--verde-light) / <alpha-value>)",
           texto: "rgb(var(--verde-texto) / <alpha-value>)",
           dark: "rgb(var(--verde-texto) / <alpha-value>)",
         },
         ambar: {
-          DEFAULT: "#F4A653", // alertas, pendências, contas a pagar
+          DEFAULT: "rgb(var(--ambar) / <alpha-value>)", // alertas, pendências
           light: "rgb(var(--ambar-light) / <alpha-value>)",
           soft: "rgb(var(--ambar-soft) / <alpha-value>)",
           texto: "rgb(var(--ambar-texto) / <alpha-value>)",
@@ -50,7 +53,7 @@ const config: Config = {
         superficie: "rgb(var(--superficie) / <alpha-value>)", // cards, modais, inputs — era bg-white fixo
         escuro: "rgb(var(--escuro) / <alpha-value>)", // texto principal / modo escuro — nunca preto puro
         erro: {
-          DEFAULT: "#E8564A",
+          DEFAULT: "rgb(var(--erro) / <alpha-value>)",
           light: "rgb(var(--erro-light) / <alpha-value>)",
           texto: "rgb(var(--erro-texto) / <alpha-value>)",
           dark: "rgb(var(--erro-texto) / <alpha-value>)",

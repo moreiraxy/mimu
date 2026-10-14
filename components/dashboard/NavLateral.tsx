@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MoreHorizontal, Shield } from "lucide-react";
+import { MoreHorizontal, Shield, UserRound } from "lucide-react";
 import { MarcaTraco } from "@/components/Logo";
 import { MimuIcon, PlusIcon } from "@/components/icons/NavIcons";
 import { cn } from "@/lib/utils";
@@ -107,7 +107,10 @@ export function NavLateral({
 
       <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {destinos
-          .filter((item) => item.href !== "/mimu")
+          .filter(
+            (item) =>
+              item.href !== "/mimu" && item.href !== "/minha-empresa",
+          )
           .map((item) => {
             const aceso = estaAceso(item.href);
             return (
@@ -167,6 +170,32 @@ export function NavLateral({
           <span className="hidden truncate lg:block">Novo</span>
         </button>
       )}
+
+      {/*
+        O PERFIL FICA NO PÉ, fora dos destinos.
+        "perfil assinaturas relatar problemas tudo q seja da mimu NAO FAZ PARTE
+        DO MEU DASH" — e é verdade: assinatura, suporte e senha são do
+        produto, não do trabalho dela. Mas é também onde se sai da conta e onde
+        se liga e desliga módulo, então sumir de vez trancaria a porta de volta.
+        Aqui ele é conta, e não seção: embaixo, miúdo, depois de uma linha.
+      */}
+      <div className="mt-1 h-px bg-neutro-border" />
+
+      <Link
+        href="/minha-empresa"
+        onClick={() => aoTocar("/minha-empresa")}
+        className={cn(
+          "flex h-11 items-center gap-3 rounded-full px-2.5 text-[13px] font-semibold transition",
+          estaAceso("/minha-empresa")
+            ? "bg-primary/20 text-primary-forte"
+            : "text-neutro-muted hover:bg-escuro/[0.05]",
+        )}
+      >
+        <span className="flex w-[42px] shrink-0 items-center justify-center lg:w-auto">
+          <UserRound size={20} />
+        </span>
+        <span className="hidden truncate lg:block">Conta</span>
+      </Link>
 
       <button
         type="button"

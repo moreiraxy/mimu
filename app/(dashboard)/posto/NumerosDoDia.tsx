@@ -9,6 +9,7 @@ import {
   type NumeroDoCargo,
 } from "@/lib/posto/numeros";
 import { cn } from "@/lib/utils";
+import { BLOCO, ROTULO } from "./estilos";
 
 /**
  * Os seis números pelos quais ela é medida, anotáveis em um toque.
@@ -30,8 +31,8 @@ export function NumerosDoDia({
   onAnotar: (chave: string, valor: number) => void;
 }) {
   return (
-    <section className="vidro-card rounded-[20px] p-5">
-      <h2 className="mb-3 text-lg font-bold text-escuro">Os seus números</h2>
+    <section className={BLOCO}>
+      <h2 className={cn("mb-3 ", ROTULO)}>Os seus números</h2>
 
       <div className="grid grid-cols-2 gap-2">
         {NUMEROS.map((numero) => (

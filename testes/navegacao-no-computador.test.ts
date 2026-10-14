@@ -60,17 +60,43 @@ describe("quem navega no computador", () => {
   });
 });
 
+describe("o que não é do posto sai da navegação", () => {
+  const NAV = ler("components/dashboard/navItems.ts");
+
+  it("Metas e a Home de salão saem para quem tem o posto", () => {
+    // "metas?? para que? eu por acaso tenho?? tire" — as metas dela são os
+    // seis indicadores do cargo, que vivem no posto.
+    expect(NAV).toContain('const FORA_DO_POSTO = ["/dashboard", "/metas"]');
+    expect(NAV).toContain("FORA_DO_POSTO.includes(item.href)");
+  });
+
+  it("a paleta sem cor é ligada por quem tem o posto", () => {
+    // "pode ser no preto e branco e tirar essas cores q eu ODIEI".
+    expect(LAYOUT).toContain('data-paleta={modulos.includes("posto")');
+    expect(ler("app/globals.css")).toContain('[data-paleta="grafite"]');
+  });
+
+  it("as cores de preenchimento são variáveis, senão a paleta não alcança", () => {
+    // Enquanto #CCFF00 estava cravado no tailwind.config, nenhuma paleta
+    // conseguia trocá-lo: era hex dentro do CSS gerado.
+    const TW = ler("tailwind.config.ts");
+    for (const nome of ["--primary", "--verde", "--ambar", "--erro"]) {
+      expect(TW, nome).toContain(`rgb(var(${nome}) / <alpha-value>)`);
+    }
+  });
+});
+
 describe("a porta de sair da conta", () => {
   it("o Sair continua na tela de Perfil", () => {
     expect(PERFIL).toContain('label="Sair"');
   });
 
   it("a régua leva ao Perfil, que é onde se sai da conta", () => {
-    // `destinos` recebe o menu inteiro e o Perfil está nele com `modulo: null`
-    // (ver components/dashboard/navItems.ts), então basta a régua renderizar a
-    // lista. O que este teste trava é a régua NÃO filtrar o Perfil fora.
-    expect(REGUA).toContain("destinos");
-    expect(REGUA).not.toContain('!== "/minha-empresa"');
+    // O Perfil SAIU dos destinos — "perfil assinaturas relatar problemas (…)
+    // NAO FAZ PARTE DO MEU DASH" — e virou o pé da régua, como conta e não
+    // como seção. O que este teste trava é ele continuar alcançável: é lá que
+    // está o "Sair" e o liga/desliga de módulo, que desfaz tudo isto.
+    expect(REGUA).toContain('href="/minha-empresa"');
   });
 
   it("a régua também abre a folha do menu, onde ficam admin e avisos", () => {

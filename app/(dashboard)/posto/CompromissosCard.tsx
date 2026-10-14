@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { formatTime } from "@/lib/formatters";
 import type { AgendamentoComCliente, StatusAgendamento } from "@/types";
 import { cn } from "@/lib/utils";
+import { BLOCO, ROTULO } from "./estilos";
 
 /**
  * Os compromissos de hoje e de amanhã, dentro do posto.
@@ -36,9 +37,9 @@ export function CompromissosCard({
   amanha: AgendamentoComCliente[];
 }) {
   return (
-    <section className="vidro-card rounded-[20px] p-5">
+    <section className={BLOCO}>
       <header className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-lg font-bold text-escuro">
+        <h2 className={cn("flex items-center gap-2", ROTULO)}>
           <CalendarDays className="size-4 text-primary-forte" /> Compromissos
         </h2>
         <Link
