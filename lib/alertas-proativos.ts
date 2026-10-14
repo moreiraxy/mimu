@@ -5,6 +5,10 @@ import {
   type AlertaMetadata,
 } from "@/lib/mimu-prompts";
 import { enviarPushParaEmpresa } from "@/lib/push";
+import {
+  checarAlertasDoPosto,
+  urlDoAlertaDoPosto,
+} from "@/lib/posto/alertas";
 import { janelaDeHoje } from "@/lib/datas";
 import { registrarEvento } from "@/lib/eventos";
 import {
@@ -296,7 +300,17 @@ export async function gerarAlertasDaEmpresa(
   supabase: Supabase,
   empresa: Empresa,
 ): Promise<AlertaMimu[]> {
-  const candidatos = await checkAlertas(supabase, empresa);
+  /*
+   * QUEM TEM O POSTO RECEBE OS AVISOS DO POSTO, e só eles.
+   *
+   * Os antigos falam de venda do dia, estoque e meta mensal: numa conta sem
+   * salão nenhum deles dispara, e o efeito era um app que pede permissão de
+   * notificação e nunca avisa nada. Ver lib/posto/alertas.ts.
+   */
+  const ehPosto = (empresa.modulos_ativos ?? []).includes("posto");
+  const candidatos = ehPosto
+    ? await checarAlertasDoPosto(supabase, empresa)
+    : await checkAlertas(supabase, empresa);
   if (candidatos.length === 0) return [];
 
   const { data } = await supabase
@@ -323,7 +337,8 @@ export async function gerarAlertasDaEmpresa(
       return enviarPushParaEmpresa(supabase, empresa.id, {
         title: "Mimu",
         body: alerta.mensagem ?? "",
-        url: urlParaAlerta(alerta.tipo, meta),
+        url:
+          urlDoAlertaDoPosto(alerta.tipo) ?? urlParaAlerta(alerta.tipo, meta),
       });
     }),
   );

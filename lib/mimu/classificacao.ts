@@ -2,6 +2,9 @@ import {
   getGroq,
   DEFAULT_MODEL,
 } from "@/lib/groq";
+import { buildClassificacaoDoPosto } from "@/lib/posto/prompt";
+import { dataDeHojeNoBrasil } from "@/lib/datas";
+import { formatDataComDiaSemana } from "@/lib/formatters";
 import {
   buildMimuClassificationPrompt,
   extrairClassificacao,
@@ -22,13 +25,27 @@ import {
 /** Uma chamada curta e separada, só para classificar. */
 export async function classificarIntencao(
   mensagem: string,
+  /**
+   * Conta com o Posto de Comando usa o classificador do posto, que conhece
+   * "pendencia" e fala o vocabulário dela — onde "venda" é venda do CRM para
+   * uma incorporadora, e não R$ 50 de entrada no caixa.
+   */
+  ehPosto = false,
 ): Promise<ClassificacaoMimu | null> {
   try {
     const resposta = await getGroq().chat.completions.create({
       model: DEFAULT_MODEL,
       max_tokens: 300,
       messages: [
-        { role: "system", content: buildMimuClassificationPrompt() },
+        {
+          role: "system",
+          content: ehPosto
+            ? buildClassificacaoDoPosto(
+                dataDeHojeNoBrasil(),
+                formatDataComDiaSemana(new Date()),
+              )
+            : buildMimuClassificationPrompt(),
+        },
         { role: "user", content: mensagem },
       ],
     });

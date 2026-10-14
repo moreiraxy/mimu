@@ -129,6 +129,55 @@ export async function registrar(
   const data = dados.data ?? hojeISO();
   const ehHoje = data === hojeISO();
 
+  /*
+   * PENDÊNCIA — "lembra de cobrar o Marcos", "preciso falar com o Dyego sobre
+   * o desconto do 302".
+   *
+   * É o que ela pediu quando disse que a Mimu "deve me ajudar a lembrar das
+   * coisas, de afazeres e tarefas". Vale pelos dois canais: funciona digitando
+   * no app e mandando no WhatsApp, porque a classificação é a mesma.
+   *
+   * SEM TRILHA DE DESFAZER, e isto é escolha. `operacoes_canal` tem CHECK nas
+   * colunas `tipo` e `tabela`, e a reversão (lib/mimu/desfazer.ts) sabe
+   * desfazer transação e agendamento marcando `revertida_em` — pendência não
+   * tem essa coluna, tem `status`. Esticar os dois para cá seria migration
+   * mais lógica nova de reversão para ganhar o quê: desfazer uma pendência é
+   * um toque na tela do posto, e não apaga dinheiro nem compromisso de
+   * ninguém. O recibo diz isso em vez de prometer "desfazer".
+   */
+  if (tipo === "pendencia") {
+    const titulo = dados.descricao || dados.cliente || "Lembrete";
+    const { error: erroPendencia } = await supabase
+      .from("posto_pendencias")
+      .insert({
+        empresa_id: empresaId,
+        titulo,
+        // `com_quem` é texto livre: aqui entram 44 pessoas que não têm
+        // cadastro neste sistema.
+        com_quem: dados.cliente,
+        // O prazo vem SÓ se ela disse uma data. `data`, acima, já virou hoje
+        // por padrão — e prazo de hoje em tudo que ela anota faria a lista
+        // inteira parecer vencendo.
+        prazo: dados.data,
+        tipo:
+          dados.tipoPendencia ?? (dados.cliente ? "cobranca" : "tarefa"),
+        // A frente nasce na assistência, que é o cargo que ocupa o dia dela —
+        // e é um toque para corrigir na tela. Adivinhar errado em silêncio
+        // seria pior: a conta de "para onde vai meu tempo" ficaria torta.
+        frente: "assistencia",
+      });
+
+    if (erroPendencia) return { ok: false, motivo: "falhou" };
+
+    const recibo =
+      `Anotei: ${titulo}` +
+      (dados.cliente ? ` (com ${dados.cliente})` : "") +
+      (dados.data ? `, prazo ${dados.data.split("-").reverse().slice(0, 2).join("/")}` : "") +
+      ".\n\nEstá em aberto no posto — lá você muda a frente ou conclui.";
+
+    return { ok: true, recibo };
+  }
+
   if (tipo === "agendamento") {
     const horario = dados.horario ?? "09:00";
     const { data: criado, error } = await supabase

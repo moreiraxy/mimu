@@ -99,7 +99,7 @@ export async function verificarAcesso(
    * por quem vai de fato falar com o modelo — este gate também roda em
    * caminhos que terminam sem resposta nenhuma.
    */
-  const cota = await cotaDaMimu(plano, empresaId);
+  const cota = await cotaDaMimu(plano, empresaId, modulos.includes("posto"));
   if (cota.esgotada) {
     return { liberado: false, motivo: "cota_esgotada" };
   }

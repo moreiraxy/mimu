@@ -50,6 +50,7 @@ const TIPO_REGISTRO_LABEL: Record<TipoRegistroMimu, string> = {
   entrada: "Entrada",
   saida: "Saída",
   agendamento: "Agendamento",
+  pendencia: "Lembrete",
 };
 
 function formatDataRegistro(data: string | null): string {
@@ -456,7 +457,29 @@ export default function MimuChatPage() {
         : null;
       const dataFinal = registro.data ?? paraISOLocal(new Date());
 
-      if (registro.tipoRegistro === "agendamento") {
+      /*
+       * Pendência confirmada na tela do chat.
+       *
+       * Este caminho é o da CONFIRMAÇÃO manual (o cartão "é isso?" dentro da
+       * conversa). O caminho automático está em lib/mimu/registro.ts, e os
+       * dois precisam gravar a mesma coisa — foi por isso que a classificação
+       * virou um módulo só, em lib/mimu/classificacao.ts.
+       */
+      if (registro.tipoRegistro === "pendencia") {
+        const { error } = await supabase.from("posto_pendencias").insert({
+          empresa_id: empresa.id,
+          titulo: registro.descricao || registro.cliente || "Lembrete",
+          com_quem: registro.cliente,
+          // Prazo só se ela disse uma data: `dataFinal` já virou hoje por
+          // padrão, e prazo de hoje em tudo faria a lista parecer vencendo.
+          prazo: registro.data,
+          tipo:
+            registro.tipoPendencia ??
+            (registro.cliente ? "cobranca" : "tarefa"),
+          frente: "assistencia",
+        });
+        if (error) throw error;
+      } else if (registro.tipoRegistro === "agendamento") {
         const horario = registro.horario ?? "09:00";
         const { error } = await supabase.from("agendamentos").insert({
           empresa_id: empresa.id,

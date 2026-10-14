@@ -29,7 +29,7 @@ export async function GET() {
 
   const { data: empresa } = await supabase
     .from("empresas")
-    .select("id, assinaturas(status, plano, trial_fim, proxima_cobranca)")
+    .select("id, modulos_ativos, assinaturas(status, plano, trial_fim, proxima_cobranca)")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -44,7 +44,11 @@ export async function GET() {
     ? (empresa.assinaturas[0] ?? null)
     : (empresa.assinaturas ?? null);
 
-  const cota = await cotaDaMimu(planoEfetivo(assinatura), empresa.id);
+  const cota = await cotaDaMimu(
+    planoEfetivo(assinatura),
+    empresa.id,
+    ((empresa.modulos_ativos ?? []) as string[]).includes("posto"),
+  );
 
   return NextResponse.json(cota);
 }

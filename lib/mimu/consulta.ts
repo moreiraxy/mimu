@@ -7,6 +7,8 @@ import {
   deveTentarOutroModelo,
 } from "@/lib/groq";
 import { registrarEvento } from "@/lib/eventos";
+import { reunirContextoDoPosto } from "@/lib/posto/contexto";
+import { buildPromptDoPosto } from "@/lib/posto/prompt";
 import {
   buildMimuSystemPrompt,
   type DadosNegocioMimu,
@@ -298,8 +300,28 @@ export async function responderConsulta(
       mesmo, de todos os canais — ver a migration do campo `canal`. */
   canal: CanalDaConversa = "app",
 ): Promise<ResultadoConsulta> {
-  const dadosNegocio = await reunirDadosDoNegocio(supabase, empresa);
-  if (!dadosNegocio) return { ok: false, motivo: "dados_indisponiveis" };
+  /*
+   * AQUI A MIMU TROCA DE CABEÇA, e este é o único lugar onde isso acontece.
+   *
+   * Conta com o Posto de Comando recebe o prompt do posto (cinco cargos,
+   * rotina, pendências, indicadores, limite de autonomia); as outras continuam
+   * com o prompt do negócio, intocado. Os dois caminhos passam por aqui, e por
+   * isso a troca vale para a tela de chat E para o WhatsApp — se fosse feita na
+   * rota do app, o WhatsApp continuaria falando de salão com ela.
+   */
+  const ehPosto = (empresa.modulos_ativos ?? []).includes("posto");
+
+  const systemPrompt = ehPosto
+    ? await (async () => {
+        const contexto = await reunirContextoDoPosto(supabase, empresa);
+        return contexto ? buildPromptDoPosto(contexto) : null;
+      })()
+    : await (async () => {
+        const dados = await reunirDadosDoNegocio(supabase, empresa);
+        return dados ? buildMimuSystemPrompt(empresa, dados) : null;
+      })();
+
+  if (!systemPrompt) return { ok: false, motivo: "dados_indisponiveis" };
 
   const { data: historico, error: historicoError } = await supabase
     .from("conversas_mimu")
@@ -320,7 +342,7 @@ export async function responderConsulta(
   let respostaTexto: string;
   try {
     respostaTexto = await perguntarAoModelo(
-      buildMimuSystemPrompt(empresa, dadosNegocio),
+      systemPrompt,
       mensagensParaIA,
     );
   } catch (err) {

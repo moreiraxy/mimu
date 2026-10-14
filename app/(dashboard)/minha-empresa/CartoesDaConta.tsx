@@ -92,7 +92,10 @@ export function CartoesDaConta({
         className={cn(falhou && "col-span-2")}
       />
 
-      {!falhou && (
+      {/* Sem teto não há contador: "Infinity / Infinity" é pior que ausência.
+          `carregando` é um estado próprio deste componente, e por isso a
+          checagem é por objeto, não por campo. */}
+      {!falhou && (cota === "carregando" || !cota.ilimitada) && (
         <CartaoDado
           icone={MessageCircle}
           rotulo="Mensagens hoje"

@@ -284,7 +284,10 @@ export async function responderPelaMimu(
    * Só agora o classificador roda, porque ele custa uma chamada ao modelo.
    * Registro e consulta se separam aqui.
    */
-  const classificacao = await classificarIntencao(texto);
+  const classificacao = await classificarIntencao(
+    texto,
+    (empresa.modulos_ativos ?? []).includes("posto"),
+  );
 
   if (classificacao?.intencao === "registro") {
     const pendencia = identificarPendenciaRegistro(classificacao);

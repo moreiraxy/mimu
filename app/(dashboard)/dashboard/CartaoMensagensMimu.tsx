@@ -32,6 +32,9 @@ export function CartaoMensagensMimu() {
   }, []);
 
   if (!cota) return null;
+  // Conta sem teto não tem o que contar: "Infinity / Infinity" é pior que
+  // nada, e o cartão existe só para avisar que a cota está acabando.
+  if (cota.ilimitada) return null;
 
   return (
     <CartaoDado

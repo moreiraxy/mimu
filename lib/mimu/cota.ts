@@ -21,6 +21,8 @@ import { registrarTentativa, usoNaJanela } from "@/lib/rate-limit";
  */
 
 export interface Cota {
+  /** Sem teto: a tela esconde o contador em vez de mostrar "Infinity". */
+  ilimitada: boolean;
   /** Quantas mensagens a Mimu respondeu HOJE — a conta zera na virada do dia. */
   usadas: number;
   /** Quantas o plano permite por dia. */
@@ -33,11 +35,14 @@ export interface Cota {
 export async function cotaDaMimu(
   plano: string | null | undefined,
   empresaId: string,
+  /** Conta com o Posto de Comando: sem teto. Ver `limiteDiarioDaMimu`. */
+  semTeto = false,
 ): Promise<Cota> {
-  const limite = limiteDiarioDaMimu(plano);
+  const limite = limiteDiarioDaMimu(plano, semTeto);
   const usadas = await usoNaJanela("mimu_dia", empresaId);
 
   return {
+    ilimitada: !Number.isFinite(limite),
     usadas,
     limite,
     restantes: Math.max(0, limite - usadas),

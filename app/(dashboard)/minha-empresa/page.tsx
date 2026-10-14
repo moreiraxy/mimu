@@ -40,7 +40,22 @@ import { CartoesDaConta } from "./CartoesDaConta";
  * sempre a mesma — a pessoa chega aqui procurando UMA coisa.
  */
 export default function PerfilPage() {
-  const { user, empresa, plano, assinatura, loading, signOut } = useAuth();
+  const { user, empresa, plano, assinatura, modulos, loading, signOut } =
+    useAuth();
+
+  /*
+   * A CONTA DE QUEM TEM O POSTO NÃO É UMA CONTA DE PRODUTO.
+   *
+   * Palavras dela: "clicando em conta ainda tem várias infos?? que são da mimu
+   * e não do meu novo sistema (…) planos e etc. avalie a minu. reportar
+   * problema, fazer suporte e etc. painel?? tb desnecessário".
+   *
+   * Ela é a dona do sistema: não assina plano, não avalia o produto na loja,
+   * não abre ticket consigo mesma e não precisa de um atalho para o painel de
+   * administração dentro da tela de conta. O que sobra é o que é de CONTA
+   * mesmo: dados, preferências, WhatsApp, senha, biometria e sair.
+   */
+  const temPosto = modulos.includes("posto");
   const router = useRouter();
 
   if (loading || !empresa) {
@@ -108,7 +123,7 @@ export default function PerfilPage() {
         comprou é o jeito mais rápido de fazer um app parecer que não sabe
         quem ela é.
       */}
-      {gratuito && (
+      {gratuito && !temPosto && (
         <Link
           href="/minha-empresa/assinatura"
           /*
@@ -151,17 +166,21 @@ export default function PerfilPage() {
       {/* Os dois cartões da referência: um diz o que a conta É, o outro diz
           quanto ela ainda tem. Lado a lado porque é a mesma pergunta vista de
           dois ângulos — e é assim que o teto do plano deixa de ser surpresa. */}
-      <CartoesDaConta plano={plano} status={assinatura?.status ?? null} />
+      {!temPosto && (
+        <CartoesDaConta plano={plano} status={assinatura?.status ?? null} />
+      )}
 
-      <div className="mt-4">
-        <Grupo>
-          <Linha
-            icone={Star}
-            label="Avalie a Mimu"
-            href="/minha-empresa/avaliar"
-          />
-        </Grupo>
-      </div>
+      {!temPosto && (
+        <div className="mt-4">
+          <Grupo>
+            <Linha
+              icone={Star}
+              label="Avalie a Mimu"
+              href="/minha-empresa/avaliar"
+            />
+          </Grupo>
+        </div>
+      )}
 
       <TituloGrupo>Geral</TituloGrupo>
       <Grupo>
@@ -171,11 +190,13 @@ export default function PerfilPage() {
           label="Preferências"
           href="/minha-empresa/preferencias"
         />
-        <Linha
-          icone={CreditCard}
-          label="Assinatura"
-          href="/minha-empresa/assinatura"
-        />
+        {!temPosto && (
+          <Linha
+            icone={CreditCard}
+            label="Assinatura"
+            href="/minha-empresa/assinatura"
+          />
+        )}
         <Linha
           icone={Sparkles}
           label="Mimu no WhatsApp"
@@ -201,23 +222,29 @@ export default function PerfilPage() {
           que some depois de enviado não devolve nem a confirmação de que
           alguém leu. No WhatsApp fica a conversa, dos dois lados.
         */}
-        <Linha
-          icone={Megaphone}
-          label="Reportar um problema"
-          externo={linkWhatsApp(
-            "Oi! Encontrei um problema no app da Mimu:\n\n(conta aqui o que aconteceu)",
-          )}
-        />
+        {!temPosto && (
+          <Linha
+            icone={Megaphone}
+            label="Reportar um problema"
+            externo={linkWhatsApp(
+              "Oi! Encontrei um problema no app da Mimu:\n\n(conta aqui o que aconteceu)",
+            )}
+          />
+        )}
       </Grupo>
 
-      <TituloGrupo>Suporte</TituloGrupo>
-      <Grupo>
-        <Linha
-          icone={Headphones}
-          label="Falar com suporte"
-          externo={linkWhatsApp("Oi! Preciso de ajuda com a Mimu.")}
-        />
-      </Grupo>
+      {!temPosto && (
+        <>
+          <TituloGrupo>Suporte</TituloGrupo>
+          <Grupo>
+            <Linha
+              icone={Headphones}
+              label="Falar com suporte"
+              externo={linkWhatsApp("Oi! Preciso de ajuda com a Mimu.")}
+            />
+          </Grupo>
+        </>
+      )}
 
       <div className="mt-8">
         <Grupo>

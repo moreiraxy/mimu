@@ -266,7 +266,28 @@ export const MENSAGENS_MIMU_POR_DIA: Record<PlanoComAcesso, number> = {
  * conserta. Errar liberando de mais só aparece na fatura da Groq no fim do
  * mês.
  */
-export function limiteDiarioDaMimu(plano: string | null | undefined): number {
+/**
+ * `Infinity` é o teto de quem não tem teto, e é número de propósito: toda a
+ * matemática da cota (`limite - usadas`, `usadas >= limite`) continua
+ * funcionando sem um `if` em cada conta.
+ */
+export const SEM_TETO = Number.POSITIVE_INFINITY;
+
+export function limiteDiarioDaMimu(
+  plano: string | null | undefined,
+  /**
+   * Sem teto nenhum.
+   *
+   * Ligado por quem tem o Posto de Comando — nas palavras dela: "como apenas
+   * eu vou usar essa IA, ela n precisa de limite diário mensal etc". O teto
+   * existe para proteger a fatura da Groq de milhares de contas gratuitas; a
+   * dona do sistema, usando a assistente do próprio trabalho, não é esse
+   * risco. Se um dia a fatura pesar, o remédio é o teto voltar AQUI, num
+   * lugar só.
+   */
+  semTeto = false,
+): number {
+  if (semTeto) return SEM_TETO;
   return (
     MENSAGENS_MIMU_POR_DIA[plano as PlanoComAcesso] ??
     MENSAGENS_MIMU_POR_DIA.free

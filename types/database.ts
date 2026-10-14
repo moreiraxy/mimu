@@ -46,7 +46,14 @@ export type TipoAlerta =
   | "recorde"
   | "cliente_sumiu"
   | "estoque_baixo"
-  | "tentativa_prompt_injection";
+  | "tentativa_prompt_injection"
+  // Os do Posto de Comando (migration 20261015010000). Ver lib/posto/alertas.ts.
+  | "bloco_atrasado"
+  | "prazo_hoje"
+  | "aprovacao_parada"
+  | "compromisso_perto"
+  | "resumo_pendente"
+  | "indicador_vazio";
 export type TipoCategoria = "entrada" | "saida";
 export type TipoMovimentacaoEstoque = "entrada" | "saida" | "ajuste";
 // As cinco frentes do Posto de Comando, na ordem em que aparecem no documento

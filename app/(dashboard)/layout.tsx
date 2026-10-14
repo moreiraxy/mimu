@@ -187,7 +187,17 @@ export default async function DashboardGroupLayout({
         </div>
       </div>
 
-      <BottomNav admin={admin} modulosIniciais={modulos} />
+      {/*
+        O PAINEL DE ADMINISTRAÇÃO NÃO APARECE PARA QUEM TEM O POSTO.
+        "painel?? tb desnecessário" — e é verdade para ela: o painel serve para
+        olhar CONTAS do produto (trials, assinaturas, suspensões), e ela não
+        administra clientes, administra o próprio trabalho. A rota /admin
+        continua existindo e autorizada no servidor; o que sai é o atalho.
+      */}
+      <BottomNav
+        admin={admin && !modulos.includes("posto")}
+        modulosIniciais={modulos}
+      />
 
       {/*
         Entrega ao AuthProvider o que já foi buscado aqui no servidor. Sem

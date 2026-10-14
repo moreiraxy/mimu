@@ -2,18 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  AlertTriangle,
-  Bell,
-  CalendarClock,
-  Package,
-  ShieldAlert,
-  TrendingDown,
-  Trophy,
-  UserX,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { AlertTriangle, Bell, CalendarClock, Clock, Package, Send, ShieldAlert, Stamp, TrendingDown, Trophy, UserX, X, type LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { limpaCache } from "@/lib/cache-de-tela";
 import { cn } from "@/lib/utils";
@@ -43,6 +32,14 @@ const ICONE_POR_TIPO: Record<TipoAlerta, LucideIcon> = {
   cliente_sumiu: UserX,
   estoque_baixo: Package,
   tentativa_prompt_injection: ShieldAlert,
+  // Os do Posto de Comando. O ícone é o que diferencia um aviso do outro,
+  // junto com o texto — ver o comentário acima.
+  bloco_atrasado: Clock,
+  prazo_hoje: CalendarClock,
+  aprovacao_parada: Stamp,
+  compromisso_perto: CalendarClock,
+  resumo_pendente: Send,
+  indicador_vazio: TrendingDown,
 };
 
 function extrairMetadata(metadata: AlertaMimu["metadata"]): AlertaMetadata {

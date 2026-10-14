@@ -287,7 +287,10 @@ export async function POST(request: Request) {
     return responderBloqueado(supabase, empresa.id, mensagem);
   }
 
-  const classificacao = await classificarIntencao(mensagem);
+  const classificacao = await classificarIntencao(
+    mensagem,
+    (empresa.modulos_ativos ?? []).includes("posto"),
+  );
 
   if (classificacao?.intencao === "registro") {
     const pendencia = identificarPendenciaRegistro(classificacao);

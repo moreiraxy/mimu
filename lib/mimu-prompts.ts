@@ -137,12 +137,25 @@ mencione nem o explique para a pessoa, ele é só para a interface.`;
 // ---------------------------------------------------------------------------
 
 export type IntencaoMimu = "registro" | "consulta" | "outro";
-export type TipoRegistroMimu = "entrada" | "saida" | "agendamento";
+/**
+ * "pendencia" existe só para quem tem o Posto de Comando: é o "lembra de
+ * cobrar o Marcos" virando linha em posto_pendencias. Ver
+ * lib/posto/prompt.ts (buildClassificacaoDoPosto) e `registrar` em
+ * lib/mimu/registro.ts.
+ */
+export type TipoRegistroMimu =
+  | "entrada"
+  | "saida"
+  | "agendamento"
+  | "pendencia";
 
 export interface DadosRegistroExtraidos {
   valor: number | null;
   descricao: string | null;
+  /** Em pendência, é COM QUEM — o executivo, o cliente, o gerente. */
   cliente: string | null;
+  /** Só em pendência: o que ela faz, cobra, espera ou manda para o gerente. */
+  tipoPendencia: "tarefa" | "cobranca" | "espera" | "aprovacao" | null;
   /** Normalizado para "YYYY-MM-DD" pelo modelo, ou null se não mencionado. */
   data: string | null;
   /** Normalizado para "HH:MM" (24h) pelo modelo, ou null se não mencionado. */
@@ -161,6 +174,7 @@ export interface RegistroPendente {
   valor: number | null;
   descricao: string | null;
   cliente: string | null;
+  tipoPendencia?: "tarefa" | "cobranca" | "espera" | "aprovacao" | null;
   data: string | null;
   horario: string | null;
   confirmado: boolean;
@@ -232,7 +246,10 @@ export function extrairClassificacao(texto: string): ClassificacaoMimu | null {
   }
 
   const tipo =
-    obj.tipo === "entrada" || obj.tipo === "saida" || obj.tipo === "agendamento"
+    obj.tipo === "entrada" ||
+    obj.tipo === "saida" ||
+    obj.tipo === "agendamento" ||
+    obj.tipo === "pendencia"
       ? obj.tipo
       : null;
 
@@ -247,6 +264,13 @@ export function extrairClassificacao(texto: string): ClassificacaoMimu | null {
       valor: typeof dadosBruto.valor === "number" ? dadosBruto.valor : null,
       descricao:
         typeof dadosBruto.descricao === "string" ? dadosBruto.descricao : null,
+      tipoPendencia:
+        dadosBruto.tipoPendencia === "tarefa" ||
+        dadosBruto.tipoPendencia === "cobranca" ||
+        dadosBruto.tipoPendencia === "espera" ||
+        dadosBruto.tipoPendencia === "aprovacao"
+          ? dadosBruto.tipoPendencia
+          : null,
       cliente:
         typeof dadosBruto.cliente === "string" ? dadosBruto.cliente : null,
       data: typeof dadosBruto.data === "string" ? dadosBruto.data : null,
@@ -267,6 +291,25 @@ export const MIMU_ALERTA_TEMPLATES: Record<
   TipoAlerta,
   (contexto?: ContextoAlerta) => string
 > = {
+  /*
+   * OS AVISOS DO POSTO NÃO USAM TEMPLATE, e estão aqui só para o mapa ser
+   * exaustivo — é o compilador que cobra isso, e ele está certo em cobrar.
+   *
+   * A mensagem deles é escrita em lib/posto/alertas.ts, junto com a decisão de
+   * disparar: "3 blocos passaram da hora, o primeiro é X" só pode ser escrito
+   * por quem contou os blocos. Template aqui obrigaria a passar contagem,
+   * primeiro item e lista pelo `contexto` — e a frase seria montada longe de
+   * onde a regra vive.
+   */
+  bloco_atrasado: (c) => String(c?.mensagem ?? "Um bloco passou da hora."),
+  prazo_hoje: (c) => String(c?.mensagem ?? "Você tem prazo vencendo hoje."),
+  aprovacao_parada: (c) =>
+    String(c?.mensagem ?? "Tem assunto parado esperando o gerente."),
+  compromisso_perto: (c) => String(c?.mensagem ?? "Compromisso chegando."),
+  resumo_pendente: (c) =>
+    String(c?.mensagem ?? "O resumo do dia ainda não foi enviado."),
+  indicador_vazio: (c) =>
+    String(c?.mensagem ?? "Falta anotar indicador do dia."),
   sem_venda: () =>
     "Boa tarde! Hoje você ainda não registrou nenhuma venda. Está correto ou quer registrar agora?",
   agendamento_pendente: (contexto) =>
