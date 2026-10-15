@@ -66,6 +66,39 @@ function formatDataRegistro(data: string | null): string {
 
 const PAGE_SIZE = 50;
 
+/**
+ * As sugestões do POSTO — as perguntas que ela faz de verdade.
+ *
+ * As antigas ("Quanto vendi hoje?", "Quem me deve?", "Meta do mês") são de
+ * balcão: no trabalho dela não há venda no caixa, não há fiado e a meta é o
+ * indicador do cargo. Sugestão errada é pior que nenhuma — ela ensina a
+ * assistente errada e faz a pessoa achar que o app é de outra coisa.
+ *
+ * Por período, como as outras, porque a pergunta muda com a hora: de manhã é
+ * "por onde eu começo", à tarde é "o que falta", de noite é o resumo para o
+ * gerente.
+ */
+const SUGESTOES_DO_POSTO: Record<"manha" | "tarde" | "noite", string[]> = {
+  manha: [
+    "O que eu faço agora?",
+    "O que está em aberto?",
+    "Tenho compromisso hoje?",
+    "Quem eu preciso cobrar?",
+  ],
+  tarde: [
+    "O que falta hoje?",
+    "Passou da hora de alguma coisa?",
+    "O que depende do Dyego?",
+    "Quais leads estão parados?",
+  ],
+  noite: [
+    "Monta o resumo do dia",
+    "O que ficou para amanhã?",
+    "Como foi a semana?",
+    "Quanto entrou no mês?",
+  ],
+};
+
 const SUGESTOES: Record<"manha" | "tarde" | "noite", string[]> = {
   manha: [
     "Como está meu caixa?",
@@ -634,7 +667,10 @@ export default function MimuChatPage() {
     return <MimuChatSkeleton />;
   }
 
-  const chips = SUGESTOES[periodoDoDia(new Date().getHours())];
+  const periodo = periodoDoDia(new Date().getHours());
+  const chips = modulos.includes("posto")
+    ? SUGESTOES_DO_POSTO[periodo]
+    : SUGESTOES[periodo];
 
   return (
     /*
@@ -745,8 +781,9 @@ export default function MimuChatPage() {
 
         <div className="flex items-end gap-2.5">
           {/* O "+" abre as ações de criar. Na referência ele guarda anexos;
-              aqui guarda o que a Mimu serve para fazer — registrar venda,
-              despesa, agendamento. */}
+              aqui guarda o que a Mimu serve para fazer. A lista muda com a
+              conta — ver `acoesLiberadas` em components/dashboard/
+              acoesRapidas.ts. */}
           <button
             type="button"
             aria-label="Nova ação"

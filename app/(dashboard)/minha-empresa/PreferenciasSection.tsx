@@ -32,6 +32,7 @@ export function PreferenciasSection({
   empresa: Empresa;
   onAtualizado: (empresa: Empresa) => void;
 }) {
+  const ehPosto = (empresa.modulos_ativos ?? []).includes("posto");
   const { tema, alternarTema } = useTema();
   const { tipo, alternar: alternarGrafico } = useTipoGrafico();
   const { showToast } = useToast();
@@ -94,6 +95,24 @@ export function PreferenciasSection({
 
       <TituloDeBloco>Alertas da Mimu</TituloDeBloco>
 
+      {/*
+        OS AVISOS DO POSTO TÊM OUTRA LISTA, E OUTRO RELÓGIO.
+        "Sem venda no dia" e "Agendamentos pendentes" são do produto de salão:
+        na conta dela nenhum dos dois dispara, e oferecer o botão de ligar e
+        desligar algo que não existe é pior que não mostrar nada — ela liga,
+        espera o aviso, e ele nunca vem.
+        Os dela nascem nos horários da rotina (ver a migration
+        20261015030000); o que aparece aqui é QUANDO, porque é a pergunta que
+        a pessoa faz ao abrir esta tela.
+      */}
+      {ehPosto ? (
+        <CartaoAjuste
+          titulo="Avisos da sua rotina"
+          descricao="Chegam 9:35, 9:50, 12:05, 14:50, 17:05 e 17:50, de segunda a sexta — bloco atrasado, prazo vencendo, assunto parado com o gerente, compromisso chegando, resumo não enviado e indicador sem anotar. Um de cada por dia."
+          controle={null}
+        />
+      ) : (
+      <>
       <CartaoAjuste
         titulo="Sem venda no dia"
         descricao="Avisa se você ainda não registrou nenhuma venda."
@@ -145,6 +164,8 @@ export function PreferenciasSection({
           />
         )}
       </CartaoAjuste>
+      </>
+      )}
     </>
   );
 }
