@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, TipoAlerta } from "@/types/database";
 import type { Empresa } from "@/types";
-import { dataDeHojeNoBrasil } from "@/lib/datas";
+import { dataDeHojeNoBrasil, inicioDoDiaNoBrasil } from "@/lib/datas";
 import { estadoDaRotina, minutosAgoraNoBrasil, paraHora } from "@/lib/posto/rotina";
 import { NUMEROS } from "@/lib/posto/numeros";
 
@@ -23,6 +23,20 @@ type Supabase = SupabaseClient<Database>;
  * ninguém está medindo o relógio minuto a minuto, e um aviso de 15 minutos que
  * só nasce quando ela abre o app chegaria sempre tarde — ou, pior, chegaria
  * depois da reunião.
+ *
+ * UM AVISO POR TIPO, POR DIA. Isto é o que faltava e é o que ela sentiu:
+ * "as notificações n estão funcionando, aaprecem quando elas querem". A
+ * geração roda quando ela abre o app, a cada 30 minutos de app aberto, cada
+ * vez que a aba volta ao foco e na tarefa agendada — e sem travessa o MESMO
+ * aviso nascia de novo em cada uma dessas vezes. Parecia aleatório porque era:
+ * o gatilho era o foco da aba, não o relógio do dia dela.
+ *
+ * O caminho do produto antigo já fazia isso (`jaAlertadoHoje` em
+ * lib/alertas-proativos.ts) e eu não copiei a regra ao escrever este arquivo.
+ *
+ * `compromisso_perto` é a exceção: ele dedupe por COMPROMISSO, não por tipo —
+ * duas reuniões no mesmo dia são dois avisos, e avisar de uma só porque a
+ * outra já avisou seria perder a segunda.
  *
  * O QUE ESTE ARQUIVO NÃO FAZ: inventar número. Indicador sem anotação gera o
  * aviso "falta anotar", nunca um aviso sobre o valor — porque não há valor.
@@ -50,8 +64,8 @@ export async function checarAlertasDoPosto(
   const minutos = minutosAgoraNoBrasil(agora);
   const alertas: AlertaDoPosto[] = [];
 
-  const [feitas, pendencias, numeros, agendamentos, resumo] = await Promise.all(
-    [
+  const [feitas, pendencias, numeros, agendamentos, resumo, jaHoje] =
+    await Promise.all([
       supabase
         .from("posto_rotina_feita")
         .select("bloco")
@@ -79,12 +93,32 @@ export async function checarAlertasDoPosto(
         .eq("empresa_id", empresa.id)
         .eq("dia", hoje)
         .maybeSingle(),
-    ],
-  );
+      // O que já foi avisado hoje. A janela é o DIA DE BRASÍLIA, não as
+      // últimas 24h: `inicioDoDiaNoBrasil` existe justamente porque o
+      // servidor em UTC vira o dia às 21h daqui (ver lib/datas.ts).
+      supabase
+        .from("alertas_mimu")
+        .select("tipo, metadata")
+        .eq("empresa_id", empresa.id)
+        .gte("created_at", inicioDoDiaNoBrasil(agora).toISOString()),
+    ]);
 
   // Leitura que falhou não vira aviso. Dizer "3 blocos atrasados" quando a
   // consulta quebrou é pior que ficar calado.
   if (feitas.error || pendencias.error) return [];
+
+  /*
+   * As chaves já avisadas hoje. Por tipo, exceto o compromisso, que é por
+   * compromisso.
+   */
+  const avisado = new Set(
+    (jaHoje.data ?? []).map((a) => {
+      const meta = (a.metadata ?? {}) as { titulo?: string };
+      return a.tipo === "compromisso_perto" && meta.titulo
+        ? `compromisso_perto:${meta.titulo}`
+        : a.tipo;
+    }),
+  );
 
   const rotina = estadoDaRotina(
     (feitas.data ?? []).map((l) => l.bloco),
@@ -98,7 +132,11 @@ export async function checarAlertasDoPosto(
    * cinco notificações sobre a mesma coisa é o caminho mais curto para ela
    * desligar as notificações.
    */
-  if (rotina.atrasados.length > 0 && !rotina.antesDaJornada) {
+  if (
+    rotina.atrasados.length > 0 &&
+    !rotina.antesDaJornada &&
+    !avisado.has("bloco_atrasado")
+  ) {
     const primeiro = rotina.atrasados[0]!;
     alertas.push({
       tipo: "bloco_atrasado",
@@ -119,7 +157,7 @@ export async function checarAlertasDoPosto(
    * vencido um dia antes.
    */
   const vencendo = abertas.filter((p) => p.prazo && p.prazo <= hoje);
-  if (vencendo.length > 0) {
+  if (vencendo.length > 0 && !avisado.has("prazo_hoje")) {
     const primeira = vencendo[0]!;
     alertas.push({
       tipo: "prazo_hoje",
@@ -139,7 +177,11 @@ export async function checarAlertasDoPosto(
    * junto com o bloco do resumo, que é onde ela fala com ele.
    */
   const aprovacoes = abertas.filter((p) => p.tipo === "aprovacao");
-  if (aprovacoes.length > 0 && minutos >= HORA_DE_FECHAR) {
+  if (
+    aprovacoes.length > 0 &&
+    minutos >= HORA_DE_FECHAR &&
+    !avisado.has("aprovacao_parada")
+  ) {
     alertas.push({
       tipo: "aprovacao_parada",
       mensagem:
@@ -158,17 +200,24 @@ export async function checarAlertasDoPosto(
     )
     .sort((a, b) => a.minutos - b.minutos);
 
-  if (proximos.length > 0) {
-    const proximo = proximos[0]!;
+  const proximo = proximos.find(
+    (p) => !avisado.has(`compromisso_perto:${p.titulo}`),
+  );
+  if (proximo) {
     alertas.push({
       tipo: "compromisso_perto",
       mensagem: `${proximo.titulo} às ${paraHora(proximo.minutos)}.`,
-      metadata: { emMinutos: proximo.minutos - minutos },
+      // `titulo` entra no metadata porque é a chave de deduplicação do dia.
+      metadata: { titulo: proximo.titulo, emMinutos: proximo.minutos - minutos },
     });
   }
 
   // RESUMO DO DIA.
-  if (minutos >= HORA_DO_RESUMO && !resumo.data?.enviado_em) {
+  if (
+    minutos >= HORA_DO_RESUMO &&
+    !resumo.data?.enviado_em &&
+    !avisado.has("resumo_pendente")
+  ) {
     alertas.push({
       tipo: "resumo_pendente",
       mensagem:
@@ -180,7 +229,11 @@ export async function checarAlertasDoPosto(
   const anotados = new Set((numeros.data ?? []).map((l) => l.chave));
   const diarios = NUMEROS.filter((n) => n.periodicidade === "diario");
   const faltando = diarios.filter((n) => !anotados.has(n.chave));
-  if (minutos >= HORA_DE_FECHAR && faltando.length > 0) {
+  if (
+    minutos >= HORA_DE_FECHAR &&
+    faltando.length > 0 &&
+    !avisado.has("indicador_vazio")
+  ) {
     alertas.push({
       tipo: "indicador_vazio",
       mensagem:

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildPromptDoPosto, buildClassificacaoDoPosto } from "@/lib/posto/prompt";
 import { estadoDaRotina } from "@/lib/posto/rotina";
 import { limiteDiarioDaMimu, SEM_TETO } from "@/lib/planos";
@@ -192,5 +194,81 @@ describe("a cota da assistente", () => {
     // de todo mundo seria outra decisão, e não é esta.
     expect(Number.isFinite(limiteDiarioDaMimu("free"))).toBe(true);
     expect(limiteDiarioDaMimu("free")).toBeGreaterThan(0);
+  });
+});
+
+describe("os avisos aparecem na hora, e uma vez", () => {
+  const ALERTAS = readFileSync(
+    join(process.cwd(), "lib/posto/alertas.ts"),
+    "utf8",
+  );
+  const MIGRATION = readFileSync(
+    join(
+      process.cwd(),
+      "supabase/migrations/20261015030000_avisos_do_posto_na_hora.sql",
+    ),
+    "utf8",
+  );
+
+  /*
+   * O defeito que isto protege foi sentido assim: "as notificações n estão
+   * funcionando, aaprecem quando elas querem".
+   *
+   * Eram duas coisas ao mesmo tempo. A geração roda quando o app abre, a cada
+   * 30 minutos de app aberto e a cada volta de foco da aba — e os avisos do
+   * posto não tinham travessa, então o MESMO aviso nascia de novo em cada uma
+   * dessas vezes. E nada nascia nos horários da rotina dela, porque o gatilho
+   * era o foco da aba, não o relógio.
+   */
+
+  it("cada tipo de aviso passa pela travessa do dia", () => {
+    for (const tipo of [
+      "bloco_atrasado",
+      "prazo_hoje",
+      "aprovacao_parada",
+      "resumo_pendente",
+      "indicador_vazio",
+    ]) {
+      expect(ALERTAS, tipo).toContain(`!avisado.has("${tipo}")`);
+    }
+  });
+
+  it("o compromisso dedupe por compromisso, não por tipo", () => {
+    // Duas reuniões no mesmo dia são dois avisos: avisar de uma só porque a
+    // outra já avisou seria perder a segunda.
+    expect(ALERTAS).toContain("compromisso_perto:${p.titulo}");
+    expect(ALERTAS).toContain("titulo: proximo.titulo");
+  });
+
+  it("a janela da travessa é o dia de Brasília", () => {
+    // As últimas 24h deixariam um aviso das 23h de ontem bloquear o de hoje.
+    expect(ALERTAS).toContain("inicioDoDiaNoBrasil(agora)");
+  });
+
+  it("a tarefa roda nos seis marcos da rotina, em UTC", () => {
+    // Brasília é UTC-3 e o pg_cron do Supabase roda em UTC: escrever 9:35 no
+    // cron faria o aviso chegar às 6:35 da manhã.
+    for (const agenda of [
+      "35 12 * * 1-5",
+      "50 12 * * 1-5",
+      "5 15 * * 1-5",
+      "50 17 * * 1-5",
+      "5 20 * * 1-5",
+      "50 20 * * 1-5",
+    ]) {
+      expect(MIGRATION, agenda).toContain(agenda);
+    }
+  });
+
+  it("a tarefa não roda no fim de semana", () => {
+    // "Sábado e domingo de casa, quando houver necessidade": cobrar rotina
+    // ali seria cobrar um acordo que não existe.
+    expect(MIGRATION).not.toMatch(/\* \* \*(?!.*1-5)/);
+  });
+
+  it("a tarefa desagenda antes de agendar", () => {
+    // Sem isso, rodar a migration duas vezes criaria duas chamadas no mesmo
+    // minuto — e duas notificações.
+    expect(MIGRATION).toContain("cron.unschedule(marco.nome)");
   });
 });
