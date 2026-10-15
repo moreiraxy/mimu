@@ -170,16 +170,27 @@ export default function DashboardPage() {
       ) : primeiroAcesso ? (
         /* Também sai do néon chapado: um cartão de vidro com a marca em traço
            fino, na mesma linguagem do resto. */
+        /*
+          O CONVITE DEPENDE DE QUEM ABRIU.
+          "registre sua primeira venda?? isso ja n existe mais, muda" — e tinha
+          razão: para quem usa o posto não existe primeira venda para registrar.
+          O primeiro gesto dela é outro: abrir o posto e olhar o dia.
+        */
         <div className="vidro-card rounded-[20px] p-5">
           <p className="text-sm leading-relaxed text-escuro">
-            Bem-vinda, {primeiroNome}! Registre sua primeira venda para a Mimu
-            começar a acompanhar seu negócio.
+            {modulos.includes("posto")
+              ? `Bem-vinda, ${primeiroNome}! Seu dia mora no posto de comando: rotina, o que está em aberto e os seus números.`
+              : `Bem-vinda, ${primeiroNome}! Registre sua primeira venda para a Mimu começar a acompanhar seu negócio.`}
           </p>
           <Link
-            href="/financeiro/nova-entrada"
+            href={
+              modulos.includes("posto") ? "/posto" : "/financeiro/nova-entrada"
+            }
             className="mt-4 inline-flex items-center justify-center rounded-button bg-primary px-4 py-2.5 text-sm font-bold text-primary-text"
           >
-            Registrar primeira venda
+            {modulos.includes("posto")
+              ? "Abrir o posto"
+              : "Registrar primeira venda"}
           </Link>
         </div>
       ) : (

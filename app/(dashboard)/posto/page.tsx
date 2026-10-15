@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { usePosto } from "@/hooks/usePosto";
 import { useAgendamentos } from "@/hooks/useAgendamentos";
+import { useClientes } from "@/hooks/useClientes";
 import { useToast } from "@/hooks/useToast";
 import { PageHeader } from "@/components/PageHeader";
 import { SeletorSegmentado } from "@/components/SeletorSegmentado";
@@ -11,6 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDataComDiaSemana } from "@/lib/formatters";
 import { dataDeHojeNoBrasil } from "@/lib/datas";
 import { ehFimDeSemanaNoBrasil } from "@/lib/posto/rotina";
+import { Widgets } from "./Widgets";
 import { AgoraCard } from "./AgoraCard";
 import { CompromissosCard } from "./CompromissosCard";
 import { RotinaLista } from "./RotinaLista";
@@ -80,6 +82,10 @@ export default function PostoPage() {
   }, [agora]);
 
   const { agendamentos } = useAgendamentos(hojeISO, amanhaISO);
+  // Os leads entram pelos widgets: "parados há 5 dias ou mais" é o estoque de
+  // trabalho da ativação de base, e é o número que decide se aquele bloco de
+  // duas horas e meia tem o que fazer.
+  const { clientes: leads } = useClientes();
   const deHoje = agendamentos.filter((a) => a.data_hora.startsWith(hojeISO));
   const deAmanha = agendamentos.filter((a) => a.data_hora.startsWith(amanhaISO));
 
@@ -125,6 +131,30 @@ export default function PostoPage() {
 
       {aba === "hoje" && (
         <div className="flex flex-col gap-4">
+          {/* Os números de relance, antes de tudo. Tocar num deles rola até a
+              seção que resolve aquele número — ou troca para a aba do
+              dinheiro, no caso do último. */}
+          <Widgets
+            rotina={dados.rotina}
+            pendencias={dados.pendencias}
+            compromissosHoje={deHoje.map((a) => ({
+              horario: new Date(a.data_hora).toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            }))}
+            numeros={dados.numeros}
+            dinheiro={dados.dinheiroDoMes}
+            leads={leads}
+            hoje={hojeISO}
+            irPara={(id) =>
+              document
+                .getElementById(id)
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+            irParaDinheiro={() => setAba("dinheiro")}
+          />
+
           <AgoraCard
             rotina={dados.rotina}
             onMarcar={async (bloco) => {
@@ -133,36 +163,42 @@ export default function PostoPage() {
             }}
           />
 
-          <Pendencias
-            pendencias={dados.pendencias}
-            onCriar={async (nova) => {
-              const ok = await criarPendencia(nova);
-              showToast(ok ? "Anotado." : "Não consegui anotar.");
-              return ok;
-            }}
-            onFechar={async (id) => {
-              const ok = await fecharPendencia(id);
-              if (!ok) showToast("Não consegui concluir.");
-            }}
-          />
+          <div id="aberto">
+            <Pendencias
+              pendencias={dados.pendencias}
+              onCriar={async (nova) => {
+                const ok = await criarPendencia(nova);
+                showToast(ok ? "Anotado." : "Não consegui anotar.");
+                return ok;
+              }}
+              onFechar={async (id) => {
+                const ok = await fecharPendencia(id);
+                if (!ok) showToast("Não consegui concluir.");
+              }}
+            />
+          </div>
 
           <CompromissosCard hoje={deHoje} amanha={deAmanha} />
 
-          <RotinaLista
-            rotina={dados.rotina}
-            onAlternar={async (bloco, feito) => {
-              const ok = await marcarBloco(bloco, feito);
-              if (!ok) showToast("Não consegui salvar.");
-            }}
-          />
+          <div id="rotina">
+            <RotinaLista
+              rotina={dados.rotina}
+              onAlternar={async (bloco, feito) => {
+                const ok = await marcarBloco(bloco, feito);
+                if (!ok) showToast("Não consegui salvar.");
+              }}
+            />
+          </div>
 
-          <NumerosDoDia
-            valores={dados.numeros}
-            onAnotar={async (chave, valor) => {
-              const ok = await anotarNumero(chave, valor);
-              if (!ok) showToast("Não consegui anotar o número.");
-            }}
-          />
+          <div id="numeros">
+            <NumerosDoDia
+              valores={dados.numeros}
+              onAnotar={async (chave, valor) => {
+                const ok = await anotarNumero(chave, valor);
+                if (!ok) showToast("Não consegui anotar o número.");
+              }}
+            />
+          </div>
 
           {/* Fechado até ela querer: é tarefa das 17:45. */}
           {verResumo || dados.resumoDoDia ? (
