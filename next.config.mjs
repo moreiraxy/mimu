@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -99,6 +100,34 @@ const pkg = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
 );
 
+/**
+ * O COMMIT QUE ESTÁ NO AR, lido na hora da compilação.
+ *
+ * POR QUE ISTO EXISTE. "o deploy foi realizado?? aacabei de acessar o app e ta
+ * tudo igual" — e responder isso custava dez minutos de investigação: comparar
+ * o nome de um arquivo compilado, conferir se o service worker publicado era a
+ * versão nova, procurar um endpoint de deploy que a Hostinger não tem. Pior:
+ * o truque do arquivo compilado FALHA quando a mudança é só de tela interna,
+ * porque o arquivo que eu observava não muda.
+ *
+ * Com isto, /api/versao responde em um segundo, para sempre.
+ *
+ * Lido com `git` e não de variável de ambiente porque a Hostinger compila a
+ * partir de um clone do repositório — o `.git` está lá na hora do build. Se
+ * algum dia não estiver, o `catch` devolve "desconhecido" e o build segue: um
+ * número de versão nunca pode derrubar a publicação.
+ */
+function commitDoBuild() {
+  try {
+    return execSync("git rev-parse --short HEAD", {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return "desconhecido";
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -129,6 +158,8 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_VERSAO: pkg.version,
+    NEXT_PUBLIC_COMMIT: commitDoBuild(),
+    NEXT_PUBLIC_BUILD_EM: new Date().toISOString(),
   },
   /*
    * O instrumentation.ts não precisa mais ser pedido: no Next 15 o gancho é

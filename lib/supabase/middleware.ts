@@ -59,6 +59,20 @@ const ROTAS_PUBLICAS_SEM_AUTH = [
   "/api/pagamento/webhook",
   "/api/cron/alertas-diarios",
   "/api/cron/saude",
+  /*
+   * A TAREFA DO POSTO. Faltava, e o efeito seria mudo: o agendador do banco
+   * faz POST sem sessão, o middleware devolveria a página de /login, a tarefa
+   * "rodaria" com sucesso aparente e NENHUM aviso nasceria. Exatamente o
+   * sintoma que esta tarefa foi criada para resolver.
+   *
+   * Ela se protege sozinha pelo segredo no cabeçalho, como as outras duas.
+   */
+  "/api/cron/posto",
+  /*
+   * A versão que está no ar. Pública porque a dúvida "o deploy entrou?"
+   * aparece ANTES do login — e uma resposta que exige sessão não serve.
+   */
+  "/api/versao",
 ];
 
 // Exige login, mas nunca entra no gate de assinatura abaixo — senão
