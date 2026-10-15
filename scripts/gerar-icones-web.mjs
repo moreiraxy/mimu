@@ -57,6 +57,27 @@ for (const [destino, lado] of TAMANHOS) {
   console.log(`${destino} (${lado}px)`);
 }
 
+/*
+ * O BADGE: só o "M", em branco, sobre transparente.
+ *
+ * O Android pinta o badge como MÁSCARA na barra de status: ele usa só o canal
+ * alfa e descarta a cor. Com a placa cheia do ícone normal, o resultado é um
+ * quadrado branco sólido — foi isso que apareceu como "logo antiga" na
+ * notificação, porque nada do desenho sobrevivia à máscara.
+ */
+const SO_O_M = `<svg width="96" height="96" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M106 249.5 L106 143.5 Q106 106 143.75 106 Q181.5 106 193.75 143.5 L256 249.5 L318.25 143.5 Q330.5 106 368.25 106 Q406 106 406 143.5 L406 249.5"
+    stroke="#FFFFFF" stroke-width="46" stroke-linecap="round"
+    stroke-linejoin="round" fill="none"
+  />
+</svg>`;
+await sharp(Buffer.from(SO_O_M), LEITURA)
+  .resize(96, 96)
+  .png()
+  .toFile("public/icons/badge-96.png");
+console.log("public/icons/badge-96.png (96px, só o traço, fundo transparente)");
+
 const arte = await sharp(svg, LEITURA).resize(410, 410).png().toBuffer();
 await sharp({
   create: { width: 512, height: 512, channels: 4, background: FUNDO },

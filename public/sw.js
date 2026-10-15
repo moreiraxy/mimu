@@ -5,7 +5,12 @@
 // preciso subir porque a versão v2 guardou o ícone da marca antiga em modo
 // cache-first, e quem tinha o app instalado continuava vendo o coral na aba
 // mesmo com o arquivo novo no servidor.
-const CACHE_VERSION = "mimu-v3";
+//
+// v4, 15/10/2026, pelo MESMO motivo e com o mesmo sintoma: o ícone virou
+// grafite e a notificação continuava chegando com o néon, porque /icon.svg
+// estava no precache deste worker. "a notificação ainda está aparecendo com a
+// logo antiga" — e estava mesmo, servida daqui.
+const CACHE_VERSION = "mimu-v4";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const PRECACHE_URLS = ["/", "/manifest.webmanifest", "/icon.svg"];
 
@@ -108,8 +113,20 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || "Mimu", {
       body: data.body || "",
-      icon: "/icon.svg",
-      badge: "/icon.svg",
+      /*
+       * PNG, e não SVG.
+       *
+       * Chrome no Android e vários sistemas simplesmente NÃO desenham SVG em
+       * notificação: o ícone some e sobra o símbolo genérico do navegador —
+       * que é o que parece "logo antiga" para quem recebe.
+       *
+       * O badge é outro arquivo de propósito: ele é usado como MÁSCARA na
+       * barra de status (só o alfa conta, a cor é descartada), então a placa
+       * cheia viraria um quadrado branco. badge-96 tem só o traço do "M" sobre
+       * transparente. Ver scripts/gerar-icones-web.mjs.
+       */
+      icon: "/icons/icon-192.png",
+      badge: "/icons/badge-96.png",
       data: { url: data.url || "/dashboard" },
     }),
   );

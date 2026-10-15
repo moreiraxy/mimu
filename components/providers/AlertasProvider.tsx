@@ -42,7 +42,10 @@ function dispararNotificacoes(novos: AlertaMimu[]) {
   for (const alerta of novos) {
     new Notification("Mimu", {
       body: alerta.mensagem ?? "",
-      icon: "/icon.svg",
+      // PNG pelo mesmo motivo do service worker: vários sistemas não desenham
+      // SVG em notificação, e aí aparece o símbolo genérico do navegador no
+      // lugar da marca. Ver public/sw.js.
+      icon: "/icons/icon-192.png",
       tag: alerta.id,
     });
   }

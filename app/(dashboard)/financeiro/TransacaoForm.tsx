@@ -172,7 +172,20 @@ export function TransacaoForm({
       <div>
         <Input
           label="Descrição"
-          placeholder="Ex.: Corte + escova"
+          /*
+           * O EXEMPLO É DO DINHEIRO DE QUEM ESTÁ LANÇANDO.
+           * "os exemplos seguem DESATUALIZADOS" — e seguiam: "Corte + escova"
+           * aparecia tanto para quem recebe participação do CRM quanto para
+           * quem paga a conta do servidor. Exemplo errado é pior que campo
+           * vazio: ele ensina o formato errado.
+           */
+          placeholder={
+            simples
+              ? tipo === "entrada"
+                ? "Ex.: participação de setembro"
+                : "Ex.: servidor da Hostinger"
+              : "Ex.: Corte + escova"
+          }
           value={descricao}
           onChange={(event) => setDescricao(event.target.value)}
           list="sugestoes-descricao"
