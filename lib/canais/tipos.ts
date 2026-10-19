@@ -14,7 +14,15 @@
  */
 
 /** Os canais que existem. Cresce quando entrar a API oficial ou outro. */
-export type Canal = "whatsapp";
+/**
+ * De onde a mensagem chegou.
+ *
+ * "app" entrou em 19/10/2026: a Mimu passou a GRAVAR direto também dentro do
+ * sistema, com a mesma janela de desfazer do WhatsApp (lib/mimu/registro.ts e
+ * a migração 20261019210000). Antes, dentro do app ela só devolvia um cartão
+ * de confirmação — duas cabeças para a mesma frase.
+ */
+export type Canal = "whatsapp" | "app";
 
 /**
  * Uma mensagem que chegou, já sem forma do canal de origem.

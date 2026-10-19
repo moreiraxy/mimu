@@ -2482,8 +2482,8 @@ async function registrarUsoDoChat(userId) {
   await registrarTentativa("chat_ia", userId);
 }
 async function salvarMensagemDaUsuaria(supabase, empresaId, texto, canal = "app") {
-  const { error } = await supabase.from("conversas_mimu").insert({ empresa_id: empresaId, role: "user", content: texto, canal });
-  return !error;
+  const { data, error } = await supabase.from("conversas_mimu").insert({ empresa_id: empresaId, role: "user", content: texto, canal }).select("id").single();
+  return error || !data ? null : data.id;
 }
 async function salvarRespostaDaMimu(supabase, empresaId, conteudo, canal = "app") {
   const { data, error } = await supabase.from("conversas_mimu").insert({

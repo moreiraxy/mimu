@@ -232,3 +232,104 @@ describe("a reversão não abre porta pra outra conta", () => {
     await service.auth.admin.deleteUser(intrusa.user!.id);
   });
 });
+
+/**
+ * A Mimu gravando pelo APP, não só pelo WhatsApp (19/10/2026).
+ *
+ * Pedido dela: "dê autonomia para a IA fazer anotações, criar coisa na agenda
+ * e tudo". Dentro do app ela devolvia um cartão de confirmação; agora grava
+ * pelo mesmo `registrar`, com a mesma janela de desfazer.
+ *
+ * O que estes testes seguram:
+ *
+ *   · o canal "app" é aceito pela linha de reversão. Era `check (canal in
+ *     ('whatsapp'))`, e sem a migração 20261019210000 a escrita gravaria a
+ *     pendência e MORRERIA ao registrar a reversão — autonomia sem volta;
+ *   · pendência pelo app vira linha em posto_pendencias. No app ela nem tinha
+ *     caminho: "lembra de cobrar o Marcos" caía na pergunta genérica "recebeu
+ *     um pagamento, pagou alguma coisa ou quer marcar um horário?".
+ */
+describe("a Mimu grava pelo app (19/10/2026)", () => {
+  function lembrete(descricao: string, comQuem: string | null = null) {
+    return {
+      intencao: "registro",
+      tipo: "pendencia",
+      dados: {
+        valor: null,
+        descricao,
+        cliente: comQuem,
+        tipoPendencia: comQuem ? "cobranca" : "tarefa",
+        data: null,
+        horario: null,
+      },
+    } as ClassificacaoMimu;
+  }
+
+  it("anota o lembrete e aceita o canal app na reversão", async () => {
+    const supabase = comIdentidade(createClientComoUsuario(userId));
+    const { data: msg } = await supabase
+      .from("conversas_mimu")
+      .insert({
+        empresa_id: empresaId,
+        role: "user",
+        content: "lembra de cobrar o relatório do Marcos",
+        canal: "app",
+      })
+      .select("id")
+      .single();
+
+    const feito = await registrar(
+      supabase,
+      empresaId,
+      "app",
+      msg!.id,
+      lembrete("cobrar o relatório", "Marcos"),
+    );
+
+    expect(feito.ok).toBe(true);
+
+    const { data: pendencias } = await supabase
+      .from("posto_pendencias")
+      .select("titulo, com_quem, tipo")
+      .eq("empresa_id", empresaId);
+    expect(pendencias).toEqual([
+      expect.objectContaining({
+        titulo: "cobrar o relatório",
+        com_quem: "Marcos",
+        tipo: "cobranca",
+      }),
+    ]);
+  });
+
+  it("dinheiro lançado pelo app volta com desfazer", async () => {
+    const supabase = comIdentidade(createClientComoUsuario(userId));
+    const { data: msg } = await supabase
+      .from("conversas_mimu")
+      .insert({
+        empresa_id: empresaId,
+        role: "user",
+        content: "entrou 1200 da comissão",
+        canal: "app",
+      })
+      .select("id")
+      .single();
+
+    const feito = await registrar(
+      supabase,
+      empresaId,
+      "app",
+      msg!.id,
+      venda(1200, { descricao: "comissão" }),
+    );
+    expect(feito.ok).toBe(true);
+
+    const desfeita = await desfazerUltima(supabase, empresaId);
+    expect(desfeita.ok).toBe(true);
+
+    const { data } = await supabase
+      .from("transacoes")
+      .select("valor")
+      .eq("empresa_id", empresaId);
+    expect((data ?? []).map((t) => Number(t.valor))).not.toContain(1200);
+  });
+});

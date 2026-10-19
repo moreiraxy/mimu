@@ -21,6 +21,8 @@ import {
   registrarUsoDoChat,
   salvarMensagemDaUsuaria,
 } from "@/lib/mimu/guardas";
+import { registrar } from "@/lib/mimu/registro";
+import { desfazerUltima, pediuParaDesfazer } from "@/lib/mimu/desfazer";
 import {
   buildMimuClassificationPrompt,
   buildMimuSystemPrompt,
@@ -268,13 +270,13 @@ export async function POST(request: Request) {
   }
   await consumirMensagemDaMimu(empresa.id);
 
-  const salvou = await salvarMensagemDaUsuaria(
+  const idDaMensagem = await salvarMensagemDaUsuaria(
     comIdentidade(supabase),
     empresa.id,
     mensagem,
   );
 
-  if (!salvou) {
+  if (!idDaMensagem) {
     return NextResponse.json(
       { error: "Não consegui salvar sua mensagem." },
       { status: 500 },
@@ -287,12 +289,74 @@ export async function POST(request: Request) {
     return responderBloqueado(supabase, empresa.id, mensagem);
   }
 
-  const classificacao = await classificarIntencao(
-    mensagem,
-    (empresa.modulos_ativos ?? []).includes("posto"),
-  );
+  /*
+   * "DESFAZER" VEM ANTES DO CLASSIFICADOR, igual ao WhatsApp.
+   *
+   * É a outra metade da autonomia: a Mimu só pode gravar sozinha porque
+   * desfazer é uma palavra. Duas razões para não passar pelo modelo — é de
+   * graça (comparação de string) e é seguro: mandar "desfazer" para um
+   * classificador abre a chance de ele entender outra coisa justamente na
+   * mensagem que pedia para reverter.
+   */
+  if (pediuParaDesfazer(mensagem)) {
+    const desfeita = await desfazerUltima(comIdentidade(supabase), empresa.id);
+    const resposta = desfeita.ok
+      ? `Pronto, desfiz: ${desfeita.oQueFoiDesfeito}`
+      : desfeita.motivo === "nada_para_desfazer"
+        ? "Não achei nada recente para desfazer. Se foi de mais de um dia atrás, dá para ajustar na tela."
+        : "Não consegui desfazer agora. Tenta de novo em um minuto?";
+    return salvarRespostaSimples(supabase, empresa.id, resposta);
+  }
+
+  const ehPosto = (empresa.modulos_ativos ?? []).includes("posto");
+
+  const classificacao = await classificarIntencao(mensagem, ehPosto);
 
   if (classificacao?.intencao === "registro") {
+    /*
+     * NO POSTO, A MIMU GRAVA. Não pede confirmação.
+     *
+     * Pedido dela (19/10/2026): "dê autonomia para a IA fazer anotações, criar
+     * coisa na agenda e tudo". Pelo WhatsApp já era assim desde o começo
+     * (lib/mimu/registro.ts: grava primeiro, oferece desfazer depois); dentro
+     * do app ela devolvia um cartão "Confirma pra mim:" e ficava esperando um
+     * toque. Duas cabeças para a mesma frase, e a mais burocrática era a do
+     * lugar onde ela está trabalhando.
+     *
+     * É O MESMO `registrar` DO WHATSAPP, de propósito: uma segunda cópia
+     * divergiria no dia em que alguém mexesse numa só.
+     *
+     * E consertou um defeito que estava embaixo do pedido: pendência não tinha
+     * caminho no app. "lembra de cobrar o Marcos" caía na pergunta genérica
+     * ("recebeu um pagamento, pagou alguma coisa ou quer marcar um horário?"),
+     * ou seja, o lembrete não era anotado E ela levava um "não entendi".
+     *
+     * A CONTA DE SALÃO FICA COMO ESTÁ. Lá o cartão de confirmação é o fluxo
+     * conhecido de quem usa, e trocá-lo por escrita automática sem ninguém
+     * pedir seria mudar o produto de outra pessoa.
+     */
+    if (ehPosto) {
+      const feito = await registrar(
+        comIdentidade(supabase),
+        empresa.id,
+        "app",
+        idDaMensagem,
+        classificacao,
+      );
+
+      if (feito.ok) {
+        return salvarRespostaSimples(supabase, empresa.id, feito.recibo);
+      }
+      // Faltou dado ou o nome ficou ambíguo: a pergunta certa já vem pronta,
+      // e nada foi gravado.
+      if (feito.motivo === "incompleto" || feito.motivo === "ambiguo") {
+        return salvarRespostaSimples(supabase, empresa.id, feito.pergunta);
+      }
+      // Falhou de verdade: cai no cartão de confirmação em vez de engolir o
+      // que ela disse.
+      return responderComRegistro(supabase, empresa.id, classificacao);
+    }
+
     const pendencia = identificarPendenciaRegistro(classificacao);
     if (pendencia) {
       return salvarRespostaSimples(supabase, empresa.id, pendencia);

@@ -38,6 +38,15 @@ export type RoleConversa = "user" | "assistant";
 
 /** Por onde a mensagem da conversa passou. Ver a migration 20260901190000. */
 type CanalDaConversa = "app" | "whatsapp";
+
+/**
+ * O canal de uma escrita automática (operacoes_canal, contas_canal).
+ *
+ * "app" entrou em 19/10/2026, quando a Mimu passou a gravar direto dentro do
+ * sistema com janela de desfazer — antes só o WhatsApp fazia isso. Ver a
+ * migração 20261019210000.
+ */
+type CanalDeEscrita = "app" | "whatsapp";
 export type TipoAlerta =
   | "sem_venda"
   | "agendamento_pendente"
@@ -690,7 +699,7 @@ export interface Database {
       operacoes_canal: {
         Row: {
           id: string;
-          canal: "whatsapp";
+          canal: CanalDeEscrita;
           empresa_id: string;
           mensagem_id: string;
           tipo: "entrada" | "saida" | "agendamento";
@@ -703,7 +712,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          canal: "whatsapp";
+          canal: CanalDeEscrita;
           empresa_id: string;
           mensagem_id: string;
           tipo: "entrada" | "saida" | "agendamento";
@@ -725,7 +734,7 @@ export interface Database {
       canal_mensagens: {
         Row: {
           id: string;
-          canal: "whatsapp";
+          canal: CanalDeEscrita;
           mensagem_id: string;
           remetente_mascarado: string;
           empresa_id: string | null;
@@ -737,7 +746,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          canal: "whatsapp";
+          canal: CanalDeEscrita;
           mensagem_id: string;
           remetente_mascarado: string;
           empresa_id?: string | null;

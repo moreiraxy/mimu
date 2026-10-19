@@ -89,17 +89,29 @@ export async function registrarUsoDoChat(userId: string): Promise<void> {
   await registrarTentativa("chat_ia", userId);
 }
 
-/** Guarda a mensagem de quem perguntou. Devolve false se não conseguiu. */
+/**
+ * Guarda a mensagem de quem perguntou. Devolve o id dela, ou null se não deu.
+ *
+ * O ID PASSOU A IMPORTAR em 19/10/2026: quando a Mimu grava sozinha
+ * (lib/mimu/registro.ts), a linha de reversão aponta para a mensagem que
+ * provocou a escrita — é assim que "desfazer" sabe o que desfazer, e é assim
+ * que a mesma mensagem reenviada não grava duas vezes.
+ *
+ * Quem só queria saber se deu certo continua funcionando sem mudar nada: id é
+ * verdadeiro, null é falso.
+ */
 export async function salvarMensagemDaUsuaria(
   supabase: ClientComIdentidade,
   empresaId: string,
   texto: string,
   canal: CanalDaConversa = "app",
-): Promise<boolean> {
-  const { error } = await supabase
+): Promise<string | null> {
+  const { data, error } = await supabase
     .from("conversas_mimu")
-    .insert({ empresa_id: empresaId, role: "user", content: texto, canal });
-  return !error;
+    .insert({ empresa_id: empresaId, role: "user", content: texto, canal })
+    .select("id")
+    .single();
+  return error || !data ? null : data.id;
 }
 
 /**
